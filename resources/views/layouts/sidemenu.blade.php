@@ -42,19 +42,14 @@
 
     <ul class="menu-inner py-1">
         <!-- Dashboards -->
-        <li class="menu-item {{(request()->is('home')) ? 'active' : '' }}">
+        <li class="menu-item {{(request()->is('home') || request()->is('/')) ? 'active' : '' }}">
             <a href="{{ url('/') }}" class="menu-link">
                 <i class="menu-icon icon-base ti tabler-smart-home"></i>
                 <div data-i18n="Dashboards">Dashboards</div>
             </a>
         </li>
-
+        @hasrole('Admin')
         <!-- Apps & Pages -->
-        <li class="menu-header small">
-            <span class="menu-header-text" data-i18n="Apps & Pages">Apps &amp; Pages</span>
-        </li>
-
-
         <li class="menu-item {{(request()->is('users') || request()->is('users/*')) || (request()->is('roles')||request()->is('roles/*')) ? 'open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon icon-base ti tabler-users"></i>
@@ -89,5 +84,32 @@
                 <div data-i18n="Documentation">Documentation</div>
             </a>
         </li>
+        @endhasrole
+        @hasrole('Enquiry Manager')
+        <li class="menu-item {{(request()->is('enquiries') || request()->is('enquiries/*')) ? 'open' : '' }}">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon icon-base ti tabler-users"></i>
+                <div data-i18n="Enquiries">Enquiries</div>
+            </a>
+            <ul class="menu-sub">
+                <li class="menu-item {{(request()->is('enquiries/new')) ? 'active' : '' }}">
+                    <a href="{{ url('enquiries/new') }}" class="menu-link">
+                        <div data-i18n="New Enquiries">New Enquiries</div>
+                    </a>
+                </li>
+                <li class="menu-item {{(request()->is('enquiries/create')) ? 'active' : '' }}">
+                    <a href="{{ url('enquiries/create') }}" class="menu-link">
+                        <div data-i18n="Create Enquiry">Create Enquiry</div>
+                    </a>
+                </li>
+                <li class="menu-item {{(request()->is('enquiries/all-enquiry')) ? 'active' : '' }}">
+                    <a href="{{ url('enquiries/all-enquiries') }}" class="menu-link">
+                        <div data-i18n="All Enquiries">All Enquiries</div>
+                    </a>
+                </li>
+
+            </ul>
+        </li>
+        @endhasrole
     </ul>
 </aside>
