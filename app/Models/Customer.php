@@ -6,5 +6,24 @@ use Illuminate\Database\Eloquent\Model;
 
 class Customer extends Model
 {
-    //
+    protected $fillable = [
+        'company_name',
+        'contact_name',
+        'contact_no',
+        'contact_email',
+        'status',
+    ];
+
+    public function billingaddress()
+    {
+        return $this->hasOne(CustomerAddress::class, 'customer_id', 'id')->where('type', 'billing');
+    }
+    public function siteaddress()
+    {
+        return $this->hasOne(CustomerAddress::class, 'customer_id', 'id')->where('type', 'site');
+    }
+    public function findetails()
+    {
+        return $this->hasOne(CustomerDetails::class, 'customer_id', 'id');
+    }
 }

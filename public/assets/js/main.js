@@ -4,6 +4,8 @@
 
 'use strict';
 
+let assetsPath = "https://neoerp.test/assets/";
+
 window.isRtl = window.Helpers.isRtl();
 window.isDarkStyle = window.Helpers.isDarkStyle();
 let menu,

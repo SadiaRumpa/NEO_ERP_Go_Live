@@ -100,8 +100,15 @@ document.addEventListener('DOMContentLoaded', function (e) {
     let dt_ajax = new DataTable(dt_ajax_table, {
       processing: true,
       ajax: {
-        url: assetsPath + 'json/ajax.php',
-        dataSrc: 'data'
+        url: '/enquiries/all-enquiries', // Ensure Laravel route is correct
+        type: 'GET',
+        dataSrc: function (json) {
+          console.log("Laravel Response:", json); // Debug response
+          if (!json.data) {
+            alert("Invalid JSON response! Check Laravel backend.");
+          }
+          return json.data || []; // Prevents DataTables crash
+        }
       },
       layout: {
         topStart: {
@@ -136,6 +143,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
       }
     });
   }
+
 
   // Column Search
   // --------------------------------------------------------------------

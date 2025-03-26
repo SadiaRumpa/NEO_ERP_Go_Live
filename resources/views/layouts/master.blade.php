@@ -32,6 +32,7 @@
 
     @section('styles')
     <link rel="stylesheet" href="{{asset('assets/vendor/fonts/iconify-icons.css')}}" />
+    <link rel="stylesheet" href="{{asset('assets/vendor/fonts/fontawesome.css')}}" />
 
     <!-- Core CSS -->
     <!-- build:css assets/vendor/css/theme.css  -->
@@ -469,10 +470,13 @@
 
     <!-- Vendors JS -->
     <script src="{{asset('assets/vendor/libs/swiper/swiper.js')}}"></script>
-    <!-- Main JS -->
 
+    <!-- Main JS -->
     <script src="{{asset('assets/js/main.js')}}"></script>
+    
     @show
+
+    
 </body>
 
 </html>

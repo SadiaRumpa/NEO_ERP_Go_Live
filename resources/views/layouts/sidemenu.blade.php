@@ -86,29 +86,17 @@
         </li>
         @endhasrole
         @hasrole('Enquiry Manager')
-        <li class="menu-item {{(request()->is('enquiries') || request()->is('enquiries/*')) ? 'open' : '' }}">
-            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon icon-base ti tabler-users"></i>
+        <li class="menu-item {{(request()->is('enquiries') || request()->is('enquiries/*')) ? 'active' : '' }}">
+            <a href="{{ url('enquiries') }}" class="menu-link">
+                <i class="menu-icon icon-base ti tabler-access-point"></i>
                 <div data-i18n="Enquiries">Enquiries</div>
             </a>
-            <ul class="menu-sub">
-                <li class="menu-item {{(request()->is('enquiries/new')) ? 'active' : '' }}">
-                    <a href="{{ url('enquiries/new') }}" class="menu-link">
-                        <div data-i18n="New Enquiries">New Enquiries</div>
-                    </a>
-                </li>
-                <li class="menu-item {{(request()->is('enquiries/create')) ? 'active' : '' }}">
-                    <a href="{{ url('enquiries/create') }}" class="menu-link">
-                        <div data-i18n="Create Enquiry">Create Enquiry</div>
-                    </a>
-                </li>
-                <li class="menu-item {{(request()->is('enquiries/all-enquiry')) ? 'active' : '' }}">
-                    <a href="{{ url('enquiries/all-enquiries') }}" class="menu-link">
-                        <div data-i18n="All Enquiries">All Enquiries</div>
-                    </a>
-                </li>
-
-            </ul>
+        </li>
+        <li class="menu-item {{(request()->is('customers') || request()->is('customers/*')) ? 'active' : '' }}">
+            <a href="{{ url('customers') }}" class="menu-link">
+                <i class="menu-icon icon-base ti tabler-users"></i>
+                <div data-i18n="Customers">Customers</div>
+            </a>
         </li>
         @endhasrole
     </ul>

@@ -17,12 +17,6 @@ return new class extends Migration
             $table->string('contact_name');
             $table->string('contact_no');
             $table->string('contact_email');
-            $table->text('address');
-            $table->string('city');
-            $table->string('state');
-            $table->string('zip');
-            $table->string('country');
-            $table->text('location')->nullable();
             $table->string('status')->default('active')->comment('active, inactive');
             $table->softDeletes();
             $table->timestamps();

@@ -8,6 +8,7 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Redirect;
 use App\Http\Controllers\EnquiryController;
+use App\Http\Controllers\CustomerController;
 
 Route::get('/', function () {
     return Redirect::to('/login');
@@ -23,4 +24,5 @@ Route::group(['middleware' => ['auth']], function() {
     Route::resource('users', UserController::class);
 
     Route::resource('enquiries', EnquiryController::class);
+    Route::resource('customers', CustomerController::class);
 });
