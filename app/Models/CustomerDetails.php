@@ -8,6 +8,8 @@ class CustomerDetails extends Model
 {
     protected $fillable = [
         'customer_id',
+        'company_name',
+        'registration_number',
         'assets',
         'net_assets',
         'liabilities',

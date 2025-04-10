@@ -8,12 +8,18 @@ class CustomerAddress extends Model
 {
     protected $fillable = [
         'customer_id',
+        'contact_firstname',
+        'contact_lastname',
+        'contact_phone',
+        'contact_email',
         'address',
-        'city',
-        'state',
+        'county',
+        'postcode',
         'country',
-        'zip_code',
         'location',
-        'type'
+        'status',
+        'default',
+        'address_type',
+        'status'
     ];
 }

@@ -82,7 +82,7 @@
                     </div>
                     <!-- /Organize Card -->
 
-                    <!-- Variants -->
+                    <!-- Customers -->
                     <div class="card mb-6 new-customer">
                         <div class="card-header">
                             <h5 class="card-title mb-0">New Customer</h5>
@@ -217,6 +217,20 @@
                                             <div class="row g-6">
                                                 <div class="col-md-6">
                                                     <div class="row">
+                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-billing-person">Billing Person</label>
+                                                        <div class="col-sm-9">
+                                                            <input
+                                                                type="text"
+                                                                class="form-control"
+                                                                id="formtabs-billing-person"
+                                                                placeholder="Jonh Doe"
+                                                                name="billingPerson"
+                                                                aria-label="Jonh Doe" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="row">
                                                         <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-billing-address">Billing Address</label>
                                                         <div class="col-sm-9">
                                                             <input
@@ -290,6 +304,20 @@
                                         <!-- Site Address -->
                                         <div class="tab-pane fade" id="form-tabs-site-address" role="tabpanel">
                                             <div class="row g-6">
+                                                <div class="col-md-6">
+                                                    <div class="row">
+                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-site-person">Site Person</label>
+                                                        <div class="col-sm-9">
+                                                            <input
+                                                                type="text"
+                                                                class="form-control"
+                                                                id="formtabs-site-address"
+                                                                placeholder="John Doe"
+                                                                name="sitePerson"
+                                                                aria-label="John Doe" />
+                                                        </div>
+                                                    </div>
+                                                </div>
                                                 <div class="col-md-6">
                                                     <div class="row">
                                                         <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-site-address">Site Address</label>
@@ -424,7 +452,7 @@
 
                         </div>
                     </div>
-                    <!-- /Variants -->
+                    <!-- /Customers -->
 
                 </div>
                 <!-- /First column -->

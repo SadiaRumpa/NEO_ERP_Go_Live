@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('customer_details', function (Blueprint $table) {
             $table->id();
             $table->foreignId('customer_id')->constrained('customers')->onDelete('cascade');
+            $table->string('company_name');
+            $table->string('registration_number')->nullable();
             $table->double('assets', 15, 2)->default(0);
             $table->double('net_assets', 15, 2)->default(0);
             $table->double('liabilities', 15, 2)->default(0);

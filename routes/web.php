@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\MailTemplateController;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\HomeController;
@@ -22,6 +23,7 @@ Route::group(['middleware' => ['auth']], function() {
     Route::resource('roles', RoleController::class);
     Route::resource('permissions', PermissionController::class);
     Route::resource('users', UserController::class);
+    Route::resource('mailtemplates', MailTemplateController::class);
 
     Route::resource('enquiries', EnquiryController::class);
     Route::resource('customers', CustomerController::class);

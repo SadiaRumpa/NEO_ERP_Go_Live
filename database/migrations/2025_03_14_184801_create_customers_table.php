@@ -14,8 +14,10 @@ return new class extends Migration
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
             $table->string('company_name');
-            $table->string('contact_name');
-            $table->string('contact_no');
+            $table->string('contact_firstname');
+            $table->string('contact_lastname');
+            $table->string('contact_phone');
+            $table->string('contact_mobile');
             $table->string('contact_email');
             $table->string('status')->default('active')->comment('active, inactive');
             $table->softDeletes();

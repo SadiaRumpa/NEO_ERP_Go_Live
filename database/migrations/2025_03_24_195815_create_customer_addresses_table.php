@@ -14,13 +14,19 @@ return new class extends Migration
         Schema::create('customer_addresses', function (Blueprint $table) {
             $table->id();
             $table->foreignId('customer_id')->constrained('customers')->onDelete('cascade');
-            $table->text('address');
-            $table->string('city', 100)->nullable();
-            $table->string('state', 100)->nullable();
-            $table->string('country', 100);
-            $table->string('zip_code', 50)->nullable();
+            $table->string('contact_firstname');
+            $table->string('contact_lastname')->nullable();
+            $table->string('contact_phone')->nullable();
+            $table->string('contact_mobile')->nullable();
+            $table->string('contact_email')->nullable();
+            $table->string('address', 100)->nullable();
+            $table->string('county', 100)->nullable();
+            $table->string('postcode', 50)->nullable();
+            $table->string('country', 100)->nullable();
             $table->text('location')->nullable();
-            $table->string('type')->default('billing')->comment('billing, site');
+            $table->string('status')->default('active')->comment('active, inactive');
+            $table->string('default')->default('no')->comment('yes, no');
+            $table->string('address_type')->default('billing')->comment('billing, site');
             $table->timestamps();
         });
     }

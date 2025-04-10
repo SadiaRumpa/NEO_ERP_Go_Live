@@ -126,10 +126,10 @@
                                         <!-- Compnay Info -->
                                         <div class="tab-pane fade active show" id="form-tabs-company" role="tabpanel">
                                             <div class="row g-6">
-                                                <div class="col-md-6">
+                                                <div class="col-md-12">
                                                     <div class="row">
-                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-user-company">Company</label>
-                                                        <div class="col-sm-9">
+                                                        <label class="col-sm-2 col-form-label text-sm-end" for="formtabs-user-company">Company</label>
+                                                        <div class="col-sm-10">
                                                             <input
                                                                 type="text"
                                                                 id="formtabs-user-company"
@@ -140,17 +140,54 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6">
+                                                <div class="col-md-12">
                                                     <div class="row">
-                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-contact-personname">Contact Person</label>
-                                                        <div class="col-sm-9">
+                                                        <label class="col-sm-2 col-form-label text-sm-end" for="formtabs-contact-personname">Contact Person</label>
+                                                        <div class="col-sm-5">
                                                             <input
                                                                 type="text"
                                                                 class="form-control"
-                                                                id="formtabs-contact-personname"
-                                                                placeholder="John Doe"
-                                                                name="contactPersonName"
-                                                                aria-label="John Doe" />
+                                                                id="formtabs-contact-personfirstname"
+                                                                placeholder="First Name"
+                                                                name="contactPersonFirstName"
+                                                                aria-label="First Name" />
+                                                        </div>
+                                                        <div class="col-sm-5">
+                                                            <input
+                                                                type="text"
+                                                                class="form-control"
+                                                                id="formtabs-contact-personlastname"
+                                                                placeholder="Last Name"
+                                                                name="contactPersonLAstName"
+                                                                aria-label="Last Name" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="row">
+                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-contact-phone">Contact Mobile</label>
+                                                        <div class="col-sm-9">
+                                                            <input
+                                                                type="text"
+                                                                id="formtabs-contact-mobile"
+                                                                class="form-control phone-mask"
+                                                                placeholder="+1 (609) 988-44-11"
+                                                                aria-label="+1 (609) 988-44-11"
+                                                                name="contactMobile" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="row">
+                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-contact-phone">Contact Phone</label>
+                                                        <div class="col-sm-9">
+                                                            <input
+                                                                type="text"
+                                                                id="formtabs-contact-phone"
+                                                                class="form-control phone-mask"
+                                                                placeholder="+1 (609) 988-44-11"
+                                                                aria-label="+1 (609) 988-44-11"
+                                                                name="contactPhone" />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -168,26 +205,36 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6">
-                                                    <div class="row">
-                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-contact-phone">Contact Phone</label>
-                                                        <div class="col-sm-9">
-                                                            <input
-                                                                type="text"
-                                                                id="formtabs-contact-phone"
-                                                                class="form-control phone-mask"
-                                                                placeholder="+1 (609) 988-44-11"
-                                                                aria-label="john.doe@example.com"
-                                                                name="contactPhone" />
-                                                        </div>
-                                                    </div>
-                                                </div>
+
                                             </div>
                                         </div>
 
                                         <!-- Billing Address -->
                                         <div class="tab-pane fade" id="form-tabs-billing-address" role="tabpanel">
                                             <div class="row g-6">
+                                                <div class="col-md-12">
+                                                    <div class="row">
+                                                        <label class="col-sm-2 col-form-label text-sm-end" for="formtabs-contact-personname">Contact Person</label>
+                                                        <div class="col-sm-5">
+                                                            <input
+                                                                type="text"
+                                                                class="form-control"
+                                                                id="formtabs-contact-personfirstname"
+                                                                placeholder="First Name"
+                                                                name="contactPersonFirstName"
+                                                                aria-label="First Name" />
+                                                        </div>
+                                                        <div class="col-sm-5">
+                                                            <input
+                                                                type="text"
+                                                                class="form-control"
+                                                                id="formtabs-contact-personlastname"
+                                                                placeholder="Last Name"
+                                                                name="contactPersonLAstName"
+                                                                aria-label="Last Name" />
+                                                        </div>
+                                                    </div>
+                                                </div>
                                                 <div class="col-md-6">
                                                     <div class="row">
                                                         <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-billing-address">Billing Address</label>
@@ -264,6 +311,29 @@
                                         <!-- Site Address -->
                                         <div class="tab-pane fade" id="form-tabs-site-address" role="tabpanel">
                                             <div class="row g-6">
+                                                <div class="col-md-12">
+                                                    <div class="row">
+                                                        <label class="col-sm-2 col-form-label text-sm-end" for="formtabs-contact-personname">Contact Person</label>
+                                                        <div class="col-sm-5">
+                                                            <input
+                                                                type="text"
+                                                                class="form-control"
+                                                                id="formtabs-contact-personfirstname"
+                                                                placeholder="First Name"
+                                                                name="contactPersonFirstName"
+                                                                aria-label="First Name" />
+                                                        </div>
+                                                        <div class="col-sm-5">
+                                                            <input
+                                                                type="text"
+                                                                class="form-control"
+                                                                id="formtabs-contact-personlastname"
+                                                                placeholder="Last Name"
+                                                                name="contactPersonLAstName"
+                                                                aria-label="Last Name" />
+                                                        </div>
+                                                    </div>
+                                                </div>
                                                 <div class="col-md-6">
                                                     <div class="row">
                                                         <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-site-address">Site Address</label>
@@ -340,6 +410,41 @@
                                         <!-- Account Details -->
                                         <div class="tab-pane fade" id="form-tabs-account" role="tabpanel">
                                             <div class="row g-6">
+                                                <div class="col-md-12">
+                                                    <div class="row">
+                                                        <label class="col-sm-2 col-form-label text-sm-end" for="formtabs-contact-personname">Contact Person</label>
+                                                        <div class="col-sm-5">
+                                                            <input
+                                                                type="text"
+                                                                class="form-control"
+                                                                id="formtabs-contact-personfirstname"
+                                                                placeholder="First Name"
+                                                                name="contactPersonFirstName"
+                                                                aria-label="First Name" />
+                                                        </div>
+                                                        <div class="col-sm-5">
+                                                            <input
+                                                                type="text"
+                                                                class="form-control"
+                                                                id="formtabs-contact-personlastname"
+                                                                placeholder="Last Name"
+                                                                name="contactPersonLAstName"
+                                                                aria-label="Last Name" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <div class="row">
+                                                        <label class="col-sm-2 col-form-label text-sm-end" for="formtabs-assets">Reg. Number</label>
+                                                        <div class="col-sm-10">
+                                                            <input type="text"
+                                                                id="formtabs-assets"
+                                                                name="registration_no"
+                                                                class="form-control"
+                                                                placeholder="0.00" />
+                                                        </div>
+                                                    </div>
+                                                </div>
                                                 <div class="col-md-6">
                                                     <div class="row">
                                                         <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-assets">Assets</label>

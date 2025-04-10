@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('enquiries', function (Blueprint $table) {
             $table->id();
-            $table->string('enquiry_name');
+            $table->string('enquiry_name')->comment('20250604-0001');
             $table->string('slug');
             $table->text('enquiry_description')->nullable();
             $table->foreignId('customer_id')->nullable()->constrained('customers')->onDelete('cascade');

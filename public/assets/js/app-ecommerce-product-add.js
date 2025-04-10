@@ -6,7 +6,7 @@
 //Javascript to handle the e-commerce product add page
 $('.new-customer').hide();
 
-(function () {
+$(function () {
   // Comment editor
 
   const commentEditor = document.querySelector('.enquiry-editor');
@@ -58,7 +58,7 @@ $('.new-customer').hide();
     });
   }
 
-  
+
   // Flatpickr
 
   // Datepicker

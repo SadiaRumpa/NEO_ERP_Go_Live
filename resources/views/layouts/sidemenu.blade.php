@@ -49,6 +49,14 @@
             </a>
         </li>
         @hasrole('Admin')
+        <li class="menu-item {{(request()->is('mailtemplates') || request()->is('mailtemplates/*'))  ? 'active' : '' }}">
+            <a
+                href="{{ url('mailtemplates') }}"
+                class="menu-link">
+                <i class="menu-icon icon-base ti tabler-file-description"></i>
+                <div data-i18n="Mail Templates">Mail Templates</div>
+            </a>
+        </li>
         <!-- Apps & Pages -->
         <li class="menu-item {{(request()->is('users') || request()->is('users/*')) || (request()->is('roles')||request()->is('roles/*')) ? 'open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
