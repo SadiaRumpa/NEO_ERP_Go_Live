@@ -1,0 +1,471 @@
+@extends('layouts.master')
+
+@section('title', 'Enquiry Details')
+
+@section('scripts')
+@parent
+<script src="{{asset('assets/vendor/libs/quill/katex.js')}}"></script>
+<script src="{{asset('assets/vendor/libs/quill/quill.js')}}"></script>
+<script src="{{asset('assets/vendor/libs/select2/select2.js')}}"></script>
+<script src="{{asset('assets/vendor/libs/jquery-repeater/jquery-repeater.js')}}"></script>
+<script src="{{asset('assets/vendor/libs/flatpickr/flatpickr.js')}}"></script>
+<script src="{{asset('assets/vendor/libs/tagify/tagify.js')}}"></script>
+<!-- Vendors JS -->
+<script src="{{asset('assets/vendor/libs/swiper/swiper.js')}}"></script>
+<!-- Page JS -->
+<script src="{{asset('assets/js/ui-carousel.js')}}"></script>
+
+<script>
+    $(function() {
+        // Comment editor
+        const commentEditor = document.querySelector('.enquiry-editor');
+        if (commentEditor) {
+            var quill = new Quill(commentEditor, {
+                modules: {
+                    toolbar: '.enquiry-toolbar'
+                },
+                placeholder: 'Enquiry Description',
+                theme: 'snow'
+            });
+            quill.enable(false);
+        }
+        // Datepicker
+        const date = new Date();
+
+        const productDate = document.querySelector('.product-date');
+
+        if (productDate) {
+            productDate.flatpickr({
+                monthSelectorType: 'static',
+                defaultDate: date
+            });
+        }
+    });
+
+    $(function() {
+        // Select2
+        var select2 = $('.select2');
+        if (select2.length) {
+            select2.each(function() {
+                var $this = $(this);
+                $this.wrap('<div class="position-relative"></div>').select2({
+                    dropdownParent: $this.parent(),
+                    placeholder: $this.data('placeholder') // for dynamic placeholder
+                });
+            });
+        }
+    });
+</script>
+
+<script>
+    function addNotes(enquiryId) {
+        const note = $('#enquiry_note').val();
+
+        if (!note.trim()) {
+            $('#note-message').html('<div class="alert alert-warning">Note cannot be empty.</div>');
+            return;
+        }
+
+        $.ajax({
+            url: "{{ route('enquiry.add-note') }}", // Your Laravel route
+            method: "POST",
+            data: {
+                enquiry_id: enquiryId,
+                note: note,
+                _token: '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                if (response.status === 'success') {
+                    $('#note-message').html('<div class="alert alert-success">' + response.message + '</div>');
+                    $('#enquiry_note').val('');
+                    window.location.reload(); // Reload the page to see the new note
+                } else {
+                    $('#note-message').html('<div class="alert alert-danger">' + response.message + '</div>');
+                }
+            },
+            error: function(xhr) {
+                let message = "Something went wrong.";
+                if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    message = Object.values(xhr.responseJSON.errors).flat().join('<br>');
+                }
+                $('#note-message').html('<div class="alert alert-danger">' + message + '</div>');
+            }
+        });
+    }
+</script>
+
+@endsection
+
+@section('styles')
+@parent
+<link rel="stylesheet" href="{{asset('assets/vendor/libs/quill/typography.css')}}" />
+<link rel="stylesheet" href="{{asset('assets/vendor/libs/quill/katex.css')}}" />
+<link rel="stylesheet" href="{{asset('assets/vendor/libs/quill/editor.css')}}" />
+<link rel="stylesheet" href="{{asset('assets/vendor/libs/select2/select2.css')}}" />
+<link rel="stylesheet" href="{{asset('assets/vendor/libs/flatpickr/flatpickr.css')}}" />
+<link rel="stylesheet" href="{{asset('assets/vendor/libs/tagify/tagify.css')}}" />
+<link rel="stylesheet" href="{{asset('assets/vendor/libs/dropzone/dropzone.css')}}" />
+<link rel="stylesheet" href="{{asset('assets/vendor/libs/swiper/swiper.css')}}" />
+<link rel="stylesheet" href="{{asset('assets/vendor/css/pages/ui-carousel.css')}}" />
+@endsection
+
+@section('content')
+<!-- Content -->
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="app-ecommerce">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-6 row-gap-4">
+            <div class="d-flex flex-column justify-content-center">
+                <h4 class="mb-1">ENQUIRY : {{ $enquiry->enquiry_name }} <span class="badge bg-label-info">{{ $enquiry->enquiry_status }}</span></h4>
+            </div>
+            <div class="d-flex align-content-center flex-wrap gap-4">
+                <div class="d-flex gap-4">
+                    <button class="btn btn-label-danger">REJECT</button>
+                    <button class="btn btn-label-success">SEND LEAD MANAGER</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-6 gy-6">
+            <!-- enquiry column-->
+            <div class="col-12 col-lg-8">
+                <!-- Enquiry Information -->
+                <div class="card mb-6">
+                    <div class="card-header header-elements">
+                        <h5 class="mb-0 me-2">Enquiry information</h5>
+
+                        <div class="card-header-elements ms-auto">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-warning waves-effect waves-light">Edit</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- Description -->
+                        <div class="mb-6">
+                            <label class="mb-1">Description</label>
+                            <div class="form-control p-0">
+                                <div class="enquiry-toolbar border-0 border-bottom">
+                                    <div class="d-flex justify-content-start">
+                                        <span class="ql-formats me-0">
+                                            <button class="ql-bold"></button>
+                                            <button class="ql-italic"></button>
+                                            <button class="ql-underline"></button>
+                                            <button class="ql-list" value="ordered"></button>
+                                            <button class="ql-list" value="bullet"></button>
+                                            <button class="ql-link"></button>
+                                            <button class="ql-image"></button>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="enquiry-editor border-0 pb-6" id="enquiry-description" disabled> {!! $enquiry->enquiry_description !!}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Enquiry Information -->
+                <!-- Enquiry Images -->
+                <div class="card mb-6">
+                    <div class="card-header header-elements">
+                        <h5 class="mb-0 me-2">Enquiry Images</h5>
+
+                        <div class="card-header-elements ms-auto">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-primary waves-effect waves-light">Add More >></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="swiper-gallery">
+                            <div class="swiper gallery-top">
+                                <div class="swiper-wrapper">
+                                    @foreach ($enquiry->enquiryimages as $enim)
+                                    <div class="swiper-slide" style="background-image: url({{ asset('/') }}/{{ $enim->image_path }})">
+                                        {{ $enim->image_caption }}
+                                    </div>
+                                    @endforeach
+                                </div>
+                                <!-- Add Arrows -->
+                                <div class="swiper-button-next swiper-button-white"></div>
+                                <div class="swiper-button-prev swiper-button-white"></div>
+                            </div>
+                            <div class="swiper gallery-thumbs">
+                                <div class="swiper-wrapper">
+                                    @foreach ($enquiry->enquiryimages as $enim)
+                                    <div class="swiper-slide" style="background-image: url({{ asset('/') }}/{{ $enim->image_path }})">
+                                        {{ $enim->image_caption }}
+                                    </div>
+                                    @endforeach
+
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <!-- Enquiry Images -->
+                <!-- Enquiry Notes -->
+                <div class="row mb-6 gy-6">
+                    <div class="col-xl">
+                        <div class="card mb-6">
+                            <div class="card-header header-elements">
+                                <h5 class="mb-0 me-2">Notes</h5>
+                            </div>
+                            <div class="card-body">
+                                <ul class="timeline mb-0">
+                                    @foreach ($enquiry->enquirynotes as $enot)
+                                    <li class="timeline-item ps-6 border-dashed">
+                                        <span class="timeline-indicator-advanced timeline-indicator-success border-0 shadow-none">
+                                            <i class="icon-base ti tabler-circle-check"></i>
+                                        </span>
+                                        <div class="timeline-event ps-1">
+                                            <p class="text-body mb-0">{{ $enot->note }}</p>
+                                        </div>
+                                    </li>
+                                    @endforeach
+                                </ul>
+                                <div class="border-1 border-light border-dashed my-4"></div>
+
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="Make note" id="enquiry_note" aria-label="Note" aria-describedby="button-addon2">
+                                    <button class="btn btn-outline-primary waves-effect" type="button" id="button-addon2" onclick="addNotes({{ $enquiry->id }})">
+                                        <i class="fa-solid fa-paper-plane fa-xl"></i>
+                                    </button>
+                                </div>
+                                <div id="note-message" class="mt-2"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- Enquiry Notes -->
+            </div>
+            <!-- enquiry column -->
+
+            <!-- enquiry location column -->
+            <div class="col-12 col-lg-4">
+                <div class="row mb-6 gy-6">
+                    <div class="col-xl">
+                        <div class="card mb-6">
+                            <div class="card-header header-elements">
+                                <h5 class="mb-0 me-2">Enquiry Location</h5>
+
+                                <div class="card-header-elements ms-auto">
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-warning waves-effect waves-light">Edit</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <ul class="timeline mb-0">
+                                    <li class="timeline-item ps-6 border-dashed">
+                                        <span class="timeline-indicator-advanced timeline-indicator-success border-0 shadow-none">
+                                            <i class="icon-base ti tabler-circle-check"></i>
+                                        </span>
+                                        <div class="timeline-event ps-1">
+                                            <iframe
+                                                width="100%"
+                                                height="450"
+                                                frameborder="0"
+                                                style="border:0"
+                                                referrerpolicy="no-referrer-when-downgrade"
+                                                src="https://www.google.com/maps/embed/v1/place?key={{ config('services.google.maps_api_key') }}&q={{ $enquiry->enquiryaddress->address }}, {{ $enquiry->enquiryaddress->county }}, {{ $enquiry->enquiryaddress->postcode }}+{{ $enquiry->enquiryaddress->address }}, {{ $enquiry->enquiryaddress->county }}, {{ $enquiry->enquiryaddress->country }}"
+                                                allowfullscreen>
+                                            </iframe>
+
+                                        </div>
+                                    </li>
+                                    <li class="timeline-item ps-6 border-0">
+                                        <span class="timeline-indicator-advanced timeline-indicator-primary border-0 shadow-none">
+                                            <i class="icon-base ti tabler-map-pin"></i>
+                                        </span>
+                                        <div class="timeline-event ps-1">
+                                            <div class="timeline-header">
+                                                <small class="text-primary text-uppercase">Enquiry Address</small>
+                                            </div>
+                                            <!-- <h6 class="my-50">Barry Schowalter</h6> -->
+                                            <p class="text-body mb-0">{{ $enquiry->enquiryaddress->address }}, {{ $enquiry->enquiryaddress->county }}, {{ $enquiry->enquiryaddress->postcode }}</p>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-6 gy-6">
+                    <div class="col-xl">
+                        <div class="card h-100">
+                            <div class="card-header d-flex align-items-center justify-content-between">
+                                <div class="card-title mb-0">
+                                    <h5 class="mb-1">Customer details</h5>
+                                </div>
+                                <div class="dropdown">
+                                    <button class="btn btn-text-secondary btn-icon rounded-pill text-body-secondary border-0 me-n1 waves-effect" type="button" id="salesByCountryTabs" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="icon-base ti tabler-dots-vertical icon-22px text-body-secondary"></i>
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="salesByCountryTabs">
+                                        <a class="dropdown-item waves-effect" href="{{ route('customers.edit', $enquiry->customer->id) }}">Update</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="nav-align-top">
+                                    <ul class="nav nav-tabs nav-fill rounded-0 timeline-indicator-advanced" role="tablist">
+                                        <li class="nav-item" role="presentation">
+                                            <button type="button" class="nav-link active waves-effect" role="tab" data-bs-toggle="tab" data-bs-target="#navs-justified-details" aria-controls="navs-justified-new" aria-selected="true">
+                                                Details
+                                            </button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button type="button" class="nav-link waves-effect" role="tab" data-bs-toggle="tab" data-bs-target="#navs-justified-link-billing" aria-controls="navs-justified-link-preparing" aria-selected="false" tabindex="-1">
+                                                Billing
+                                            </button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button type="button" class="nav-link waves-effect" role="tab" data-bs-toggle="tab" data-bs-target="#navs-justified-link-sites" aria-controls="navs-justified-link-shipping" aria-selected="false" tabindex="-1">
+                                                Sites
+                                            </button>
+                                        </li>
+                                    </ul>
+                                    <div class="tab-content border-0 mx-1">
+                                        <div class="tab-pane fade show active" id="navs-justified-details" role="tabpanel">
+                                            <ul class="timeline mb-0">
+                                                <li class="timeline-item ps-6 border-dashed">
+                                                    <span class="timeline-indicator-advanced timeline-indicator-success border-0 shadow-none">
+                                                        <i class="icon-base ti tabler-circle-check"></i>
+                                                    </span>
+                                                    <div class="timeline-event ps-1">
+                                                        <div class="timeline-header">
+                                                            <small class="text-success text-uppercase">{{ $enquiry->customer->company_name }}</small>
+                                                        </div>
+                                                        <h6 class="my-50">
+                                                            <span class="fw-medium">Contact: </span><span>{{ $enquiry->customer->contact_firstname }}</span> <span>{{ $enquiry->customer->contact_lastname }}</span>
+                                                        </h6>
+
+                                                        <p class="text-body mb-0">
+                                                            <span class="text-heading fw-medium">eMail: </span> <span>{{ $enquiry->customer->contact_email }}</span> <br>
+                                                            <span class="text-heading fw-medium">Phone: </span> <span>{{ $enquiry->customer->contact_phone }}</span> <br>
+                                                            <span class="text-heading fw-medium">Address: </span> <span>{{ $enquiry->customer->contact_mobile }}</span> <br>
+                                                        </p>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                            <div class="border-1 border-light border-dashed my-4"></div>
+
+                                            <ul class="timeline mb-0">
+                                                <li class="timeline-item ps-6 border-dashed">
+                                                    <span class="timeline-indicator-advanced timeline-indicator-success border-0 shadow-none">
+                                                        <i class="icon-base ti tabler-circle-check"></i>
+                                                    </span>
+                                                    <div class="timeline-event ps-1">
+                                                        <div class="timeline-header">
+                                                            <small class="text-success text-uppercase">
+                                                                {{ $enquiry->customer->findetails->company_name ?? 'N/A' }}
+                                                            </small>
+                                                            <small class="text-success text-uppercase">
+                                                                Reg No.: {{ $enquiry->customer->findetails->company_registration_number ?? 'N/A' }}
+                                                            </small>
+                                                        </div>
+                                                        <p class="text-body mb-0">
+                                                            <span class="text-heading fw-medium">Assets: </span> <span>{{ $enquiry->customer->findetails->assets ?? 'N/A' }}</span> <br>
+                                                            <span class="text-heading fw-medium">Net Assets: </span> <span>{{ $enquiry->customer->findetails->net_assets ?? 'N/A' }}</span> <br>
+                                                            <span class="text-heading fw-medium">Liabilities: </span> <span>{{ $enquiry->customer->findetails->liabilities ?? 'N/A' }}</span> <br>
+                                                            <span class="text-heading fw-medium">Cash in Bank: </span> <span>{{ $enquiry->customer->findetails->cash_in_bank ?? 'N/A' }}</span> <br>
+                                                        </p>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div class="tab-pane fade" id="navs-justified-link-billing" role="tabpanel">
+                                            @isset($enquiry->customer->enquirysiteaddress)
+                                            <ul class="timeline mb-0">
+                                                <li class="timeline-item ps-6 border-dashed">
+                                                    <span class="timeline-indicator-advanced timeline-indicator-success border-0 shadow-none">
+                                                        <i class="icon-base ti tabler-circle-check"></i>
+                                                    </span>
+                                                    <div class="timeline-event ps-1">
+                                                        <div class="timeline-header">
+                                                            <small class="text-success text-uppercase">{{ $enquiry->customer->enquirybillingaddress->contact_firstname ?? 'N/A' }} {{ $enquiry->customer->enquirybillingaddress->contact_lastname ?? 'N/A' }}</small>
+                                                        </div>
+                                                        <p class="text-body mb-0">
+                                                            <span class="text-heading fw-medium">eMail: </span> <span>{{ $enquiry->customer->enquirybillingaddress->contact_email ?? 'N/A' }}</span> <br>
+                                                            <span class="text-heading fw-medium">Phone: </span> <span>{{ $enquiry->customer->enquirybillingaddress->contact_phone ?? 'N/A' }}</span> <br>
+                                                            <span class="text-heading fw-medium">Mobile: </span> <span>{{ $enquiry->customer->enquirybillingaddress->contact_mobile ?? 'N/A' }}</span> <br>
+                                                        </p>
+                                                    </div>
+                                                </li>
+                                                <li class="timeline-item ps-6 border-0">
+                                                    <span class="timeline-indicator-advanced timeline-indicator-primary border-0 shadow-none">
+                                                        <i class="icon-base ti tabler-map-pin"></i>
+                                                    </span>
+                                                    <div class="timeline-event ps-1">
+                                                        <div class="timeline-header">
+                                                            <small class="text-primary text-uppercase">Billing Address</small>
+                                                        </div>
+                                                        <h6 class="my-50">
+                                                            <span class="fw-medium">Address: </span><span>{{ $enquiry->customer->enquirybillingaddress->address ?? 'N/A' }}</span> <br>
+                                                            <span class="fw-medium">County: </span><span>{{ $enquiry->customer->enquirybillingaddress->county ?? 'N/A' }}</span> <br>
+                                                            <span class="fw-medium">Postcode: </span><span>{{ $enquiry->customer->enquirybillingaddress->postcode ?? 'N/A' }}</span> <br>
+                                                            <span class="fw-medium">Country: </span><span>{{ $enquiry->customer->enquirybillingaddress->country ?? 'N/A' }}</span> <br>
+                                                        </h6>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                            @endisset
+                                        </div>
+                                        <div class="tab-pane fade" id="navs-justified-link-sites" role="tabpanel">
+                                            @isset($enquiry->customer->enquirysiteaddress)
+                                            @foreach ($enquiry->customer->enquirysiteaddress as $site)
+                                            <ul class="timeline mb-0">
+                                                <li class="timeline-item ps-6 border-dashed">
+                                                    <span class="timeline-indicator-advanced timeline-indicator-success border-0 shadow-none">
+                                                        <i class="icon-base ti tabler-circle-check"></i>
+                                                    </span>
+                                                    <div class="timeline-event ps-1">
+                                                        <div class="timeline-header">
+                                                            <small class="text-success text-uppercase">{{ $site->contact_firstname ?? 'N/A' }} {{ $site->contact_lastname ?? 'N/A' }}</small>
+                                                        </div>
+                                                        <p class="text-body mb-0">
+                                                            <span class="text-heading fw-medium">eMail: </span> <span>{{ $site->contact_email ?? 'N/A' }}</span> <br>
+                                                            <span class="text-heading fw-medium">Phone: </span> <span>{{ $site->contact_phone ?? 'N/A' }}</span> <br>
+                                                            <span class="text-heading fw-medium">Mobile: </span> <span>{{ $site->contact_mobile ?? 'N/A' }}</span> <br>
+                                                        </p>
+                                                    </div>
+                                                </li>
+                                                <li class="timeline-item ps-6 border-0">
+                                                    <span class="timeline-indicator-advanced timeline-indicator-primary border-0 shadow-none">
+                                                        <i class="icon-base ti tabler-map-pin"></i>
+                                                    </span>
+                                                    <div class="timeline-event ps-1">
+                                                        <div class="timeline-header">
+                                                            <small class="text-primary text-uppercase">Billing Address</small>
+                                                        </div>
+                                                        <h6 class="my-50">
+                                                            <span class="fw-medium">Address: </span><span>{{ $site->address ?? 'N/A' }}</span> <br>
+                                                            <span class="fw-medium">County: </span><span>{{ $site->county ?? 'N/A' }}</span> <br>
+                                                            <span class="fw-medium">Postcode: </span><span>{{ $site->postcode ?? 'N/A' }}</span> <br>
+                                                            <span class="fw-medium">Country: </span><span>{{ $site->country ?? 'N/A' }}</span> <br>
+                                                        </h6>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                            @endforeach
+                                            @endisset
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <!-- /Third column -->
+        </div>
+
+
+
+    </div>
+</div>
+<!-- / Content -->
+
+@endsection

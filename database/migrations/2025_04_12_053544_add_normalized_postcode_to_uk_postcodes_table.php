@@ -11,17 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('locations', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::table('uk_postcodes', function (Blueprint $table) {
+            $table->string('normalized_postcode')->index()->nullable();
         });
     }
+    
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('locations');
+        Schema::table('uk_postcodes', function (Blueprint $table) {
+            $table->dropColumn('normalized_postcode');
+        });
     }
 };

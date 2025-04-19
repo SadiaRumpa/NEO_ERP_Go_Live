@@ -10,6 +10,7 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Redirect;
 use App\Http\Controllers\EnquiryController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\GlobalController;
 
 Route::get('/', function () {
     return Redirect::to('/login');
@@ -18,6 +19,9 @@ Route::get('/', function () {
 Auth::routes();
   
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/query', [GlobalController::class, 'query'])->name('query');
+Route::get('/checkpostcode/{key}', [GlobalController::class, 'checkPostCode'])->name('query.checkpostcode');
+Route::post('/submit-query', [GlobalController::class, 'storeQuery'])->name('query.submit');
   
 Route::group(['middleware' => ['auth']], function() {
     Route::resource('roles', RoleController::class);
@@ -26,5 +30,6 @@ Route::group(['middleware' => ['auth']], function() {
     Route::resource('mailtemplates', MailTemplateController::class);
 
     Route::resource('enquiries', EnquiryController::class);
+    Route::post('enquiries/add-note', [EnquiryController::class, 'enqueryNotes'])->name('enquiry.add-note');
     Route::resource('customers', CustomerController::class);
 });

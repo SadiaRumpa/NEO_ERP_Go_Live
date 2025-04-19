@@ -6,8 +6,10 @@ use App\Models\Customer;
 use App\Models\CustomerAddress;
 use App\Models\CustomerDetails;
 use App\Models\Enquiry;
+use App\Models\EnquiryNote;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Auth;
 
 class EnquiryController extends Controller
 {
@@ -18,12 +20,24 @@ class EnquiryController extends Controller
     {
         if ($request->ajax()) {
 
-            $data = Enquiry::select('*');
+            $data = Enquiry::with(['customer', 'enquiryaddress'])->select('*')->orderByDesc('created_at');
 
             return Datatables::of($data)
                 ->addIndexColumn()
+                ->addColumn('company_name', function ($row) {
+                    return $row->customer->company_name;
+                })
+                ->addColumn('customer_name', function ($row) {
+                    return $row->customer->contact_firstname . ' ' . $row->customer->contact_lastname;
+                })
+                ->addColumn('customer_email', function ($row) {
+                    return $row->customer->contact_email;
+                })
+                ->addColumn('customer_phone', function ($row) {
+                    return $row->customer->contact_phone;
+                })
                 ->addColumn('action', function ($row) {
-                    $btn = '<a href="javascript:void(0)" class="edit btn btn-primary btn-sm">Details</a>';
+                    $btn = '<a href="enquiries/' . $row->slug . '" class="edit btn btn-primary btn-sm">Details</a>';
                     return $btn;
                 })
                 ->rawColumns(['action'])
@@ -97,18 +111,17 @@ class EnquiryController extends Controller
             $customerdetails->liabilities = $request->liabilities ?? 0;
             $customerdetails->cash_in_bank = $request->cashInBank ?? 0;
             $customerdetails->save();
-        } else{
+        } else {
             $customerid = $request->customer_id;
-            
+
             $enquiry = new Enquiry();
             $enquiry->enquiry_name = generateEnquiryName();
             $enquiry->enquiry_description = $request->enquirydescription;
             $enquiry->customer_id = $customerid;
-
         }
 
 
-        
+
 
         return redirect()->route('enquiries.index')
             ->with('success', 'Enquiry created successfully.');
@@ -117,9 +130,15 @@ class EnquiryController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $key)
     {
-        //
+        $enquiry = Enquiry::with(['customer', 'enquiryaddress', 'enquiryimages', 'enquirynotes'])->where('slug', $key)->first();
+
+        if (!$enquiry) {
+            return redirect()->route('enquiries.index')->with('error', 'Enquiry not found.');
+        }
+
+        return view('enquiries.show', compact('enquiry'));
     }
 
     /**
@@ -144,5 +163,27 @@ class EnquiryController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function enqueryNotes(Request $request)
+    {
+        $validated = $request->validate([
+            'enquiry_id' => 'required|exists:enquiries,id',
+            'note'       => 'required|string',
+        ]);
+
+        $enquirynote = EnquiryNote::create([
+            'enquiry_id'  => $validated['enquiry_id'],
+            'note_by'     => Auth::id(),
+            'note'        => $validated['note'],
+            'note_type'   => 'internal',
+            'note_status' => 'active',
+        ]);
+
+        if ($enquirynote) {
+            return response()->json(['status' => 'success', 'message' => 'Enquiry note added successfully.']);
+        }
+
+        return response()->json(['status' => 'error', 'message' => 'Failed to add enquiry note.']);
     }
 }

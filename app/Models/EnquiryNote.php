@@ -6,5 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class EnquiryNote extends Model
 {
-    //
+    protected $fillable = [
+        'enquiry_id',
+        'note',
+        'note_by',
+        'note_type',
+        'note_status'
+    ];
 }

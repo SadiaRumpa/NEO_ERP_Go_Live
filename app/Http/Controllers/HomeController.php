@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Enquiry;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -38,6 +39,10 @@ class HomeController extends Controller
     }
     public function enquiryManagerDashboard()
     {
-        return view('dashboards.enquiry_manager');
+        $newEnquiries = Enquiry::with(['enquiryaddress', 'customer'])
+            ->where('enquiry_status', 'new')->orderByDesc('created_at')->limit(5)->get();
+        return view('dashboards.enquiry_manager')->with([
+            'newEnquiries' => $newEnquiries,
+        ]);
     }
 }

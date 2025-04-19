@@ -100,14 +100,12 @@
         <div class="col-md-12 col-12">
             <div class="card h-100">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title m-0 me-2">New Enquiries</h5>
+                    <h5 class="card-title m-0 me-2">Enquiries</h5>
 
-                    <button
-                        class="btn rounded-pill btn-warning waves-effect waves-light"
-                        type="button">
+                    <a href="{{ route('enquiries.index') }}"
+                        class="btn rounded-pill btn-primary waves-effect waves-light">
                         SEE ALL >>
-                    </button>
-
+                    </a>
 
                 </div>
                 <div class="table-responsive">
@@ -116,57 +114,39 @@
                             <tr>
                                 <th>DATE</th>
                                 <th>LEAD FROM</th>
-                                <th>TOWN</th>
                                 <th>COMPANY</th>
+                                <th>ADDRESS</th>
                                 <th>CONTACT</th>
                                 <th>ACTION</th>
                             </tr>
                         </thead>
                         <tbody>
+                            @foreach ($newEnquiries as $neq)
                             <tr>
                                 <td class="pt-5">
                                     <div class="d-flex flex-column">
-                                        <p class="mb-0 text-heading">Sent</p>
-                                        <small class="text-body text-nowrap">1 Mar 2025</small>
+                                        <small class="text-body text-nowrap">{{ \Carbon\Carbon::parse($neq->created_at)->format('j F Y') }}</small>
+                                        <span class="badge rounded-pill bg-label-info">{{ $neq->enquiry_status }}</span>
                                     </div>
                                 </td>
-                                <td class="pt-5"><span class="badge bg-label-success">https://coventryindustrialroofing.co.uk/</span></td>
+                                <td class="pt-5"><span class="badge bg-label-success">{{ $neq->enquiry_source }} </span></td>
+                                
                                 <td class="pt-5">
-                                    <p class="mb-0 text-heading">Brighton</p>
+                                    <p class="mb-0 text-heading">{{ $neq->customer->company_name }} </p>
                                 </td>
                                 <td class="pt-5">
-                                    <p class="mb-0 text-heading">ABC COMPANY</p>
+                                    <p class="mb-0 text-heading">{{ $neq->enquiryaddress->address }}, {{ $neq->enquiryaddress->county }} {{ $neq->enquiryaddress->postcode }}</p>
                                 </td>
                                 <td class="pt-5">
-                                    <p class="mb-0 text-heading">Malcom X</p>
-                                    <p class="mb-0 text-heading">8088484848</p>
+                                    <p class="mb-0 text-heading">{{ $neq->customer->contact_firstname }} {{ $neq->customer->contact_lastname }}</p>
+                                    <p class="mb-0 text-heading"> <i class="fa-solid fa-phone"></i> {{ $neq->customer->contact_phone }}</p>
                                 </td>
                                 <td class="pt-5">
-                                    <a href="javascript:void(0);" class="btn btn-xs rounded-pill btn-label-info waves-effect">REVIEW</a>
+                                    <a href="{{ route('enquiries.show', $neq->slug) }}" class="btn btn-sm btn-dark waves-effect waves-light">REVIEW</a>
                                 </td>
                             </tr>
-                            <tr>
-                                <td>
-                                    <div class="d-flex flex-column">
-                                        <p class="mb-0 text-heading">Sent</p>
-                                        <small class="text-body text-nowrap">1 Mar 2025</small>
-                                    </div>
-                                </td>
-                                <td><span class="badge bg-label-success">https://coventryindustrialroofing.co.uk/</span></td>
-                                <td>
-                                    <p class="mb-0 text-heading">Brighton</p>
-                                </td>
-                                <td>
-                                    <p class="mb-0 text-heading">ABC COMPANY</p>
-                                </td>
-                                <td>
-                                    <p class="mb-0 text-heading">Malcom X</p>
-                                    <p class="mb-0 text-heading">8088484848</p>
-                                </td>
-                                <td class="pt-5">
-                                    <a href="javascript:void(0);" class="btn btn-xs rounded-pill btn-label-info waves-effect">REVIEW</a>
-                                </td>
-                            </tr>
+                            @endforeach
+
                         </tbody>
                     </table>
                 </div>

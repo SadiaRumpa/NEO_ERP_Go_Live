@@ -207,8 +207,9 @@ class CustomerController extends Controller
                 $customerdetails->save();
             }
         }
-        return redirect()->route('customers.edit', $id)
-            ->with('success', 'Customer updated successfully.');
+        return redirect()->back()->with('success', 'Customer updated successfully.');
+        // return redirect()->route('customers.edit', $id)
+        //     ->with('success', 'Customer updated successfully.');
     }
 
     /**

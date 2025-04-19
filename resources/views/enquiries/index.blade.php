@@ -29,19 +29,29 @@
                 },
                 {
                     data: 'created_at',
-                    name: 'created_at'
+                    name: 'created_at',
+                    render: function(data, type, row) {
+                        return moment(data).format('DD/MM/YYYY');
+                    }
                 },
                 {
-                    data: 'customer_id',
-                    name: 'customer_id'
+                    data: 'customer_name',
+                    name: 'customer_name',
+                    render: function(data, type, row) {
+                        return '<strong>' + row.company_name + '</strong>' + '<br>' + row.customer_name + '<br>' + row.customer_email + '<br>' + row.customer_phone;
+                    }
                 },
                 {
-                    data: 'enquiry_name',
-                    name: 'enquiry_name'
+                    data: 'enquiry_description',
+                    name: 'enquiry_description'
                 },
                 {
                     data: 'enquiry_source',
                     name: 'enquiry_source'
+                },
+                {
+                    data: 'enquiry_status',
+                    name: 'enquiry_status'
                 },
                 {
                     data: 'action',
@@ -78,9 +88,9 @@
             <h4 class="mb-1">Enquiries</h4>
         </div>
         <div class="d-flex align-content-center flex-wrap gap-4">
-            
+
             <a href="{{ url('enquiries/create') }}" class="btn btn-primary">
-                <i class="fa-solid fa-plus me-1_5"></i> 
+                <i class="fa-solid fa-plus me-1_5"></i>
                 New Enquiry
             </a>
             <div class="d-flex gap-4">
@@ -99,6 +109,7 @@
                         <th>COMPANY INFO</th>
                         <th>ENQUIRY</th>
                         <th>SOURCE</th>
+                        <th>STATUS</th>
                         <th>ACTION</th>
                     </tr>
                 </thead>

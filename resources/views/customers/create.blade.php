@@ -237,6 +237,48 @@
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="row">
+                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-contact-phone">Contact Mobile</label>
+                                                        <div class="col-sm-9">
+                                                            <input
+                                                                type="text"
+                                                                id="formtabs-contact-mobile"
+                                                                class="form-control phone-mask"
+                                                                placeholder="+1 (609) 988-44-11"
+                                                                aria-label="+1 (609) 988-44-11"
+                                                                name="contactMobile" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="row">
+                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-contact-phone">Contact Phone</label>
+                                                        <div class="col-sm-9">
+                                                            <input
+                                                                type="text"
+                                                                id="formtabs-contact-phone"
+                                                                class="form-control phone-mask"
+                                                                placeholder="+1 (609) 988-44-11"
+                                                                aria-label="+1 (609) 988-44-11"
+                                                                name="contactPhone" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="row">
+                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-contact-email">Contact email</label>
+                                                        <div class="col-sm-9">
+                                                            <input
+                                                                type="text"
+                                                                id="formtabs-contact-email"
+                                                                class="form-control"
+                                                                placeholder="john.doe@example.com"
+                                                                aria-label="john.doe@example.com"
+                                                                name="contactEmail" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="row">
                                                         <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-billing-address">Billing Address</label>
                                                         <div class="col-sm-9">
                                                             <input
@@ -249,44 +291,18 @@
                                                         </div>
                                                     </div>
                                                 </div>
+                                                
                                                 <div class="col-md-6">
                                                     <div class="row">
-                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-billing-city">City</label>
-                                                        <div class="col-sm-9">
-                                                            <select id="formtabs-billing-city" class="form-select" name="billingCity">
-                                                                <option value="">Select</option>
-                                                                <option value="london">London</option>
-                                                                <option value="birmingham">Birmingham</option>
-                                                                <option value="portsmouth">Portsmouth</option>
-                                                                <option value="southampton">Southampton</option>
-                                                                <option value="nottingham">Nottingham</option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="row">
-                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-billing-state">State</label>
+                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-billing-county">County</label>
                                                         <div class="col-sm-9">
                                                             <input
                                                                 type="text"
                                                                 class="form-control"
-                                                                id="formtabs-billing-state"
+                                                                id="formtabs-billing-county"
                                                                 placeholder="Birmingham"
-                                                                name="billingState"
+                                                                name="billingcounty"
                                                                 aria-label="Birmingham" />
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="row">
-                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-billing-country">Country</label>
-                                                        <div class="col-sm-9">
-                                                            <select id="formtabs-billing-country" class="select2 form-select" data-allow-clear="true" name="billingCountry">
-                                                                <option value="">Select</option>
-                                                                <option value="United Kingdom">United Kingdom</option>
-                                                                <option value="United States">United States</option>
-                                                            </select>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -304,6 +320,17 @@
                                                         </div>
                                                     </div>
                                                 </div>
+                                                <div class="col-md-6">
+                                                    <div class="row">
+                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-billing-country">Country</label>
+                                                        <div class="col-sm-9">
+                                                            <select id="formtabs-billing-country" class="select2 form-select" data-allow-clear="true" name="billingCountry" disabled>
+                                                                <option value="United Kingdom">United Kingdom</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
 
                                             </div>
                                         </div>
@@ -336,6 +363,48 @@
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="row">
+                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-contact-phone">Contact Mobile</label>
+                                                        <div class="col-sm-9">
+                                                            <input
+                                                                type="text"
+                                                                id="formtabs-contact-mobile"
+                                                                class="form-control phone-mask"
+                                                                placeholder="+1 (609) 988-44-11"
+                                                                aria-label="+1 (609) 988-44-11"
+                                                                name="contactMobile" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="row">
+                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-contact-phone">Contact Phone</label>
+                                                        <div class="col-sm-9">
+                                                            <input
+                                                                type="text"
+                                                                id="formtabs-contact-phone"
+                                                                class="form-control phone-mask"
+                                                                placeholder="+1 (609) 988-44-11"
+                                                                aria-label="+1 (609) 988-44-11"
+                                                                name="contactPhone" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="row">
+                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-contact-email">Contact email</label>
+                                                        <div class="col-sm-9">
+                                                            <input
+                                                                type="text"
+                                                                id="formtabs-contact-email"
+                                                                class="form-control"
+                                                                placeholder="john.doe@example.com"
+                                                                aria-label="john.doe@example.com"
+                                                                name="contactEmail" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="row">
                                                         <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-site-address">Site Address</label>
                                                         <div class="col-sm-9">
                                                             <input
@@ -348,47 +417,7 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6">
-                                                    <div class="row">
-                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-site-city">City</label>
-                                                        <div class="col-sm-9">
-                                                            <select id="formtabs-site-city" class="form-select" name="siteCity">
-                                                                <option value="">Select</option>
-                                                                <option value="london">London</option>
-                                                                <option value="birmingham">Birmingham</option>
-                                                                <option value="portsmouth">Portsmouth</option>
-                                                                <option value="southampton">Southampton</option>
-                                                                <option value="nottingham">Nottingham</option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="row">
-                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-site-state">State</label>
-                                                        <div class="col-sm-9">
-                                                            <input
-                                                                type="text"
-                                                                class="form-control"
-                                                                id="formtabs-site-state"
-                                                                placeholder="Birmingham"
-                                                                name="siteState"
-                                                                aria-label="Birmingham" />
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="row">
-                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-site-country">Country</label>
-                                                        <div class="col-sm-9">
-                                                            <select id="formtabs-site-country" name="siteCountry" class="select2 form-select" data-allow-clear="true">
-                                                                <option value="">Select</option>
-                                                                <option value="United Kingdom">United Kingdom</option>
-                                                                <option value="United States">United States</option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                </div>
+
                                                 <div class="col-md-6">
                                                     <div class="row">
                                                         <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-site-postcode">Postcode</label>
@@ -403,7 +432,32 @@
                                                         </div>
                                                     </div>
                                                 </div>
-
+                                                
+                                                <div class="col-md-6">
+                                                    <div class="row">
+                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-site-county">County</label>
+                                                        <div class="col-sm-9">
+                                                            <input
+                                                                type="text"
+                                                                class="form-control"
+                                                                id="formtabs-site-county"
+                                                                placeholder="Birmingham"
+                                                                name="sitecounty"
+                                                                aria-label="Birmingham" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="row">
+                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-site-country">Country</label>
+                                                        <div class="col-sm-9">
+                                                            <select id="formtabs-site-country" name="siteCountry" class="select2 form-select" data-allow-clear="true" disabled>
+                                                                <option value="uk">United Kingdom</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
                                             </div>
                                         </div>
 
