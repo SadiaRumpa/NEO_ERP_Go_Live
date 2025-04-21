@@ -60,7 +60,18 @@ class MailTemplateController extends Controller
         }
         return view('mailtemplates.show', compact('mailTemplate'));
     }
-    
+
+
+    public function showmailtemplate($id)
+    {
+        $template = MailTemplate::findOrFail($id);
+
+        return response()->json([
+            'message' => $template->body, // adjust according to your DB field
+        ]);
+    }
+
+
 
     /**
      * Show the form for editing the specified resource.

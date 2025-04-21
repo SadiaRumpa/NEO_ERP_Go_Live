@@ -14,11 +14,15 @@
 <!-- Page JS -->
 <script>
     $('.new-customer').hide();
+
     $(function() {
         // Comment editor
         const commentEditor = document.querySelector('.enquiry-editor');
+        const hiddenInput = document.getElementById('enquirydescription_input');
+        let quill;
+
         if (commentEditor) {
-            new Quill(commentEditor, {
+            quill = new Quill(commentEditor, {
                 modules: {
                     toolbar: '.enquiry-toolbar'
                 },
@@ -26,6 +30,18 @@
                 theme: 'snow'
             });
         }
+
+        // Sync Quill content on form submit
+        $('form').on('submit', function() {
+            if (quill) {
+                const html = quill.root.innerHTML.trim();
+                if (html === '<p><br></p>') {
+                    hiddenInput.value = '';
+                } else {
+                    hiddenInput.value = html;
+                }
+            }
+        });
     });
 </script>
 <script>
@@ -113,7 +129,23 @@
 <!-- Content -->
 <div class="container-xxl flex-grow-1 container-p-y">
     <div class="app-ecommerce">
-        <form action="{{ route('enquiries.store') }}" method="POST">
+        @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
+        @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+        @endif
+
+
+        <form action="{{ route('enquiries.store') }}" method="POST" enctype="multipart/form-data" class="row g-6">
             @csrf
             <div
                 class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-6 row-gap-4">
@@ -325,7 +357,7 @@
                                                                 class="form-control"
                                                                 id="formtabs-contact-personlastname"
                                                                 placeholder="Last Name"
-                                                                name="billingContactLstName"
+                                                                name="billingContactLastName"
                                                                 aria-label="Last Name" />
                                                         </div>
                                                     </div>
@@ -413,8 +445,7 @@
                                                             placeholder="United Kingdom"
                                                             name="billingCountry"
                                                             aria-label="United Kingdom"
-                                                            value="United Kingdom" />
-
+                                                            value="United Kingdom" disabled />
                                                     </div>
                                                 </div>
 
@@ -443,7 +474,7 @@
                                                                 class="form-control"
                                                                 id="formtabs-contact-personlastname"
                                                                 placeholder="Last Name"
-                                                                name="contactPersonLAstName"
+                                                                name="siteContactLastName"
                                                                 aria-label="Last Name" />
                                                         </div>
                                                     </div>
@@ -457,7 +488,7 @@
                                                             class="form-control"
                                                             placeholder="john.doe@example.com"
                                                             aria-label="john.doe@example.com"
-                                                            name="contactEmail" />
+                                                            name="sitecontactEmail" />
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4">
@@ -469,7 +500,7 @@
                                                             class="form-control phone-mask"
                                                             placeholder="+1 (609) 988-44-11"
                                                             aria-label="john.doe@example.com"
-                                                            name="contactPhone" />
+                                                            name="sitecontactPhone" />
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4">
@@ -481,7 +512,7 @@
                                                             class="form-control phone-mask"
                                                             placeholder="+1 (609) 988-44-11"
                                                             aria-label="john.doe@example.com"
-                                                            name="contactMobile" />
+                                                            name="sitecontactMobile" />
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12">
@@ -531,7 +562,7 @@
                                                             placeholder="United Kingdom"
                                                             name="siteCountry"
                                                             aria-label="United Kingdom"
-                                                            value="United Kingdom" />
+                                                            value="United Kingdom" disabled />
                                                     </div>
                                                 </div>
 
@@ -641,6 +672,8 @@
                         <div class="card-body">
                             <!-- Description -->
                             <div class="mb-6">
+
+                                <input type="hidden" name="enquirydescription" id="enquirydescription_input">
                                 <div class="form-control p-0">
                                     <div class="enquiry-toolbar border-0 border-bottom">
                                         <div class="d-flex justify-content-start">
@@ -654,7 +687,7 @@
                                             </span>
                                         </div>
                                     </div>
-                                    <div class="enquiry-editor border-0 pb-6" id="enquiry-description" name="enquirydescription"></div>
+                                    <div class="enquiry-editor border-0 pb-6" id="enquiry-description"></div>
                                 </div>
                             </div>
                         </div>
@@ -672,19 +705,19 @@
 
                                     <div class="mb-4">
                                         <label for="formFile" class="form-label">Image 1</label>
-                                        <input class="form-control" type="file" id="photo1">
+                                        <input class="form-control" type="file" name="photo1">
                                     </div>
                                     <div class="mb-4">
                                         <label for="formFile" class="form-label">Image 2</label>
-                                        <input class="form-control" type="file" id="photo2">
+                                        <input class="form-control" type="file" name="photo2">
                                     </div>
                                     <div class="mb-4">
                                         <label for="formFile" class="form-label">Image 3</label>
-                                        <input class="form-control" type="file" id="photo3">
+                                        <input class="form-control" type="file" name="photo3">
                                     </div>
                                     <div class="mb-4">
                                         <label for="formFile" class="form-label">Image 4</label>
-                                        <input class="form-control" type="file" id="photo5">
+                                        <input class="form-control" type="file" name="photo4">
                                     </div>
                                 </div>
                             </div>
@@ -746,7 +779,7 @@
                                         </div>
                                         <div class="col-sm-6">
                                             <label class="form-label" for="formtabs-enquiry-country">Country</label>
-                                            <input class="form-control" id="formtabs-enquiry-country" name="enquiry_country" value="United Kingdom" disabled />
+                                            <input class="form-control" id="formtabs-enquiry-country" name="enquiry_country" value="United Kingdom" readonly />
                                         </div>
 
                                     </div>

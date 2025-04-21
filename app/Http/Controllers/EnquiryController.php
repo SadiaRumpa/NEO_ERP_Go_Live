@@ -9,6 +9,7 @@ use App\Models\Enquiry;
 use App\Models\EnquiryAddress;
 use App\Models\EnquiryImage;
 use App\Models\EnquiryNote;
+use App\Models\MailTemplate;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Auth;
@@ -66,7 +67,7 @@ class EnquiryController extends Controller
         $validated = $request->validate([
             'customer_id' => 'required_without:companyName',
             'companyName' => 'required_without:customer_id',
-            'enquirydescription' => 'required',
+            'enquirydescription' => 'required|string',
             'enquiry_postcode'             => 'required|string|max:20',
             'enquiry_address'              => 'required|string',
             'enquiry_county'               => 'nullable|string|max:255',
@@ -76,9 +77,9 @@ class EnquiryController extends Controller
             'photo3'               => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
         $customerid = null;
-        if (!$request->customer_id) {
+        if (!$validated['customer_id']) {
             $customer = new Customer();
-            $customer->company_name = $request->companyName;
+            $customer->company_name = $validated['companyName'];
             $customer->contact_firstname = $request->contactPersonFirstName;
             $customer->contact_lastname = $request->contactPersonLastName;
             $customer->contact_phone = $request->contactPhone;
@@ -93,32 +94,39 @@ class EnquiryController extends Controller
             if ($request->billingAddress != null) {
                 $customeraddress = new CustomerAddress();
                 $customeraddress->contact_firstname = $request->billingContactFirstName;
-                $customeraddress->contact_lastname = $request->contactPersonLastName;
-                $customeraddress->contact_phone = $request->contactPhone;
-                $customeraddress->contact_mobile = $request->contactMobile;
-                $customeraddress->contact_email = $request->contactEmail;
+                $customeraddress->contact_lastname = $request->billingContactLastName;
+                $customeraddress->contact_phone = $request->billingcontactPhone;
+                $customeraddress->contact_mobile = $request->billingcontactMobile;
+                $customeraddress->contact_email = $request->billingcontactEmail;
                 $customeraddress->address = $request->billingAddress;
+                $customeraddress->county = $request->billingCounty;
+                $customeraddress->postcode = $request->billingPostcode;
                 $customeraddress->country = $request->billingCountry;
-                $customeraddress->zip_code = $request->billingPostcode;
                 $customeraddress->customer_id = $customerid;
                 $customeraddress->type = "billing";
                 $customeraddress->save();
             }
 
             if ($request->siteAddress != null) {
-                $customeraddress = new CustomerAddress();
-                $customeraddress->address = $request->siteAddress;
-                $customeraddress->county = $request->siteCountry;
-                $customeraddress->zip_code = $request->sitePostcode;
-                $customeraddress->country = $request->siteCountry;
-                $customeraddress->customer_id = $customerid;
-                $customeraddress->type = "site";
-                $customeraddress->save();
+                $customersiteaddress = new CustomerAddress();
+                $customersiteaddress->contact_firstname = $request->siteContactFirstName;
+                $customersiteaddress->contact_lastname = $request->siteContactLastName;
+                $customersiteaddress->contact_phone = $request->sitecontactPhone;
+                $customersiteaddress->contact_mobile = $request->sitecontactMobile;
+                $customersiteaddress->contact_email = $request->sitecontactEmail;
+                $customersiteaddress->address = $request->siteAddress;
+                $customersiteaddress->county = $request->siteCounty;
+                $customersiteaddress->postcode = $request->sitePostcode;
+                $customersiteaddress->country = $request->siteCountry;
+                $customersiteaddress->customer_id = $customerid;
+                $customersiteaddress->type = "site";
+                $customersiteaddress->save();
             }
 
             $customerdetails = new CustomerDetails();
             $customerdetails->customer_id = $customerid;
-            $customerdetails->assets = $request->registration_number;
+            $customerdetails->company_name = $request->assetsCompanyName;
+            $customerdetails->registration_number = $request->assetsRegistrationNo;
             $customerdetails->assets = $request->assets ?? 0;
             $customerdetails->net_assets = $request->netAssets ?? 0;
             $customerdetails->liabilities = $request->liabilities ?? 0;
@@ -129,7 +137,7 @@ class EnquiryController extends Controller
         }
         // Create Enquiry
         $enquiry = Enquiry::create([
-            'enquiry_name'        => $this->randomenquiryGenerator(),
+            'enquiry_name'        => randomenquiryGenerator(),
             'customer_id'         => $customerid,
             'enquiry_description' => $validated['enquirydescription'],
             'enquiry_type'        => 'query',
@@ -187,8 +195,9 @@ class EnquiryController extends Controller
         if (!$enquiry) {
             return redirect()->route('enquiries.index')->with('error', 'Enquiry not found.');
         }
+        $mailtemplates = MailTemplate::where('status', 'active')->orderBy('id', 'desc')->get();
 
-        return view('enquiries.show', compact('enquiry'));
+        return view('enquiries.show', compact('enquiry', 'mailtemplates'));
     }
 
     /**

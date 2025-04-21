@@ -94,6 +94,37 @@
     }
 </script>
 
+<script>
+    const quill = new Quill('#mailmessage', {
+        theme: 'snow',
+        placeholder: 'Write your message...',
+    });
+
+    function selectMailTemplate() {
+        const templateId = document.getElementById('mailTemplateSelect').value;
+        if (!templateId) return;
+
+        $.ajax({
+            url: `/mail-template/${templateId}`,
+            method: 'GET',
+            success: function(res) {
+                quill.root.innerHTML = res.message;
+            },
+            error: function() {
+                console.error('Failed to load mail template.');
+                quill.root.innerHTML = '';
+            }
+        });
+    }
+
+    // On form submit
+    $('form').on('submit', function() {
+        $('#mailmessage_input').val(quill.root.innerHTML);
+    });
+</script>
+
+
+
 @endsection
 
 @section('styles')
@@ -119,11 +150,95 @@
             </div>
             <div class="d-flex align-content-center flex-wrap gap-4">
                 <div class="d-flex gap-4">
-                    <button class="btn btn-label-danger">REJECT</button>
+                    <!-- Form with Image Modal -->
+                    <button
+                        type="button"
+                        class="btn btn-danger waves-effect waves-light"
+                        data-bs-toggle="modal"
+                        data-bs-target="#onboardImageModal">
+                        Reject Enquiry
+                    </button>
+                    <!--/ Form with Image Modal -->
                     <button class="btn btn-label-success">SEND LEAD MANAGER</button>
                 </div>
             </div>
         </div>
+
+        <!-- Reject mail Modal -->
+        <div
+            class="modal-onboarding modal fade animate__animated"
+            id="onboardImageModal"
+            tabindex="-1"
+            aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header border-0">
+                        <a
+                            class="text-body-secondary close-label"
+                            href="javascript:void(0);"
+                            data-bs-dismiss="modal">Skip Intro</a>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-0">
+                        <div class="onboarding-content mb-0">
+                            <strong class="onboarding-title text-body">Reject enquiry</strong>
+                            <div class="row">
+                                <div class="col-sm-12 col-md-12 mb-4">
+                                    <div class="input-group">
+                                        <select class="form-select" id="mailTemplateSelect" aria-label="Choose mail template">
+                                            <option selected disabled>Choose mail template</option>
+                                            @foreach ($mailtemplates as $mt)
+                                            <option value="{{ $mt->id }}">{{ $mt->name }}</option>
+                                            @endforeach
+                                        </select>
+
+                                        <button class="btn btn-outline-primary waves-effect" type="button"
+                                            onclick="selectMailTemplate()">
+                                            Select Mail
+                                        </button>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-4">
+                                <div class="col-md-12">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="mb-4">
+                                                <label for="sendtoemail" class="form-label">Send to</label>
+                                                <input type="email" class="form-control" id="sendtoemail" placeholder="name@example.com" name="sendtoemail" value="{{ $enquiry->customer->contact_email }}" readonly>
+                                            </div>
+                                            <div class="mb-4">
+                                                <label for="mailsubject" class="form-label">Subject</label>
+                                                <input class="form-control" type="text" id="mailsubject" aria-label="readonly input example" name="mailsubject" value="Enquiry {{ $enquiry->enquiry_name }} has been rejected" readonly>
+                                            </div>
+                                            <div class="form-control p-0">
+                                                
+                                                <div class="border-0 pb-6" id="mailmessage"></div>
+                                            </div>
+                                            <input type="hidden" id="mailmessage_input" name="mailmessage">
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">
+                            Close
+                        </button>
+                        <button type="button" class="btn btn-primary">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--/ Reject mail Modal -->
 
         <div class="row mb-6 gy-6">
             <!-- enquiry column-->

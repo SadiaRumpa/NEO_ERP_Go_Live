@@ -28,8 +28,11 @@ Route::group(['middleware' => ['auth']], function() {
     Route::resource('permissions', PermissionController::class);
     Route::resource('users', UserController::class);
     Route::resource('mailtemplates', MailTemplateController::class);
+    Route::get('/mail-template/{id}', [MailTemplateController::class, 'showmailtemplate'])->name('mailtemplate.showmail');
 
     Route::resource('enquiries', EnquiryController::class);
     Route::post('enquiries/add-note', [EnquiryController::class, 'enqueryNotes'])->name('enquiry.add-note');
     Route::resource('customers', CustomerController::class);
+
+    
 });
