@@ -11,15 +11,79 @@
 <script src="{{asset('assets/vendor/libs/jquery-repeater/jquery-repeater.js')}}"></script>
 <script src="{{asset('assets/vendor/libs/flatpickr/flatpickr.js')}}"></script>
 <script src="{{asset('assets/vendor/libs/tagify/tagify.js')}}"></script>
-
 <!-- Page JS -->
-<!-- <script src="{{asset('assets/js/forms-file-upload.js')}}"></script> -->
-<script src="{{asset('assets/js/app-ecommerce-product-add.js')}}"></script>
 <script>
-    function addNewCustomer(event) {
-        if (event) event.preventDefault(); // Prevent form submission
-        $('.new-customer').show();
-    };
+    $('.new-customer').hide();
+    $(function() {
+        // Comment editor
+        const commentEditor = document.querySelector('.enquiry-editor');
+        if (commentEditor) {
+            new Quill(commentEditor, {
+                modules: {
+                    toolbar: '.enquiry-toolbar'
+                },
+                placeholder: 'Enquiry Description',
+                theme: 'snow'
+            });
+        }
+    });
+</script>
+<script>
+    function toggleNewCustomer(event) {
+        if (event) event.preventDefault();
+
+        const $section = $('.new-customer');
+        const $button = $('.toggle-customer-btn'); // Use a class to select the button
+        const $select = $('#customer'); // Directly using ID
+
+        $section.toggle(); // Show/hide the form
+
+        if ($section.is(':visible')) {
+            // If section is visible, change to 'Cancel' with cross icon
+            $button.html('<i class="icon-base ti tabler-x icon-md"></i> Cancel');
+            $select.prop('disabled', true); // Enable the select field
+
+        } else {
+            // If section is hidden, revert to 'Add New Customer' with plus icon
+            $button.html('<i class="icon-base ti tabler-plus icon-md"></i> Add New Customer');
+            $select.prop('disabled', false); // Enable the select field
+        }
+    }
+
+    function checkaddress() {
+        let postcode = $('#formtabs-enquiry-postcode').val().replace(/\s/g, '');
+
+        if (!postcode) {
+            alert("Please enter a postcode.");
+            return;
+        }
+
+        $.ajax({
+            url: `/checkpostcode/${postcode}`,
+            method: 'GET',
+            success: function(response) {
+                if (response.error) {
+                    $('#formtabs-enquiry-address').val("No address found.");
+                    return;
+                }
+                // Construct the address string from the response
+                const addressParts = [
+                    response.address.roads,
+                    response.address.parish,
+                    response.address.nearest_station
+                ].filter(Boolean); // Removes null/undefined/empty
+
+                const formattedAddress = addressParts.join(', ');
+                // Set the formatted address in the textarea
+                $('#formtabs-enquiry-address').val(formattedAddress);
+                $('#formtabs-enquiry-county').val(response.address.county);
+                $('#formtabs-enquiry-country').val(response.address.country);
+            },
+            error: function(xhr) {
+                $('#formtabs-enquiry-address').val("Error fetching address.");
+            }
+        });
+    }
 </script>
 @endsection
 
@@ -32,6 +96,17 @@
 <link rel="stylesheet" href="{{asset('assets/vendor/libs/flatpickr/flatpickr.css')}}" />
 <link rel="stylesheet" href="{{asset('assets/vendor/libs/tagify/tagify.css')}}" />
 <link rel="stylesheet" href="{{asset('assets/vendor/libs/dropzone/dropzone.css')}}" />
+<style>
+    .new-customer {
+        display: none;
+        /* Hidden initially */
+        padding: 15px;
+        border: 1px solid #ccc;
+        margin-top: 15px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+    }
+</style>
 @endsection
 
 @section('content')
@@ -74,9 +149,10 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <button type="button" class="fw-medium btn btn-md btn-label-primary ms-8" onclick="addNewCustomer(event)">
+                                <button type="button" class="fw-medium btn btn-md btn-label-primary ms-8 toggle-customer-btn" onclick="toggleNewCustomer(event)">
                                     <i class="icon-base ti tabler-plus icon-md"></i> Add New Customer
                                 </button>
+
                             </div>
                         </div>
                     </div>
@@ -153,60 +229,76 @@
                                         <!-- Compnay Info -->
                                         <div class="tab-pane fade active show" id="form-tabs-company" role="tabpanel">
                                             <div class="row g-6">
-                                                <div class="col-md-6">
-                                                    <div class="row">
-                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-user-company">Company</label>
-                                                        <div class="col-sm-9">
-                                                            <input
-                                                                type="text"
-                                                                id="formtabs-user-company"
-                                                                class="form-control"
-                                                                placeholder="Company Name"
-                                                                aria-label="jdoe1 ltd"
-                                                                name="companyName" />
-                                                        </div>
+                                                <div class="col-md-12">
+                                                    <div class="mb-1">
+                                                        <label class="form-label" for="formtabs-user-company">Company</label>
+                                                        <input
+                                                            type="text"
+                                                            id="formtabs-user-company"
+                                                            class="form-control"
+                                                            placeholder="Company Name"
+                                                            aria-label="jdoe1 ltd"
+                                                            name="companyName" />
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6">
-                                                    <div class="row">
-                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-contact-personname">Contact Person</label>
-                                                        <div class="col-sm-9">
+                                                <div class="col-md-12">
+                                                    <div class="row mb-1">
+                                                        <label class="form-label" for="formtabs-contact-personname">Contact Person</label>
+                                                        <div class="col-sm-6">
                                                             <input
                                                                 type="text"
                                                                 class="form-control"
-                                                                id="formtabs-contact-personname"
-                                                                placeholder="John Doe"
-                                                                name="contactPersonName"
-                                                                aria-label="John Doe" />
+                                                                id="formtabs-contact-personfirstname"
+                                                                placeholder="First Name"
+                                                                name="contactPersonFirstName"
+                                                                aria-label="First Name" />
                                                         </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="row">
-                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-contact-email">Contact email</label>
-                                                        <div class="col-sm-9">
+                                                        <div class="col-sm-6">
                                                             <input
                                                                 type="text"
-                                                                id="formtabs-contact-email"
                                                                 class="form-control"
-                                                                placeholder="john.doe@example.com"
-                                                                aria-label="john.doe@example.com"
-                                                                name="contactEmail" />
+                                                                id="formtabs-contact-personlastname"
+                                                                placeholder="Last Name"
+                                                                name="contactPersonLastName"
+                                                                aria-label="Last Name" />
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6">
-                                                    <div class="row">
-                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-contact-phone">Contact Phone</label>
-                                                        <div class="col-sm-9">
-                                                            <input
-                                                                type="text"
-                                                                id="formtabs-contact-phone"
-                                                                class="form-control phone-mask"
-                                                                placeholder="+1 (609) 988-44-11"
-                                                                aria-label="john.doe@example.com"
-                                                                name="contactPhone" />
-                                                        </div>
+
+                                                <div class="col-md-4">
+                                                    <div class="mb-1">
+                                                        <label class="form-label" for="formtabs-contact-email">Contact email</label>
+                                                        <input
+                                                            type="text"
+                                                            id="formtabs-contact-email"
+                                                            class="form-control"
+                                                            placeholder="john.doe@example.com"
+                                                            aria-label="john.doe@example.com"
+                                                            name="contactEmail" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="mb-1">
+                                                        <label class="form-label" for="formtabs-contact-phone">Contact Phone</label>
+                                                        <input
+                                                            type="text"
+                                                            id="formtabs-contact-phone"
+                                                            class="form-control phone-mask"
+                                                            placeholder="1 669 988 411"
+                                                            aria-label="1 669 988 411"
+                                                            name="contactPhone" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="mb-1">
+                                                        <label class="form-label" for="formtabs-contact-mobile">Contact Mobile</label>
+                                                        <input
+                                                            type="text"
+                                                            id="formtabs-contact-mobile"
+                                                            class="form-control phone-mask"
+                                                            placeholder="1 669 988 411"
+                                                            aria-label="1 669 988 411"
+                                                            name="contactMobile" />
                                                     </div>
                                                 </div>
                                             </div>
@@ -215,88 +307,117 @@
                                         <!-- Billing Address -->
                                         <div class="tab-pane fade" id="form-tabs-billing-address" role="tabpanel">
                                             <div class="row g-6">
-                                                <div class="col-md-6">
-                                                    <div class="row">
-                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-billing-person">Billing Person</label>
-                                                        <div class="col-sm-9">
+                                                <div class="col-md-12">
+                                                    <div class="row mb-1">
+                                                        <label class="form-label" for="formtabs-contact-billingContactfirstname">Contact Person</label>
+                                                        <div class="col-sm-6">
                                                             <input
                                                                 type="text"
                                                                 class="form-control"
-                                                                id="formtabs-billing-person"
-                                                                placeholder="Jonh Doe"
-                                                                name="billingPerson"
-                                                                aria-label="Jonh Doe" />
+                                                                id="formtabs-contact-billingContactfirstname"
+                                                                placeholder="First Name"
+                                                                name="billingContactFirstName"
+                                                                aria-label="First Name" />
                                                         </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="row">
-                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-billing-address">Billing Address</label>
-                                                        <div class="col-sm-9">
+                                                        <div class="col-sm-6">
                                                             <input
                                                                 type="text"
                                                                 class="form-control"
-                                                                id="formtabs-billing-address"
-                                                                placeholder="30H Burdi Street"
-                                                                name="billingAddress"
-                                                                aria-label="30H Burdi Street" />
+                                                                id="formtabs-contact-personlastname"
+                                                                placeholder="Last Name"
+                                                                name="billingContactLstName"
+                                                                aria-label="Last Name" />
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6">
-                                                    <div class="row">
-                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-billing-city">City</label>
-                                                        <div class="col-sm-9">
-                                                            <select id="formtabs-billing-city" class="form-select" name="billingCity">
-                                                                <option value="london">London</option>
-                                                                <option value="birmingham">Birmingham</option>
-                                                                <option value="portsmouth">Portsmouth</option>
-                                                                <option value="southampton">Southampton</option>
-                                                                <option value="nottingham">Nottingham</option>
-                                                            </select>
-                                                        </div>
+                                                <div class="col-md-4">
+                                                    <div class="mb-1">
+                                                        <label class="form-label" for="formtabs-contact-email">Contact email</label>
+                                                        <input
+                                                            type="text"
+                                                            id="formtabs-contact-email"
+                                                            class="form-control"
+                                                            placeholder="john.doe@example.com"
+                                                            aria-label="john.doe@example.com"
+                                                            name="billingcontactEmail" />
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6">
-                                                    <div class="row">
-                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-billing-state">State</label>
-                                                        <div class="col-sm-9">
-                                                            <input
-                                                                type="text"
-                                                                class="form-control"
-                                                                id="formtabs-billing-state"
-                                                                placeholder="Birmingham"
-                                                                name="billingState"
-                                                                aria-label="Birmingham" />
-                                                        </div>
+                                                <div class="col-md-4">
+                                                    <div class="mb-1">
+                                                        <label class="form-label" for="formtabs-contact-phone">Contact Phone</label>
+                                                        <input
+                                                            type="text"
+                                                            id="formtabs-contact-phone"
+                                                            class="form-control phone-mask"
+                                                            placeholder="+1 (609) 988-44-11"
+                                                            aria-label="john.doe@example.com"
+                                                            name="billingcontactPhone" />
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6">
-                                                    <div class="row">
-                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-billing-country">Country</label>
-                                                        <div class="col-sm-9">
-                                                            <select id="formtabs-billing-country" class="select2 form-select" data-allow-clear="true" name="billingCountry">
-                                                                <option value="">Select</option>
-                                                                <option value="United Kingdom">United Kingdom</option>
-                                                                <option value="United States">United States</option>
-                                                            </select>
-                                                        </div>
+                                                <div class="col-md-4">
+                                                    <div class="mb-1">
+                                                        <label class="form-label" for="formtabs-contact-mobile">Contact Mobile</label>
+                                                        <input
+                                                            type="text"
+                                                            id="formtabs-contact-mobile"
+                                                            class="form-control phone-mask"
+                                                            placeholder="+1 (609) 988-44-11"
+                                                            aria-label="john.doe@example.com"
+                                                            name="billingcontactMobile" />
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6">
-                                                    <div class="row">
-                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-billing-postcode">Postcode</label>
-                                                        <div class="col-sm-9">
-                                                            <input
-                                                                type="text"
-                                                                class="form-control"
-                                                                id="formtabs-billing-postcode"
-                                                                placeholder="A1 1AA"
-                                                                name="billingPostcode"
-                                                                aria-label="A1 1AA" />
-                                                        </div>
+                                                <div class="col-md-12">
+                                                    <div class="">
+                                                        <label class="form-label" for="formtabs-billing-address">Billing Address</label>
+
+                                                        <textarea
+                                                            type="text"
+                                                            class="form-control"
+                                                            id="formtabs-billing-address"
+                                                            placeholder="30H Burdi Street"
+                                                            name="billingAddress"></textarea>
                                                     </div>
                                                 </div>
+
+                                                <div class="col-md-4">
+                                                    <div class="">
+                                                        <label class="form-label" for="formtabs-billing-county">County</label>
+                                                        <input
+                                                            type="text"
+                                                            class="form-control"
+                                                            id="formtabs-billing-county"
+                                                            placeholder="Birmingham"
+                                                            name="billingCounty"
+                                                            aria-label="Birmingham" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="">
+                                                        <label class="form-label" for="formtabs-billing-postcode">Postcode</label>
+                                                        <input
+                                                            type="text"
+                                                            class="form-control"
+                                                            id="formtabs-billing-postcode"
+                                                            placeholder="A1 1AA"
+                                                            name="billingPostcode"
+                                                            aria-label="A1 1AA" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="">
+                                                        <label class="form-label" for="formtabs-billing-country">Country</label>
+                                                        <input
+                                                            type="text"
+                                                            class="form-control"
+                                                            id="formtabs-billing-country"
+                                                            placeholder="United Kingdom"
+                                                            name="billingCountry"
+                                                            aria-label="United Kingdom"
+                                                            value="United Kingdom" />
+
+                                                    </div>
+                                                </div>
+
 
                                             </div>
                                         </div>
@@ -304,88 +425,116 @@
                                         <!-- Site Address -->
                                         <div class="tab-pane fade" id="form-tabs-site-address" role="tabpanel">
                                             <div class="row g-6">
-                                                <div class="col-md-6">
-                                                    <div class="row">
-                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-site-person">Site Person</label>
-                                                        <div class="col-sm-9">
+                                                <div class="col-md-12">G
+                                                    <div class="row mb-1">
+                                                        <label class="form-label" for="formtabs-contact-siteContactfirstname">Contact Person</label>
+                                                        <div class="col-sm-6">
                                                             <input
                                                                 type="text"
                                                                 class="form-control"
-                                                                id="formtabs-site-address"
-                                                                placeholder="John Doe"
-                                                                name="sitePerson"
-                                                                aria-label="John Doe" />
+                                                                id="formtabs-contact-siteContactfirstname"
+                                                                placeholder="First Name"
+                                                                name="siteContactFirstName"
+                                                                aria-label="First Name" />
                                                         </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="row">
-                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-site-address">Site Address</label>
-                                                        <div class="col-sm-9">
+                                                        <div class="col-sm-6">
                                                             <input
                                                                 type="text"
                                                                 class="form-control"
-                                                                id="formtabs-site-address"
-                                                                placeholder="30H Burdi Street"
-                                                                name="siteAddress"
-                                                                aria-label="30H Burdi Street" />
+                                                                id="formtabs-contact-personlastname"
+                                                                placeholder="Last Name"
+                                                                name="contactPersonLAstName"
+                                                                aria-label="Last Name" />
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6">
-                                                    <div class="row">
-                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-site-city">City</label>
-                                                        <div class="col-sm-9">
-                                                            <select id="formtabs-site-city" class="form-select" name="siteCity">
-                                                                <option value="london">London</option>
-                                                                <option value="birmingham">Birmingham</option>
-                                                                <option value="portsmouth">Portsmouth</option>
-                                                                <option value="southampton">Southampton</option>
-                                                                <option value="nottingham">Nottingham</option>
-                                                            </select>
-                                                        </div>
+                                                <div class="col-md-4">
+                                                    <div class="mb-1">
+                                                        <label class="form-label" for="formtabs-contact-email">Contact email</label>
+                                                        <input
+                                                            type="text"
+                                                            id="formtabs-contact-email"
+                                                            class="form-control"
+                                                            placeholder="john.doe@example.com"
+                                                            aria-label="john.doe@example.com"
+                                                            name="contactEmail" />
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6">
-                                                    <div class="row">
-                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-site-state">State</label>
-                                                        <div class="col-sm-9">
-                                                            <input
-                                                                type="text"
-                                                                class="form-control"
-                                                                id="formtabs-site-state"
-                                                                placeholder="Birmingham"
-                                                                name="siteState"
-                                                                aria-label="Birmingham" />
-                                                        </div>
+                                                <div class="col-md-4">
+                                                    <div class="mb-1">
+                                                        <label class="form-label" for="formtabs-contact-phone">Contact Phone</label>
+                                                        <input
+                                                            type="text"
+                                                            id="formtabs-contact-phone"
+                                                            class="form-control phone-mask"
+                                                            placeholder="+1 (609) 988-44-11"
+                                                            aria-label="john.doe@example.com"
+                                                            name="contactPhone" />
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6">
-                                                    <div class="row">
-                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-site-country">Country</label>
-                                                        <div class="col-sm-9">
-                                                            <select id="formtabs-site-country" name="siteCountry" class="select2 form-select" data-allow-clear="true">
-                                                                <option value="">Select</option>
-                                                                <option value="United Kingdom">United Kingdom</option>
-                                                                <option value="United States">United States</option>
-                                                            </select>
-                                                        </div>
+                                                <div class="col-md-4">
+                                                    <div class="mb-1">
+                                                        <label class="form-label" for="formtabs-contact-mobile">Contact Mobile</label>
+                                                        <input
+                                                            type="text"
+                                                            id="formtabs-contact-mobile"
+                                                            class="form-control phone-mask"
+                                                            placeholder="+1 (609) 988-44-11"
+                                                            aria-label="john.doe@example.com"
+                                                            name="contactMobile" />
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6">
-                                                    <div class="row">
-                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-site-postcode">Postcode</label>
-                                                        <div class="col-sm-9">
-                                                            <input
-                                                                type="text"
-                                                                class="form-control"
-                                                                id="formtabs-site-postcode"
-                                                                placeholder="A1 1AA"
-                                                                name="sitePostcode"
-                                                                aria-label="A1 1AA" />
-                                                        </div>
+                                                <div class="col-md-12">
+                                                    <div class="">
+                                                        <label class="form-label" for="formtabs-site-address">site Address</label>
+
+                                                        <textarea
+                                                            type="text"
+                                                            class="form-control"
+                                                            id="formtabs-site-address"
+                                                            placeholder="30H Burdi Street"
+                                                            name="siteAddress"></textarea>
                                                     </div>
                                                 </div>
+
+                                                <div class="col-md-4">
+                                                    <div class="">
+                                                        <label class="form-label" for="formtabs-site-county">County</label>
+                                                        <input
+                                                            type="text"
+                                                            class="form-control"
+                                                            id="formtabs-site-county"
+                                                            placeholder="Birmingham"
+                                                            name="siteCounty"
+                                                            aria-label="Birmingham" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="">
+                                                        <label class="form-label" for="formtabs-site-postcode">Postcode</label>
+                                                        <input
+                                                            type="text"
+                                                            class="form-control"
+                                                            id="formtabs-site-postcode"
+                                                            placeholder="A1 1AA"
+                                                            name="sitePostcode"
+                                                            aria-label="A1 1AA" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="">
+                                                        <label class="form-label" for="formtabs-site-country">Country</label>
+                                                        <input
+                                                            type="text"
+                                                            class="form-control"
+                                                            id="formtabs-site-country"
+                                                            placeholder="United Kingdom"
+                                                            name="siteCountry"
+                                                            aria-label="United Kingdom"
+                                                            value="United Kingdom" />
+                                                    </div>
+                                                </div>
+
 
                                             </div>
                                         </div>
@@ -393,6 +542,32 @@
                                         <!-- Account Details -->
                                         <div class="tab-pane fade" id="form-tabs-account" role="tabpanel">
                                             <div class="row g-6">
+                                                <div class="col-md-6">
+                                                    <div class="row">
+                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-assetsCompanyName">Company Name</label>
+                                                        <div class="col-sm-9">
+                                                            <input
+                                                                type="text"
+                                                                id="formtabs-assetsCompanyName"
+                                                                class="form-control"
+                                                                placeholder="name"
+                                                                name="assetsCompanyName" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="row">
+                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-assetsRegistrationNo">Registration No.</label>
+                                                        <div class="col-sm-9">
+                                                            <input
+                                                                type="text"
+                                                                id="formtabs-assetsRegistrationNo"
+                                                                class="form-control"
+                                                                placeholder="Registration no"
+                                                                name="assetsRegistrationNo" />
+                                                        </div>
+                                                    </div>
+                                                </div>
                                                 <div class="col-md-6">
                                                     <div class="row">
                                                         <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-assets">Assets</label>
@@ -453,7 +628,6 @@
                         </div>
                     </div>
                     <!-- /Customers -->
-
                 </div>
                 <!-- /First column -->
 
@@ -462,13 +636,11 @@
                     <!-- Enquiry Information -->
                     <div class="card mb-6">
                         <div class="card-header">
-                            <h5 class="card-tile mb-0">Enquiry information</h5>
+                            <h5 class="card-tile mb-0">Enquiry information*</h5>
                         </div>
                         <div class="card-body">
-
                             <!-- Description -->
                             <div class="mb-6">
-                                <label class="mb-1">Description</label>
                                 <div class="form-control p-0">
                                     <div class="enquiry-toolbar border-0 border-bottom">
                                         <div class="d-flex justify-content-start">
@@ -479,7 +651,6 @@
                                                 <button class="ql-list" value="ordered"></button>
                                                 <button class="ql-list" value="bullet"></button>
                                                 <button class="ql-link"></button>
-                                                <button class="ql-image"></button>
                                             </span>
                                         </div>
                                     </div>
@@ -489,12 +660,102 @@
                         </div>
                     </div>
                     <!-- /Enquiry Information -->
+                    <!-- Enquiry Images -->
+                    <div class="row mb-6 gy-6">
+                        <div class="col-xl">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">Upload Images</h5>
+                                    <small class="text-body-secondary float-end">(optional)</small>
+                                </div>
+                                <div class="card-body">
+
+                                    <div class="mb-4">
+                                        <label for="formFile" class="form-label">Image 1</label>
+                                        <input class="form-control" type="file" id="photo1">
+                                    </div>
+                                    <div class="mb-4">
+                                        <label for="formFile" class="form-label">Image 2</label>
+                                        <input class="form-control" type="file" id="photo2">
+                                    </div>
+                                    <div class="mb-4">
+                                        <label for="formFile" class="form-label">Image 3</label>
+                                        <input class="form-control" type="file" id="photo3">
+                                    </div>
+                                    <div class="mb-4">
+                                        <label for="formFile" class="form-label">Image 4</label>
+                                        <input class="form-control" type="file" id="photo5">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /Enquiry Images -->
+                    <!-- Enquiry Notes -->
+                    <div class="row mb-6 gy-6">
+                        <div class="col-xl">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">Notes</h5>
+                                    <small class="text-body-secondary float-end">(optional)</small>
+                                </div>
+                                <div class="card-body">
+
+                                    <div class="col-12 mb-6">
+
+                                        <textarea
+                                            name="enquiryNote"
+                                            class="form-control"
+                                            id="collapsible-note"
+                                            rows="2"
+                                            placeholder="notes here"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /Enquiry Notes -->
 
                 </div>
                 <!-- /Second column -->
 
                 <!-- Third column -->
                 <div class="col-12 col-lg-4">
+                    <div class="row mb-6 gy-6">
+                        <div class="col-xl">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">Enquiry Location*</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-6">
+                                        <div class="col-md-12">
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" id="formtabs-enquiry-postcode" name="enquiry_postcode" placeholder="Check postcode" aria-label="Check postcode" aria-describedby="button-addon2" required />
+                                                <button class="btn btn-outline-primary waves-effect" type="button" id="button-addon2" onclick="checkaddress()">Check</button>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-12">
+                                            <label class="form-label" for="formtabs-enquiry-address">Address</label>
+                                            <textarea class="form-control" id="formtabs-enquiry-address" name="enquiry_address" placeholder="30H Burdi Street" required></textarea>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label class="form-label" for="formtabs-enquiry-county">County</label>
+                                            <input class="form-control" id="formtabs-enquiry-county" name="enquiry_county" placeholder="Birmingham" aria-label="Birmingham" required />
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label class="form-label" for="formtabs-enquiry-country">Country</label>
+                                            <input class="form-control" id="formtabs-enquiry-country" name="enquiry_country" value="United Kingdom" disabled />
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Enquiry Other Info -->
                     <div class="row mb-6 gy-6">
                         <div class="col-xl">
                             <div class="card">
@@ -640,7 +901,7 @@
                                     <div class="col-12 mb-6">
                                         <label class="form-label" for="collapsible-source">Source</label>
                                         <textarea
-                                            name="enquirySource"
+                                            name="enquiry_source"
                                             class="form-control"
                                             id="collapsible-source"
                                             rows="2"
@@ -651,56 +912,12 @@
                         </div>
 
                     </div>
-
-                    <div class="row mb-6 gy-6">
-                        <div class="col-xl">
-                            <div class="card">
-                                <div class="card-header d-flex justify-content-between align-items-center">
-                                    <h5 class="mb-0">Notes</h5>
-                                    <small class="text-body-secondary float-end">(optional)</small>
-                                </div>
-                                <div class="card-body">
-
-                                    <div class="col-12 mb-6">
-
-                                        <textarea
-                                            name="enquiryNote"
-                                            class="form-control"
-                                            id="collapsible-note"
-                                            rows="2"
-                                            placeholder="notes here"></textarea>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-
+                    <!-- /Enquiry Other Info -->
                 </div>
                 <!-- /Third column -->
             </div>
         </form>
 
-        <!-- Media -->
-        <div class="card mb-6">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0 card-title">Related Images</h5>
-                <a href="javascript:void(0);" class="fw-medium">Add media from URL</a>
-            </div>
-            <div class="card-body">
-                <form action="/upload" class="dropzone needsclick p-0" id="dropzone-basic">
-                    <div class="dz-message needsclick">
-                        <p class="h4 needsclick pt-3 mb-2">Drag and drop your image here</p>
-                        <p class="h6 text-body-secondary d-block fw-normal mb-2">or</p>
-                        <span class="needsclick btn btn-sm btn-label-primary" id="btnBrowse">Browse image</span>
-                    </div>
-                    <div class="fallback">
-                        <input name="file" type="file" />
-                    </div>
-                </form>
-            </div>
-        </div>
-        <!-- /Media -->
     </div>
 </div>
 <!-- / Content -->

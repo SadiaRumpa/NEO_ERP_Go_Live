@@ -6,6 +6,8 @@ use App\Models\Customer;
 use App\Models\CustomerAddress;
 use App\Models\CustomerDetails;
 use App\Models\Enquiry;
+use App\Models\EnquiryAddress;
+use App\Models\EnquiryImage;
 use App\Models\EnquiryNote;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
@@ -61,17 +63,26 @@ class EnquiryController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'enquiry_date' => 'required',
-            'enquiry_details' => 'required',
-            'status' => 'required',
+        $validated = $request->validate([
+            'customer_id' => 'required_without:companyName',
+            'companyName' => 'required_without:customer_id',
+            'enquirydescription' => 'required',
+            'enquiry_postcode'             => 'required|string|max:20',
+            'enquiry_address'              => 'required|string',
+            'enquiry_county'               => 'nullable|string|max:255',
+            'enquiry_country'              => 'nullable|string|max:255',
+            'photo1'               => 'required|image|mimes:jpg,jpeg,png|max:2048',
+            'photo2'               => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'photo3'               => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
-
+        $customerid = null;
         if (!$request->customer_id) {
             $customer = new Customer();
             $customer->company_name = $request->companyName;
-            $customer->contact_name = $request->contactPersonName;
-            $customer->contact_no = $request->contactPhone;
+            $customer->contact_firstname = $request->contactPersonFirstName;
+            $customer->contact_lastname = $request->contactPersonLastName;
+            $customer->contact_phone = $request->contactPhone;
+            $customer->contact_mobile = $request->contactMobile;
             $customer->contact_email = $request->contactEmail;
             $customer->status = 'active';
             $customer->save();
@@ -81,9 +92,12 @@ class EnquiryController extends Controller
 
             if ($request->billingAddress != null) {
                 $customeraddress = new CustomerAddress();
+                $customeraddress->contact_firstname = $request->billingContactFirstName;
+                $customeraddress->contact_lastname = $request->contactPersonLastName;
+                $customeraddress->contact_phone = $request->contactPhone;
+                $customeraddress->contact_mobile = $request->contactMobile;
+                $customeraddress->contact_email = $request->contactEmail;
                 $customeraddress->address = $request->billingAddress;
-                $customeraddress->city = $request->billingCity;
-                $customeraddress->state = $request->billingState;
                 $customeraddress->country = $request->billingCountry;
                 $customeraddress->zip_code = $request->billingPostcode;
                 $customeraddress->customer_id = $customerid;
@@ -94,18 +108,17 @@ class EnquiryController extends Controller
             if ($request->siteAddress != null) {
                 $customeraddress = new CustomerAddress();
                 $customeraddress->address = $request->siteAddress;
-                $customeraddress->city = $request->siteCity;
-                $customeraddress->state = $request->siteState;
-                $customeraddress->country = $request->siteCountry;
+                $customeraddress->county = $request->siteCountry;
                 $customeraddress->zip_code = $request->sitePostcode;
+                $customeraddress->country = $request->siteCountry;
                 $customeraddress->customer_id = $customerid;
                 $customeraddress->type = "site";
                 $customeraddress->save();
             }
 
-
             $customerdetails = new CustomerDetails();
             $customerdetails->customer_id = $customerid;
+            $customerdetails->assets = $request->registration_number;
             $customerdetails->assets = $request->assets ?? 0;
             $customerdetails->net_assets = $request->netAssets ?? 0;
             $customerdetails->liabilities = $request->liabilities ?? 0;
@@ -113,17 +126,54 @@ class EnquiryController extends Controller
             $customerdetails->save();
         } else {
             $customerid = $request->customer_id;
+        }
+        // Create Enquiry
+        $enquiry = Enquiry::create([
+            'enquiry_name'        => $this->randomenquiryGenerator(),
+            'customer_id'         => $customerid,
+            'enquiry_description' => $validated['enquirydescription'],
+            'enquiry_type'        => 'query',
+            'enquiry_source'      => $validated['enquiry_source'] ?? 'call',
+            'enquiry_status'      => 'new',
+        ]);
 
-            $enquiry = new Enquiry();
-            $enquiry->enquiry_name = generateEnquiryName();
-            $enquiry->enquiry_description = $request->enquirydescription;
-            $enquiry->customer_id = $customerid;
+        // Create Address
+        EnquiryAddress::create([
+            'enquiry_id'         => $enquiry->id,
+            'address'            => $validated['enquiry_address'],
+            'county'             => $validated['enquiry_county'],
+            'postcode'           => $validated['enquiry_postcode'],
+            'country'            => $validated['enquiry_country'],
+        ]);
+
+        foreach (['photo1', 'photo2', 'photo3'] as $photoField) {
+            if ($request->hasFile($photoField)) {
+                $file = $request->file($photoField);
+
+                // Generate unique filename
+                $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+
+                // Define upload path in public/
+                $destinationPath = public_path('uploads/enqueries');
+
+                // Create directory if it doesn't exist
+                if (!file_exists($destinationPath)) {
+                    mkdir($destinationPath, 0755, true);
+                }
+
+                // Move file to public/uploads/enqueries/
+                $file->move($destinationPath, $filename);
+
+                // Save relative path to DB
+                EnquiryImage::create([
+                    'enquiry_id' => $enquiry->id,
+                    'image_path' => 'uploads/enqueries/' . $filename,
+                    'image_name' => $file->getClientOriginalName(),
+                ]);
+            }
         }
 
-
-
-
-        return redirect()->route('enquiries.index')
+        return redirect()->route('enquiries.show', $enquiry->slug)
             ->with('success', 'Enquiry created successfully.');
     }
 
