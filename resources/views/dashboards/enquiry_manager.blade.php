@@ -135,7 +135,7 @@
                                     <p class="mb-0 text-heading">{{ $neq->customer->company_name }} </p>
                                 </td>
                                 <td class="pt-5">
-                                    <p class="mb-0 text-heading">{{ $neq->enquiryaddress->address }}, {{ $neq->enquiryaddress->county }} {{ $neq->enquiryaddress->postcode }}</p>
+                                    <p class="mb-0 text-heading">{{ $neq->enquiryaddress->address ?? '' }}, {{ $neq->enquiryaddress->county ?? '' }} {{ $neq->enquiryaddress->postcode ?? '' }}</p>
                                 </td>
                                 <td class="pt-5">
                                     <p class="mb-0 text-heading">{{ $neq->customer->contact_firstname }} {{ $neq->customer->contact_lastname }}</p>

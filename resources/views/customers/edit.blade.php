@@ -38,6 +38,19 @@
 <!-- Content -->
 <div class="container-xxl flex-grow-1 container-p-y">
     <div class="app-ecommerce">
+        @if (session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        @endif
+
+        @if (session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        @endif
         <form action="{{ route('customers.update', $customer->id) }}" method="POST">
             @csrf
             @method('PUT')
@@ -162,7 +175,7 @@
                                                                 class="form-control"
                                                                 id="formtabs-contact-personlastname"
                                                                 placeholder="Last Name"
-                                                                name="contactPersonLAstName"
+                                                                name="contactPersonLastName"
                                                                 aria-label="Last Name"
                                                                 value="{{ $customer->contact_lastname }}" />
                                                         </div>
@@ -221,66 +234,71 @@
                                             <div class="row g-6">
                                                 <div class="col-md-12">
                                                     <div class="row">
-                                                        <label class="col-sm-2 col-form-label text-sm-end" for="formtabs-contact-personname">Contact Person</label>
+                                                        <label class="col-sm-2 col-form-label text-sm-end" for="formtabs-billing-personname">Contact Person</label>
                                                         <div class="col-sm-5">
                                                             <input
                                                                 type="text"
                                                                 class="form-control"
-                                                                id="formtabs-contact-personfirstname"
+                                                                id="formtabs-billing-personfirstname"
                                                                 placeholder="First Name"
-                                                                name="contactPersonFirstName"
-                                                                aria-label="First Name" />
+                                                                name="billingPersonFirstName"
+                                                                aria-label="First Name"
+                                                                value="{{ $customer->billingaddress->contact_firstname ?? '' }}" />
                                                         </div>
                                                         <div class="col-sm-5">
                                                             <input
                                                                 type="text"
                                                                 class="form-control"
-                                                                id="formtabs-contact-personlastname"
+                                                                id="formtabs-billing-personlastname"
                                                                 placeholder="Last Name"
-                                                                name="contactPersonLAstName"
-                                                                aria-label="Last Name" />
+                                                                name="billingPersonLastName"
+                                                                aria-label="Last Name"
+                                                                value="{{ $customer->billingaddress->contact_lastname ?? '' }}" />
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="row">
-                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-contact-phone">Contact Mobile</label>
+                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-billing-phone">Contact Mobile</label>
                                                         <div class="col-sm-9">
                                                             <input
                                                                 type="text"
-                                                                id="formtabs-contact-mobile"
+                                                                id="formtabs-billing-mobile"
                                                                 class="form-control phone-mask"
                                                                 placeholder="+1 (609) 988-44-11"
                                                                 aria-label="+1 (609) 988-44-11"
-                                                                name="contactMobile" />
+                                                                name="billingMobile"
+                                                                value="{{ $customer->billingaddress->contact_mobile ?? '' }}" />
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="row">
-                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-contact-phone">Contact Phone</label>
+                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-billing-phone">Contact Phone</label>
                                                         <div class="col-sm-9">
                                                             <input
                                                                 type="text"
-                                                                id="formtabs-contact-phone"
+                                                                id="formtabs-billing-phone"
                                                                 class="form-control phone-mask"
                                                                 placeholder="+1 (609) 988-44-11"
                                                                 aria-label="+1 (609) 988-44-11"
-                                                                name="contactPhone" />
+                                                                name="billingPhone"
+                                                                value="{{ $customer->billingaddress->contact_phone ?? ''}}" />
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="row">
-                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-contact-email">Contact email</label>
+                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-billing-email">Contact email</label>
                                                         <div class="col-sm-9">
                                                             <input
                                                                 type="text"
-                                                                id="formtabs-contact-email"
+                                                                id="formtabs-billing-email"
                                                                 class="form-control"
                                                                 placeholder="john.doe@example.com"
                                                                 aria-label="john.doe@example.com"
-                                                                name="contactEmail" />
+                                                                name="billingEmail"
+                                                                value="{{ $customer->billingaddress->contact_email ?? ''}}" />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -294,7 +312,8 @@
                                                                 id="formtabs-billing-address"
                                                                 placeholder="30H Burdi Street"
                                                                 name="billingAddress"
-                                                                aria-label="30H Burdi Street" />
+                                                                aria-label="30H Burdi Street"
+                                                                value="{{ $customer->billingaddress->address ?? ''}}" />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -308,8 +327,9 @@
                                                                 class="form-control"
                                                                 id="formtabs-billing-county"
                                                                 placeholder="Birmingham"
-                                                                name="billingcounty"
-                                                                aria-label="Birmingham" />
+                                                                name="billingCounty"
+                                                                aria-label="Birmingham"
+                                                                value="{{ $customer->billingaddress->county ?? ''}}" />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -323,7 +343,8 @@
                                                                 id="formtabs-billing-postcode"
                                                                 placeholder="A1 1AA"
                                                                 name="billingPostcode"
-                                                                aria-label="A1 1AA" />
+                                                                aria-label="A1 1AA"
+                                                                value="{{ $customer->billingaddress->postcode ?? ''}}" />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -331,16 +352,15 @@
                                                     <div class="row">
                                                         <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-billing-country">Country</label>
                                                         <div class="col-sm-9">
-                                                            <select id="formtabs-billing-country" class="select2 form-select" data-allow-clear="true" name="billingCountry" disabled>
-                                                                <option value="United Kingdom">United Kingdom</option>
-                                                            </select>
+                                                            <input
+                                                                type="text"
+                                                                class="form-control"
+                                                                id="formtabs-billing-country"
+                                                                value="United Kingdom" />
                                                         </div>
                                                     </div>
                                                 </div>
-
-
                                             </div>
-
                                         </div>
 
                                         <!-- Site Address -->
@@ -348,66 +368,71 @@
                                             <div class="row g-6">
                                                 <div class="col-md-12">
                                                     <div class="row">
-                                                        <label class="col-sm-2 col-form-label text-sm-end" for="formtabs-contact-personname">Contact Person</label>
+                                                        <label class="col-sm-2 col-form-label text-sm-end" for="formtabs-site-personname">Contact Person</label>
                                                         <div class="col-sm-5">
                                                             <input
                                                                 type="text"
                                                                 class="form-control"
-                                                                id="formtabs-contact-personfirstname"
+                                                                id="formtabs-site-personfirstname"
                                                                 placeholder="First Name"
-                                                                name="contactPersonFirstName"
-                                                                aria-label="First Name" />
+                                                                name="sitePersonFirstName"
+                                                                aria-label="First Name"
+                                                                value="{{ $customer->siteaddress->contact_firstname ?? '' }}" />
                                                         </div>
                                                         <div class="col-sm-5">
                                                             <input
                                                                 type="text"
                                                                 class="form-control"
-                                                                id="formtabs-contact-personlastname"
+                                                                id="formtabs-site-personlastname"
                                                                 placeholder="Last Name"
-                                                                name="contactPersonLAstName"
-                                                                aria-label="Last Name" />
+                                                                name="sitePersonLastName"
+                                                                aria-label="Last Name"
+                                                                value="{{ $customer->siteaddress->contact_lastname ?? '' }}" />
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="row">
-                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-contact-phone">Contact Mobile</label>
+                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-site-phone">Contact Mobile</label>
                                                         <div class="col-sm-9">
                                                             <input
                                                                 type="text"
-                                                                id="formtabs-contact-mobile"
+                                                                id="formtabs-site-mobile"
                                                                 class="form-control phone-mask"
                                                                 placeholder="+1 (609) 988-44-11"
                                                                 aria-label="+1 (609) 988-44-11"
-                                                                name="contactMobile" />
+                                                                name="siteMobile"
+                                                                value="{{ $customer->siteaddress->contact_mobile ?? '' }}" />
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="row">
-                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-contact-phone">Contact Phone</label>
+                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-site-phone">Contact Phone</label>
                                                         <div class="col-sm-9">
                                                             <input
                                                                 type="text"
-                                                                id="formtabs-contact-phone"
+                                                                id="formtabs-site-phone"
                                                                 class="form-control phone-mask"
                                                                 placeholder="+1 (609) 988-44-11"
                                                                 aria-label="+1 (609) 988-44-11"
-                                                                name="contactPhone" />
+                                                                name="sitePhone"
+                                                                value="{{ $customer->siteaddress->contact_phone ?? '' }}" />
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="row">
-                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-contact-email">Contact email</label>
+                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-site-email">Contact email</label>
                                                         <div class="col-sm-9">
                                                             <input
                                                                 type="text"
-                                                                id="formtabs-contact-email"
+                                                                id="formtabs-site-email"
                                                                 class="form-control"
                                                                 placeholder="john.doe@example.com"
                                                                 aria-label="john.doe@example.com"
-                                                                name="contactEmail" />
+                                                                name="siteEmail"
+                                                                value="{{ $customer->siteaddress->contact_email ?? '' }}" />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -421,7 +446,24 @@
                                                                 id="formtabs-site-address"
                                                                 placeholder="30H Burdi Street"
                                                                 name="siteAddress"
-                                                                aria-label="30H Burdi Street" />
+                                                                aria-label="30H Burdi Street"
+                                                                value="{{ $customer->siteaddress->address ?? '' }}" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <div class="row">
+                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-site-county">County</label>
+                                                        <div class="col-sm-9">
+                                                            <input
+                                                                type="text"
+                                                                class="form-control"
+                                                                id="formtabs-site-county"
+                                                                placeholder="Birmingham"
+                                                                name="siteCounty"
+                                                                aria-label="Birmingham"
+                                                                value="{{ $customer->siteaddress->county ?? '' }}" />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -436,32 +478,21 @@
                                                                 id="formtabs-site-postcode"
                                                                 placeholder="A1 1AA"
                                                                 name="sitePostcode"
-                                                                aria-label="A1 1AA" />
+                                                                aria-label="A1 1AA"
+                                                                value="{{ $customer->siteaddress->postcode ?? '' }}" />
                                                         </div>
                                                     </div>
                                                 </div>
 
-                                                <div class="col-md-6">
-                                                    <div class="row">
-                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-site-county">County</label>
-                                                        <div class="col-sm-9">
-                                                            <input
-                                                                type="text"
-                                                                class="form-control"
-                                                                id="formtabs-site-county"
-                                                                placeholder="Birmingham"
-                                                                name="sitecounty"
-                                                                aria-label="Birmingham" />
-                                                        </div>
-                                                    </div>
-                                                </div>
+
                                                 <div class="col-md-6">
                                                     <div class="row">
                                                         <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-site-country">Country</label>
                                                         <div class="col-sm-9">
-                                                            <select id="formtabs-site-country" name="siteCountry" class="select2 form-select" data-allow-clear="true" disabled>
-                                                                <option value="uk">United Kingdom</option>
-                                                            </select>
+                                                            <input
+                                                                type="text"
+                                                                class="form-control"
+                                                                value="{{ $customer->siteaddress->country ?? '' }}" />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -479,11 +510,7 @@
                                                             <input
                                                                 type="text"
                                                                 class="form-control"
-                                                                id="formtabs-contact-company"
-                                                                placeholder="Company Name"
-                                                                name="contactPersonFirstName"
-                                                                aria-label="Company Name"
-                                                                value="{{ $customer->findetails->company_name ?? '' }}" />
+                                                                value="{{ $customer->company_name }}" readonly />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -495,7 +522,7 @@
                                                                 id="formtabs-assets"
                                                                 name="registration_no"
                                                                 class="form-control"
-                                                                placeholder="0.00"
+                                                                placeholder="registration number"
                                                                 value="{{ $customer->findetails->registration_number ?? '' }}" />
                                                         </div>
                                                     </div>
@@ -504,7 +531,8 @@
                                                     <div class="row">
                                                         <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-assets">Assets</label>
                                                         <div class="col-sm-9">
-                                                            <input type="text"
+                                                            <input type="number"
+                                                                min="0"
                                                                 id="formtabs-assets"
                                                                 name="assets"
                                                                 class="form-control"
@@ -517,7 +545,8 @@
                                                     <div class="row">
                                                         <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-net-assets">Net Assets</label>
                                                         <div class="col-sm-9">
-                                                            <input type="text"
+                                                            <input type="number"
+                                                                min="0"
                                                                 id="formtabs-net-assets"
                                                                 name="netAssets"
                                                                 class="form-control"
@@ -531,7 +560,8 @@
                                                     <div class="row">
                                                         <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-liabilities">Liabilities</label>
                                                         <div class="col-sm-9">
-                                                            <input type="text"
+                                                            <input type="number"
+                                                                min="0"
                                                                 id="formtabs-liabilities"
                                                                 name="liabilities"
                                                                 class="form-control"
@@ -544,7 +574,8 @@
                                                     <div class="row">
                                                         <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-cash-in-bank">Cash in Bank</label>
                                                         <div class="col-sm-9">
-                                                            <input type="text"
+                                                            <input type="number"
+                                                                min="0"
                                                                 id="formtabs-cash-in-bank"
                                                                 name="cashInBank"
                                                                 class="form-control"

@@ -22,7 +22,7 @@ class Customer extends Model
     }
     public function siteaddress()
     {
-        return $this->hasMany(CustomerAddress::class, 'customer_id', 'id')->where('type', 'site');
+        return $this->hasOne(CustomerAddress::class, 'customer_id', 'id')->where('type', 'site');
     }
     public function findetails()
     {

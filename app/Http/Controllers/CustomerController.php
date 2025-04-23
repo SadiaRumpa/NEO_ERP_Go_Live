@@ -128,89 +128,84 @@ class CustomerController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id)
     {
-        $request->validate([
-            'companyName' => 'required',
-            'contactPersonName' => 'required',
-            'contactPhone' => 'required',
-            'contactEmail' => 'required',
+        // dd($request->all());
+        $validated = $request->validate([
+            'companyName'         => 'required|string|max:255',
+            'contactPersonFirstName'   => 'required|string|max:255',
+            'contactPersonLastName'   => 'nullable|string|max:255',
+            'contactPhone'        => 'required|string|max:20',
+            'contactEmail'        => 'required|email|max:255',
         ]);
 
+        // Update Customer
         $customer = Customer::findOrFail($id);
-        $customer->company_name = $request->companyName;
-        $customer->contact_name = $request->contactPersonName;
-        $customer->contact_no = $request->contactPhone;
-        $customer->contact_email = $request->contactEmail;
-        $customer->status = 'active';
-        $customer->save();
+        $customer->update([
+            'company_name'   => $validated['companyName'],
+            'contact_firstname'   => $validated['contactPersonFirstName'],
+            'contact_lastname' => $validated['contactPersonLastName'],
+            'contact_phone'     => $validated['contactPhone'],
+            'contact_mobile'       => $validated['contactPhone'],
+            'contact_email'  => $validated['contactEmail'],
+        ]);
 
-        if ($request->billingAddress != null) {
-            $customeraddress = CustomerAddress::where('customer_id', $id)->where('type', 'billing')->first();
-            if ($customeraddress != null) {
-                $customeraddress->address = $request->billingAddress;
-                $customeraddress->city = $request->billingCity;
-                $customeraddress->state = $request->billingState;
-                $customeraddress->country = $request->billingCountry;
-                $customeraddress->zip_code = $request->billingPostcode;
-                $customeraddress->save();
-            } else {
-                $customeraddress = new CustomerAddress();
-                $customeraddress->address = $request->billingAddress;
-                $customeraddress->city = $request->billingCity;
-                $customeraddress->state = $request->billingState;
-                $customeraddress->country = $request->billingCountry;
-                $customeraddress->zip_code = $request->billingPostcode;
-                $customeraddress->customer_id = $id;
-                $customeraddress->type = "billing";
-                $customeraddress->save();
-            }
+        // Update addresses
+        $this->updateCustomerAddress($request, $id, 'billing');
+        $this->updateCustomerAddress($request, $id, 'site');
+
+        // Update customer financial details
+        if ($request->filled('assets')) {
+            $this->updateCustomerDetails($request, $id);
         }
-        if ($request->siteAddress != null) {
-            $customeraddress = CustomerAddress::where('customer_id', $id)->where('type', 'site')->first();
-            if ($customeraddress != null) {
-                $customeraddress->address = $request->siteAddress;
-                $customeraddress->city = $request->siteCity;
-                $customeraddress->state = $request->siteState;
-                $customeraddress->country = $request->siteCountry;
-                $customeraddress->zip_code = $request->sitePostcode;
-            } else {
-                $customeraddress = new CustomerAddress();
-                $customeraddress->address = $request->siteAddress;
-                $customeraddress->city = $request->siteCity;
-                $customeraddress->state = $request->siteState;
-                $customeraddress->country = $request->siteCountry;
-                $customeraddress->zip_code = $request->sitePostcode;
-                $customeraddress->customer_id = $id;
-                $customeraddress->type = "site";
-                $customeraddress->save();
-            }
-        }
-        if ($request->assets != null) {
-            $customerdetails = CustomerDetails::where('customer_id', $id)->first();
-            if ($customerdetails != null) {
-                $customerdetails->assets = $request->assets;
-                $customerdetails->net_assets = $request->netAssets;
-                $customerdetails->liabilities = $request->liabilities;
-                $customerdetails->cash_in_bank = $request->cashInBank;
-                $customerdetails->save();
-            } else {
-                $customerdetails = new CustomerDetails();
-                $customerdetails->assets = $request->assets ?? 0;
-                $customerdetails->net_assets = $request->netAssets ?? 0;
-                $customerdetails->liabilities = $request->liabilities ?? 0;
-                $customerdetails->cash_in_bank = $request->cashInBank ?? 0;
-                $customerdetails->customer_id = $id;
-                $customerdetails->save();
-            }
-        }
+
         return redirect()->back()->with('success', 'Customer updated successfully.');
-        // return redirect()->route('customers.edit', $id)
-        //     ->with('success', 'Customer updated successfully.');
     }
+
+    private function updateCustomerAddress(Request $request, $customerId, $type)
+    {
+        $prefix = $type === 'billing' ? 'billing' : 'site';
+
+        if (!$request->filled("{$prefix}Address")) {
+            return;
+        }
+
+        $addressData = [
+            'contact_firstname'=> $request->input("{$prefix}PersonFirstName"),
+            'contact_lastname' => $request->input("{$prefix}PersonLastName"),
+            'contact_phone'    => $request->input("{$prefix}Phone"),
+            'contact_mobile'   => $request->input("{$prefix}Mobile"),
+            'contact_email'    => $request->input("{$prefix}Email"),
+            'address'     => $request->input("{$prefix}Address"),
+            'county'     => $request->input("{$prefix}County") ?? 'United Kingdom',
+            'postcode'    => $request->input("{$prefix}Postcode"),
+            'customer_id' => $customerId,
+            'type'        => $type,
+        ];
+
+        $customerAddress = CustomerAddress::firstOrNew([
+            'customer_id' => $customerId,
+            'type'        => $type,
+        ]);
+
+        $customerAddress->fill($addressData)->save();
+    }
+    private function updateCustomerDetails(Request $request, $customerId)
+    {
+        $detailsData = [
+            'company_name'       => $request->input('companyName', ''),
+            'registration_number' => $request->input('registration_no', ''),
+            'assets'             => $request->input('assets', 0),
+            'net_assets'         => $request->input('netAssets', 0),
+            'liabilities'        => $request->input('liabilities', 0),
+            'cash_in_bank'       => $request->input('cashInBank', 0),
+            'customer_id'        => $customerId,
+        ];
+
+        $customerDetails = CustomerDetails::firstOrNew(['customer_id' => $customerId]);
+        $customerDetails->fill($detailsData)->save();
+    }
+
 
     /**
      * Remove the specified resource from storage.

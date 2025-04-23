@@ -17,18 +17,6 @@
 
 <script>
     $(function() {
-        // Comment editor
-        const commentEditor = document.querySelector('.enquiry-editor');
-        if (commentEditor) {
-            var quill = new Quill(commentEditor, {
-                modules: {
-                    toolbar: '.enquiry-toolbar'
-                },
-                placeholder: 'Enquiry Description',
-                theme: 'snow'
-            });
-            quill.enable(false);
-        }
         // Datepicker
         const date = new Date();
 
@@ -41,7 +29,6 @@
             });
         }
     });
-
     $(function() {
         // Select2
         var select2 = $('.select2');
@@ -55,6 +42,58 @@
             });
         }
     });
+</script>
+<script>
+    let quill;
+    document.addEventListener('DOMContentLoaded', function() {
+        const editorContainer = document.querySelector('#enquiry-description-edit');
+        if (editorContainer) {
+            quill = new Quill(editorContainer, {
+                modules: {
+                    toolbar: '.enquiry-toolbar'
+                },
+                placeholder: 'Enquiry Description',
+                theme: 'snow'
+            });
+        }
+    });
+
+    function updateEnquiryDetails() {
+        const htmlContent = quill.root.innerHTML.trim();
+        const textContent = quill.getText().trim();
+
+        if (textContent === '') {
+            alert('Enquiry description is required.');
+            return;
+        }
+
+        // Add to hidden input
+        document.getElementById('enquirydescription-hidden').value = htmlContent;
+        const form = document.getElementById('enquiryForm');
+        const formData = new FormData(form);
+        fetch(`/enquiry/updatedescription/{{ $enquiry->id }}`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': form.querySelector('input[name="_token"]').value
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert(data.message);
+                    // Optionally close modal
+                    // $('#yourModalId').modal('hide');
+                    location.reload(); // This will reload the entire page
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Something went wrong!');
+            });
+    }
 </script>
 
 <script>
@@ -210,18 +249,16 @@
                                         <div class="card-body">
                                             <div class="mb-4">
                                                 <label for="sendtoemail" class="form-label">Send to</label>
-                                                <input type="email" class="form-control" id="sendtoemail" placeholder="name@example.com" name="sendtoemail" value="{{ $enquiry->customer->contact_email }}" readonly>
+                                                <input type="email" class="form-control" id="sendtoemail" placeholder="name@example.com" name="sendtoemail" value="{{ $enquiry->customer->contact_email }}">
                                             </div>
                                             <div class="mb-4">
                                                 <label for="mailsubject" class="form-label">Subject</label>
-                                                <input class="form-control" type="text" id="mailsubject" aria-label="readonly input example" name="mailsubject" value="Enquiry {{ $enquiry->enquiry_name }} has been rejected" readonly>
+                                                <input class="form-control" type="text" id="mailsubject" aria-label="readonly input example" name="mailsubject" value="Enquiry {{ $enquiry->enquiry_name }} has been rejected">
                                             </div>
                                             <div class="form-control p-0">
-                                                
                                                 <div class="border-0 pb-6" id="mailmessage"></div>
                                             </div>
                                             <input type="hidden" id="mailmessage_input" name="mailmessage">
-                                            
                                         </div>
                                     </div>
                                 </div>
@@ -250,31 +287,91 @@
 
                         <div class="card-header-elements ms-auto">
                             <div class="btn-group">
-                                <button type="button" class="btn btn-warning waves-effect waves-light">Edit</button>
+
+                                <button
+                                    type="button"
+                                    class="btn btn-warning waves-effect waves-light"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#editdescriptionModal">
+                                    Edit
+                                </button>
+
                             </div>
                         </div>
                     </div>
                     <div class="card-body">
                         <!-- Description -->
                         <div class="mb-6">
-                            <label class="mb-1">Description</label>
-                            <div class="form-control p-0">
-                                <div class="enquiry-toolbar border-0 border-bottom">
-                                    <div class="d-flex justify-content-start">
-                                        <span class="ql-formats me-0">
-                                            <button class="ql-bold"></button>
-                                            <button class="ql-italic"></button>
-                                            <button class="ql-underline"></button>
-                                            <button class="ql-list" value="ordered"></button>
-                                            <button class="ql-list" value="bullet"></button>
-                                            <button class="ql-link"></button>
-                                            <button class="ql-image"></button>
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="enquiry-editor border-0 pb-6" id="enquiry-description" disabled> {!! $enquiry->enquiry_description !!}</div>
+                            <div class="form-control p-2">
+                                {!! $enquiry->enquiry_description !!}
                             </div>
                         </div>
+
+                        <!-- Form with Image Modal -->
+                        <div
+                            class="modal-onboarding modal fade animate__animated"
+                            id="editdescriptionModal"
+                            tabindex="-1"
+                            aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content text-center">
+                                    <div class="modal-header border-0">
+                                        <a
+                                            class="text-body-secondary close-label"
+                                            href="javascript:void(0);"
+                                            data-bs-dismiss="modal">Skip Intro</a>
+                                        <button
+                                            type="button"
+                                            class="btn-close"
+                                            data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <form id="enquiryForm">
+                                        @csrf
+                                        <div class="modal-body p-0">
+                                            <div class="onboarding-content mb-0">
+                                                <div class="row">
+                                                    <div class="col-sm-12 col-md-12 mb-4">
+                                                        <div class="mb-6">
+                                                            <label class="mb-1">Description</label>
+
+                                                            <input type="hidden" name="enquirydescription" id="enquirydescription-hidden">
+                                                            <input type="hidden" name="enquiry_id" value="{{ $enquiry->id }}">
+
+                                                            <div class="form-control p-0">
+                                                                <div class="enquiry-toolbar border-0 border-bottom">
+                                                                    <div class="d-flex justify-content-start">
+                                                                        <span class="ql-formats me-0">
+                                                                            <button class="ql-bold"></button>
+                                                                            <button class="ql-italic"></button>
+                                                                            <button class="ql-underline"></button>
+                                                                            <button class="ql-list" value="ordered"></button>
+                                                                            <button class="ql-list" value="bullet"></button>
+                                                                            <button class="ql-link"></button>
+                                                                            <button class="ql-image"></button>
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="border-0 pb-6" id="enquiry-description-edit">
+                                                                    {!! $enquiry->enquiry_description !!}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer border-0">
+                                            <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">
+                                                Close
+                                            </button>
+                                            <button type="button" class="btn btn-success" onclick="updateEnquiryDetails()">Save</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <!--/ Form with Image Modal -->
                     </div>
                 </div>
                 <!-- Enquiry Information -->
@@ -294,9 +391,15 @@
                             <div class="swiper gallery-top">
                                 <div class="swiper-wrapper">
                                     @foreach ($enquiry->enquiryimages as $enim)
+                                    @if($enim->source == "s3")
+                                    <div class="swiper-slide" style="background-image: url({{ $enim->image_url }})">
+                                        {{ $enim->image_caption }}
+                                    </div>
+                                    @else
                                     <div class="swiper-slide" style="background-image: url({{ asset('/') }}/{{ $enim->image_path }})">
                                         {{ $enim->image_caption }}
                                     </div>
+                                    @endif
                                     @endforeach
                                 </div>
                                 <!-- Add Arrows -->
@@ -306,9 +409,15 @@
                             <div class="swiper gallery-thumbs">
                                 <div class="swiper-wrapper">
                                     @foreach ($enquiry->enquiryimages as $enim)
+                                    @if($enim->source == "s3")
+                                    <div class="swiper-slide" style="background-image: url({{ $enim->image_url }})">
+                                        {{ $enim->image_caption }}
+                                    </div>
+                                    @else
                                     <div class="swiper-slide" style="background-image: url({{ asset('/') }}/{{ $enim->image_path }})">
                                         {{ $enim->image_caption }}
                                     </div>
+                                    @endif
                                     @endforeach
 
                                 </div>
@@ -366,7 +475,16 @@
 
                                 <div class="card-header-elements ms-auto">
                                     <div class="btn-group">
-                                        <button type="button" class="btn btn-warning waves-effect waves-light">Edit</button>
+
+                                        <!-- Edit location -->
+                                        <button
+                                            type="button"
+                                            class="btn btn-warning waves-effect waves-light"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#editlocationModal">
+                                            Edit
+                                        </button>
+                                        <!--/ Edit location -->
                                     </div>
                                 </div>
                             </div>
@@ -402,6 +520,59 @@
                                         </div>
                                     </li>
                                 </ul>
+
+                                <!-- Edit location Modal -->
+                                <div
+                                    class="modal-onboarding modal fade animate__animated"
+                                    id="editlocationModal"
+                                    tabindex="-1"
+                                    aria-hidden="true">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content text-center">
+                                            <div class="modal-header border-0">
+                                                <a
+                                                    class="text-body-secondary close-label"
+                                                    href="javascript:void(0);"
+                                                    data-bs-dismiss="modal">Skip Intro</a>
+                                                <button
+                                                    type="button"
+                                                    class="btn-close"
+                                                    data-bs-dismiss="modal"
+                                                    aria-label="Close"></button>
+                                            </div>
+                                            <form accept="application/json" method="POST" action="{{ route('enquiry.updateaddress', $enquiry->id) }}">
+                                                @csrf
+                                                <div class="modal-body p-0">
+                                                    <div class="onboarding-content mb-2">
+                                                        <div class="row">
+                                                            <div class="col-md-12">
+                                                                <label class="form-label" for="formtabs-enquiry-address">Address</label>
+                                                                <textarea class="form-control" id="formtabs-enquiry-address" name="enquiry_address" required>{{ $enquiry->enquiryaddress->address }}</textarea>
+                                                            </div>
+                                                            <div class="col-sm-6">
+                                                                <label class="form-label" for="formtabs-enquiry-county">County</label>
+                                                                <input class="form-control" id="formtabs-enquiry-county" name="enquiry_county" value="{{ $enquiry->enquiryaddress->county }}" required />
+                                                            </div>
+                                                            <div class="col-sm-6">
+                                                                <label class="form-label" for="formtabs-enquiry-postcode">Postalcode</label>
+                                                                <input class="form-control" id="formtabs-enquiry-postcode" name="enquiry_postcode" value="{{ $enquiry->enquiryaddress->postcode }}" required />
+                                                            </div>
+                                                            <input type="hidden" name="enquiry_id" value="{{ $enquiry->id }}">
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer border-0">
+                                                    <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">
+                                                        Close
+                                                    </button>
+                                                    <button type="submit" class="btn btn-success">Update</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!--/ Edit location Modal -->
                             </div>
                         </div>
                     </div>

@@ -10,7 +10,9 @@ class EnquiryImage extends Model
         'enquiry_id',
         'image_path',
         'image_name',
-        'image_caption'
+        'image_caption',
+        'image_url',
+        'source'
     ];
 
     public function enquiry()
