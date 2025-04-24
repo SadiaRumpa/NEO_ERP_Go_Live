@@ -48,6 +48,7 @@ class EnquiryController extends Controller
                     return $btn;
                 })
                 ->rawColumns(['action'])
+                ->addIndexColumn()
                 ->make(true);
         }
 
@@ -233,6 +234,19 @@ class EnquiryController extends Controller
         return response()->json(['status' => 'error', 'message' => 'Failed to add enquiry note.']);
     }
 
+    public function deleteenqueryNotes($noteid)
+    {
+        $note = EnquiryNote::findOrFail($noteid);
+
+        if (!$note) {
+            return response()->json(['status' => 'error', 'message' => 'Note not found.']);
+        }
+
+        $note->delete();
+
+        return response()->json(['status' => 'success', 'message' => 'Note deleted successfully.']);
+    }
+
     public function enqueryImages(Request $request)
     {
         $validated = $request->validate([
@@ -269,7 +283,27 @@ class EnquiryController extends Controller
         }
 
         return response()->json(['status' => 'error', 'message' => 'Failed to add enquiry image.']);
-    }   
+    }
+
+
+    public function destroyEnqueryImage($id)
+    {
+        $image = EnquiryImage::find($id);
+
+        if (!$image) {
+            return response()->json(['status' => 'error', 'message' => 'Image not found.']);
+        }
+
+        // Optional: delete from storage if needed
+        if ($image->source !== 's3' && Storage::disk('public')->exists($image->image_path)) {
+            Storage::disk('public')->delete($image->image_path);
+        }
+
+        $image->delete();
+
+        return response()->json(['status' => 'success', 'message' => 'Image deleted successfully.']);
+    }
+
 
     public function updateEnquiryDetails(Request $request, $id)
     {

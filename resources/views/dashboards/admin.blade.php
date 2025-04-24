@@ -34,8 +34,8 @@
                     <div class="row align-items-center g-md-8">
                         <div class="col-12 col-md-5 d-flex flex-column">
                             <div class="d-flex gap-2 align-items-center mb-3 flex-wrap">
-                                <h2 class="mb-0">$468</h2>
-                                <div class="badge rounded bg-label-success">+4.2%</div>
+                                <h2 class="mb-0">$0</h2>
+                                <div class="badge rounded bg-label-success">+0%</div>
                             </div>
                             <small class="text-body">You informed of this week compared to last week</small>
                         </div>
@@ -52,7 +52,7 @@
                                     </div>
                                     <h6 class="mb-0 fw-normal">Earnings</h6>
                                 </div>
-                                <h4 class="my-2">$545.69</h4>
+                                <h4 class="my-2">$0</h4>
                                 <div class="progress w-75" style="height: 4px">
                                     <div
                                         class="progress-bar"
@@ -70,7 +70,7 @@
                                     </div>
                                     <h6 class="mb-0 fw-normal">Profit</h6>
                                 </div>
-                                <h4 class="my-2">$256.34</h4>
+                                <h4 class="my-2">$0</h4>
                                 <div class="progress w-75" style="height: 4px">
                                     <div
                                         class="progress-bar bg-info"
@@ -88,7 +88,7 @@
                                     </div>
                                     <h6 class="mb-0 fw-normal">Expense</h6>
                                 </div>
-                                <h4 class="my-2">$74.19</h4>
+                                <h4 class="my-2">$0</h4>
                                 <div class="progress w-75" style="height: 4px">
                                     <div
                                         class="progress-bar bg-danger"

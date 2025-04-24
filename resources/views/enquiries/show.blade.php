@@ -162,6 +162,64 @@
     });
 </script>
 
+<script>
+    $(document).ready(function() {
+        $('.delete-note').click(function() {
+            const noteId = $(this).data('id');
+            const confirmation = confirm('Are you sure you want to delete this note?');
+            if (confirmation) {
+                $.ajax({
+                    url: `/enquiries/delete-note/${noteId}`,
+                    method: 'DELETE',
+                    data: {
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            alert(response.message);
+                            window.location.reload(); // Reload the page to see the changes
+                        } else {
+                            alert('Error: ' + response.message);
+                        }
+                    },
+                    error: function(xhr) {
+                        alert('Something went wrong!');
+                    }
+                });
+            }
+        });
+    });
+</script>
+
+<script>
+    $(document).ready(function() {
+        $('.delete-image').click(function() {
+            const imageId = $(this).data('id');
+            const confirmation = confirm('Are you sure you want to delete this image?');
+            if (confirmation) {
+                $.ajax({
+                    url: `/enquiries/delete-image/${imageId}`,
+                    method: 'DELETE',
+                    data: {
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            alert(response.message);
+                            window.location.reload(); // Reload the page to see the changes
+                        } else {
+                            alert('Error: ' + response.message);
+                        }
+                    },
+                    error: function(xhr) {
+                        alert('Something went wrong!');
+                    }
+                });
+            }
+        });
+    });
+</script>
+
 
 
 @endsection
@@ -406,15 +464,16 @@
                             <div class="swiper gallery-top">
                                 <div class="swiper-wrapper">
                                     @foreach ($enquiry->enquiryimages as $enim)
-                                    @if($enim->source == "s3")
-                                    <div class="swiper-slide" style="background-image: url({{ $enim->image_url }})">
-                                        {{ $enim->image_caption }}
+                                    <div class="swiper-slide position-relative" style="background-image: url({{ $enim->source == 's3' ? $enim->image_url : asset($enim->image_path) }})">
+                                        <div class="position-absolute top-0 end-0 p-2">
+                                            <button class="btn btn-sm btn-danger delete-image" data-id="{{ $enim->id }}" style="z-index: 10;">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+                                        </div>
+                                        <div class="text-white bg-dark bg-opacity-50 p-1 position-absolute bottom-0 w-100 text-center">
+                                            {{ $enim->image_caption }}
+                                        </div>
                                     </div>
-                                    @else
-                                    <div class="swiper-slide" style="background-image: url({{ asset('/') }}/{{ $enim->image_path }})">
-                                        {{ $enim->image_caption }}
-                                    </div>
-                                    @endif
                                     @endforeach
                                 </div>
                                 <!-- Add Arrows -->
@@ -505,12 +564,19 @@
                             <div class="card-body">
                                 <ul class="timeline mb-0">
                                     @foreach ($enquiry->enquirynotes as $enot)
-                                    <li class="timeline-item ps-6 border-dashed">
-                                        <span class="timeline-indicator-advanced timeline-indicator-success border-0 shadow-none">
-                                            <i class="icon-base ti tabler-circle-check"></i>
-                                        </span>
-                                        <div class="timeline-event ps-1">
-                                            <p class="text-body mb-0">{{ $enot->note }}</p>
+                                    <li class="timeline-item timeline-item-transparent">
+                                        <span class="timeline-point timeline-point-primary"></span>
+                                        <div class="timeline-event">
+                                            <div class="timeline-header mb-3">
+                                                <h6 class="mb-0">EM</h6>
+                                                <small class="text-body-secondary">
+                                                    <span class="badge rounded-pill bg-label-danger">
+                                                        <i class="fa-solid fa-trash delete-note" data-id="{{ $enot->id }}" style="cursor: pointer;"></i>
+                                                    </span>
+
+                                                </small>
+                                            </div>
+                                            <p class="mb-2">{{ $enot->note }}</p>
                                         </div>
                                     </li>
                                     @endforeach

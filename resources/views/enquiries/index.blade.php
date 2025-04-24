@@ -24,8 +24,10 @@
             ajax: "{{ route('enquiries.index') }}",
 
             columns: [{
-                    data: 'id',
-                    name: 'id'
+                    data: 'DT_RowIndex',
+                    name: 'DT_RowIndex',
+                    orderable: false,
+                    searchable: false
                 },
                 {
                     data: 'created_at',
@@ -43,7 +45,18 @@
                 },
                 {
                     data: 'enquiry_description',
-                    name: 'enquiry_description'
+                    name: 'enquiry_description',
+                    render: function(data, type, row) {
+                        // Strip HTML tags
+                        var div = document.createElement("div");
+                        div.innerHTML = data;
+                        var text = div.textContent || div.innerText || "";
+
+                        // Truncate to 200 chars
+                        var truncated = text.length > 200 ? text.substring(0, 200) + "..." : text;
+
+                        return truncated;
+                    }
                 },
                 {
                     data: 'enquiry_source',

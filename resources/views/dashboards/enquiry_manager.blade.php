@@ -33,12 +33,12 @@
                         <div class="avatar me-4">
                             <span class="avatar-initial rounded bg-label-primary"><i class="icon-base ti tabler-truck icon-28px"></i></span>
                         </div>
-                        <h4 class="mb-0">42</h4>
+                        <h4 class="mb-0">{{ $newenquiriescount }}</h4>
                     </div>
                     <p class="mb-1">New Enquiries</p>
                     <p class="mb-0">
-                        <span class="text-heading fw-medium me-2">+18.2%</span>
-                        <small class="text-body-secondary">than last week</small>
+                        <span class="text-heading fw-medium me-2">{{ $change_percent }}%</span>
+                        <small class="text-body-secondary">{{ $trend }} than last week</small>
                     </p>
                 </div>
             </div>
@@ -50,13 +50,13 @@
                         <div class="avatar me-4">
                             <span class="avatar-initial rounded bg-label-warning"><i class="icon-base ti tabler-alert-triangle icon-28px"></i></span>
                         </div>
-                        <h4 class="mb-0">8</h4>
+                        <h4 class="mb-0">{{ $canceledenquiriescount }}</h4>
                     </div>
-                    <p class="mb-1">Leads under review</p>
-                    <p class="mb-0">
+                    <p class="mb-1">enquiries cancelled</p>
+                    <!-- <p class="mb-0">
                         <span class="text-heading fw-medium me-2">-8.7%</span>
                         <small class="text-body-secondary">than last week</small>
-                    </p>
+                    </p> -->
                 </div>
             </div>
         </div>
@@ -67,12 +67,12 @@
                         <div class="avatar me-4">
                             <span class="avatar-initial rounded bg-label-danger"><i class="icon-base ti tabler-git-fork icon-28px"></i></span>
                         </div>
-                        <h4 class="mb-0">27</h4>
+                        <h4 class="mb-0">{{ $totalenquiriescount }}</h4>
                     </div>
-                    <p class="mb-1">Ongoing Jobs</p>
+                    <p class="mb-1">Total enquiries</p>
                     <p class="mb-0">
-                        <span class="text-heading fw-medium me-2">+4.3%</span>
-                        <small class="text-body-secondary">than last week</small>
+                        <span class="text-heading fw-medium me-2">{{ $totalcustomerscount }}</span>
+                        <small class="text-body-secondary">total customers enrolled</small>
                     </p>
                 </div>
             </div>
@@ -84,11 +84,11 @@
                         <div class="avatar me-4">
                             <span class="avatar-initial rounded bg-label-info"><i class="icon-base ti tabler-clock icon-28px"></i></span>
                         </div>
-                        <h4 class="mb-0">13</h4>
+                        <h4 class="mb-0">0</h4>
                     </div>
                     <p class="mb-1">Finished Jobs</p>
                     <p class="mb-0">
-                        <span class="text-heading fw-medium me-2">-2.5%</span>
+                        <span class="text-heading fw-medium me-2">0%</span>
                         <small class="text-body-secondary">than last week</small>
                     </p>
                 </div>
@@ -130,7 +130,7 @@
                                     </div>
                                 </td>
                                 <td class="pt-5"><span class="badge bg-label-success">{{ $neq->enquiry_source }} </span></td>
-                                
+
                                 <td class="pt-5">
                                     <p class="mb-0 text-heading">{{ $neq->customer->company_name }} </p>
                                 </td>
@@ -155,7 +155,7 @@
         <!--/ New Enquiries -->
 
         <!-- Leads Under Review -->
-        <div class="col-md-6 col-12">
+        <div class="col-md-12 col-12">
             <div class="card h-100">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="card-title m-0 me-2">Leads Under Review</h5>
@@ -169,28 +169,40 @@
                     <table class="table table-borderless border-top">
                         <thead class="border-bottom">
                             <tr>
-                                <th>ID</th>
+                                <th>DATE</th>
+                                <th>LEAD FROM</th>
                                 <th>COMPANY</th>
-                                <th>JOB TYPE</th>
-                                <th>STATUS</th>
+                                <th>ADDRESS</th>
+                                <th>CONTACT</th>
+                                <th>ACTION</th>
                             </tr>
                         </thead>
                         <tbody>
+                            @foreach ($newLeads as $nld)
                             <tr>
                                 <td class="pt-5">
                                     <div class="d-flex flex-column">
-                                        <p class="mb-0 text-heading">Enquiry 1830</p>
+                                        <small class="text-body text-nowrap">{{ \Carbon\Carbon::parse($nld->created_at)->format('j F Y') }}</small>
+                                        <span class="badge rounded-pill bg-label-info">{{ $nld->enquiry_status }}</span>
                                     </div>
                                 </td>
-                                <td class="pt-5">
-                                    <p class="mb-0 text-heading">ABC COMPANY</p>
-                                </td>
-                                <td class="pt-5">
-                                    <p class="mb-0 text-heading">Roof hole repire</p>
-                                </td>
-                                <td class="pt-5"><span class="badge bg-label-warning">Under Review</span></td>
+                                <td class="pt-5"><span class="badge bg-label-success">{{ $nld->enquiry_source }} </span></td>
 
+                                <td class="pt-5">
+                                    <p class="mb-0 text-heading">{{ $nld->customer->company_name }} </p>
+                                </td>
+                                <td class="pt-5">
+                                    <p class="mb-0 text-heading">{{ $nld->enquiryaddress->address ?? '' }}, {{ $nld->enquiryaddress->county ?? '' }} {{ $nld->enquiryaddress->postcode ?? '' }}</p>
+                                </td>
+                                <td class="pt-5">
+                                    <p class="mb-0 text-heading">{{ $nld->customer->contact_firstname }} {{ $nld->customer->contact_lastname }}</p>
+                                    <p class="mb-0 text-heading"> <i class="fa-solid fa-phone"></i> {{ $nld->customer->contact_phone }}</p>
+                                </td>
+                                <td class="pt-5">
+                                    <a href="{{ route('enquiries.show', $nld->slug) }}" class="btn btn-sm btn-dark waves-effect waves-light">REVIEW</a>
+                                </td>
                             </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
