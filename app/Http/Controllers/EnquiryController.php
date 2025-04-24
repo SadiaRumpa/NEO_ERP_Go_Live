@@ -62,7 +62,6 @@ class EnquiryController extends Controller
         $customers = Customer::where('status', 'active')->orderBy('id', 'desc')->get();
         return view('enquiries.create')->with(['customers' => $customers]);
     }
-
     /**
      * Store a newly created resource in storage.
      */
@@ -197,13 +196,12 @@ class EnquiryController extends Controller
         }
     }
 
-
     /**
      * Display the specified resource.
      */
     public function show(string $key)
     {
-        $enquiry = Enquiry::with(['customer', 'enquiryaddress', 'enquiryimages', 'enquirynotes'])->where('slug', $key)->first();
+        $enquiry = Enquiry::with(['customer', 'customer.billingaddress', 'customer.siteaddress', 'enquiryaddress', 'enquiryimages', 'enquirynotes'])->where('slug', $key)->first();
 
         if (!$enquiry) {
             return redirect()->route('enquiries.index')->with('error', 'Enquiry not found.');
@@ -234,6 +232,44 @@ class EnquiryController extends Controller
 
         return response()->json(['status' => 'error', 'message' => 'Failed to add enquiry note.']);
     }
+
+    public function enqueryImages(Request $request)
+    {
+        $validated = $request->validate([
+            'enquiry_id' => 'required|exists:enquiries,id',
+            'enquiryphoto'      => 'required|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+
+        $disk = env('FILESYSTEM_DISK', 'local');
+
+        if ($request->hasFile('enquiryphoto')) {
+            $file = $request->file('enquiryphoto');
+            $path = $file->store('uploads/enqueries', $disk);
+
+            if (!$path) {
+                return response()->json(['status' => 'error', 'message' => 'Failed to store image.']);
+            }
+
+            if ($disk === 's3') {
+                Storage::disk('s3')->setVisibility($path, 'public');
+            }
+
+            EnquiryImage::create([
+                'enquiry_id'  => $validated['enquiry_id'],
+                'image_path'  => $path,
+                'image_name'  => $file->getClientOriginalName(),
+                'image_url'   => Storage::disk($disk)->url($path),
+                'source'      => $disk
+            ]);
+
+            return redirect()->back()->with([
+                'status' => 'success',
+                'message' => 'Enquiry image added successfully.'
+            ]);
+        }
+
+        return response()->json(['status' => 'error', 'message' => 'Failed to add enquiry image.']);
+    }   
 
     public function updateEnquiryDetails(Request $request, $id)
     {

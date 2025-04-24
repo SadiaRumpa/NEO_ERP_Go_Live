@@ -183,6 +183,12 @@
 <!-- Content -->
 <div class="container-xxl flex-grow-1 container-p-y">
     <div class="app-ecommerce">
+        @if(session('success'))
+        <div class="alert alert-success mt-2">{{ session('success') }}</div>
+        @endif
+        @if(session('error'))
+        <div class="alert alert-danger mt-2">{{ session('error') }}</div>
+        @endif
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-6 row-gap-4">
             <div class="d-flex flex-column justify-content-center">
                 <h4 class="mb-1">ENQUIRY : {{ $enquiry->enquiry_name }} <span class="badge bg-label-info">{{ $enquiry->enquiry_status }}</span></h4>
@@ -382,7 +388,16 @@
 
                         <div class="card-header-elements ms-auto">
                             <div class="btn-group">
-                                <button type="button" class="btn btn-primary waves-effect waves-light">Add More >></button>
+
+                                <!-- Image Modal -->
+                                <button
+                                    type="button"
+                                    class="btn btn-warning waves-effect waves-light"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#imageAddModal">
+                                    Add More
+                                </button>
+                                <!--/ Image Modal -->
                             </div>
                         </div>
                     </div>
@@ -423,6 +438,59 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Form with Image Modal -->
+                        <div
+                            class="modal-onboarding modal fade animate__animated"
+                            id="imageAddModal"
+                            tabindex="-1"
+                            aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content text-center">
+                                    <div class="modal-header border-0">
+                                        <a
+                                            class="text-body-secondary close-label"
+                                            href="javascript:void(0);"
+                                            data-bs-dismiss="modal">Skip Intro</a>
+                                        <button
+                                            type="button"
+                                            class="btn-close"
+                                            data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <form accept="application/json" method="POST" action="{{ route('enquiry.add-images') }}" enctype="multipart/form-data">
+                                        @csrf
+
+                                        <div class="modal-body p-0">
+                                            <div class="onboarding-media">
+                                                <div class="mx-2">
+                                                    <!-- Optional illustration here -->
+                                                </div>
+                                            </div>
+
+                                            <div class="onboarding-content mb-0">
+                                                <div class="row">
+                                                    <div class="col-sm-12 col-md-12 mb-4">
+                                                        <div class="mb-4">
+                                                            <label for="basic-default-upload-file" class="form-label">Select Image</label>
+                                                            <input type="file" class="form-control" id="basic-default-upload-file" name="enquiryphoto" accept=".jpg, .jpeg, .png" required />
+                                                            <input type="hidden" name="enquiry_id" value="{{ $enquiry->id }}">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="modal-footer border-0">
+                                            <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Close</button>
+                                            <button type="submit" class="btn btn-success">Add</button>
+                                        </div>
+                                    </form>
+
+                                </div>
+                            </div>
+                        </div>
+                        <!--/ Form with Image Modal -->
 
                     </div>
                 </div>
@@ -648,7 +716,7 @@
                                                                 {{ $enquiry->customer->findetails->company_name ?? 'N/A' }}
                                                             </small>
                                                             <small class="text-success text-uppercase">
-                                                                Reg No.: {{ $enquiry->customer->findetails->company_registration_number ?? 'N/A' }}
+                                                                Reg No.: {{ $enquiry->customer->findetails->registration_number  ?? 'N/A' }}
                                                             </small>
                                                         </div>
                                                         <p class="text-body mb-0">
@@ -662,7 +730,7 @@
                                             </ul>
                                         </div>
                                         <div class="tab-pane fade" id="navs-justified-link-billing" role="tabpanel">
-                                            @isset($enquiry->customer->enquirysiteaddress)
+                                            @isset($enquiry->customer->billingaddress)
                                             <ul class="timeline mb-0">
                                                 <li class="timeline-item ps-6 border-dashed">
                                                     <span class="timeline-indicator-advanced timeline-indicator-success border-0 shadow-none">
@@ -670,12 +738,12 @@
                                                     </span>
                                                     <div class="timeline-event ps-1">
                                                         <div class="timeline-header">
-                                                            <small class="text-success text-uppercase">{{ $enquiry->customer->enquirybillingaddress->contact_firstname ?? 'N/A' }} {{ $enquiry->customer->enquirybillingaddress->contact_lastname ?? 'N/A' }}</small>
+                                                            <small class="text-success text-uppercase">{{ $enquiry->customer->billingaddress->contact_firstname ?? 'N/A' }} {{ $enquiry->customer->billingaddress->contact_lastname ?? 'N/A' }}</small>
                                                         </div>
                                                         <p class="text-body mb-0">
-                                                            <span class="text-heading fw-medium">eMail: </span> <span>{{ $enquiry->customer->enquirybillingaddress->contact_email ?? 'N/A' }}</span> <br>
-                                                            <span class="text-heading fw-medium">Phone: </span> <span>{{ $enquiry->customer->enquirybillingaddress->contact_phone ?? 'N/A' }}</span> <br>
-                                                            <span class="text-heading fw-medium">Mobile: </span> <span>{{ $enquiry->customer->enquirybillingaddress->contact_mobile ?? 'N/A' }}</span> <br>
+                                                            <span class="text-heading fw-medium">eMail: </span> <span>{{ $enquiry->customer->billingaddress->contact_email ?? 'N/A' }}</span> <br>
+                                                            <span class="text-heading fw-medium">Phone: </span> <span>{{ $enquiry->customer->billingaddress->contact_phone ?? 'N/A' }}</span> <br>
+                                                            <span class="text-heading fw-medium">Mobile: </span> <span>{{ $enquiry->customer->billingaddress->contact_mobile ?? 'N/A' }}</span> <br>
                                                         </p>
                                                     </div>
                                                 </li>
@@ -688,10 +756,10 @@
                                                             <small class="text-primary text-uppercase">Billing Address</small>
                                                         </div>
                                                         <h6 class="my-50">
-                                                            <span class="fw-medium">Address: </span><span>{{ $enquiry->customer->enquirybillingaddress->address ?? 'N/A' }}</span> <br>
-                                                            <span class="fw-medium">County: </span><span>{{ $enquiry->customer->enquirybillingaddress->county ?? 'N/A' }}</span> <br>
-                                                            <span class="fw-medium">Postcode: </span><span>{{ $enquiry->customer->enquirybillingaddress->postcode ?? 'N/A' }}</span> <br>
-                                                            <span class="fw-medium">Country: </span><span>{{ $enquiry->customer->enquirybillingaddress->country ?? 'N/A' }}</span> <br>
+                                                            <span class="fw-medium">Address: </span><span>{{ $enquiry->customer->billingaddress->address ?? 'N/A' }}</span> <br>
+                                                            <span class="fw-medium">County: </span><span>{{ $enquiry->customer->billingaddress->county ?? 'N/A' }}</span> <br>
+                                                            <span class="fw-medium">Postcode: </span><span>{{ $enquiry->customer->billingaddress->postcode ?? 'N/A' }}</span> <br>
+                                                            <span class="fw-medium">Country: </span><span>{{ $enquiry->customer->billingaddress->country ?? 'N/A' }}</span> <br>
                                                         </h6>
                                                     </div>
                                                 </li>
@@ -699,8 +767,8 @@
                                             @endisset
                                         </div>
                                         <div class="tab-pane fade" id="navs-justified-link-sites" role="tabpanel">
-                                            @isset($enquiry->customer->enquirysiteaddress)
-                                            @foreach ($enquiry->customer->enquirysiteaddress as $site)
+                                            @isset($enquiry->customer->siteaddress)
+
                                             <ul class="timeline mb-0">
                                                 <li class="timeline-item ps-6 border-dashed">
                                                     <span class="timeline-indicator-advanced timeline-indicator-success border-0 shadow-none">
@@ -708,12 +776,12 @@
                                                     </span>
                                                     <div class="timeline-event ps-1">
                                                         <div class="timeline-header">
-                                                            <small class="text-success text-uppercase">{{ $site->contact_firstname ?? 'N/A' }} {{ $site->contact_lastname ?? 'N/A' }}</small>
+                                                            <small class="text-success text-uppercase">{{ $enquiry->customer->siteaddress->contact_firstname ?? 'N/A' }} {{ $enquiry->customer->siteaddress->contact_lastname ?? 'N/A' }}</small>
                                                         </div>
                                                         <p class="text-body mb-0">
-                                                            <span class="text-heading fw-medium">eMail: </span> <span>{{ $site->contact_email ?? 'N/A' }}</span> <br>
-                                                            <span class="text-heading fw-medium">Phone: </span> <span>{{ $site->contact_phone ?? 'N/A' }}</span> <br>
-                                                            <span class="text-heading fw-medium">Mobile: </span> <span>{{ $site->contact_mobile ?? 'N/A' }}</span> <br>
+                                                            <span class="text-heading fw-medium">eMail: </span> <span>{{ $enquiry->customer->siteaddress->contact_email ?? 'N/A' }}</span> <br>
+                                                            <span class="text-heading fw-medium">Phone: </span> <span>{{ $enquiry->customer->siteaddress->contact_phone ?? 'N/A' }}</span> <br>
+                                                            <span class="text-heading fw-medium">Mobile: </span> <span>{{ $enquiry->customer->siteaddress->contact_mobile ?? 'N/A' }}</span> <br>
                                                         </p>
                                                     </div>
                                                 </li>
@@ -726,15 +794,15 @@
                                                             <small class="text-primary text-uppercase">Billing Address</small>
                                                         </div>
                                                         <h6 class="my-50">
-                                                            <span class="fw-medium">Address: </span><span>{{ $site->address ?? 'N/A' }}</span> <br>
-                                                            <span class="fw-medium">County: </span><span>{{ $site->county ?? 'N/A' }}</span> <br>
-                                                            <span class="fw-medium">Postcode: </span><span>{{ $site->postcode ?? 'N/A' }}</span> <br>
-                                                            <span class="fw-medium">Country: </span><span>{{ $site->country ?? 'N/A' }}</span> <br>
+                                                            <span class="fw-medium">Address: </span><span>{{ $enquiry->customer->siteaddress->address ?? 'N/A' }}</span> <br>
+                                                            <span class="fw-medium">County: </span><span>{{ $enquiry->customer->siteaddress->county ?? 'N/A' }}</span> <br>
+                                                            <span class="fw-medium">Postcode: </span><span>{{ $enquiry->customer->siteaddress->postcode ?? 'N/A' }}</span> <br>
+                                                            <span class="fw-medium">Country: </span><span>{{ $enquiry->customer->siteaddress->country ?? 'N/A' }}</span> <br>
                                                         </h6>
                                                     </div>
                                                 </li>
                                             </ul>
-                                            @endforeach
+
                                             @endisset
                                         </div>
                                     </div>
