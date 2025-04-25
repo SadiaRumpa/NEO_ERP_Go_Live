@@ -103,7 +103,7 @@ class GlobalController extends Controller
             ]);
 
             // Handle image upload
-            $this->uploadImages($request, $enquiry);
+            $this->uploadImages($request, $enquiry->id);
 
             DB::commit();
 
@@ -121,7 +121,7 @@ class GlobalController extends Controller
             ], 500);
         }
     }
-    protected function uploadImages(Request $request, Enquiry $enquiry)
+    protected function uploadImages(Request $request, $enquiryid)
     {
         $disk = env('FILESYSTEM_DISK', 'local');
 
@@ -149,7 +149,7 @@ class GlobalController extends Controller
             }
 
             EnquiryImage::create([
-                'enquiry_id' => $enquiry->id,
+                'enquiry_id' => $enquiryid,
                 'image_path' => $path,
                 'image_name' => $originalName,
                 'image_url'  => $url,
