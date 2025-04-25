@@ -171,7 +171,7 @@ class CustomerController extends Controller
         }
 
         $addressData = [
-            'contact_firstname'=> $request->input("{$prefix}PersonFirstName"),
+            'contact_firstname' => $request->input("{$prefix}PersonFirstName"),
             'contact_lastname' => $request->input("{$prefix}PersonLastName"),
             'contact_phone'    => $request->input("{$prefix}Phone"),
             'contact_mobile'   => $request->input("{$prefix}Mobile"),
@@ -205,6 +205,38 @@ class CustomerController extends Controller
         $customerDetails = CustomerDetails::firstOrNew(['customer_id' => $customerId]);
         $customerDetails->fill($detailsData)->save();
     }
+
+    public function updateFinancialDetails(Request $request, string $id)
+    {
+        $validated = $request->validate([
+            'company_name' => 'required|string|max:255',
+            'registration_no' => 'nullable|string|max:255',
+            'assets' => 'required|numeric',
+            'netAssets' => 'required|numeric',
+            'liabilities' => 'required|numeric',
+            'cashInBank' => 'required|numeric',
+        ]);
+
+        try {
+            CustomerDetails::updateOrCreate(
+                ['customer_id' => $id], // Match condition
+                [
+                    'company_name' => $validated['company_name'],
+                    'registration_number' => $validated['registration_no'],
+                    'assets' => $validated['assets'],
+                    'net_assets' => $validated['netAssets'],
+                    'liabilities' => $validated['liabilities'],
+                    'cash_in_bank' => $validated['cashInBank'],
+                ]
+            );
+
+            return redirect()->back()->with('success', 'Customer financial details updated successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+            // return $e->getMessage();
+        }
+    }
+
 
 
     /**

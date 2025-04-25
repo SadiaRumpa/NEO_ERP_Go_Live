@@ -42,6 +42,7 @@ Route::group(['middleware' => ['auth']], function() {
 
     
     Route::resource('customers', CustomerController::class);
+    Route::post('/customer/updatefinancialdetails/{id}', [CustomerController::class, 'updateFinancialDetails'])->name('customer.updatefinancialdetails');
 
     
 });

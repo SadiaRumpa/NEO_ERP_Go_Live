@@ -779,10 +779,17 @@
                                                     <div class="timeline-event ps-1">
                                                         <div class="timeline-header">
                                                             <small class="text-success text-uppercase">
-                                                                {{ $enquiry->customer->findetails->company_name ?? 'N/A' }}
+                                                                {{ $enquiry->customer->findetails->company_name ?? 'N/A' }} <br />
+                                                                Reg No.: {{ $enquiry->customer->findetails->registration_number  ?? 'N/A' }}
                                                             </small>
                                                             <small class="text-success text-uppercase">
-                                                                Reg No.: {{ $enquiry->customer->findetails->registration_number  ?? 'N/A' }}
+                                                                <button
+                                                                    type="button"
+                                                                    class="btn btn-primary btn-sm waves-effect waves-light"
+                                                                    data-bs-toggle="modal"
+                                                                    data-bs-target="#enquirydetailseditmodal">
+                                                                    Edit
+                                                                </button>
                                                             </small>
                                                         </div>
                                                         <p class="text-body mb-0">
@@ -881,8 +888,119 @@
             </div>
             <!-- /Third column -->
         </div>
+        
 
+        <!-- Modal -->
+        <div class="modal fade" id="enquirydetailseditmodal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel1">Update Details</h5>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                    </div>
+                    <form accept="application/json" method="POST" action="{{ route('customer.updatefinancialdetails', $enquiry->customer->id) }}">
+                        @csrf
+                        <div class="modal-body">
+                            <div class="row g-6">
+                                <div class="col-md-12">
+                                    <div class="row">
+                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-contact-company">Company Name</label>
+                                        <div class="col-sm-6">
+                                            <input
+                                                type="text"
+                                                class="form-control"
+                                                name="company_name"
+                                                value="{{ $enquiry->customer->company_name }}" readonly />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="row">
+                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-assets">Reg. Number</label>
+                                        <div class="col-sm-6">
+                                            <input type="text"
+                                                id="formtabs-assets"
+                                                name="registration_no"
+                                                class="form-control"
+                                                placeholder="registration number"
+                                                value="{{ $enquiry->customer->findetails->registration_number ?? '' }}" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="row">
+                                        <label class="col-sm-4 col-form-label text-sm-end" for="formtabs-assets">Assets</label>
+                                        <div class="col-sm-8">
+                                            <input type="number"
+                                                min="0"
+                                                id="formtabs-assets"
+                                                name="assets"
+                                                class="form-control"
+                                                placeholder="0.00"
+                                                value="{{ $enquiry->customer->findetails->assets ?? 0 }}" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="row">
+                                        <label class="col-sm-4 col-form-label text-sm-end" for="formtabs-net-assets">Net Assets</label>
+                                        <div class="col-sm-8">
+                                            <input type="number"
+                                                min="0"
+                                                id="formtabs-net-assets"
+                                                name="netAssets"
+                                                class="form-control"
+                                                placeholder="0.00"
+                                                value="{{ $enquiry->customer->findetails->net_assets ?? 0 }}" />
+                                        </div>
+                                    </div>
+                                </div>
 
+                                <div class="col-md-6">
+                                    <div class="row">
+                                        <label class="col-sm-4 col-form-label text-sm-end" for="formtabs-liabilities">Liabilities</label>
+                                        <div class="col-sm-8">
+                                            <input type="number"
+                                                min="0"
+                                                id="formtabs-liabilities"
+                                                name="liabilities"
+                                                class="form-control"
+                                                placeholder="0.00"
+                                                value="{{ $enquiry->customer->findetails->liabilities ?? 0 }}" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="row">
+                                        <label class="col-sm-4 col-form-label text-sm-end" for="formtabs-cash-in-bank">Cash in Bank</label>
+                                        <div class="col-sm-8">
+                                            <input type="number"
+                                                min="0"
+                                                id="formtabs-cash-in-bank"
+                                                name="cashInBank"
+                                                class="form-control"
+                                                placeholder="0.00"
+                                                value="{{ $enquiry->customer->findetails->cash_in_bank ?? 0 }}" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">
+                                Close
+                            </button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
 
     </div>
 </div>
