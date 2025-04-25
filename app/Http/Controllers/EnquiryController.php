@@ -366,4 +366,27 @@ class EnquiryController extends Controller
             'message' => 'Enquiry address updated successfully.'
         ]);
     }
+
+    public function destroy(string $id)
+    {
+        $enquiry = Enquiry::find($id);
+        if ($enquiry) {
+            $enquiry->delete();
+            return redirect()->route('enquiries.index')->with('success', 'Enquiry deleted successfully.');
+        }
+        return redirect()->route('enquiries.index')->with('error', 'Enquiry not found.');
+    }
+
+    public function updateEnquiryStatus(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'status' => 'required|string',
+        ]);
+        $enquiry = Enquiry::find($id);
+        if ($enquiry) {
+            $enquiry->update(['enquiry_status' => $validated['status']]);
+            return redirect()->back()->with('success', 'Enquiry updated successfully.');
+        }
+        return redirect()->back()->with('error', 'Enquiry not found.');
+    }
 }

@@ -220,6 +220,53 @@
     });
 </script>
 
+<script>
+    $(document).ready(function() {
+        $('.update-status-btn').on('click', function() {
+            let enquiryId = $(this).data('id');
+            let status = $(this).data('status');
+
+            // Confirmation dialog
+            if (!confirm(`Are you sure you want to change the status to "${status}"?`)) {
+                return; // Stop if user cancels
+            }
+
+            $.ajax({
+                url: '/enquiry/updatestatus/' + enquiryId,
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    status: status
+                },
+                success: function(response) {
+                    $('#status-alert')
+                        .removeClass('alert-danger')
+                        .addClass('alert-success')
+                        .text(response.message || 'Status updated successfully.')
+                        .show();
+
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                },
+                error: function(xhr) {
+                    let errorMsg = 'An error occurred.';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMsg = xhr.responseJSON.message;
+                    }
+
+                    $('#status-alert')
+                        .removeClass('alert-success')
+                        .addClass('alert-danger')
+                        .text(errorMsg)
+                        .show();
+                }
+            });
+        });
+    });
+</script>
+
+
 
 
 @endsection
@@ -249,20 +296,37 @@
         @endif
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-6 row-gap-4">
             <div class="d-flex flex-column justify-content-center">
-                <h4 class="mb-1">ENQUIRY : {{ $enquiry->enquiry_name }} <span class="badge bg-label-info">{{ $enquiry->enquiry_status }}</span></h4>
+                <h4 class="mb-1">ENQUIRY : {{ $enquiry->enquiry_name }}
+                    @if($enquiry->enquiry_status == 'lead')
+                    <span class="badge bg-label-info">{{ $enquiry->enquiry_status }}</span>
+                    @elseif($enquiry->enquiry_status == 'new')
+                    <span class="badge bg-label-primary">{{ $enquiry->enquiry_status }}</span>
+                    @elseif($enquiry->enquiry_status == 'inprogress')
+                    <span class="badge bg-label-warning">{{ $enquiry->enquiry_status }}</span>
+                    @elseif($enquiry->enquiry_status == 'completed')
+                    <span class="badge bg-label-success">{{ $enquiry->enquiry_status }}</span>
+                    @elseif($enquiry->enquiry_status == 'rejected')
+                    <span class="badge bg-label-danger">{{ $enquiry->enquiry_status }}</span>
+                    @endif
+                </h4>
             </div>
             <div class="d-flex align-content-center flex-wrap gap-4">
+                <!-- Alert message area -->
+                <div id="status-alert" style="display:none;" class="alert mt-2"></div>
                 <div class="d-flex gap-4">
-                    <!-- Form with Image Modal -->
                     <button
                         type="button"
                         class="btn btn-danger waves-effect waves-light"
                         data-bs-toggle="modal"
-                        data-bs-target="#onboardImageModal">
-                        Reject Enquiry
+                        data-bs-target="#rejectEnquiryModal">
+                        REJECT ENQUIRY
                     </button>
-                    <!--/ Form with Image Modal -->
-                    <button class="btn btn-label-success">SEND LEAD MANAGER</button>
+
+                    <button class="btn btn-label-success update-status-btn"
+                        data-id="{{ $enquiry->id }}"
+                        data-status="lead">
+                        SEND LEAD MANAGER
+                    </button>
                 </div>
             </div>
         </div>
@@ -270,7 +334,7 @@
         <!-- Reject mail Modal -->
         <div
             class="modal-onboarding modal fade animate__animated"
-            id="onboardImageModal"
+            id="rejectEnquiryModal"
             tabindex="-1"
             aria-hidden="true">
             <div class="modal-dialog" role="document">
@@ -884,13 +948,9 @@
                         </div>
                     </div>
                 </div>
-
             </div>
-            <!-- /Third column -->
         </div>
-        
-
-        <!-- Modal -->
+        <!-- Customar Financial Modal -->
         <div class="modal fade" id="enquirydetailseditmodal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
