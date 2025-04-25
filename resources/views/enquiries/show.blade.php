@@ -310,6 +310,7 @@
                     @endif
                 </h4>
             </div>
+            @if($enquiry->enquiry_status == 'new' || $enquiry->enquiry_status == 'inprogress')
             <div class="d-flex align-content-center flex-wrap gap-4">
                 <!-- Alert message area -->
                 <div id="status-alert" style="display:none;" class="alert mt-2"></div>
@@ -329,6 +330,7 @@
                     </button>
                 </div>
             </div>
+            @endif
         </div>
 
         <!-- Reject mail Modal -->
