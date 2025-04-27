@@ -134,7 +134,7 @@
 </script>
 
 <script>
-    const quill = new Quill('#mailmessage', {
+    const quillm = new Quill('#mailmessage', {
         theme: 'snow',
         placeholder: 'Write your message...',
     });
@@ -147,11 +147,11 @@
             url: `/mail-template/${templateId}`,
             method: 'GET',
             success: function(res) {
-                quill.root.innerHTML = res.message;
+                quillm.root.innerHTML = res.message;
             },
             error: function() {
                 console.error('Failed to load mail template.');
-                quill.root.innerHTML = '';
+                quillm.root.innerHTML = '';
             }
         });
     }
@@ -337,8 +337,7 @@
         <div
             class="modal-onboarding modal fade animate__animated"
             id="rejectEnquiryModal"
-            tabindex="-1"
-            aria-hidden="true">
+            tabindex="-1">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header border-0">
@@ -441,8 +440,7 @@
                         <div
                             class="modal-onboarding modal fade animate__animated"
                             id="editdescriptionModal"
-                            tabindex="-1"
-                            aria-hidden="true">
+                            tabindex="-1">
                             <div class="modal-dialog" role="document">
                                 <div class="modal-content text-center">
                                     <div class="modal-header border-0">

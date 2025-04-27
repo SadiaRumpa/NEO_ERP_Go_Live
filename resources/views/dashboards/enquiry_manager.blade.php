@@ -126,7 +126,7 @@
                                 <td class="pt-5">
                                     <div class="d-flex flex-column">
                                         <small class="text-body text-nowrap">{{ \Carbon\Carbon::parse($neq->created_at)->format('j F Y') }}</small>
-                                        <span class="badge rounded-pill bg-label-info">{{ $neq->enquiry_status }}</span>
+                                        <span class="badge rounded-pill bg-label-primary">{{ $neq->enquiry_status }}</span>
                                     </div>
                                 </td>
                                 <td class="pt-5"><span class="badge bg-label-success">{{ $neq->enquiry_source }} </span></td>
