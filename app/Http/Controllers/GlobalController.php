@@ -23,26 +23,18 @@ class GlobalController extends Controller
     {
         $postcode = str_replace(' ', '', $key);
         $postcode = strtoupper($postcode);
-        $address = [];
+        
+        $check = lookup_postcode($postcode);
+        return response()->json(['address' => $check]);
+    }
 
-        $check = UkPostcode::select('roads', 'parish', 'nearest_station', 'county', 'postcode', 'country')
-            ->where("normalized_postcode", $postcode)
-            ->first();
+    public function checkPostTown($key)
+    {
+        $posttown = str_replace(' ', '', $key);
+        $posttown = strtoupper($posttown);
 
-        if ($check) {
-            $address = [
-                'roads' => $check->roads,
-                'parish' => $check->parish,
-                'nearest_station' => $check->nearest_station,
-                'county' => $check->county,
-                'postcode' => $check->postcode,
-                'country' => $check->country,
-            ];
-        } else {
-            $address['roads'] = 'Invalid postcode';
-        }
-
-        return response()->json(['address' => $address]);
+        $check = lookup_places($posttown);
+        return response()->json(['address' => $check]);
     }
 
     public function storeQuery(Request $request)

@@ -1,9 +1,12 @@
 <?php
 
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use App\Models\Enquiry;
 
 if (! function_exists('generateEnquiryName')) {
-    function generateEnquiryName() {
+    function generateEnquiryName()
+    {
         $latest = Enquiry::latest('id')->first();
         $number = $latest ? ($latest->id + 1) : 1;
         $formatted = str_pad($number, 5, '0', STR_PAD_LEFT);
@@ -18,5 +21,82 @@ if (!function_exists('randomenquiryGenerator')) {
         $todayCount = Enquiry::whereDate('created_at', now()->toDateString())->count() + 1;
         $sequence = str_pad($todayCount, 4, '0', STR_PAD_LEFT);
         return $date . $sequence;
+    }
+}
+
+if (! function_exists('lookup_postcode')) {
+    function lookup_postcode(string $postcode)
+    {
+        $apiKey = config('services.postcode.api_key'); // API key from config
+        $postcode = strtoupper(str_replace(' ', '', $postcode)); // Normalize postcode
+
+        $url = "https://api.os.uk/search/places/v1/postcode?postcode={$postcode}&key={$apiKey}";
+
+        $response = Http::get($url);
+
+        $data = [
+            'addresses' => [],
+            'post_town' => '',
+        ];
+
+        if ($response->successful()) {
+            $check = json_decode($response->getBody(), true);
+
+            if (isset($check['error'])) {
+                Log::error('Postcode lookup error: ' . $check['error']['message']);
+                return null;
+            }
+
+            foreach ($check['results'] as $result) {
+                if (isset($result['DPA']['ADDRESS'])) {
+                    $data['addresses'][] = $result['DPA']['ADDRESS'];
+                }
+
+                if (empty($data['post_town']) && isset($result['DPA']['POST_TOWN'])) {
+                    $data['post_town'] = $result['DPA']['POST_TOWN']; // Set once
+                }
+            }
+
+            return $data;
+        } else {
+            throw new Exception('Failed to fetch postcode: ' . $response->body());
+        }
+    }
+}
+
+if (! function_exists('lookup_places')) {
+    function lookup_places(string $region)
+    {
+        $apiKey = config('services.postcode.api_key'); // Get from config/services.php
+        $region = strtoupper(str_replace(' ', '', $region)); // Clean and format input
+
+        $url = "https://api.os.uk/search/names/v1/find?maxresults=1&query={$region}&key={$apiKey}";
+
+        $response = Http::get($url);
+
+        $data = [
+            'county' => '',
+            'region' => '',
+        ];
+
+        if ($response->successful()) {
+            $check = json_decode($response->getBody(), true); // Decode as array
+
+            if (isset($check['error'])) {
+                Log::error('Postcode lookup error: ' . $check['error']['message']);
+                return null;
+            }
+
+            if (!empty($check['results'][0]['GAZETTEER_ENTRY'])) {
+                $entry = $check['results'][0]['GAZETTEER_ENTRY'];
+                $data['county'] = $entry['COUNTY_UNITARY'] ?? '';
+                $data['region'] = $entry['REGION'] ?? '';
+                $data['country'] = $entry['COUNTRY'] ?? '';
+            }
+            return $data;
+
+        } else {
+            throw new Exception('Failed to fetch postcode: ' . $response->body());
+        }
     }
 }

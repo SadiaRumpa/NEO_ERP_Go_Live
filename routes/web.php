@@ -21,6 +21,7 @@ Auth::routes();
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/query', [GlobalController::class, 'query'])->name('query');
 Route::get('/checkpostcode/{key}', [GlobalController::class, 'checkPostCode'])->name('query.checkpostcode');
+Route::get('/checkposttown/{key}', [GlobalController::class, 'checkPostTown'])->name('query.checkposttown');
 Route::post('/submit-query', [GlobalController::class, 'storeQuery'])->name('query.submit');
   
 Route::group(['middleware' => ['auth']], function() {

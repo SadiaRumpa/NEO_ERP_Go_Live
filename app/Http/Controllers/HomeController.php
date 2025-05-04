@@ -29,6 +29,8 @@ class HomeController extends Controller
             return $this->adminDashboard();
         } elseif (auth()->user()->hasRole('Enquiry Manager')) {
             return $this->enquiryManagerDashboard();
+        } elseif (auth()->user()->hasRole('Lead Manager')) {
+            return $this->leadManagerDashboard();
         } else {
             abort(403, 'CAN NOT ACCESS TO ROLE');
         }
@@ -95,4 +97,63 @@ class HomeController extends Controller
             'newLeads' => $newLeads,
         ]);
     }
+
+    public function leadManagerDashboard()
+    {
+        $newenquiriescount  = Enquiry::where('enquiry_status', 'new')->count();
+        $canceledenquiriescount  = Enquiry::where('enquiry_status', 'cancel')->count();
+        $totalenquiriescount = Enquiry::count();
+        $totalcustomerscount = Enquiry::distinct('customer_id')->count('customer_id');
+
+        $startOfThisWeek = Carbon::now()->startOfWeek(); // Monday
+        $startOfLastWeek = Carbon::now()->subWeek()->startOfWeek();
+        $endOfLastWeek = Carbon::now()->subWeek()->endOfWeek();
+
+        // Count for this week
+        $thisWeekCount = Enquiry::where('enquiry_status', 'new')
+            ->where('created_at', '>=', $startOfThisWeek)
+            ->count();
+
+        // Count for last week
+        $lastWeekCount = Enquiry::where('enquiry_status', 'new')
+            ->whereBetween('created_at', [$startOfLastWeek, $endOfLastWeek])
+            ->count();
+
+        if ($lastWeekCount > 0) {
+            $change = (($thisWeekCount - $lastWeekCount) / $lastWeekCount) * 100;
+        } else {
+            $change = $thisWeekCount > 0 ? 100 : 0; // handle divide by zero
+        }
+
+        $percentageChange = round($change, 2); // e.g. 25.00
+
+        if ($percentageChange > 0) {
+            $trend = 'increase';
+        } elseif ($percentageChange < 0) {
+            $trend = 'decrease';
+        } else {
+            $trend = 'no change';
+        }
+
+        $newLeads = Enquiry::with(['enquiryaddress', 'customer'])
+            ->where('enquiry_status', 'lead')->orderByDesc('created_at')->limit(5)->get();
+
+        $ongoingLeads = Enquiry::with(['enquiryaddress', 'customer'])
+            ->where('enquiry_status', 'lead_process')->orderByDesc('created_at')->limit(5)->get();
+
+
+        return view('dashboards.lead_manager')->with([
+            'newLeads' => $newLeads,
+            'this_week' => $thisWeekCount,
+            'last_week' => $lastWeekCount,
+            'change_percent' => $percentageChange,
+            'trend' => $trend,
+            'newenquiriescount' => $newenquiriescount,
+            'canceledenquiriescount' => $canceledenquiriescount,
+            'totalenquiriescount' => $totalenquiriescount,
+            'totalcustomerscount' => $totalcustomerscount,
+            'ongoingLeads' => $ongoingLeads,
+        ]);
+    }
+    
 }

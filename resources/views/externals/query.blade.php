@@ -12,32 +12,75 @@
             return;
         }
 
+        $('#loading-spinner').show();
+        $('#address-suggestions').hide().empty(); // Clear old suggestions
+
         $.ajax({
             url: `/checkpostcode/${postcode}`,
             method: 'GET',
             success: function(response) {
-                if (response.error) {
+                $('#loading-spinner').hide();
+
+                if (!response || response.error || !response.address || !Array.isArray(response.address.addresses)) {
                     $('#basic-default-address').val("No address found.");
                     return;
                 }
-                // Construct the address string from the response
-                const addressParts = [
-                    response.address.roads,
-                    response.address.parish,
-                    response.address.nearest_station
-                ].filter(Boolean); // Removes null/undefined/empty
 
-                const formattedAddress = addressParts.join(', ');
-                // Set the formatted address in the textarea
-                $('#basic-default-address').val(formattedAddress);
-                $('#basic-default-county').val(response.address.county);
-                $('#basic-default-country').val(response.address.country);
+                let suggestions = response.address.addresses;
+
+                if (suggestions.length === 0) {
+                    $('#basic-default-address').val("No address found.");
+                    return;
+                }
+
+                let suggestionList = suggestions.map(address =>
+                    `<a href="#" class="list-group-item list-group-item-action suggestion-item">${address}</a>`
+                ).join('');
+
+                $('#address-suggestions').html(suggestionList).show();
+                $('#posttown').val(response.address.post_town);
             },
-            error: function(xhr) {
+            error: function() {
+                $('#loading-spinner').hide();
+                $('#address-suggestions').hide();
                 $('#basic-default-address').val("Error fetching address.");
             }
         });
     }
+    $(document).ready(function() {
+        // Event listener to handle clicking on a suggestion (run this once on page load)
+        $(document).on('click', '.suggestion-item', function(e) {
+            e.preventDefault();
+            let selectedAddress = $(this).text();
+            let posttown = $('#posttown').val();
+            $.ajax({
+                url: `/checkposttown/${posttown}`,
+                method: 'GET',
+                success: function(response) {
+                    if (response && response.address) {
+                        $('#basic-default-address').val(selectedAddress);
+                        $('#basic-default-county').val(response.address.county);
+                        $('#basic-default-country').val(response.address.country);
+                        $('#address-suggestions').hide();
+                    } else {
+                        $('#basic-default-address').val("Error fetching address.");
+                    }
+                },
+                error: function() {
+                    $('#basic-default-address').val("Error fetching address.");
+                }
+            });
+
+
+        });
+
+        // Hide suggestions when clicking outside
+        $(document).click(function(event) {
+            if (!$(event.target).closest('#basic-default-postcode, #address-suggestions').length) {
+                $('#address-suggestions').hide();
+            }
+        });
+    });
 </script>
 
 <script>
@@ -89,12 +132,33 @@
 
 @section('styles')
 @parent
+<style>
+    .suggestion-item {
+        cursor: pointer;
+    }
+
+    .suggestion-item:hover {
+        background-color: #f0f0f0;
+    }
+
+    #address-suggestions {
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid #ccc;
+        position: absolute;
+        z-index: 9999;
+        background-color: rgb(255, 157, 157);
+        color: rgb(0, 0, 0);
+        margin-top: -10px;
+    }
+</style>
 @endsection
 
 @section('content')
 <!-- Content -->
 <div class="row">
     <div class="col-xl">
+
         <div class="card">
             <div id="success-message" class="alert alert-success" style="display: none;" tabindex="-1">
                 Your query has been submitted successfully!
@@ -153,7 +217,7 @@
                             </div>
 
                             <label class="form-label" for="basic-default-postcode">Postcode</label>
-                            <div class="input-group mb-6">
+                            <div class="input-group">
                                 <input
                                     type="text"
                                     class="form-control"
@@ -165,6 +229,13 @@
                                     oninput="this.value = this.value.toUpperCase()" required />
                                 <button class="btn btn-outline-primary" type="button" id="button-addon2" onclick="checkaddress()">Check</button>
                             </div>
+                            <div id="loading-spinner" style="display: none;">
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                Searching...
+                            </div>
+                            <!-- Suggestions Container -->
+                            <div id="address-suggestions" class="list-group mt-1" style="display:none;"></div>
+                            <input type="hidden" id="posttown" value="" />
 
                             <div class="mb-6">
                                 <label class="form-label" for="basic-default-address">Address</label>
@@ -176,7 +247,7 @@
                             </div>
 
                             <div class="mb-6">
-                                <label class="form-label" for="basic-default-phone">County</label>
+                                <label class="form-label" for="basic-default-county">County</label>
                                 <input
                                     type="text"
                                     id="basic-default-county"
@@ -186,7 +257,7 @@
                             </div>
 
                             <div class="mb-6">
-                                <label class="form-label" for="basic-default-phone">Country</label>
+                                <label class="form-label" for="basic-default-country">Country</label>
                                 <input
                                     type="text"
                                     id="basic-default-country"

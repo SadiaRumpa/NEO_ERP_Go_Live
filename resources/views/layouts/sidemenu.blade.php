@@ -100,6 +100,12 @@
                 <div data-i18n="Enquiries">Enquiries</div>
             </a>
         </li>
+        <li class="menu-item {{(request()->is('leads') || request()->is('leads/*')) ? 'active' : '' }}">
+            <a href="{{ url('leads') }}" class="menu-link">
+                <i class="menu-icon icon-base ti tabler-access-point"></i>
+                <div data-i18n="Leads">Leads</div>
+            </a>
+        </li>
         <li class="menu-item {{(request()->is('customers') || request()->is('customers/*')) ? 'active' : '' }}">
             <a href="{{ url('customers') }}" class="menu-link">
                 <i class="menu-icon icon-base ti tabler-users"></i>

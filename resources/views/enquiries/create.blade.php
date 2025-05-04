@@ -74,32 +74,76 @@
             return;
         }
 
+        $('#loading-spinner').show();
+        $('#address-suggestions').hide().empty(); // Clear old suggestions
+
         $.ajax({
             url: `/checkpostcode/${postcode}`,
             method: 'GET',
             success: function(response) {
-                if (response.error) {
+                $('#loading-spinner').hide();
+
+                if (!response || response.error || !response.address || !Array.isArray(response.address.addresses)) {
                     $('#formtabs-enquiry-address').val("No address found.");
                     return;
                 }
-                // Construct the address string from the response
-                const addressParts = [
-                    response.address.roads,
-                    response.address.parish,
-                    response.address.nearest_station
-                ].filter(Boolean); // Removes null/undefined/empty
 
-                const formattedAddress = addressParts.join(', ');
-                // Set the formatted address in the textarea
-                $('#formtabs-enquiry-address').val(formattedAddress);
-                $('#formtabs-enquiry-county').val(response.address.county);
-                $('#formtabs-enquiry-country').val(response.address.country);
+                let suggestions = response.address.addresses;
+
+                if (suggestions.length === 0) {
+                    $('#formtabs-enquiry-address').val("No address found.");
+                    return;
+                }
+
+                let suggestionList = suggestions.map(address =>
+                    `<a href="#" class="list-group-item list-group-item-action suggestion-item">${address}</a>`
+                ).join('');
+
+                $('#address-suggestions').html(suggestionList).show();
+                $('#posttown').val(response.address.post_town);
             },
-            error: function(xhr) {
+            error: function() {
+                $('#loading-spinner').hide();
+                $('#address-suggestions').hide();
                 $('#formtabs-enquiry-address').val("Error fetching address.");
             }
         });
     }
+
+    $(document).ready(function() {
+        // Event listener to handle clicking on a suggestion (run this once on page load)
+        $(document).on('click', '.suggestion-item', function(e) {
+            e.preventDefault();
+            let selectedAddress = $(this).text();
+            let posttown = $('#posttown').val();
+            $.ajax({
+                url: `/checkposttown/${posttown}`,
+                method: 'GET',
+                success: function(response) {
+                    if (response && response.address) {
+                        $('#formtabs-enquiry-address').val(selectedAddress);
+                        $('#formtabs-enquiry-county').val(response.address.county);
+                        $('#formtabs-enquiry-country').val(response.address.country);
+                        $('#address-suggestions').hide();
+                    } else {
+                        $('#formtabs-enquiry-address').val("Error fetching address.");
+                    }
+                },
+                error: function() {
+                    $('#formtabs-enquiry-address').val("Error fetching address.");
+                }
+            });
+
+
+        });
+
+        // Hide suggestions when clicking outside
+        $(document).click(function(event) {
+            if (!$(event.target).closest('#formtabs-enquiry-postcode, #address-suggestions').length) {
+                $('#address-suggestions').hide();
+            }
+        });
+    });
 </script>
 @endsection
 
@@ -213,7 +257,7 @@
                                                     <span class="d-none d-sm-block">Company Info</span>
                                                 </button>
                                             </li>
-                                            <li class="nav-item">
+                                            <!-- <li class="nav-item">
                                                 <button
                                                     type="button"
                                                     class="nav-link"
@@ -251,7 +295,7 @@
                                                     <span class="icon-base ti tabler-user-cog icon-lg d-sm-none"></span>
                                                     <span class="d-none d-sm-block">Account Details</span>
                                                 </button>
-                                            </li>
+                                            </li> -->
                                         </ul>
                                     </div>
                                 </div>
@@ -337,7 +381,7 @@
                                         </div>
 
                                         <!-- Billing Address -->
-                                        <div class="tab-pane fade" id="form-tabs-billing-address" role="tabpanel">
+                                        <!-- <div class="tab-pane fade" id="form-tabs-billing-address" role="tabpanel">
                                             <div class="row g-6">
                                                 <div class="col-md-12">
                                                     <div class="row mb-1">
@@ -451,10 +495,10 @@
 
 
                                             </div>
-                                        </div>
+                                        </div> -->
 
                                         <!-- Site Address -->
-                                        <div class="tab-pane fade" id="form-tabs-site-address" role="tabpanel">
+                                        <!-- <div class="tab-pane fade" id="form-tabs-site-address" role="tabpanel">
                                             <div class="row g-6">
                                                 <div class="col-md-12">G
                                                     <div class="row mb-1">
@@ -568,10 +612,10 @@
 
 
                                             </div>
-                                        </div>
+                                        </div> -->
 
                                         <!-- Account Details -->
-                                        <div class="tab-pane fade" id="form-tabs-account" role="tabpanel">
+                                        <!-- <div class="tab-pane fade" id="form-tabs-account" role="tabpanel">
                                             <div class="row g-6">
                                                 <div class="col-md-6">
                                                     <div class="row">
@@ -650,7 +694,7 @@
                                                 </div>
 
                                             </div>
-                                        </div>
+                                        </div> -->
 
                                     </div>
                                 </div>
@@ -767,6 +811,13 @@
                                                 <input type="text" class="form-control" id="formtabs-enquiry-postcode" name="enquiry_postcode" placeholder="Check postcode" aria-label="Check postcode" aria-describedby="button-addon2" required />
                                                 <button class="btn btn-outline-primary waves-effect" type="button" id="button-addon2" onclick="checkaddress()">Check</button>
                                             </div>
+                                            <div id="loading-spinner" style="display: none;">
+                                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                Searching...
+                                            </div>
+                                            <!-- Suggestions Container -->
+                                            <div id="address-suggestions" class="list-group mt-1" style="display:none;"></div>
+                                            <input type="hidden" id="posttown" value="" />
                                         </div>
 
                                         <div class="col-md-12">
