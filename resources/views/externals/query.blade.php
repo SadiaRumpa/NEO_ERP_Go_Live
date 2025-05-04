@@ -191,6 +191,7 @@
                                     class="form-control phone-mask"
                                     name="phone"
                                     placeholder="(123) 456-7890"
+                                    maxlength="11"
                                     required />
                             </div>
                             <div class="mb-6">
