@@ -71,6 +71,10 @@ class EnquiryController extends Controller
         $validated = $request->validate([
             'customer_id' => 'required_without:companyName',
             'companyName' => 'required_without:customer_id',
+            'contactPersonFirstName' => 'required_without:customer_id|string|max:255',
+            'contactPhone' => 'required_without:customer_id|string|max:20',
+            'contactMobile' => 'required_without:customer_id|string|max:20',
+            'contactEmail' => 'required_without:customer_id|email|max:255',
             'enquirydescription' => 'required|string',
             'enquiry_postcode' => 'required|string|max:20',
             'enquiry_address' => 'required|string',
@@ -99,44 +103,44 @@ class EnquiryController extends Controller
 
                 $customerid = $customer->id;
 
-                if ($request->billingAddress) {
-                    $customer->addresses()->create([
-                        'contact_firstname' => $request->billingContactFirstName,
-                        'contact_lastname' => $request->billingContactLastName,
-                        'contact_phone' => $request->billingcontactPhone,
-                        'contact_mobile' => $request->billingcontactMobile,
-                        'contact_email' => $request->billingcontactEmail,
-                        'address' => $request->billingAddress,
-                        'county' => $request->billingCounty,
-                        'postcode' => $request->billingPostcode,
-                        'country' => $request->billingCountry,
-                        'type' => 'billing'
-                    ]);
-                }
+                // if ($request->billingAddress) {
+                //     $customer->addresses()->create([
+                //         'contact_firstname' => $request->billingContactFirstName,
+                //         'contact_lastname' => $request->billingContactLastName,
+                //         'contact_phone' => $request->billingcontactPhone,
+                //         'contact_mobile' => $request->billingcontactMobile,
+                //         'contact_email' => $request->billingcontactEmail,
+                //         'address' => $request->billingAddress,
+                //         'county' => $request->billingCounty,
+                //         'postcode' => $request->billingPostcode,
+                //         'country' => $request->billingCountry,
+                //         'type' => 'billing'
+                //     ]);
+                // }
 
-                if ($request->siteAddress) {
-                    $customer->addresses()->create([
-                        'contact_firstname' => $request->siteContactFirstName,
-                        'contact_lastname' => $request->siteContactLastName,
-                        'contact_phone' => $request->sitecontactPhone,
-                        'contact_mobile' => $request->sitecontactMobile,
-                        'contact_email' => $request->sitecontactEmail,
-                        'address' => $request->siteAddress,
-                        'county' => $request->siteCounty,
-                        'postcode' => $request->sitePostcode,
-                        'country' => $request->siteCountry,
-                        'type' => 'site'
-                    ]);
-                }
+                // if ($request->siteAddress) {
+                //     $customer->addresses()->create([
+                //         'contact_firstname' => $request->siteContactFirstName,
+                //         'contact_lastname' => $request->siteContactLastName,
+                //         'contact_phone' => $request->sitecontactPhone,
+                //         'contact_mobile' => $request->sitecontactMobile,
+                //         'contact_email' => $request->sitecontactEmail,
+                //         'address' => $request->siteAddress,
+                //         'county' => $request->siteCounty,
+                //         'postcode' => $request->sitePostcode,
+                //         'country' => $request->siteCountry,
+                //         'type' => 'site'
+                //     ]);
+                // }
 
-                $customer->details()->create([
-                    'company_name' => $request->assetsCompanyName,
-                    'registration_number' => $request->assetsRegistrationNo,
-                    'assets' => $request->assets ?? 0,
-                    'net_assets' => $request->netAssets ?? 0,
-                    'liabilities' => $request->liabilities ?? 0,
-                    'cash_in_bank' => $request->cashInBank ?? 0,
-                ]);
+                // $customer->details()->create([
+                //     'company_name' => $request->assetsCompanyName,
+                //     'registration_number' => $request->assetsRegistrationNo,
+                //     'assets' => $request->assets ?? 0,
+                //     'net_assets' => $request->netAssets ?? 0,
+                //     'liabilities' => $request->liabilities ?? 0,
+                //     'cash_in_bank' => $request->cashInBank ?? 0,
+                // ]);
             }
 
             $enquiry = Enquiry::create([

@@ -3,7 +3,7 @@
 @section('content')
 <div class="authentication-wrapper authentication-cover">
     <!-- Logo -->
-    
+
     <!-- /Logo -->
     <div class="authentication-inner row m-0">
         <!-- /Left Text -->
@@ -27,6 +27,14 @@
                 <h4 class="mb-1">Welcome to NEOERP! 👋</h4>
                 <p class="mb-6">Please login to your account and start the adventure</p>
 
+                @if ($errors->any())
+                <div class="alert alert-danger">
+                    @foreach ($errors->all() as $error)
+                    <div>{{$error}}</div>
+                    @endforeach
+                </div>
+                @endif
+
                 <form id="formAuthentication" class="mb-6" action="{{ route('login') }}" method="POST">
                     @csrf
 
@@ -40,11 +48,6 @@
                             placeholder="Enter your email or username"
                             required
                             autofocus />
-                        @error('email')
-                        <span class="invalid-feedback" role="alert">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                        @enderror
                     </div>
                     <div class="mb-6 form-password-toggle form-control-validation">
                         <label class="form-label" for="password">Password</label>
@@ -59,11 +62,6 @@
                                 required autocomplete="current-password" />
                             <span class="input-group-text cursor-pointer"><i class="icon-base ti tabler-eye-off"></i></span>
                         </div>
-                        @error('password')
-                        <span class="invalid-feedback" role="alert">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                        @enderror
                     </div>
                     <div class="my-8">
                         <div class="d-flex justify-content-between">

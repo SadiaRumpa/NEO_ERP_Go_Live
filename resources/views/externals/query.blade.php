@@ -97,7 +97,6 @@
             contentType: false,
             success: function(response) {
                 const successBox = $('#success-message');
-
                 successBox.show();
                 $('html, body').animate({
                     scrollTop: successBox.offset().top - 100 // Adjust offset if needed
@@ -186,11 +185,12 @@
                             <div class="mb-6">
                                 <label class="form-label" for="basic-default-phone">Phone No</label>
                                 <input
-                                    type="text"
+                                    type="number"
+                                    pattern="[0-9]*"
                                     id="basic-default-phone"
                                     class="form-control phone-mask"
                                     name="phone"
-                                    placeholder="(123) 456-7890"
+                                    placeholder="1234567890"
                                     maxlength="11"
                                     required />
                             </div>
@@ -201,8 +201,8 @@
                                     id="basic-default-email"
                                     class="form-control"
                                     name="email"
-                                    placeholder="john.doe@email.com"
-                                    aria-label="john.doe@email.com"
+                                    placeholder="example@email.com"
+                                    aria-label="example@email.com"
                                     aria-describedby="basic-default-email" required />
 
                                 <div class="form-text">You can use letters, numbers & periods</div>
@@ -254,7 +254,7 @@
                                     id="basic-default-county"
                                     name="county"
                                     class="form-control"
-                                    placeholder="Worcestershire" />
+                                    placeholder="Worcestershire" required/>
                             </div>
 
                             <div class="mb-6">
@@ -264,7 +264,7 @@
                                     id="basic-default-country"
                                     name="country"
                                     class="form-control"
-                                    placeholder="England" />
+                                    placeholder="England" required/>
                             </div>
 
                             <div class="mb-6">
