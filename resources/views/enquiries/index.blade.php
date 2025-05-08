@@ -40,7 +40,7 @@
                     data: 'customer_name',
                     name: 'customer_name',
                     render: function(data, type, row) {
-                        return '<strong>' + row.company_name + '</strong>' + '<br>' + row.customer_name + '<br>' + row.customer_email + '<br>' + row.customer_phone;
+                        return '<strong>' + row.company_name + '</strong>' + '<br>' + row.customer_name + '<br>' + '<i class="icon-base fas fa-air-freshener mb-2"></i>' + row.customer_email + '<br>' + '<i class="icon-base fas fa-air-freshener mb-2"></i>' + row.customer_phone + '<br>' + '<i class="icon-base fas fa-air-freshener mb-2"></i>' + row.customer_mobile;
                     }
                 },
                 {

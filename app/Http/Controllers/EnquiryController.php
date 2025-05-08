@@ -9,6 +9,10 @@ use App\Models\Enquiry;
 use App\Models\EnquiryAddress;
 use App\Models\EnquiryImage;
 use App\Models\EnquiryNote;
+use App\Models\Lead;
+use App\Models\LeadAddress;
+use App\Models\LeadImage;
+use App\Models\LeadNote;
 use App\Models\MailTemplate;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
@@ -392,5 +396,69 @@ class EnquiryController extends Controller
             return redirect()->back()->with('success', 'Enquiry updated successfully.');
         }
         return redirect()->back()->with('error', 'Enquiry not found.');
+    }
+
+    public function enquerytoLeadConversion(Request $request)
+    {
+        $validated = $request->validate([
+            'enquiry_id' => 'required|exists:enquiries,id',
+            'status' => 'required|string',
+        ]);
+
+        $enquiry = Enquiry::find($validated['enquiry_id']);
+        if (!$enquiry) {
+            return response()->json(['status' => 'error', 'message' => 'Enquiry not found.']);
+        }
+
+        $enquiryaddress = EnquiryAddress::where('enquiry_id', $validated['enquiry_id'])->first();
+        $enquiryimages = EnquiryImage::where('enquiry_id', $validated['enquiry_id'])->get();
+        $enquirynotes = EnquiryNote::where('enquiry_id', $validated['enquiry_id'])->get();
+
+        $lead = Lead::create([
+            'enquiry_id' => $validated['enquiry_id'],
+            'lead_name' => $enquiry->enquiry_name,
+            'lead_description' => $enquiry->enquiry_description,
+            'customer_id' => $enquiry->customer_id,
+            'lead_type' => $enquiry->enquiry_type,   
+            'lead_category' => $enquiry->enquiry_category,    
+            'lead_priority' => $enquiry->enquiry_priority,
+            'lead_status' => 'new',
+        ]);
+
+        LeadAddress::create([
+            'lead_id' => $lead->id,
+            'contact_firstname' => $enquiryaddress->contact_firstname,
+            'contact_lastname' => $enquiryaddress->contact_lastname,
+            'contact_phone' => $enquiryaddress->contact_phone,
+            'contact_mobile' => $enquiryaddress->contact_mobile,
+            'contact_email' => $enquiryaddress->contact_email,
+            'address' => $enquiryaddress->address,
+            'county' => $enquiryaddress->county,
+            'postcode' => $enquiryaddress->postcode,
+            'country' => $enquiryaddress->country,
+        ]);
+
+        foreach ($enquiryimages as $image) {
+            LeadImage::create([
+                'lead_id' => $lead->id,
+                'image_path' => $image->image_path,
+                'image_name' => $image->image_name,
+                'image_url' => $image->image_url,
+                'source' => $image->source
+            ]);
+        }
+        foreach ($enquirynotes as $note) {
+            LeadNote::create([
+                'lead_id' => $lead->id,
+                'note_by' => $note->note_by,
+                'note' => $note->note,
+                'note_type' => $note->note_type,
+                'note_status' => $note->note_status,
+            ]);
+        }
+        $enquiry->update(['enquiry_status' => $validated['status']]);
+        
+
+        return response()->json(['status' => 'success', 'message' => 'Enquiry converted to lead successfully.']);
     }
 }

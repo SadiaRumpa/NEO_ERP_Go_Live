@@ -31,16 +31,19 @@
                 },
                 {
                     data: 'contact_name',
-                    name: 'contact_name'
+                    name: 'contact_name',
+                    render: function(data, type, row) {
+                        return '<strong>' + row.contact_firstname + ' ' + row.contact_lastname + '</strong>';
+                    }
                 },
                 {
                     data: 'contact_no',
-                    name: 'contact_no'
+                    name: 'contact_no',
+                    render: function(data, type, row) {
+                        return '<i class="icon-base fas fa-envelope mb-2 mr-2"></i> ' + row.contact_email + '<br>' + '<i class="icon-base fas fa-phone mb-2 mr-2"></i> ' + row.contact_phone + '<br>' + '<i class="icon-base fas fa-mobile mb-2"></i>' + row.contact_mobile;
+                    }
                 },
-                {
-                    data: 'contact_email',
-                    name: 'contact_email'
-                },
+
                 {
                     data: 'action',
                     name: 'action',
@@ -115,8 +118,7 @@
                         <th>ID</th>
                         <th>COMPANY</th>
                         <th>CONTACT PERSON</th>
-                        <th>PHONE</th>
-                        <th>EMAIL</th>
+                        <th>CONTACT</th>
                         <th>ACTION</th>
                     </tr>
                 </thead>

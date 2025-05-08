@@ -232,11 +232,12 @@
             }
 
             $.ajax({
-                url: '/enquiry/updatestatus/' + enquiryId,
+                url: '/enquiry-to-lead-conversion',
                 type: 'POST',
                 data: {
                     _token: '{{ csrf_token() }}',
-                    status: status
+                    status: status,
+                    enquiry_id: enquiryId
                 },
                 success: function(response) {
                     $('#status-alert')
@@ -265,8 +266,6 @@
         });
     });
 </script>
-
-
 
 
 @endsection
@@ -413,7 +412,7 @@
                 <div class="card mb-6">
                     <div class="card-header header-elements">
                         <h5 class="mb-0 me-2">Enquiry information</h5>
-
+                        @if($enquiry->enquiry_status == 'new' || $enquiry->enquiry_status == 'inprogress')
                         <div class="card-header-elements ms-auto">
                             <div class="btn-group">
 
@@ -427,6 +426,7 @@
 
                             </div>
                         </div>
+                        @endif
                     </div>
                     <div class="card-body">
                         <!-- Description -->
@@ -510,7 +510,7 @@
 
                         <div class="card-header-elements ms-auto">
                             <div class="btn-group">
-
+                                @if($enquiry->enquiry_status == 'new' || $enquiry->enquiry_status == 'inprogress')
                                 <!-- Image Modal -->
                                 <button
                                     type="button"
@@ -520,6 +520,7 @@
                                     Add More
                                 </button>
                                 <!--/ Image Modal -->
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -529,11 +530,13 @@
                                 <div class="swiper-wrapper">
                                     @foreach ($enquiry->enquiryimages as $enim)
                                     <div class="swiper-slide position-relative" style="background-image: url({{ $enim->source == 's3' ? $enim->image_url : asset($enim->image_path) }})">
+                                        @if($enquiry->enquiry_status == 'new' || $enquiry->enquiry_status == 'inprogress')
                                         <div class="position-absolute top-0 end-0 p-2">
                                             <button class="btn btn-sm btn-danger delete-image" data-id="{{ $enim->id }}" style="z-index: 10;">
                                                 <i class="fa-solid fa-trash"></i>
                                             </button>
                                         </div>
+                                        @endif
                                         <div class="text-white bg-dark bg-opacity-50 p-1 position-absolute bottom-0 w-100 text-center">
                                             {{ $enim->image_caption }}
                                         </div>
@@ -674,6 +677,7 @@
                                 <div class="card-header-elements ms-auto">
                                     <div class="btn-group">
 
+                                        @if($enquiry->enquiry_status == 'new' || $enquiry->enquiry_status == 'inprogress')
                                         <!-- Edit location -->
                                         <button
                                             type="button"
@@ -683,28 +687,25 @@
                                             Edit
                                         </button>
                                         <!--/ Edit location -->
+                                        @endif
+
                                     </div>
                                 </div>
                             </div>
                             <div class="card-body">
-                                <ul class="timeline mb-0">
-                                    <li class="timeline-item ps-6 border-dashed">
-                                        <span class="timeline-indicator-advanced timeline-indicator-success border-0 shadow-none">
-                                            <i class="icon-base ti tabler-circle-check"></i>
-                                        </span>
-                                        <div class="timeline-event ps-1">
-                                            <iframe
-                                                width="100%"
-                                                height="450"
-                                                frameborder="0"
-                                                style="border:0"
-                                                referrerpolicy="no-referrer-when-downgrade"
-                                                src="https://www.google.com/maps/embed/v1/place?key={{ config('services.google.maps_api_key') }}&q={{ $enquiry->enquiryaddress->address }}, {{ $enquiry->enquiryaddress->county }}, {{ $enquiry->enquiryaddress->postcode }}+{{ $enquiry->enquiryaddress->address }}, {{ $enquiry->enquiryaddress->county }}, {{ $enquiry->enquiryaddress->country }}"
-                                                allowfullscreen>
-                                            </iframe>
+                                <div class="timeline-event ps-1">
+                                    <iframe
+                                        width="100%"
+                                        height="450"
+                                        frameborder="0"
+                                        style="border:0"
+                                        referrerpolicy="no-referrer-when-downgrade"
+                                        src="https://www.google.com/maps/embed/v1/place?key={{ config('services.google.maps_api_key') }}&q={{ $enquiry->enquiryaddress->address }}, {{ $enquiry->enquiryaddress->county }}, {{ $enquiry->enquiryaddress->postcode }}+{{ $enquiry->enquiryaddress->address }}, {{ $enquiry->enquiryaddress->county }}, {{ $enquiry->enquiryaddress->country }}"
+                                        allowfullscreen>
+                                    </iframe>
 
-                                        </div>
-                                    </li>
+                                </div>
+                                <ul class="timeline mb-0">
                                     <li class="timeline-item ps-6 border-0">
                                         <span class="timeline-indicator-advanced timeline-indicator-primary border-0 shadow-none">
                                             <i class="icon-base ti tabler-map-pin"></i>
