@@ -280,13 +280,11 @@
                 _token: $('meta[name="csrf-token"]').attr('content') // Make sure CSRF token is available
             },
             success: function(response) {
-                // toastr.success('Status updated successfully');
-                // Optionally reload or update UI
+                toastr.success('Status updated successfully');
                 location.reload();
-
             },
             error: function(xhr) {
-                toastr.error('Failed to update status');
+                toastr.danger('Something went wrong');
             }
         });
     });

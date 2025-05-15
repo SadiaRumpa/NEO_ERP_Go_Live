@@ -39,10 +39,10 @@
 
     <link rel="stylesheet" href="{{asset('assets/vendor/libs/node-waves/node-waves.css')}}" />
 
-    <link rel="stylesheet" href="{{asset('assets/vendor/libs/pickr/pickr-themes.css')}}" />
+    <!-- <link rel="stylesheet" href="{{asset('assets/vendor/libs/pickr/pickr-themes.css')}}" /> -->
 
     <link rel="stylesheet" href="{{asset('assets/vendor/css/core.css')}}" />
-    <link rel="stylesheet" href="{{asset('assets/css/demo.css')}}" />
+    <!-- <link rel="stylesheet" href="{{asset('assets/css/demo.css')}}" /> -->
 
     <!-- Vendors CSS -->
 
@@ -71,14 +71,13 @@
     <!-- build:js assets/vendor/js/theme.js -->
     @section('scripts')
     <script src="{{asset('assets/vendor/libs/jquery/jquery.js')}}"></script>
-
     <script src="{{asset('assets/vendor/libs/popper/popper.js')}}"></script>
     <script src="{{asset('assets/vendor/js/bootstrap.js')}}"></script>
     <script src="{{asset('assets/vendor/libs/node-waves/node-waves.js')}}"></script>
 
     <script src="{{asset('assets/vendor/libs/@algolia/autocomplete-js.js')}}"></script>
 
-    <script src="{{asset('assets/vendor/libs/pickr/pickr.js')}}"></script>
+    <!-- <script src="{{asset('assets/vendor/libs/pickr/pickr.js')}}"></script> -->
 
     <script src="{{asset('assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js')}}"></script>
 

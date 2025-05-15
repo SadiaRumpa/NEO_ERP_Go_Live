@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\CustomerAddress;
 use App\Models\CustomerDetails;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Models\Customer;
 use App\Models\Enquiry;
 use Yajra\DataTables\Facades\DataTables;
@@ -23,11 +24,9 @@ class CustomerController extends Controller
             return Datatables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
-                    $editUrl = route('customers.edit', $row->id); // Edit Route
-                    $deleteUrl = route('customers.destroy', $row->id); // Delete Route
-
+                    $showUrl = route('customers.show', $row->id); // Edit Route
                     return '
-                    <a href="' . $editUrl . '" class="edit btn btn-primary btn-sm">Edit</a>
+                    <a href="' . $showUrl . '" class="show btn btn-primary btn-sm">Show</a>
                     <button class="delete btn btn-danger btn-sm" data-id="' . $row->id . '">Delete</button>
                 ';
                 })
@@ -52,59 +51,40 @@ class CustomerController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'companyName' => 'required',
-            'contactPersonName' => 'required',
-            'contactPhone' => 'required',
-            'contactEmail' => 'required',
+        $validated = $request->validate([
+            'companyName'        => 'required|string|max:255',
+            'contactPersonFirstName'  => 'required|string|max:255',
+            'contactPersonLastName'   => 'nullable|string|max:255',
+            'contactPhone'       => 'required|string|max:20',
+            'contactEmail'       => 'required|email|max:255',
+            'contactMobile'      => 'nullable|string|max:20',
         ]);
 
-        $customer = new Customer();
-        $customer->company_name = $request->companyName;
-        $customer->contact_name = $request->contactPersonName;
-        $customer->contact_no = $request->contactPhone;
-        $customer->contact_email = $request->contactEmail;
-        $customer->status = 'active';
-        $customer->save();
+        DB::beginTransaction();
 
-        $customerid = $customer->id;
+        try {
+            $customer = new Customer();
+            $customer->company_name    = $validated['companyName'];
+            $customer->contact_firstname    = $validated['contactPersonFirstName'];
+            $customer->contact_lastname = $validated['contactPersonLastName'] ?? null;
+            $customer->contact_phone      = $validated['contactPhone'];
+            $customer->contact_mobile  = $validated['contactMobile'] ?? null;
+            $customer->contact_email   = $validated['contactEmail'];
+            $customer->status          = 'active';
+            $customer->save();
 
-        if ($request->billingAddress != null) {
-            $customeraddress = new CustomerAddress();
-            $customeraddress->address = $request->billingAddress;
-            $customeraddress->city = $request->billingCity;
-            $customeraddress->state = $request->billingState;
-            $customeraddress->country = $request->billingCountry;
-            $customeraddress->zip_code = $request->billingPostcode;
-            $customeraddress->customer_id = $customerid;
-            $customeraddress->type = "billing";
-            $customeraddress->save();
+            DB::commit();
+
+            return redirect()->route('customers.show', $customer->id)
+                ->with('success', 'Customer created successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Customer store failed: ' . $e->getMessage());
+
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'An error occurred while creating the customer. Please try again.');
         }
-
-        if ($request->siteAddress != null) {
-            $customeraddress = new CustomerAddress();
-            $customeraddress->address = $request->siteAddress;
-            $customeraddress->city = $request->siteCity;
-            $customeraddress->state = $request->siteState;
-            $customeraddress->country = $request->siteCountry;
-            $customeraddress->zip_code = $request->sitePostcode;
-            $customeraddress->customer_id = $customerid;
-            $customeraddress->type = "site";
-            $customeraddress->save();
-        }
-
-
-        $customerdetails = new CustomerDetails();
-        $customerdetails->customer_id = $customerid;
-        $customerdetails->assets = $request->assets ?? 0;
-        $customerdetails->net_assets = $request->netAssets ?? 0;
-        $customerdetails->liabilities = $request->liabilities ?? 0;
-        $customerdetails->cash_in_bank = $request->cashInBank ?? 0;
-        $customerdetails->save();
-
-
-        return redirect()->route('customers.index')
-            ->with('success', 'Customer created successfully.');
     }
 
     /**
@@ -112,7 +92,12 @@ class CustomerController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $customer = Customer::with(['billingaddress', 'siteaddress', 'findetails'])->findOrFail($id);
+        // return response()->json($customer);
+
+        return view('customers.show')->with([
+            'customer' => $customer
+        ]);
     }
 
     /**
@@ -132,7 +117,6 @@ class CustomerController extends Controller
     {
         // dd($request->all());
         $validated = $request->validate([
-            'companyName'         => 'required|string|max:255',
             'contactPersonFirstName'   => 'required|string|max:255',
             'contactPersonLastName'   => 'nullable|string|max:255',
             'contactPhone'        => 'required|string|max:20',
@@ -142,11 +126,10 @@ class CustomerController extends Controller
         // Update Customer
         $customer = Customer::findOrFail($id);
         $customer->update([
-            'company_name'   => $validated['companyName'],
             'contact_firstname'   => $validated['contactPersonFirstName'],
             'contact_lastname' => $validated['contactPersonLastName'],
             'contact_phone'     => $validated['contactPhone'],
-            'contact_mobile'       => $validated['contactPhone'],
+            'contact_mobile'       => $validated['contactMobile'],
             'contact_email'  => $validated['contactEmail'],
         ]);
 
@@ -209,7 +192,6 @@ class CustomerController extends Controller
     public function updateFinancialDetails(Request $request, string $id)
     {
         $validated = $request->validate([
-            'company_name' => 'required|string|max:255',
             'registration_no' => 'nullable|string|max:255',
             'assets' => 'required|numeric',
             'netAssets' => 'required|numeric',
@@ -218,10 +200,14 @@ class CustomerController extends Controller
         ]);
 
         try {
+            $customer = Customer::findOrFail($id);
+            if (!$customer) {
+                return redirect()->back()->with('error', 'Customer not found.');
+            }
             CustomerDetails::updateOrCreate(
                 ['customer_id' => $id], // Match condition
                 [
-                    'company_name' => $validated['company_name'],
+                    'company_name' => $customer->company_name,
                     'registration_number' => $validated['registration_no'],
                     'assets' => $validated['assets'],
                     'net_assets' => $validated['netAssets'],
