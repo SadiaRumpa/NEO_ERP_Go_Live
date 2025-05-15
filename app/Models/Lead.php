@@ -32,8 +32,18 @@ class Lead extends Model
         return $this->belongsTo(Customer::class);
     }
 
-    public function images()
+    public function leadaddress()
+    {
+        return $this->hasOne(LeadAddress::class);
+    }
+
+    public function leadimages()
     {
         return $this->hasMany(LeadImage::class);
+    }
+
+    public function leadnotes()
+    {
+        return $this->hasMany(LeadNote::class);
     }
 }

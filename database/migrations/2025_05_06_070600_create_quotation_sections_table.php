@@ -13,11 +13,14 @@ return new class extends Migration
     {
         Schema::create('quotation_sections', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('quotation_id');
-            $table->string('section_name', 200)->nullable();
+            $table->foreignId('quotation_id')->constrained('quotations')->onDelete('cascade');
+            $table->string('section_name');
             $table->string('section_slug');
-            $table->longText('section_details')->nullable();
             $table->string('section_type', 100);
+            $table->boolean('is_required')->default(0);
+            $table->boolean('has_attachments')->default(0);
+            $table->string('attachment_type')->nullable();
+            $table->integer('order')->default(0);
             $table->timestamps();
         });
     }

@@ -11,20 +11,24 @@ use Illuminate\Support\Facades\Redirect;
 use App\Http\Controllers\EnquiryController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\GlobalController;
+use App\Http\Controllers\JobTypeController;
+use App\Http\Controllers\LeadController;
+use App\Http\Controllers\QuotationController;
+use App\Http\Controllers\QuotationTemplateController;
 
 Route::get('/', function () {
     return Redirect::to('/login');
 });
-  
+
 Auth::routes();
-  
+
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/query', [GlobalController::class, 'query'])->name('query');
 Route::get('/checkpostcode/{key}', [GlobalController::class, 'checkPostCode'])->name('query.checkpostcode');
 Route::get('/checkposttown/{key}', [GlobalController::class, 'checkPostTown'])->name('query.checkposttown');
 Route::post('/submit-query', [GlobalController::class, 'storeQuery'])->name('query.submit');
-  
-Route::group(['middleware' => ['auth']], function() {
+
+Route::group(['middleware' => ['auth']], function () {
     Route::resource('roles', RoleController::class);
     Route::resource('permissions', PermissionController::class);
     Route::resource('users', UserController::class);
@@ -35,7 +39,7 @@ Route::group(['middleware' => ['auth']], function() {
     Route::post('/enquiry/updatedescription/{id}', [EnquiryController::class, 'updateEnquiryDetails'])->name('enquiry.updatedescription');
     Route::post('/enquiry/updateaddress/{id}', [EnquiryController::class, 'updateEnquiryAddress'])->name('enquiry.updateaddress');
     Route::post('/enquiry/updatestatus/{id}', [EnquiryController::class, 'updateEnquiryStatus'])->name('enquiry.updatestatus');
-    
+
     Route::post('enquiries/add-note', [EnquiryController::class, 'enqueryNotes'])->name('enquiry.add-note');
     Route::delete('enquiries/delete-note/{id}', [EnquiryController::class, 'deleteenqueryNotes'])->name('enquiry.destroynote');
 
@@ -43,9 +47,34 @@ Route::group(['middleware' => ['auth']], function() {
     Route::delete('enquiries/delete-image/{id}', [EnquiryController::class, 'destroyEnqueryImage'])->name('enquiry.destroy-image');
 
     Route::post('enquiry-to-lead-conversion', [EnquiryController::class, 'enquerytoLeadConversion'])->name('enquiry.leadconversion');
-    
+
     Route::resource('customers', CustomerController::class);
     Route::post('/customer/updatefinancialdetails/{id}', [CustomerController::class, 'updateFinancialDetails'])->name('customer.updatefinancialdetails');
 
+    Route::resource('leads', LeadController::class);
+    Route::post('/leads/updatedescription/{id}', [LeadController::class, 'updateLeadDetails'])->name('leads.updatedescription');
+    Route::post('/leads/updateaddress/{id}', [LeadController::class, 'updateLeadAddress'])->name('leads.updateaddress');
+    Route::post('/leads/updatestatus/{id}', [LeadController::class, 'updateLeadStatus'])->name('leads.updatestatus');
+
+    Route::post('leads/add-note', [LeadController::class, 'leadNotes'])->name('leads.add-note');
+    Route::delete('leads/delete-note/{id}', [LeadController::class, 'deleteLeadNotes'])->name('leads.destroynote');
+
+    Route::post('leads/add-images', [LeadController::class, 'addLeadImages'])->name('leads.add-images');
+    Route::delete('leads/delete-image/{id}', [LeadController::class, 'destroyLeadImage'])->name('leads.destroy-image');
+
+    Route::resource('jobtypes', JobTypeController::class);
+
+    Route::resource('quotationtemplates', QuotationTemplateController::class);
+    Route::post('/quotationtemplate/section/populate', [QuotationTemplateController::class, 'populateSections'])->name('quotationtemplate.section-populate');
+
+    Route::get('lead-quotations/{leadid}', [QuotationController::class, 'index'])->name('quotations.lead');
+    Route::get('quotation/{id}', [QuotationController::class, 'show'])->name('quotations.show');
+    Route::get('quotation/create/{leadid}/{templateid}', [QuotationController::class, 'create'])->name('quotations.create');
+    Route::post('quotation/store', [QuotationController::class, 'store'])->name('quotations.store');
+    Route::get('quotation/edit/{id}', [QuotationController::class, 'edit'])->name('quotations.edit');
+    Route::post('quotation/update/{id}', [QuotationController::class, 'update'])->name('quotations.update');
+    Route::delete('quotation/destroy/{id}', [QuotationController::class, 'destroy'])->name('quotations.destroy');
+
+    Route::get('quotation/pdf/{quotationId}', [QuotationController::class, 'downloadQuotationPdf'])->name('quotations.download-pdf');
     
 });

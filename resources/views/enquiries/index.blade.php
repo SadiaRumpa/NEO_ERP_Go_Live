@@ -33,14 +33,41 @@
                     data: 'created_at',
                     name: 'created_at',
                     render: function(data, type, row) {
-                        return moment(data).format('DD/MM/YYYY');
+                        let badgeClass = 'bg-label-info'; // Default
+
+                        switch (row.enquiry_status.toLowerCase()) {
+                            case 'new':
+                                badgeClass = 'bg-label-info';
+                                break;
+                            case 'pending':
+                                badgeClass = 'bg-label-warning';
+                                break;
+                            case 'closed':
+                                badgeClass = 'bg-label-success';
+                                break;
+                            case 'lead':
+                                badgeClass = 'bg-label-success';
+                                break;
+                            case 'rejected':
+                                badgeClass = 'bg-label-danger';
+                                break;
+                            default:
+                                badgeClass = 'bg-label-secondary';
+                        }
+
+                        return `
+            <span class="badge rounded-pill ${badgeClass}">
+                ${row.enquiry_status}
+            </span><br>${moment(data).format('DD/MM/YYYY')}
+        `;
+
                     }
                 },
                 {
                     data: 'customer_name',
                     name: 'customer_name',
                     render: function(data, type, row) {
-                        return '<strong>' + row.company_name + '</strong>' + '<br>' + row.customer_name + '<br>' + '<i class="icon-base fas fa-air-freshener mb-2"></i>' + row.customer_email + '<br>' + '<i class="icon-base fas fa-air-freshener mb-2"></i>' + row.customer_phone + '<br>' + '<i class="icon-base fas fa-air-freshener mb-2"></i>' + row.customer_mobile;
+                        return '<strong>' + row.company_name + '</strong>' + '<br>' + row.customer_name + '<br>' + '<i class="icon-base fas fa-envelope mb-2 mr-2"></i> ' + row.customer_email + '<br>' + '<i class="icon-base fas fa-phone mb-2 mr-2"></i> ' + row.customer_phone + '<br>' + '<i class="icon-base fas fa-mobile mb-2"></i> ' + row.customer_mobile;
                     }
                 },
                 {
@@ -61,10 +88,6 @@
                 {
                     data: 'enquiry_source',
                     name: 'enquiry_source'
-                },
-                {
-                    data: 'enquiry_status',
-                    name: 'enquiry_status'
                 },
                 {
                     data: 'action',
@@ -119,10 +142,9 @@
                     <tr>
                         <th>ID</th>
                         <th>DATE</th>
-                        <th>COMPANY INFO</th>
+                        <th width="20%">COMPANY INFO</th>
                         <th>ENQUIRY</th>
                         <th>SOURCE</th>
-                        <th>STATUS</th>
                         <th>ACTION</th>
                     </tr>
                 </thead>

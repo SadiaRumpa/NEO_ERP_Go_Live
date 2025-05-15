@@ -13,19 +13,12 @@ return new class extends Migration
     {
         Schema::create('quotation_templates', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('job_type_id')->unique();
+            $table->foreignId('job_type_id')->constrained('job_types')->onDelete('cascade');
             $table->string('job_type_name', 200)->nullable();
-            $table->string('section_name');
-            $table->string('section_slug');
-            $table->string('section_type', 100);
-            $table->boolean('is_required')->default(0);
-            $table->boolean('has_attachments')->default(0);
-            $table->string('attachment_type')->nullable();
-            $table->integer('order')->default(0);
+            $table->string('template_name', 200);
+            $table->string('template_slug', 200);
             $table->boolean('status')->default(1);
-            $table->timestamps();
-            $table->softDeletes();
-            $table->foreign('job_type_id')->references('id')->on('job_types')->onDelete('cascade');
+            $table->timestamps();            
         });
     }
 

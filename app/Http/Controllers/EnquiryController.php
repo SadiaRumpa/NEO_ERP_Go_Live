@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
+
 
 class EnquiryController extends Controller
 {
@@ -46,6 +46,9 @@ class EnquiryController extends Controller
                 })
                 ->addColumn('customer_phone', function ($row) {
                     return $row->customer->contact_phone;
+                })
+                ->addColumn('customer_mobile', function ($row) {
+                    return $row->customer->contact_mobile;
                 })
                 ->addColumn('action', function ($row) {
                     $btn = '<a href="enquiries/' . $row->slug . '" class="edit btn btn-primary btn-sm">Details</a>';

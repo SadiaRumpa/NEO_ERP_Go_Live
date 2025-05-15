@@ -1,0 +1,148 @@
+@extends('layouts.master')
+
+@section('title', 'Leads')
+
+@section('scripts')
+@parent
+
+<script src="{{asset('assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js')}}"></script>
+<script src="{{asset('assets/vendor/libs/moment/moment.js')}}"></script>
+<script src="{{asset('assets/vendor/libs/flatpickr/flatpickr.js')}}"></script>
+
+<!-- Form Validation -->
+<script src="{{asset('assets/vendor/libs/@form-validation/popular.js')}}"></script>
+<script src="{{asset('assets/vendor/libs/@form-validation/bootstrap5.js')}}"></script>
+<script src="{{asset('assets/vendor/libs/@form-validation/auto-focus.js')}}"></script>
+
+<!-- Page JS -->
+<!-- <script src="{{asset('assets/js/tables-datatables-advanced.js')}}"></script> -->
+<script type="text/javascript">
+    $(function() {
+        var table = $('.datatables-ajax').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: "{{ route('leads.index') }}",
+
+            columns: [{
+                    data: 'DT_RowIndex',
+                    name: 'DT_RowIndex',
+                    orderable: false,
+                    searchable: false
+                },
+                {
+                    data: 'created_at',
+                    name: 'created_at',
+                    render: function(data, type, row) {
+                        let badgeClass = 'bg-label-info'; // Default
+
+                        switch (row.lead_status.toLowerCase()) {
+                            case 'new':
+                                badgeClass = 'bg-label-info';
+                                break;
+                            case 'pending':
+                                badgeClass = 'bg-label-warning';
+                                break;
+                            case 'closed':
+                                badgeClass = 'bg-label-success';
+                                break;
+                            case 'lead':
+                                badgeClass = 'bg-label-success';
+                                break;
+                            case 'rejected':
+                                badgeClass = 'bg-label-danger';
+                                break;
+                            default:
+                                badgeClass = 'bg-label-secondary';
+                        }
+
+                        return `
+            <span class="badge rounded-pill ${badgeClass}">
+                ${row.lead_status}
+            </span><br>${moment(data).format('DD/MM/YYYY')}
+        `;
+
+                    }
+                },
+                {
+                    data: 'customer_name',
+                    name: 'customer_name',
+                    render: function(data, type, row) {
+                        return '<strong>' + row.company_name + '</strong>' + '<br>' + row.customer_name + '<br>' + '<i class="icon-base fas fa-envelope mb-2 mr-2"></i> ' + row.customer_email + '<br>' + '<i class="icon-base fas fa-phone mb-2 mr-2"></i> ' + row.customer_phone + '<br>' + '<i class="icon-base fas fa-mobile mb-2"></i> ' + row.customer_mobile;
+                    }
+                },
+                {
+                    data: 'lead_description',
+                    name: 'lead_description',
+                    render: function(data, type, row) {
+                        // Strip HTML tags
+                        var div = document.createElement("div");
+                        div.innerHTML = data;
+                        var text = div.textContent || div.innerText || "";
+
+                        // Truncate to 200 chars
+                        var truncated = text.length > 200 ? text.substring(0, 200) + "..." : text;
+
+                        return truncated;
+                    }
+                },
+                {
+                    data: 'action',
+                    name: 'action',
+                    orderable: false,
+                    searchable: false
+                },
+            ]
+        });
+    });
+</script>
+@endsection
+
+@section('styles')
+@parent
+<link rel="stylesheet" href="{{asset('assets/vendor/libs/datatables-bs5/datatables.bootstrap5.css')}}" />
+<link rel="stylesheet" href="{{asset('assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css')}}" />
+<link rel="stylesheet" href="{{asset('assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css')}}" />
+<link rel="stylesheet" href="{{asset('assets/vendor/libs/flatpickr/flatpickr.css')}}" />
+
+<!-- Row Group CSS -->
+<link rel="stylesheet" href="{{asset('assets/vendor/libs/datatables-rowgroup-bs5/rowgroup.bootstrap5.css')}}" />
+<!-- Form Validation -->
+<link rel="stylesheet" href="{{asset('assets/vendor/libs/@form-validation/form-validation.css')}}" />
+@endsection
+
+@section('content')
+
+<!-- Content -->
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div
+        class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-6 row-gap-4">
+        <div class="d-flex flex-column justify-content-center">
+            <h4 class="mb-1">Leads</h4>
+        </div>
+        <div class="d-flex align-content-center flex-wrap gap-4">
+            <div class="d-flex gap-4">
+                <a class="btn btn-label-default">Under Process</a>
+                <a class="btn btn-label-danger">Cancelled</a>
+                <a class="btn btn-label-warning">Archived</a>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-datatable table-responsive pt-0">
+            <table class="datatables-ajax table table-bordered">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>DATE</th>
+                        <th width="20%">COMPANY INFO</th>
+                        <th>Lead</th>
+                        <th>ACTION</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- / Content -->
+
+@endsection

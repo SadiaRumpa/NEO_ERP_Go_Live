@@ -16,7 +16,10 @@ return new class extends Migration
             $table->string('name')->unique();
             $table->string('slug')->unique();
             $table->text('description')->nullable();
+            $table->boolean('has_used')->default(0);
+            $table->string('status')->default("active");
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

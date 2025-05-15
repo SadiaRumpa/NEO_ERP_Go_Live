@@ -44,7 +44,7 @@
         <!-- Dashboards -->
         <li class="menu-item {{(request()->is('home') || request()->is('/')) ? 'active' : '' }}">
             <a href="{{ url('/') }}" class="menu-link">
-                <i class="menu-icon icon-base ti tabler-smart-home"></i>
+                <i class="menu-icon icon-base fa fa-hard-drive"></i>
                 <div data-i18n="Dashboards">Dashboards</div>
             </a>
         </li>
@@ -53,8 +53,16 @@
             <a
                 href="{{ url('mailtemplates') }}"
                 class="menu-link">
-                <i class="menu-icon icon-base ti tabler-file-description"></i>
+                <i class="menu-icon icon-base fa-regular fa-envelope-open"></i>
                 <div data-i18n="Mail Templates">Mail Templates</div>
+            </a>
+        </li>
+        <li class="menu-item {{(request()->is('jobtypes') || request()->is('jobtypes/*'))  ? 'active' : '' }}">
+            <a
+                href="{{ url('jobtypes') }}"
+                class="menu-link">
+                <i class="menu-icon icon-base fa-regular fa-square-check"></i>
+                <div data-i18n="Job Type">Job Type</div>
             </a>
         </li>
         <!-- Apps & Pages -->
@@ -82,16 +90,6 @@
 
             </ul>
         </li>
-
-        <li class="menu-item">
-            <a
-                href="#"
-                target="_blank"
-                class="menu-link">
-                <i class="menu-icon icon-base ti tabler-file-description"></i>
-                <div data-i18n="Documentation">Documentation</div>
-            </a>
-        </li>
         @endhasrole
         @hasrole('Enquiry Manager')
         <li class="menu-item {{(request()->is('enquiries') || request()->is('enquiries/*')) ? 'active' : '' }}">
@@ -104,6 +102,26 @@
             <a href="{{ url('leads') }}" class="menu-link">
                 <i class="menu-icon icon-base ti tabler-access-point"></i>
                 <div data-i18n="Leads">Leads</div>
+            </a>
+        </li>
+        <li class="menu-item {{(request()->is('customers') || request()->is('customers/*')) ? 'active' : '' }}">
+            <a href="{{ url('customers') }}" class="menu-link">
+                <i class="menu-icon icon-base ti tabler-users"></i>
+                <div data-i18n="Customers">Customers</div>
+            </a>
+        </li>
+        @endhasrole
+        @hasrole('Lead Manager')
+        <li class="menu-item {{(request()->is('leads') || request()->is('leads/*')) ? 'active' : '' }}">
+            <a href="{{ url('leads') }}" class="menu-link">
+                <i class="menu-icon icon-base ti tabler-access-point"></i>
+                <div data-i18n="Leads">Leads</div>
+            </a>
+        </li>
+        <li class="menu-item {{(request()->is('quotationtemplates') || request()->is('quotationtemplates/*')) ? 'active' : '' }}">
+            <a href="{{ url('quotationtemplates') }}" class="menu-link">
+                <i class="menu-icon icon-base ti tabler-app-window"></i>
+                <div data-i18n="Quotation Templates">Quotation Templates</div>
             </a>
         </li>
         <li class="menu-item {{(request()->is('customers') || request()->is('customers/*')) ? 'active' : '' }}">

@@ -40,6 +40,7 @@
     <link rel="stylesheet" href="{{asset('assets/vendor/libs/pickr/pickr-themes.css')}}" />
     <link rel="stylesheet" href="{{asset('assets/vendor/css/core.css')}}" />
     <link rel="stylesheet" href="{{asset('assets/css/demo.css')}}" />
+    
     <!-- Vendors CSS -->
     <link rel="stylesheet" href="{{asset('assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css')}}" />
     <!-- endbuild -->
@@ -307,14 +308,12 @@
     <!-- endbuild -->
 
     <!-- Vendors JS -->
-    <script src="{{asset('assets/vendor/libs/swiper/swiper.js')}}"></script>
-
+    <!-- <script src="{{asset('assets/vendor/libs/swiper/swiper.js')}}"></script> -->
+    
     <!-- Main JS -->
     <script src="{{asset('assets/js/main.js')}}"></script>
-    
     @show
 
-    
 </body>
 
 </html>

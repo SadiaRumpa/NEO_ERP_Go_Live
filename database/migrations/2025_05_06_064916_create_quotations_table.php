@@ -17,9 +17,11 @@ return new class extends Migration
             $table->bigInteger('customer_id');
             $table->bigInteger('job_type_id');
             $table->string('quotation_version', 100)->nullable();
+            $table->string('quotation_date', 100)->nullable();
             $table->text('cover_letter')->nullable();
             $table->bigInteger('quotation_template_id');
             $table->string('status', 100)->comment("('draft', 'sent', 'accepted', 'declined', 'expired')")->default('draft');
+            $table->text('remarks')->nullable();
             $table->timestamps();
         });
     }
