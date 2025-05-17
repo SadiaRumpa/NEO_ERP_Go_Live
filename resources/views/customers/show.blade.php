@@ -11,14 +11,84 @@
 <script src="{{asset('assets/vendor/libs/jquery-repeater/jquery-repeater.js')}}"></script>
 <script src="{{asset('assets/vendor/libs/flatpickr/flatpickr.js')}}"></script>
 <script src="{{asset('assets/vendor/libs/tagify/tagify.js')}}"></script>
-<!-- Page JS -->
 <script>
-    // $(function() {
-    //     $('.phone-mask').inputmask({
-    //         mask: '+9 (999) 999-99-99'
-    //     });
-    //     $('.select2').select2();
-    // });
+    function checkaddress() {
+        let postcode = $('#modalAddressPostcode').val().replace(/\s/g, '');
+
+        if (!postcode) {
+            alert("Please enter a postcode.");
+            return;
+        }
+
+        $('#loading-spinner').show();
+        $('#address-suggestions').hide().empty(); // Clear old suggestions
+
+        $.ajax({
+            url: `/checkpostcode/${postcode}`,
+            method: 'GET',
+            success: function(response) {
+                $('#loading-spinner').hide();
+
+                if (!response || response.error || !response.address || !Array.isArray(response.address.addresses)) {
+                    $('#modalAddressAddress').val("No address found.");
+                    return;
+                }
+
+                let suggestions = response.address.addresses;
+
+                if (suggestions.length === 0) {
+                    $('#modalAddressAddress').val("No address found.");
+                    return;
+                }
+
+                let suggestionList = suggestions.map(address =>
+                    `<a href="#" class="list-group-item list-group-item-action suggestion-item">${address}</a>`
+                ).join('');
+
+                $('#address-suggestions').html(suggestionList).show();
+                $('#posttown').val(response.address.post_town);
+            },
+            error: function() {
+                $('#loading-spinner').hide();
+                $('#address-suggestions').hide();
+                $('#basic-default-address').val("Error fetching address.");
+            }
+        });
+    }
+    $(document).ready(function() {
+        // Event listener to handle clicking on a suggestion (run this once on page load)
+        $(document).on('click', '.suggestion-item', function(e) {
+            e.preventDefault();
+            let selectedAddress = $(this).text();
+            let posttown = $('#posttown').val();
+            $.ajax({
+                url: `/checkposttown/${posttown}`,
+                method: 'GET',
+                success: function(response) {
+                    if (response && response.address) {
+                        $('#modalAddressAddress').val(selectedAddress);
+                        $('#modalAddressCounty').val(response.address.county);
+                        $('#modalAddressCountry').val(response.address.country);
+                        $('#address-suggestions').hide();
+                    } else {
+                        $('#modalAddressAddress').val("Error fetching address.");
+                    }
+                },
+                error: function() {
+                    $('#modalAddressAddress').val("Error fetching address.");
+                }
+            });
+
+
+        });
+
+        // Hide suggestions when clicking outside
+        $(document).click(function(event) {
+            if (!$(event.target).closest('#basic-default-postcode, #address-suggestions').length) {
+                $('#address-suggestions').hide();
+            }
+        });
+    });
 </script>
 @endsection
 
@@ -32,6 +102,27 @@
 <link rel="stylesheet" href="{{asset('assets/vendor/libs/flatpickr/flatpickr.css')}}" />
 <link rel="stylesheet" href="{{asset('assets/vendor/libs/tagify/tagify.css')}}" />
 
+<style>
+    .suggestion-item {
+        cursor: pointer;
+    }
+
+    .suggestion-item:hover {
+        background-color: #f0f0f0;
+    }
+
+    #address-suggestions {
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid #ccc;
+        position: relative;
+        z-index: 9999;
+        background-color: rgb(255, 157, 157);
+        color: rgb(0, 0, 0);
+        width: 85%;
+        margin-left: 2%;
+    }
+</style>
 @endsection
 
 @section('content')
@@ -160,8 +251,13 @@
                 <ul class="nav nav-pills flex-column flex-md-row mb-6 row-gap-2 flex-wrap">
 
                     <li class="nav-item">
-                        <a class="nav-link active" href="app-ecommerce-customer-details-billing.html">
-                            <i class="icon-base ti tabler-map-pin icon-sm me-1_5"></i>Add Site & Billing Address</a>
+                        <button
+                            class="nav-link active"
+                            data-bs-target="#addNewAddress"
+                            data-bs-toggle="modal">
+                            <i class="icon-base ti tabler-map-pin icon-sm me-1_5"></i>Add Site & Billing Address
+                        </button>
+
                     </li>
 
                 </ul>
@@ -181,88 +277,57 @@
                                     frameborder="0"
                                     style="border:0"
                                     referrerpolicy="no-referrer-when-downgrade"
-                                    src="https://www.google.com/maps/embed/v1/place?key={{ config('services.google.maps_api_key') }}&q={{ $lead->leadaddress->address }}, {{ $lead->leadaddress->county }}, {{ $lead->leadaddress->postcode }}+{{ $lead->leadaddress->address }}, {{ $lead->leadaddress->county }}, {{ $lead->leadaddress->country }}"
+                                    src="https://www.google.com/maps/embed/v1/place?key={{ config('services.google.maps_api_key') }}&q={{ $customer->billingaddress->address }}, {{ $customer->billingaddress->county }}, {{ $customer->billingaddress->postcode }}+{{ $customer->billingaddress->address }}, {{ $customer->billingaddress->county }}, {{ $customer->billingaddress->country }}"
                                     allowfullscreen>
                                 </iframe>
                             </div>
-                            <h5 class="mb-2">Site Address</h5>
-                            <p class="small">
-                                Next Generation Frontend Architecture Using Layout Engine And React Native Web.
+                            <h5 class="mb-2">Billing Address</h5>
+                            <p class="user-info" style="text-transform: uppercase;">
+                                {{ $customer->billingaddress->address }}, {{ $customer->billingaddress->county }}, 
+                                {{ $customer->billingaddress->country }}
                             </p>
-                            <div class="row mb-4 g-3">
-                                <div class="col-6">
-                                    <div class="d-flex">
-                                        <div class="avatar flex-shrink-0 me-3">
-                                            <span class="avatar-initial rounded bg-label-primary"><i class="icon-base ti tabler-calendar-event icon-28px"></i></span>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-0 text-nowrap">17 Nov 23</h6>
-                                            <small>Date</small>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="d-flex">
-                                        <div class="avatar flex-shrink-0 me-3">
-                                            <span class="avatar-initial rounded bg-label-primary"><i class="icon-base ti tabler-clock icon-28px"></i></span>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-0 text-nowrap">32 minutes</h6>
-                                            <small>Duration</small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <a href="javascript:void(0);" class="btn btn-primary w-100">Join the event</a>
+                            
+                            <a href="javascript:void(0);" class="btn btn-outline-dark waves-effect">UPDATE</a>
+                            <a href="javascript:void(0);" class="btn btn-outline-danger waves-effect delete-address" data-id="{{ $customer->billingaddress->id }}">DELETE</a>
                         </div>
                     </div>
                 </div>
                 @endif
                 <!--/ Billing Address -->
-                <!-- Site Address -->
+
+                <!-- Billing Address -->
+                @if($customer->siteaddress)
+                @foreach ($customer->siteaddress as $csaddress)
                 <div class="col-md-6 col-xxl-6 mb-6">
                     <div class="card h-100">
                         <div class="card-body">
                             <div class="bg-label-primary rounded text-center mb-4 pt-4">
-                                <img
-                                    class="img-fluid"
-                                    src="../../assets/img/illustrations/girl-with-laptop.png"
-                                    alt="Card girl image"
-                                    width="140" />
+                                <iframe
+                                    width="100%"
+                                    height="450"
+                                    frameborder="0"
+                                    style="border:0"
+                                    referrerpolicy="no-referrer-when-downgrade"
+                                    src="https://www.google.com/maps/embed/v1/place?key={{ config('services.google.maps_api_key') }}&q={{ $csaddress->address }}, {{ $csaddress->county }}, {{ $csaddress->postcode }}+{{ $csaddress->address }}, {{ $csaddress->county }}, {{ $csaddress->country }}"
+                                    allowfullscreen>
+                                </iframe>
                             </div>
-                            <h5 class="mb-2">Upcoming Webinar</h5>
-                            <p class="small">
-                                Next Generation Frontend Architecture Using Layout Engine And React Native Web.
+                            <h5 class="mb-2">Site Address</h5>
+                            <p class="user-info" style="text-transform: uppercase;">
+                                {{ $csaddress->address }}, {{ $csaddress->county }}, 
+                                {{ $csaddress->country }}
                             </p>
-                            <div class="row mb-4 g-3">
-                                <div class="col-6">
-                                    <div class="d-flex">
-                                        <div class="avatar flex-shrink-0 me-3">
-                                            <span class="avatar-initial rounded bg-label-primary"><i class="icon-base ti tabler-calendar-event icon-28px"></i></span>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-0 text-nowrap">17 Nov 23</h6>
-                                            <small>Date</small>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="d-flex">
-                                        <div class="avatar flex-shrink-0 me-3">
-                                            <span class="avatar-initial rounded bg-label-primary"><i class="icon-base ti tabler-clock icon-28px"></i></span>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-0 text-nowrap">32 minutes</h6>
-                                            <small>Duration</small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <a href="javascript:void(0);" class="btn btn-primary w-100">Join the event</a>
+                            
+                            <a href="javascript:void(0);" class="btn btn-outline-dark waves-effect">UPDATE</a>
+                            <a href="javascript:void(0);" class="btn btn-outline-danger waves-effect delete-address" data-id="{{ $csaddress->id }}">DELETE</a>
                         </div>
                     </div>
                 </div>
-                <!--/ Site Address -->
+                @endforeach
+                
+                @endif
+                <!--/ Billing Address -->
+                
             </div>
 
             <!-- Address -->
@@ -447,9 +512,9 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     <div class="text-center mb-6">
                         <h4 class="address-title mb-2">Add New Address</h4>
-                        <p class="address-subtitle">Add new address for express delivery</p>
                     </div>
-                    <form id="addNewAddressForm" class="row g-6" onsubmit="return false">
+                    <form class="row g-6" action="{{ route('customer.storeaddress', $customer->id) }}" method="POST">
+                        @csrf
                         <div class="col-12 form-control-validation">
                             <div class="row">
                                 <div class="col-md mb-md-0 mb-4">
@@ -471,14 +536,13 @@
                                                         stroke-linecap="round"
                                                         stroke-linejoin="round" />
                                                 </svg>
-                                                <span class="custom-option-title">Home</span>
-                                                <small> Delivery time (9am – 9pm) </small>
+                                                <span class="custom-option-title">Billing</span>
                                             </span>
                                             <input
-                                                name="customRadioIcon"
+                                                name="type"
                                                 class="form-check-input"
                                                 type="radio"
-                                                value=""
+                                                value="billing"
                                                 id="customRadioHome"
                                                 checked />
                                         </label>
@@ -504,14 +568,13 @@
                                                         stroke-linecap="round"
                                                         stroke-linejoin="round" />
                                                 </svg>
-                                                <span class="custom-option-title"> Office </span>
-                                                <small> Delivery time (9am – 5pm) </small>
+                                                <span class="custom-option-title"> Site </span>
                                             </span>
                                             <input
-                                                name="customRadioIcon"
+                                                name="type"
                                                 class="form-check-input"
                                                 type="radio"
-                                                value=""
+                                                value="site"
                                                 id="customRadioOffice" />
                                         </label>
                                     </div>
@@ -523,112 +586,104 @@
                             <input
                                 type="text"
                                 id="modalAddressFirstName"
-                                name="modalAddressFirstName"
+                                name="contactPersonFirstName"
                                 class="form-control"
-                                placeholder="John" />
+                                placeholder="John" required />
                         </div>
                         <div class="col-12 form-control-validation col-md-6">
                             <label class="form-label" for="modalAddressLastName">Last Name</label>
                             <input
                                 type="text"
                                 id="modalAddressLastName"
-                                name="modalAddressLastName"
+                                name="contactPersonLastName"
                                 class="form-control"
                                 placeholder="Doe" />
                         </div>
+                        <div class="col-12 form-control-validation col-md-4">
+                            <label class="form-label" for="modalAddressPhone">Phone</label>
+                            <input
+                                type="text"
+                                id="modalAddressPhone"
+                                name="contactPhone"
+                                class="form-control"
+                                placeholder="14169884411"
+                                maxlength="11"
+                                pattern="\d{1,11}"
+                                inputmode="numeric"
+                                required />
+                        </div>
+                        <div class="col-12 form-control-validation col-md-4">
+                            <label class="form-label" for="modalAddressMobile">Mobile</label>
+                            <input
+                                type="text"
+                                id="modalAddressMobile"
+                                name="contactMobile"
+                                class="form-control"
+                                placeholder="14169884411"
+                                maxlength="11"
+                                pattern="\d{1,11}"
+                                inputmode="numeric"
+                                required />
+                        </div>
+                        <div class="col-12 form-control-validation col-md-4">
+                            <label class="form-label" for="modalAddressLastName">eMail</label>
+                            <input
+                                type="email"
+                                id="modalAddressemail"
+                                name="contactEmail"
+                                class="form-control"
+                                placeholder="info@abc.com" />
+                        </div>
+
                         <div class="col-12">
-                            <label class="form-label" for="modalAddressCountry">Country</label>
-                            <select
-                                id="modalAddressCountry"
-                                name="modalAddressCountry"
-                                class="select2 form-select"
-                                data-allow-clear="true">
-                                <option value="">Select</option>
-                                <option value="Australia">Australia</option>
-                                <option value="Bangladesh">Bangladesh</option>
-                                <option value="Belarus">Belarus</option>
-                                <option value="Brazil">Brazil</option>
-                                <option value="Canada">Canada</option>
-                                <option value="China">China</option>
-                                <option value="France">France</option>
-                                <option value="Germany">Germany</option>
-                                <option value="India">India</option>
-                                <option value="Indonesia">Indonesia</option>
-                                <option value="Israel">Israel</option>
-                                <option value="Italy">Italy</option>
-                                <option value="Japan">Japan</option>
-                                <option value="Korea">Korea, Republic of</option>
-                                <option value="Mexico">Mexico</option>
-                                <option value="Philippines">Philippines</option>
-                                <option value="Russia">Russian Federation</option>
-                                <option value="South Africa">South Africa</option>
-                                <option value="Thailand">Thailand</option>
-                                <option value="Turkey">Turkey</option>
-                                <option value="Ukraine">Ukraine</option>
-                                <option value="United Arab Emirates">United Arab Emirates</option>
-                                <option value="United Kingdom">United Kingdom</option>
-                                <option value="United States">United States</option>
-                            </select>
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label" for="modalAddressAddress1">Address Line 1</label>
-                            <input
-                                type="text"
-                                id="modalAddressAddress1"
-                                name="modalAddressAddress1"
-                                class="form-control"
-                                placeholder="12, Business Park" />
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label" for="modalAddressAddress2">Address Line 2</label>
-                            <input
-                                type="text"
-                                id="modalAddressAddress2"
-                                name="modalAddressAddress2"
-                                class="form-control"
-                                placeholder="Mall Road" />
-                        </div>
-                        <div class="col-12 col-md-6">
-                            <label class="form-label" for="modalAddressLandmark">Landmark</label>
-                            <input
-                                type="text"
-                                id="modalAddressLandmark"
-                                name="modalAddressLandmark"
-                                class="form-control"
-                                placeholder="Nr. Hard Rock Cafe" />
-                        </div>
-                        <div class="col-12 col-md-6">
-                            <label class="form-label" for="modalAddressCity">City</label>
-                            <input
-                                type="text"
-                                id="modalAddressCity"
-                                name="modalAddressCity"
-                                class="form-control"
-                                placeholder="Los Angeles" />
-                        </div>
-                        <div class="col-12 col-md-6">
-                            <label class="form-label" for="modalAddressLandmark">State</label>
-                            <input
-                                type="text"
-                                id="modalAddressState"
-                                name="modalAddressState"
-                                class="form-control"
-                                placeholder="California" />
-                        </div>
-                        <div class="col-12 col-md-6">
-                            <label class="form-label" for="modalAddressZipCode">Zip Code</label>
-                            <input
-                                type="text"
-                                id="modalAddressZipCode"
-                                name="modalAddressZipCode"
-                                class="form-control"
-                                placeholder="99950" />
-                        </div>
-                        <div class="col-12">
-                            <div class="form-check form-switch">
-                                <input type="checkbox" class="form-check-input" id="billingAddress" />
-                                <label for="billingAddress" class="form-switch-label">Use as a billing address?</label>
+                            <label class="form-label" for="modalAddressPostcode">Postcode</label>
+                            <div class="input-group">
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    id="modalAddressPostcode"
+                                    name="postcode"
+                                    placeholder="WR11 7EJ"
+                                    aria-label="WR11 7EJ"
+                                    aria-describedby="button-addon2"
+                                    oninput="this.value = this.value.toUpperCase()" required />
+                                <button class="btn btn-outline-primary" type="button" id="button-addon2" onclick="checkaddress()">Check</button>
                             </div>
+
+                        </div>
+                        <div id="loading-spinner" style="display: none;">
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            Searching...
+                        </div>
+                        <!-- Suggestions Container -->
+                        <div id="address-suggestions" class="list-group mt-1" style="display:none;"></div>
+                        <input type="hidden" id="posttown" value="" />
+
+                        <div class="col-12">
+                            <label class="form-label" for="modalAddressAddress">Address</label>
+                            <textarea
+                                id="modalAddressAddress"
+                                class="form-control"
+                                name="address" placeholder="12, Business Park"
+                                required></textarea>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label" for="modalAddressCounty">County</label>
+                            <input
+                                type="text"
+                                id="modalAddressCounty"
+                                name="county"
+                                class="form-control"
+                                placeholder="Barkingham" />
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label" for="modalAddressCountry">Country</label>
+                            <input
+                                type="text"
+                                id="modalAddressCountry"
+                                name="country"
+                                class="form-control"
+                                placeholder="United Kingdom" />
                         </div>
                         <div class="col-12 text-center">
                             <button type="submit" class="btn btn-primary me-3">Submit</button>

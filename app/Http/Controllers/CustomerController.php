@@ -145,34 +145,34 @@ class CustomerController extends Controller
         return redirect()->back()->with('success', 'Customer updated successfully.');
     }
 
-    private function updateCustomerAddress(Request $request, $customerId, $type)
-    {
-        $prefix = $type === 'billing' ? 'billing' : 'site';
+    // private function updateCustomerAddress(Request $request, $customerId, $type)
+    // {
+    //     $prefix = $type === 'billing' ? 'billing' : 'site';
 
-        if (!$request->filled("{$prefix}Address")) {
-            return;
-        }
+    //     if (!$request->filled("{$prefix}Address")) {
+    //         return;
+    //     }
 
-        $addressData = [
-            'contact_firstname' => $request->input("{$prefix}PersonFirstName"),
-            'contact_lastname' => $request->input("{$prefix}PersonLastName"),
-            'contact_phone'    => $request->input("{$prefix}Phone"),
-            'contact_mobile'   => $request->input("{$prefix}Mobile"),
-            'contact_email'    => $request->input("{$prefix}Email"),
-            'address'     => $request->input("{$prefix}Address"),
-            'county'     => $request->input("{$prefix}County") ?? 'United Kingdom',
-            'postcode'    => $request->input("{$prefix}Postcode"),
-            'customer_id' => $customerId,
-            'type'        => $type,
-        ];
+    //     $addressData = [
+    //         'contact_firstname' => $request->input("{$prefix}PersonFirstName"),
+    //         'contact_lastname' => $request->input("{$prefix}PersonLastName"),
+    //         'contact_phone'    => $request->input("{$prefix}Phone"),
+    //         'contact_mobile'   => $request->input("{$prefix}Mobile"),
+    //         'contact_email'    => $request->input("{$prefix}Email"),
+    //         'address'     => $request->input("{$prefix}Address"),
+    //         'county'     => $request->input("{$prefix}County") ?? 'United Kingdom',
+    //         'postcode'    => $request->input("{$prefix}Postcode"),
+    //         'customer_id' => $customerId,
+    //         'type'        => $type,
+    //     ];
 
-        $customerAddress = CustomerAddress::firstOrNew([
-            'customer_id' => $customerId,
-            'type'        => $type,
-        ]);
+    //     $customerAddress = CustomerAddress::firstOrNew([
+    //         'customer_id' => $customerId,
+    //         'type'        => $type,
+    //     ]);
 
-        $customerAddress->fill($addressData)->save();
-    }
+    //     $customerAddress->fill($addressData)->save();
+    // }
     private function updateCustomerDetails(Request $request, $customerId)
     {
         $detailsData = [
@@ -221,6 +221,31 @@ class CustomerController extends Controller
             return redirect()->back()->with('error', $e->getMessage());
             // return $e->getMessage();
         }
+    }
+
+    public function storeCustomerAddress(Request $request, string $id)
+    {
+        $validated = $request->validate([
+            'address' => 'required|string|max:255',
+            'county' => 'nullable|string|max:255',
+            'postcode' => 'required|string|max:20',
+            'type' => 'required|string|in:billing,site',
+        ]);
+
+        $customerAddress = new CustomerAddress();
+        $customerAddress->customer_id = $id;
+        $customerAddress->contact_firstname = $request->input('contactPersonFirstName');
+        $customerAddress->contact_lastname = $request->input('contactPersonLastName');
+        $customerAddress->contact_phone = $request->input('contactPhone');
+        $customerAddress->contact_mobile = $request->input('contactMobile');
+        $customerAddress->contact_email = $request->input('contactEmail');
+        $customerAddress->address = $validated['address'];
+        $customerAddress->county = $validated['county'] ?? 'United Kingdom';
+        $customerAddress->postcode = $validated['postcode'];
+        $customerAddress->type = $validated['type'];
+        $customerAddress->save();
+
+        return redirect()->back()->with('success', 'Customer address created successfully.');
     }
 
 

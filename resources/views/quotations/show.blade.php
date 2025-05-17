@@ -31,17 +31,21 @@
     <div
         class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-6 row-gap-4">
         <div class="d-flex flex-column justify-content-center">
+
             <div class="mb-1">
+                <a href="{{ route( 'quotations.lead', $quotation->lead->id) }}">
+                    <span class="avatar-initial rounded-circle bg-label-warning w-px-50 h-px-50 mr-2">
+                        <i class="icon-base ti tabler-arrow-back-up icon-lg"></i>
+                    </span>
+                </a>
                 <span class="h5">QUOTATION FOR LEAD #{{ $quotation->lead->lead_name }} </span>
                 <span class="badge bg-label-success me-1 ms-2">{{ $quotation->quotation_version }}</span>
                 <span class="badge bg-label-info">{{ $quotation->status }}</span>
             </div>
-            <p class="mb-0">{{ \Carbon\Carbon::parse($quotation->quotation_date)->format('F jS Y') }}</p>
+            
         </div>
         <div class="d-flex align-content-center flex-wrap gap-2">
-            
             <a href="{{ route('quotations.download-pdf', $quotation->id) }}" class="btn btn-sm btn-label-primary">Download PDF</a>
-
         </div>
     </div>
 
@@ -77,11 +81,15 @@
                 <div class="card-body pt-1">
                     @foreach ( $quotation->sections as $sections )
                     <strong>{{ $sections->section_name }}: </strong>
-                    @if ($sections->content->sample_type == "textbox")
+
+                    @if ($sections->section_type == "textbox")
                     <p class="mb-6">
+                        @isset($sections->content->sample_source)
                         {!! $sections->content->sample_source !!}
+                        @endisset
                     </p>
                     @endif
+
                     @endforeach
                 </div>
             </div>

@@ -828,7 +828,7 @@
                                         <i class="icon-base ti tabler-dots-vertical icon-22px text-body-secondary"></i>
                                     </button>
                                     <div class="dropdown-menu dropdown-menu-end" aria-labelledby="salesByCountryTabs">
-                                        <a class="dropdown-item waves-effect" href="{{ route('customers.edit', $lead->customer->id) }}">Update</a>
+                                        <a class="dropdown-item waves-effect" href="{{ route('customers.show', $lead->customer->id) }}">Update</a>
                                     </div>
                                 </div>
                             </div>
@@ -843,11 +843,6 @@
                                         <li class="nav-item" role="presentation">
                                             <button type="button" class="nav-link waves-effect" role="tab" data-bs-toggle="tab" data-bs-target="#navs-justified-link-billing" aria-controls="navs-justified-link-preparing" aria-selected="false" tabindex="-1">
                                                 Billing
-                                            </button>
-                                        </li>
-                                        <li class="nav-item" role="presentation">
-                                            <button type="button" class="nav-link waves-effect" role="tab" data-bs-toggle="tab" data-bs-target="#navs-justified-link-sites" aria-controls="navs-justified-link-shipping" aria-selected="false" tabindex="-1">
-                                                Sites
                                             </button>
                                         </li>
                                     </ul>
@@ -942,45 +937,6 @@
                                                     </div>
                                                 </li>
                                             </ul>
-                                            @endisset
-                                        </div>
-                                        <div class="tab-pane fade" id="navs-justified-link-sites" role="tabpanel">
-                                            @isset($lead->customer->siteaddress)
-
-                                            <ul class="timeline mb-0">
-                                                <li class="timeline-item ps-6 border-dashed">
-                                                    <span class="timeline-indicator-advanced timeline-indicator-success border-0 shadow-none">
-                                                        <i class="icon-base ti tabler-circle-check"></i>
-                                                    </span>
-                                                    <div class="timeline-event ps-1">
-                                                        <div class="timeline-header">
-                                                            <small class="text-success text-uppercase">{{ $lead->customer->siteaddress->contact_firstname ?? 'N/A' }} {{ $lead->customer->siteaddress->contact_lastname ?? 'N/A' }}</small>
-                                                        </div>
-                                                        <p class="text-body mb-0">
-                                                            <span class="text-heading fw-medium">eMail: </span> <span>{{ $lead->customer->siteaddress->contact_email ?? 'N/A' }}</span> <br>
-                                                            <span class="text-heading fw-medium">Phone: </span> <span>{{ $lead->customer->siteaddress->contact_phone ?? 'N/A' }}</span> <br>
-                                                            <span class="text-heading fw-medium">Mobile: </span> <span>{{ $lead->customer->siteaddress->contact_mobile ?? 'N/A' }}</span> <br>
-                                                        </p>
-                                                    </div>
-                                                </li>
-                                                <li class="timeline-item ps-6 border-0">
-                                                    <span class="timeline-indicator-advanced timeline-indicator-primary border-0 shadow-none">
-                                                        <i class="icon-base ti tabler-map-pin"></i>
-                                                    </span>
-                                                    <div class="timeline-event ps-1">
-                                                        <div class="timeline-header">
-                                                            <small class="text-primary text-uppercase">Billing Address</small>
-                                                        </div>
-                                                        <h6 class="my-50">
-                                                            <span class="fw-medium">Address: </span><span>{{ $lead->customer->siteaddress->address ?? 'N/A' }}</span> <br>
-                                                            <span class="fw-medium">County: </span><span>{{ $lead->customer->siteaddress->county ?? 'N/A' }}</span> <br>
-                                                            <span class="fw-medium">Postcode: </span><span>{{ $lead->customer->siteaddress->postcode ?? 'N/A' }}</span> <br>
-                                                            <span class="fw-medium">Country: </span><span>{{ $lead->customer->siteaddress->country ?? 'N/A' }}</span> <br>
-                                                        </h6>
-                                                    </div>
-                                                </li>
-                                            </ul>
-
                                             @endisset
                                         </div>
                                     </div>

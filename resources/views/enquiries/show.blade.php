@@ -805,11 +805,7 @@
                                                 Billing
                                             </button>
                                         </li>
-                                        <li class="nav-item" role="presentation">
-                                            <button type="button" class="nav-link waves-effect" role="tab" data-bs-toggle="tab" data-bs-target="#navs-justified-link-sites" aria-controls="navs-justified-link-shipping" aria-selected="false" tabindex="-1">
-                                                Sites
-                                            </button>
-                                        </li>
+
                                     </ul>
                                     <div class="tab-content border-0 mx-1">
                                         <div class="tab-pane fade show active" id="navs-justified-details" role="tabpanel">
@@ -902,45 +898,6 @@
                                                     </div>
                                                 </li>
                                             </ul>
-                                            @endisset
-                                        </div>
-                                        <div class="tab-pane fade" id="navs-justified-link-sites" role="tabpanel">
-                                            @isset($enquiry->customer->siteaddress)
-
-                                            <ul class="timeline mb-0">
-                                                <li class="timeline-item ps-6 border-dashed">
-                                                    <span class="timeline-indicator-advanced timeline-indicator-success border-0 shadow-none">
-                                                        <i class="icon-base ti tabler-circle-check"></i>
-                                                    </span>
-                                                    <div class="timeline-event ps-1">
-                                                        <div class="timeline-header">
-                                                            <small class="text-success text-uppercase">{{ $enquiry->customer->siteaddress->contact_firstname ?? 'N/A' }} {{ $enquiry->customer->siteaddress->contact_lastname ?? 'N/A' }}</small>
-                                                        </div>
-                                                        <p class="text-body mb-0">
-                                                            <span class="text-heading fw-medium">eMail: </span> <span>{{ $enquiry->customer->siteaddress->contact_email ?? 'N/A' }}</span> <br>
-                                                            <span class="text-heading fw-medium">Phone: </span> <span>{{ $enquiry->customer->siteaddress->contact_phone ?? 'N/A' }}</span> <br>
-                                                            <span class="text-heading fw-medium">Mobile: </span> <span>{{ $enquiry->customer->siteaddress->contact_mobile ?? 'N/A' }}</span> <br>
-                                                        </p>
-                                                    </div>
-                                                </li>
-                                                <li class="timeline-item ps-6 border-0">
-                                                    <span class="timeline-indicator-advanced timeline-indicator-primary border-0 shadow-none">
-                                                        <i class="icon-base ti tabler-map-pin"></i>
-                                                    </span>
-                                                    <div class="timeline-event ps-1">
-                                                        <div class="timeline-header">
-                                                            <small class="text-primary text-uppercase">Billing Address</small>
-                                                        </div>
-                                                        <h6 class="my-50">
-                                                            <span class="fw-medium">Address: </span><span>{{ $enquiry->customer->siteaddress->address ?? 'N/A' }}</span> <br>
-                                                            <span class="fw-medium">County: </span><span>{{ $enquiry->customer->siteaddress->county ?? 'N/A' }}</span> <br>
-                                                            <span class="fw-medium">Postcode: </span><span>{{ $enquiry->customer->siteaddress->postcode ?? 'N/A' }}</span> <br>
-                                                            <span class="fw-medium">Country: </span><span>{{ $enquiry->customer->siteaddress->country ?? 'N/A' }}</span> <br>
-                                                        </h6>
-                                                    </div>
-                                                </li>
-                                            </ul>
-
                                             @endisset
                                         </div>
                                     </div>

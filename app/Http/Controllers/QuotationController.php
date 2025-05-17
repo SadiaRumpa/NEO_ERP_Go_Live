@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Str;
 
 class QuotationController extends Controller
 {
@@ -37,13 +38,9 @@ class QuotationController extends Controller
             return Datatables::of($data)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
-                    $showUrl = route('quotations.show', $row->id); // Edit Route
-                    $editUrl = route('quotations.edit', $row->id); // Edit Route
-                    $deleteUrl = route('quotations.destroy', $row->id); // Delete Route
-
+                    $showUrl = route('quotations.show', $row->id);
                     return '
                     <a href="' . $showUrl . '" class="shoq btn btn-primary btn-sm">Show</a>
-                    <a href="' . $editUrl . '" class="edit btn btn-warning btn-sm">Edit</a>
                     <button class="delete btn btn-danger btn-sm" data-id="' . $row->id . '">Delete</button>
                 ';
                 })
@@ -81,8 +78,6 @@ class QuotationController extends Controller
         ]);
     }
 
-
-
     public function store(Request $request)
     {
         $request->validate([
@@ -115,15 +110,19 @@ class QuotationController extends Controller
                 ->get();
 
             foreach ($templateSections as $templateSection) {
+                // Generate slug or use from template
+                $slug = $templateSection->section_slug ?? Str::slug($templateSection->section_name);
+
+                // Create quotation section
                 $quotationSection = $quotation->sections()->create([
                     'section_name' => $templateSection->section_name,
                     'section_type' => $templateSection->section_type,
                     'has_attachments' => $templateSection->has_attachments,
                     'order' => $templateSection->order,
+                    'section_slug' => $slug,
                 ]);
 
                 // Insert section content if available
-                $slug = $quotationSection->section_slug;
                 if ($request->filled($slug)) {
                     QuotationSectionContent::updateOrCreate(
                         ['quotation_section_id' => $quotationSection->id],
@@ -135,7 +134,6 @@ class QuotationController extends Controller
                 }
             }
 
-
             DB::commit();
 
             return redirect()->route('quotations.show', $quotation->id)
@@ -145,6 +143,7 @@ class QuotationController extends Controller
             return back()->with('error', 'Failed to create quotation: ' . $e->getMessage());
         }
     }
+
 
 
     public function show($id)
@@ -164,10 +163,37 @@ class QuotationController extends Controller
 
     public function downloadQuotationPdf($quotationId)
     {
-        $quotation = Quotation::with(['lead', 'customer', 'customer.billingaddress', 'sections', 'sections.content', 'sections.attachments'])->findOrFail($quotationId);
-
+        $quotation = Quotation::with(['lead', 'customer', 'customer.billingaddress', 'sections', 'sections.content', 'sections.attachments'])
+            ->findOrFail($quotationId);
         $pdf = Pdf::loadView('pdf.quotaions', compact('quotation'));
 
         return $pdf->download('quotation_' . $quotation->id . '.pdf');
+    }
+
+    public function destroy($id)
+    {
+        DB::beginTransaction();
+
+        try {
+            $quotation = Quotation::with('sections.attachments', 'sections.content')->findOrFail($id);
+            foreach ($quotation->sections as $section) {
+                // Delete attachments
+                $section->attachments()->delete();
+                // Delete content
+                $section->content()->delete();
+            }
+
+            // Delete sections
+            $quotation->sections()->delete();
+            // Delete the quotation
+            $quotation->delete();
+            DB::commit();
+
+            return response()->json(['success' => 'Quotation deleted successfully.']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json(['error' => 'Failed to delete quotation. ' . $e->getMessage()], 500);
+        }
     }
 }
