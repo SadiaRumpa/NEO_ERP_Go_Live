@@ -788,7 +788,7 @@
                                         <i class="icon-base ti tabler-dots-vertical icon-22px text-body-secondary"></i>
                                     </button>
                                     <div class="dropdown-menu dropdown-menu-end" aria-labelledby="salesByCountryTabs">
-                                        <a class="dropdown-item waves-effect" href="{{ route('customers.edit', $enquiry->customer->id) }}">Update</a>
+                                        <a class="dropdown-item waves-effect" href="{{ route('customers.show', $enquiry->customer->id) }}" target="_blank">Update</a>
                                     </div>
                                 </div>
                             </div>
