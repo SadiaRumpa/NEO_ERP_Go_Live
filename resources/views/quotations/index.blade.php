@@ -9,8 +9,7 @@
 <script src="{{asset('assets/vendor/libs/moment/moment.js')}}"></script>
 <script src="{{asset('assets/vendor/libs/flatpickr/flatpickr.js')}}"></script>
 
-<!-- Page JS -->
-<!-- <script src="{{asset('assets/js/tables-datatables-advanced.js')}}"></script> -->
+
 <script type="text/javascript">
     $(function() {
         var table = $('.datatables-ajax').DataTable({
@@ -112,19 +111,15 @@
         class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-6 row-gap-4">
         <div class="d-flex flex-column justify-content-center">
             <div class="d-flex align-items-center">
-                <div class="avatar-wrapper">
-                    <div class="avatar me-4">
-                        <a href="{{ route( 'leads.show', $leaddata->slug) }}">
-                            <span class="avatar-initial rounded-circle bg-label-secondary w-px-40 h-px-40">
-                                <i class="icon-base ti tabler-arrow-back-up icon-lg"></i>
-                            </span>
-                        </a>
-
-                    </div>
+                <div class="mb-1">
+                    <a href="{{ route( 'leads.show', $leaddata->slug) }}"
+                        class="btn btn-icon btn-label-secondary waves-effect btn-sm me-2">
+                        <span class="icon-base ti tabler-corner-up-left-double icon-20px"></span>
+                    </a>
+                    <span class="h5">QUOTATIONS FOR LEAD #<span class="badge bg-label-success me-1 ms-2">{{ $leaddata->lead_name }}</span> </span>
                 </div>
-                <span class="d-flex flex-column gap-1">
-                    <h4 class="mb-1">Quotations For Lead: {{ $leaddata->lead_name }}</h4>
-                </span>
+                
+                
             </div>
 
         </div>

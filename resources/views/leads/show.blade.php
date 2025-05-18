@@ -318,8 +318,9 @@
         @endif
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-6 row-gap-4">
             <div class="d-flex flex-column justify-content-center">
-                <h4 class="mb-1">LEAD : {{ $lead->lead_name }}
-
+                
+                <span class="h4">
+                    LEAD #<span class="badge bg-label-success me-1 ms-2">{{ $lead->lead_name }}</span> 
                     <div class="btn-group">
                         @if($lead->lead_status == 'job')
                         <button type="button" class="btn btn-label-info waves-effect">{{ $lead->lead_status }}</button>
@@ -341,7 +342,7 @@
                         </ul>
                     </div>
 
-                </h4>
+                </span>
             </div>
             @if($lead->lead_status == 'new' || $lead->lead_status == 'inprogress')
             <div class="d-flex align-content-center flex-wrap gap-4">
@@ -828,7 +829,7 @@
                                         <i class="icon-base ti tabler-dots-vertical icon-22px text-body-secondary"></i>
                                     </button>
                                     <div class="dropdown-menu dropdown-menu-end" aria-labelledby="salesByCountryTabs">
-                                        <a class="dropdown-item waves-effect" href="{{ route('customers.show', $lead->customer->id) }}">Update</a>
+                                        <a class="dropdown-item waves-effect" href="{{ route('customers.show', $lead->customer->id) }}" target="_blank">Update</a>
                                     </div>
                                 </div>
                             </div>

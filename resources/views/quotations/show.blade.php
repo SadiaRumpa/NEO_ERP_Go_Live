@@ -31,18 +31,16 @@
     <div
         class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-6 row-gap-4">
         <div class="d-flex flex-column justify-content-center">
-
             <div class="mb-1">
-                <a href="{{ route( 'quotations.lead', $quotation->lead->id) }}">
-                    <span class="avatar-initial rounded-circle bg-label-warning w-px-50 h-px-50 mr-2">
-                        <i class="icon-base ti tabler-arrow-back-up icon-lg"></i>
-                    </span>
+                <a href="{{ route( 'quotations.lead', $quotation->lead->id) }}"
+                    class="btn btn-icon btn-label-secondary waves-effect btn-sm me-2">
+                    <span class="icon-base ti tabler-corner-up-left-double icon-20px"></span>
                 </a>
                 <span class="h5">QUOTATION FOR LEAD #{{ $quotation->lead->lead_name }} </span>
                 <span class="badge bg-label-success me-1 ms-2">{{ $quotation->quotation_version }}</span>
                 <span class="badge bg-label-info">{{ $quotation->status }}</span>
             </div>
-            
+
         </div>
         <div class="d-flex align-content-center flex-wrap gap-2">
             <a href="{{ route('quotations.download-pdf', $quotation->id) }}" class="btn btn-sm btn-label-primary">Download PDF</a>
@@ -62,7 +60,9 @@
                                 <br>
                                 {{ $quotation->customer->company_name }}
                                 <br>
-                                {{ $quotation->customer->company_name }}
+                                <span style="text-transform: capitalize;">
+                                    {{ $quotation->customer->billingaddress->address }} , {{ $quotation->customer->billingaddress->county }}
+                                </span>
                             </p>
                         </div>
                         <div class="col-6 text-end">

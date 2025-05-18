@@ -9,13 +9,6 @@
 <script src="{{asset('assets/vendor/libs/moment/moment.js')}}"></script>
 <script src="{{asset('assets/vendor/libs/flatpickr/flatpickr.js')}}"></script>
 
-<!-- Form Validation -->
-<script src="{{asset('assets/vendor/libs/@form-validation/popular.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/@form-validation/bootstrap5.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/@form-validation/auto-focus.js')}}"></script>
-
-<!-- Page JS -->
-<!-- <script src="{{asset('assets/js/tables-datatables-advanced.js')}}"></script> -->
 <script type="text/javascript">
     $(function() {
         var table = $('.datatables-ajax').DataTable({
@@ -110,8 +103,7 @@
 
 <!-- Row Group CSS -->
 <link rel="stylesheet" href="{{asset('assets/vendor/libs/datatables-rowgroup-bs5/rowgroup.bootstrap5.css')}}" />
-<!-- Form Validation -->
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/@form-validation/form-validation.css')}}" />
+
 @endsection
 
 @section('content')

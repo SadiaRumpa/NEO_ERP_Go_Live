@@ -51,7 +51,9 @@
                                 <br>
                                 {{ $quotation->customer->company_name }}
                                 <br>
-                                {{ $quotation->customer->company_name }}
+                                <span style="text-transform: capitalize;">
+                                   {{ $quotation->customer->billingaddress->address }} , {{ $quotation->customer->billingaddress->county }}
+                                </span>
                             </p>
                         </div>
                         
