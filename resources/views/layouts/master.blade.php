@@ -39,7 +39,7 @@
     <link rel="stylesheet" href="{{asset('assets/vendor/libs/node-waves/node-waves.css')}}" />
     <!-- <link rel="stylesheet" href="{{asset('assets/vendor/libs/pickr/pickr-themes.css')}}" /> -->
     <link rel="stylesheet" href="{{asset('assets/vendor/css/core.css')}}" />
-    <!-- <link rel="stylesheet" href="{{asset('assets/css/demo.css')}}" /> -->
+    <link rel="stylesheet" href="{{asset('assets/css/demo.css')}}" />
     
     <!-- Vendors CSS -->
     <link rel="stylesheet" href="{{asset('assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css')}}" />
