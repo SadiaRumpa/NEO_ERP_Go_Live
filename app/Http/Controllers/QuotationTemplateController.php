@@ -8,6 +8,7 @@ use App\Models\QuotationTemplateSection;
 use App\Models\QuotationTemplateSectionSample;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\DB;
 
 class QuotationTemplateController extends Controller
 {
@@ -94,8 +95,31 @@ class QuotationTemplateController extends Controller
 
     public function destroy($id)
     {
-        // Delete the quotation template
-        return redirect()->route('quotationtemplate.index')->with('success', 'Quotation template deleted successfully.');
+        DB::beginTransaction();
+
+        try {
+            $quotation = QuotationTemplate::with('sections.samples')->findOrFail($id);
+            
+            foreach ($quotation->sections as $section) {
+                // Delete attachments
+                // $section->attachments()->delete();
+                // Delete content
+                $section->samples()->delete();
+            }
+
+            // Delete sections
+            $quotation->sections()->delete();
+            // Delete the quotation
+            $quotation->delete();
+            DB::commit();
+
+            return response()->json(['success' => 'Quotation deleted successfully.']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json(['error' => 'Failed to delete quotation. ' . $e->getMessage()], 500);
+        }
+
     }
 
     public function populateSections(Request $request)

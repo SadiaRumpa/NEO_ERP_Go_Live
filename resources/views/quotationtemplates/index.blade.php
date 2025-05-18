@@ -9,8 +9,6 @@
 <script src="{{asset('assets/vendor/libs/moment/moment.js')}}"></script>
 <script src="{{asset('assets/vendor/libs/flatpickr/flatpickr.js')}}"></script>
 
-<!-- Page JS -->
-<!-- <script src="{{asset('assets/js/tables-datatables-advanced.js')}}"></script> -->
 <script type="text/javascript">
     $(function() {
         var table = $('.datatables-ajax').DataTable({
@@ -43,6 +41,31 @@
         });
     });
 </script>
+
+<script>
+    $(document).on('click', '.delete', function() {
+        var id = $(this).data('id');
+
+        if (confirm('Are you sure you want to delete this item?')) {
+            $.ajax({
+                url: 'quotationtemplates/' + id,
+                type: 'POST',
+                data: {
+                    _method: 'DELETE',
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    alert('Deleted successfully!');
+                    $('.datatables-ajax').DataTable().ajax.reload(); // Reload table
+                },
+                error: function(xhr) {
+                    alert('Something went wrong while deleting.');
+                }
+            });
+        }
+    });
+</script>
+
 @endsection
 
 @section('styles')

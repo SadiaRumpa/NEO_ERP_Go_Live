@@ -118,8 +118,8 @@
                     </a>
                     <span class="h5">QUOTATIONS FOR LEAD #<span class="badge bg-label-success me-1 ms-2">{{ $leaddata->lead_name }}</span> </span>
                 </div>
-                
-                
+
+
             </div>
 
         </div>
@@ -152,7 +152,9 @@
                                             <select class="form-select" id="templateSelect" aria-label="Select Template" name="template_id">
                                                 <option selected>Select..</option>
                                                 @foreach ($quotationTemplates as $template)
-                                                <option value="{{ $template->id }}">{{ $template->template_name }}</option>
+                                                <option value="{{ $template->id }}">
+                                                    {{ $template->job_type_name }} - {{ $template->template_slug }}
+                                                </option>
                                                 @endforeach
                                             </select>
                                         </div>

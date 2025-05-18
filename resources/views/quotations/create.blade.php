@@ -158,7 +158,7 @@
 
                                 {{-- Div for the Quill editor --}}
                                 <div id="{{ $qts->section_slug }}" class="form-control" style="min-height: 120px;">
-                                    {!! $qts->samples[0]->sample_source !!}
+                                    {!! $qts->samples->first() ? $qts->samples->first()->sample_source : '' !!}
                                 </div>
                             </div>
                             @endif

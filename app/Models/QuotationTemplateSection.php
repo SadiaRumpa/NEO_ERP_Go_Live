@@ -35,4 +35,8 @@ class QuotationTemplateSection extends Model
     {
         return $this->hasMany(QuotationTemplateSectionSample::class, 'quotation_template_section_id');
     }
+    public function attachments()
+    {
+        return $this->hasMany(QuotationTemplateSectionAttchment::class, 'quotation_template_section_id');
+    }
 }

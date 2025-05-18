@@ -110,7 +110,7 @@
                                         <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-contact-phone">Contact Mobile</label>
                                         <div class="col-sm-9">
                                             <input
-                                                type="text"
+                                                type="number"
                                                 id="formtabs-contact-mobile"
                                                 name="contactMobile"
                                                 class="form-control"
@@ -127,7 +127,7 @@
                                         <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-contact-phone">Contact Phone</label>
                                         <div class="col-sm-9">
                                             <input
-                                                type="text"
+                                                type="number"
                                                 id="formtabs-contact-phone"
                                                 name="contactPhone"
                                                 class="form-control"
