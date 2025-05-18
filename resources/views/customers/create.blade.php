@@ -78,7 +78,7 @@
                                                 class="form-control"
                                                 placeholder="Company Name"
                                                 aria-label="jdoe1 ltd"
-                                                name="companyName" required/>
+                                                name="companyName" required />
                                         </div>
                                     </div>
                                 </div>
@@ -92,7 +92,7 @@
                                                 id="formtabs-contact-personfirstname"
                                                 placeholder="First Name"
                                                 name="contactPersonFirstName"
-                                                aria-label="First Name" required/>
+                                                aria-label="First Name" required />
                                         </div>
                                         <div class="col-sm-5">
                                             <input
@@ -112,10 +112,13 @@
                                             <input
                                                 type="text"
                                                 id="formtabs-contact-mobile"
-                                                class="form-control phone-mask"
-                                                placeholder="+1 (609) 988-44-11"
-                                                aria-label="+1 (609) 988-44-11"
-                                                name="contactMobile" />
+                                                name="contactMobile"
+                                                class="form-control"
+                                                placeholder="14169884411"
+                                                maxlength="11"
+                                                pattern="\d{1,11}"
+                                                inputmode="numeric"
+                                                required />
                                         </div>
                                     </div>
                                 </div>
@@ -126,10 +129,13 @@
                                             <input
                                                 type="text"
                                                 id="formtabs-contact-phone"
-                                                class="form-control phone-mask"
-                                                placeholder="+1 (609) 988-44-11"
-                                                aria-label="+1 (609) 988-44-11"
-                                                name="contactPhone" />
+                                                name="contactPhone"
+                                                class="form-control"
+                                                placeholder="14169884411"
+                                                maxlength="11"
+                                                pattern="\d{1,11}"
+                                                inputmode="numeric"
+                                                required />
                                         </div>
                                     </div>
                                 </div>
