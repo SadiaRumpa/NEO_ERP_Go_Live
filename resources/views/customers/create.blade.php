@@ -38,8 +38,18 @@
 <!-- Content -->
 <div class="container-xxl flex-grow-1 container-p-y">
     <div class="app-ecommerce">
+
         <form action="{{ route('customers.store') }}" method="POST">
             @csrf
+            @if ($errors->any())
+            <div class="alert alert-danger mt-2">
+                <ul class="mb-0">
+                    @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
             <div
                 class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-6 row-gap-4">
                 <div class="d-flex flex-column justify-content-center">

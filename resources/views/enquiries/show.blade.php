@@ -81,17 +81,17 @@
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
-                    alert(data.message);
+                    toastr.success(data.message);
                     // Optionally close modal
-                    // $('#yourModalId').modal('hide');
+                    $('#yourModalId').modal('hide');
                     location.reload(); // This will reload the entire page
                 } else {
-                    alert('Error: ' + data.message);
+                    toastr.danger('Error: ' + data.message);
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Something went wrong!');
+                toastr.danger('Something went wrong!');
             });
     }
 </script>
@@ -117,8 +117,10 @@
                 if (response.status === 'success') {
                     $('#note-message').html('<div class="alert alert-success">' + response.message + '</div>');
                     $('#enquiry_note').val('');
+                    toastr.success('Note added successfully');
                     window.location.reload(); // Reload the page to see the new note
                 } else {
+                    toastr.danger('Error: ' + response.message);
                     $('#note-message').html('<div class="alert alert-danger">' + response.message + '</div>');
                 }
             },
@@ -127,6 +129,7 @@
                 if (xhr.responseJSON && xhr.responseJSON.errors) {
                     message = Object.values(xhr.responseJSON.errors).flat().join('<br>');
                 }
+                toastr.danger(message);
                 $('#note-message').html('<div class="alert alert-danger">' + message + '</div>');
             }
         });
@@ -151,6 +154,7 @@
             },
             error: function() {
                 console.error('Failed to load mail template.');
+                toastr.danger('Failed to load mail template.');
                 quillm.root.innerHTML = '';
             }
         });
@@ -176,14 +180,14 @@
                     },
                     success: function(response) {
                         if (response.status === 'success') {
-                            alert(response.message);
+                            toastr.success(response.message);
                             window.location.reload(); // Reload the page to see the changes
                         } else {
-                            alert('Error: ' + response.message);
+                            toastr.danger('Error: ' + response.message);
                         }
                     },
                     error: function(xhr) {
-                        alert('Something went wrong!');
+                        toastr.danger('Something went wrong!');
                     }
                 });
             }
@@ -205,14 +209,14 @@
                     },
                     success: function(response) {
                         if (response.status === 'success') {
-                            alert(response.message);
+                            toastr.success(response.message);
                             window.location.reload(); // Reload the page to see the changes
                         } else {
-                            alert('Error: ' + response.message);
+                            toastr.danger('Error: ' + response.message);
                         }
                     },
                     error: function(xhr) {
-                        alert('Something went wrong!');
+                        toastr.danger('Something went wrong!');
                     }
                 });
             }
@@ -240,11 +244,7 @@
                     enquiry_id: enquiryId
                 },
                 success: function(response) {
-                    $('#status-alert')
-                        .removeClass('alert-danger')
-                        .addClass('alert-success')
-                        .text(response.message || 'Status updated successfully.')
-                        .show();
+                    toastr.success(response.message);
 
                     setTimeout(() => {
                         location.reload();
@@ -256,17 +256,42 @@
                         errorMsg = xhr.responseJSON.message;
                     }
 
-                    $('#status-alert')
-                        .removeClass('alert-success')
-                        .addClass('alert-danger')
-                        .text(errorMsg)
-                        .show();
+                    toastr.danger(errorMsg);
                 }
             });
         });
     });
 </script>
 
+<script>
+    $(document).on('click', '.update-enquiry-status', function(e) {
+        e.preventDefault();
+
+        let status = $(this).data('status');
+        let enquiryId = $(this).data('id');
+
+        // Confirmation dialog
+        if (!confirm(`Are you sure you want to change the status to "${status}"?`)) {
+            return; // Stop if user cancels
+        }
+
+        $.ajax({
+            url: `/enquiry/updatestatus/${enquiryId}`,
+            type: 'POST',
+            data: {
+                status: status,
+                _token: $('meta[name="csrf-token"]').attr('content') // Make sure CSRF token is available
+            },
+            success: function(response) {
+                toastr.success('Status updated successfully');
+                location.reload();
+            },
+            error: function(xhr) {
+                toastr.danger('Something went wrong');
+            }
+        });
+    });
+</script>
 
 @endsection
 
@@ -279,7 +304,6 @@
 <link rel="stylesheet" href="{{asset('assets/vendor/libs/flatpickr/flatpickr.css')}}" />
 <link rel="stylesheet" href="{{asset('assets/vendor/libs/tagify/tagify.css')}}" />
 <link rel="stylesheet" href="{{asset('assets/vendor/libs/dropzone/dropzone.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/swiper/swiper.css')}}" />
 <link rel="stylesheet" href="{{asset('assets/vendor/css/pages/ui-carousel.css')}}" />
 @endsection
 
@@ -295,24 +319,32 @@
         @endif
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-6 row-gap-4">
             <div class="d-flex flex-column justify-content-center">
-                <h4 class="mb-1">ENQUIRY : {{ $enquiry->enquiry_name }}
-                    @if($enquiry->enquiry_status == 'lead')
-                    <span class="badge bg-label-info">{{ $enquiry->enquiry_status }}</span>
-                    @elseif($enquiry->enquiry_status == 'new')
-                    <span class="badge bg-label-primary">{{ $enquiry->enquiry_status }}</span>
-                    @elseif($enquiry->enquiry_status == 'inprogress')
-                    <span class="badge bg-label-warning">{{ $enquiry->enquiry_status }}</span>
-                    @elseif($enquiry->enquiry_status == 'completed')
-                    <span class="badge bg-label-success">{{ $enquiry->enquiry_status }}</span>
-                    @elseif($enquiry->enquiry_status == 'rejected')
-                    <span class="badge bg-label-danger">{{ $enquiry->enquiry_status }}</span>
-                    @endif
-                </h4>
+                <span class="h4">
+                    ENQUIRY #<span class="badge bg-label-success me-1 ms-2">{{ $enquiry->enquiry_name }}</span>
+                    <div class="btn-group">
+                        @if($enquiry->enquiry_status == 'new')
+                        <button type="button" class="btn btn-label-primary waves-effect">{{ $enquiry->enquiry_status }}</button>
+                        @elseif($enquiry->enquiry_status == 'inprogress')
+                        <button type="button" class="btn btn-label-warning waves-effect">{{ $enquiry->enquiry_status }}</button>
+                        @elseif($enquiry->enquiry_status == 'completed')
+                        <button type="button" class="btn btn-label-success waves-effect">{{ $enquiry->enquiry_status }}</button>
+                        @elseif($enquiry->enquiry_status == 'rejected')
+                        <button type="button" class="btn btn-label-danger waves-effect">{{ $enquiry->enquiry_status }}</button>
+                        @elseif($enquiry->enquiry_status == 'lead')
+                        <button type="button" class="btn btn-label-info waves-effect">{{ $enquiry->enquiry_status }}</button>
+                        @endif
+                        <button type="button" class="btn btn-label-primary dropdown-toggle dropdown-toggle-split waves-effect" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="visually-hidden">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu" style="">
+                            <li><a class="dropdown-item waves-effect update-enquiry-status" data-status="inprogress" data-id="{{ $enquiry->id }}" href="#">Inprogress</a></li>
+                            <li><a class="dropdown-item waves-effect update-enquiry-status" data-status="completed" data-id="{{ $enquiry->id }}" href="#">Completed</a></li>
+                        </ul>
+                    </div>
+                </span>
             </div>
             @if($enquiry->enquiry_status == 'new' || $enquiry->enquiry_status == 'inprogress')
             <div class="d-flex align-content-center flex-wrap gap-4">
-                <!-- Alert message area -->
-                <div id="status-alert" style="display:none;" class="alert mt-2"></div>
                 <div class="d-flex gap-4">
                     <button
                         type="button"
@@ -412,7 +444,7 @@
                 <div class="card mb-6">
                     <div class="card-header header-elements">
                         <h5 class="mb-0 me-2">Enquiry information</h5>
-                        @if($enquiry->enquiry_status == 'new' || $enquiry->enquiry_status == 'inprogress')
+                        @if($enquiry->enquiry_status == 'inprogress')
                         <div class="card-header-elements ms-auto">
                             <div class="btn-group">
 
@@ -510,7 +542,7 @@
 
                         <div class="card-header-elements ms-auto">
                             <div class="btn-group">
-                                @if($enquiry->enquiry_status == 'new' || $enquiry->enquiry_status == 'inprogress')
+                                @if($enquiry->enquiry_status == 'inprogress')
                                 <!-- Image Modal -->
                                 <button
                                     type="button"
@@ -530,7 +562,7 @@
                                 <div class="swiper-wrapper">
                                     @foreach ($enquiry->enquiryimages as $enim)
                                     <div class="swiper-slide position-relative" style="background-image: url({{ $enim->source == 's3' ? $enim->image_url : asset($enim->image_path) }})">
-                                        @if($enquiry->enquiry_status == 'new' || $enquiry->enquiry_status == 'inprogress')
+                                        @if($enquiry->enquiry_status == 'inprogress')
                                         <div class="position-absolute top-0 end-0 p-2">
                                             <button class="btn btn-sm btn-danger delete-image" data-id="{{ $enim->id }}" style="z-index: 10;">
                                                 <i class="fa-solid fa-trash"></i>
@@ -677,7 +709,7 @@
                                 <div class="card-header-elements ms-auto">
                                     <div class="btn-group">
 
-                                        @if($enquiry->enquiry_status == 'new' || $enquiry->enquiry_status == 'inprogress')
+                                        @if($enquiry->enquiry_status == 'inprogress')
                                         <!-- Edit location -->
                                         <button
                                             type="button"

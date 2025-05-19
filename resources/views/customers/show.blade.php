@@ -16,7 +16,8 @@
         let postcode = $('#modalAddressPostcode').val().replace(/\s/g, '');
 
         if (!postcode) {
-            alert("Please enter a postcode.");
+            toastr.error("Please enter a postcode.");
+            $('#modalAddressPostcode').focus();
             return;
         }
 
@@ -283,10 +284,10 @@
                             </div>
                             <h5 class="mb-2">Billing Address</h5>
                             <p class="user-info" style="text-transform: uppercase;">
-                                {{ $customer->billingaddress->address }}, {{ $customer->billingaddress->county }}, 
+                                {{ $customer->billingaddress->address }}, {{ $customer->billingaddress->county }},
                                 {{ $customer->billingaddress->country }}
                             </p>
-                            
+
                             <a href="javascript:void(0);" class="btn btn-outline-dark waves-effect">UPDATE</a>
                             <a href="javascript:void(0);" class="btn btn-outline-danger waves-effect delete-address" data-id="{{ $customer->billingaddress->id }}">DELETE</a>
                         </div>
@@ -314,20 +315,20 @@
                             </div>
                             <h5 class="mb-2">Site Address</h5>
                             <p class="user-info" style="text-transform: uppercase;">
-                                {{ $csaddress->address }}, {{ $csaddress->county }}, 
+                                {{ $csaddress->address }}, {{ $csaddress->county }},
                                 {{ $csaddress->country }}
                             </p>
-                            
+
                             <a href="javascript:void(0);" class="btn btn-outline-dark waves-effect">UPDATE</a>
                             <a href="javascript:void(0);" class="btn btn-outline-danger waves-effect delete-address" data-id="{{ $csaddress->id }}">DELETE</a>
                         </div>
                     </div>
                 </div>
                 @endforeach
-                
+
                 @endif
                 <!--/ Billing Address -->
-                
+
             </div>
 
             <!-- Address -->

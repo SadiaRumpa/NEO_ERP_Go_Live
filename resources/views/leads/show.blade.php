@@ -20,7 +20,6 @@
     $(function() {
         // Datepicker
         const date = new Date();
-
         const productDate = document.querySelector('.product-date');
 
         if (productDate) {
@@ -64,7 +63,7 @@
         const textContent = quill.getText().trim();
 
         if (textContent === '') {
-            alert('lead description is required.');
+            toastr.error('Description cannot be empty');
             return;
         }
 
@@ -82,17 +81,15 @@
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
-                    alert(data.message);
-                    // Optionally close modal
-                    // $('#yourModalId').modal('hide');
+                    toastr.success(data.message);
                     location.reload(); // This will reload the entire page
                 } else {
-                    alert('Error: ' + data.message);
+                    toastr.error('Error: ' + data.message);
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Something went wrong!');
+                toastr.error('Something went wrong');
             });
     }
 </script>
@@ -117,8 +114,10 @@
                 if (response.status === 'success') {
                     $('#note-message').html('<div class="alert alert-success">' + response.message + '</div>');
                     $('#lead_note').val('');
+                    toastr.success('Note added successfully');
                     window.location.reload(); // Reload the page to see the new note
                 } else {
+                    toastr.error('Error: ' + response.message);
                     $('#note-message').html('<div class="alert alert-danger">' + response.message + '</div>');
                 }
             },
@@ -151,6 +150,7 @@
             error: function() {
                 console.error('Failed to load mail template.');
                 quillm.root.innerHTML = '';
+                toastr.error('Failed to load mail template.');
             }
         });
     }
@@ -174,14 +174,14 @@
                     },
                     success: function(response) {
                         if (response.status === 'success') {
-                            alert(response.message);
+                            toastr.success(response.message);
                             window.location.reload(); // Reload the page to see the changes
                         } else {
-                            alert('Error: ' + response.message);
+                            toastr.error('Error: ' + response.message);
                         }
                     },
                     error: function(xhr) {
-                        alert('Something went wrong!');
+                        toastr.error('Something went wrong!');
                     }
                 });
             }
@@ -202,14 +202,14 @@
                     },
                     success: function(response) {
                         if (response.status === 'success') {
-                            alert(response.message);
+                            toastr.success(response.message);
                             window.location.reload(); // Reload the page to see the changes
                         } else {
-                            alert('Error: ' + response.message);
+                            toastr.error('Error: ' + response.message);
                         }
                     },
                     error: function(xhr) {
-                        alert('Something went wrong!');
+                        toastr.error('Something went wrong!');
                     }
                 });
             }
@@ -236,11 +236,7 @@
                     lead_id: leadId
                 },
                 success: function(response) {
-                    $('#status-alert')
-                        .removeClass('alert-danger')
-                        .addClass('alert-success')
-                        .text(response.message || 'Status updated successfully.')
-                        .show();
+                    toastr.success(response.message);
 
                     setTimeout(() => {
                         location.reload();
@@ -252,17 +248,12 @@
                         errorMsg = xhr.responseJSON.message;
                     }
 
-                    $('#status-alert')
-                        .removeClass('alert-success')
-                        .addClass('alert-danger')
-                        .text(errorMsg)
-                        .show();
+                    toastr.error(errorMsg);
                 }
             });
         });
     });
-</script>
-
+</script>   
 <script>
     $(document).on('click', '.update-lead-status', function(e) {
         e.preventDefault();
@@ -318,7 +309,6 @@
         @endif
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-6 row-gap-4">
             <div class="d-flex flex-column justify-content-center">
-                
                 <span class="h4">
                     LEAD #<span class="badge bg-label-success me-1 ms-2">{{ $lead->lead_name }}</span> 
                     <div class="btn-group">
@@ -341,10 +331,9 @@
                             <li><a class="dropdown-item waves-effect update-lead-status" data-status="completed" data-id="{{ $lead->id }}" href="#">Completed</a></li>
                         </ul>
                     </div>
-
                 </span>
             </div>
-            @if($lead->lead_status == 'new' || $lead->lead_status == 'inprogress')
+            @if($lead->lead_status == 'inprogress')
             <div class="d-flex align-content-center flex-wrap gap-4">
                 <!-- Alert message area -->
                 <div id="status-alert" style="display:none;" class="alert mt-2"></div>
@@ -360,14 +349,6 @@
                         data-bs-target="#rejectleadModal">
                         REJECT LEAD
                     </button>
-
-
-
-                    <!-- <button class="btn btn-label-success update-status-btn"
-                        data-id="{{ $lead->id }}"
-                        data-status="lead">
-                        SEND LEAD MANAGER
-                    </button> -->
                 </div>
             </div>
             @endif
@@ -452,8 +433,8 @@
                 <!-- lead Information -->
                 <div class="card mb-6">
                     <div class="card-header header-elements">
-                        <h5 class="mb-0 me-2">lead information</h5>
-                        @if($lead->lead_status == 'new' || $lead->lead_status == 'inprogress')
+                        <h5 class="mb-0 me-2">Lead Information</h5>
+                        @if($lead->lead_status == 'inprogress')
                         <div class="card-header-elements ms-auto">
                             <div class="btn-group">
 
@@ -547,11 +528,11 @@
                 <!-- lead Images -->
                 <div class="card mb-6">
                     <div class="card-header header-elements">
-                        <h5 class="mb-0 me-2">lead Images</h5>
+                        <h5 class="mb-0 me-2">Lead Images</h5>
 
                         <div class="card-header-elements ms-auto">
                             <div class="btn-group">
-                                @if($lead->lead_status == 'new' || $lead->lead_status == 'inprogress')
+                                @if($lead->lead_status == 'inprogress')
                                 <!-- Image Modal -->
                                 <button
                                     type="button"
@@ -713,12 +694,12 @@
                     <div class="col-xl">
                         <div class="card mb-6">
                             <div class="card-header header-elements">
-                                <h5 class="mb-0 me-2">lead Location</h5>
+                                <h5 class="mb-0 me-2">Lead Location</h5>
 
                                 <div class="card-header-elements ms-auto">
                                     <div class="btn-group">
 
-                                        @if($lead->lead_status == 'new' || $lead->lead_status == 'inprogress')
+                                        @if($lead->lead_status == 'inprogress')
                                         <!-- Edit location -->
                                         <button
                                             type="button"

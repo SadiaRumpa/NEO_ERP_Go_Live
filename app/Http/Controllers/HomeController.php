@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Enquiry;
+use App\Models\Lead;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -100,22 +101,22 @@ class HomeController extends Controller
 
     public function leadManagerDashboard()
     {
-        $newenquiriescount  = Enquiry::where('enquiry_status', 'new')->count();
-        $canceledenquiriescount  = Enquiry::where('enquiry_status', 'cancel')->count();
-        $totalenquiriescount = Enquiry::count();
-        $totalcustomerscount = Enquiry::distinct('customer_id')->count('customer_id');
+        $newleadscount  = Lead::where('lead_status', 'new')->count();
+        $ongoingleadscount  = Lead::where('lead_status', 'inprogress')->count();
+        $cancelledleadscount  = Lead::where('lead_status', 'cancelled')->count();
+        $totalcustomerscount = Lead::distinct('customer_id')->count('customer_id');
 
         $startOfThisWeek = Carbon::now()->startOfWeek(); // Monday
         $startOfLastWeek = Carbon::now()->subWeek()->startOfWeek();
         $endOfLastWeek = Carbon::now()->subWeek()->endOfWeek();
 
         // Count for this week
-        $thisWeekCount = Enquiry::where('enquiry_status', 'new')
+        $thisWeekCount = Lead::where('lead_status', 'new')
             ->where('created_at', '>=', $startOfThisWeek)
             ->count();
 
         // Count for last week
-        $lastWeekCount = Enquiry::where('enquiry_status', 'new')
+        $lastWeekCount = Lead::where('lead_status', 'new')
             ->whereBetween('created_at', [$startOfLastWeek, $endOfLastWeek])
             ->count();
 
@@ -135,22 +136,22 @@ class HomeController extends Controller
             $trend = 'no change';
         }
 
-        $newLeads = Enquiry::with(['enquiryaddress', 'customer'])
-            ->where('enquiry_status', 'lead')->orderByDesc('created_at')->limit(5)->get();
+        $newLeads = Lead::with(['leadaddress', 'customer'])
+            ->where('lead_status', 'new')->orderByDesc('created_at')->limit(5)->get();
 
-        $ongoingLeads = Enquiry::with(['enquiryaddress', 'customer'])
-            ->where('enquiry_status', 'lead_process')->orderByDesc('created_at')->limit(5)->get();
+        $ongoingLeads = Lead::with(['leadaddress', 'customer'])
+            ->where('lead_status', 'inprogress')->orderByDesc('created_at')->limit(5)->get();
 
 
         return view('dashboards.lead_manager')->with([
             'newLeads' => $newLeads,
             'this_week' => $thisWeekCount,
             'last_week' => $lastWeekCount,
-            'change_percent' => $percentageChange,
+            'percentageChange' => $percentageChange,
             'trend' => $trend,
-            'newenquiriescount' => $newenquiriescount,
-            'canceledenquiriescount' => $canceledenquiriescount,
-            'totalenquiriescount' => $totalenquiriescount,
+            'newleadscount' => $newleadscount,
+            'ongoingleadscount' => $ongoingleadscount,
+            'cancelledleadscount' => $cancelledleadscount,
             'totalcustomerscount' => $totalcustomerscount,
             'ongoingLeads' => $ongoingLeads,
         ]);

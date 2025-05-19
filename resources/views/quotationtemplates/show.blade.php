@@ -73,6 +73,23 @@
                 <div class="card-body">
                     <form action="{{ route('quotationtemplate.section-populate') }}" method="POST" enctype="multipart/form-data">
                         @csrf
+                        @if (count($errors) > 0)
+                        <div class="alert alert-danger">
+                            <strong>Whoops!</strong> There were some problems with your input.<br><br>
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        @endif
+
+                        @if(session('success'))
+                        <div class="alert alert-success">
+                            {{ session('success') }}
+                        </div>
+                        @endif
+
                         <div class="row g-6">
                             <div class="col-md-6 mb-6">
                                 <p><strong>Job Type: </strong> {{ $quotationTemplate->job_type_name }}</p>

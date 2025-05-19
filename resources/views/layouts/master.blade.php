@@ -37,13 +37,13 @@
     <!-- Core CSS -->
     <!-- build:css assets/vendor/css/theme.css  -->
     <link rel="stylesheet" href="{{asset('assets/vendor/libs/node-waves/node-waves.css')}}" />
-    <!-- <link rel="stylesheet" href="{{asset('assets/vendor/libs/pickr/pickr-themes.css')}}" /> -->
     <link rel="stylesheet" href="{{asset('assets/vendor/css/core.css')}}" />
     <link rel="stylesheet" href="{{asset('assets/css/demo.css')}}" />
     
     <!-- Vendors CSS -->
     <link rel="stylesheet" href="{{asset('assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css')}}" />
     <!-- endbuild -->
+     <link rel="stylesheet" href="{{asset('assets/vendor/libs/swiper/swiper.css')}}" />
      <link rel="stylesheet" href="{{asset('vendor/toastr/build/toastr.min.css')}}" />
 
     @show
@@ -299,9 +299,7 @@
     <script src="{{asset('assets/vendor/libs/popper/popper.js')}}"></script>
     <script src="{{asset('assets/vendor/js/bootstrap.js')}}"></script>
     <script src="{{asset('assets/vendor/libs/node-waves/node-waves.js')}}"></script>
-
     <script src="{{asset('assets/vendor/libs/@algolia/autocomplete-js.js')}}"></script>
-    <!-- <script src="{{asset('assets/vendor/libs/pickr/pickr.js')}}"></script> -->
     <script src="{{asset('assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js')}}"></script>
     <script src="{{asset('assets/vendor/libs/hammer/hammer.js')}}"></script>
     <script src="{{asset('assets/vendor/libs/i18n/i18n.js')}}"></script>
@@ -309,7 +307,7 @@
     <!-- endbuild -->
 
     <!-- Vendors JS -->
-    <!-- <script src="{{asset('assets/vendor/libs/swiper/swiper.js')}}"></script> -->
+    <script src="{{asset('assets/vendor/libs/swiper/swiper.js')}}"></script>
     
     <!-- Main JS -->
     <script src="{{asset('assets/js/main.js')}}"></script>

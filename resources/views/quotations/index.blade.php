@@ -79,11 +79,11 @@
                     _token: $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
-                    alert('Deleted successfully!');
+                    toastr.success(response.message);
                     $('.datatables-ajax').DataTable().ajax.reload(); // Reload table
                 },
                 error: function(xhr) {
-                    alert('Something went wrong while deleting.');
+                    toastr.error(xhr.responseJSON.message || 'An error occurred.');
                 }
             });
         }

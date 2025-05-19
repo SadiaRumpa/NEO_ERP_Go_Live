@@ -73,7 +73,7 @@
                     // Optional: close modal, reset form, show success message, reload table etc.
                     $('#jobTypeForm')[0].reset();
                     $('.modal').modal('hide');
-                    alert('Job type saved successfully!');
+                    toastr.success('Job Type created successfully!');
                     // Reload the DataTable to reflect the new data
                     $('.datatables-ajax').DataTable().ajax.reload(null, false); // false to not reset paging
                 },
@@ -86,7 +86,7 @@
                             errorMessage += `- ${err}\n`;
                         });
                     }
-                    alert(errorMessage);
+                    toastr.error(errorMessage);
                 }
             });
         });
@@ -104,11 +104,11 @@
                     _token: $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
-                    alert('Deleted successfully!');
+                    toastr.success('Job Type deleted successfully!');
                     $('.datatables-ajax').DataTable().ajax.reload(); // Reload table
                 },
                 error: function(xhr) {
-                    alert('Something went wrong while deleting.');
+                    toastr.error(xhr.responseJSON.message || 'An error occurred.');
                 }
             });
         }

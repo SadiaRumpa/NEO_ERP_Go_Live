@@ -14,7 +14,6 @@
 <!-- Page JS -->
 <script>
     $('.new-customer').hide();
-
     $(function() {
         // Comment editor
         const commentEditor = document.querySelector('.enquiry-editor');
@@ -70,7 +69,7 @@
         let postcode = $('#formtabs-enquiry-postcode').val().replace(/\s/g, '');
 
         if (!postcode) {
-            alert("Please enter a postcode.");
+            toastr.error("Please enter a postcode.");
             return;
         }
 
@@ -173,24 +172,23 @@
 <!-- Content -->
 <div class="container-xxl flex-grow-1 container-p-y">
     <div class="app-ecommerce">
-        @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul>
-                @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-        @endif
-        @if (session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
-        </div>
-        @endif
-
-
         <form action="{{ route('enquiries.store') }}" method="POST" enctype="multipart/form-data" class="row g-6">
             @csrf
+            @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul class="mb-0">
+                    @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
+
+            @if (session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+            @endif
             <div
                 class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-6 row-gap-4">
                 <div class="d-flex flex-column justify-content-center">
@@ -257,45 +255,6 @@
                                                     <span class="d-none d-sm-block">Company Info</span>
                                                 </button>
                                             </li>
-                                            <!-- <li class="nav-item">
-                                                <button
-                                                    type="button"
-                                                    class="nav-link"
-                                                    data-bs-toggle="tab"
-                                                    data-bs-target="#form-tabs-billing-address"
-                                                    aria-controls="form-tabs-billing-address"
-                                                    role="tab"
-                                                    aria-selected="false">
-                                                    <span class="icon-base ti tabler-link icon-lg d-sm-none"></span>
-                                                    <span class="d-none d-sm-block">Billing Address</span>
-                                                </button>
-                                            </li>
-                                            <li class="nav-item">
-                                                <button
-                                                    type="button"
-                                                    class="nav-link"
-                                                    data-bs-toggle="tab"
-                                                    data-bs-target="#form-tabs-site-address"
-                                                    aria-controls="form-tabs-site-address"
-                                                    role="tab"
-                                                    aria-selected="false">
-                                                    <span class="icon-base ti tabler-link icon-lg d-sm-none"></span>
-                                                    <span class="d-none d-sm-block">Site Address</span>
-                                                </button>
-                                            </li>
-                                            <li class="nav-item">
-                                                <button
-                                                    type="button"
-                                                    class="nav-link"
-                                                    data-bs-toggle="tab"
-                                                    data-bs-target="#form-tabs-account"
-                                                    aria-controls="form-tabs-account"
-                                                    role="tab"
-                                                    aria-selected="false">
-                                                    <span class="icon-base ti tabler-user-cog icon-lg d-sm-none"></span>
-                                                    <span class="d-none d-sm-block">Account Details</span>
-                                                </button>
-                                            </li> -->
                                         </ul>
                                     </div>
                                 </div>

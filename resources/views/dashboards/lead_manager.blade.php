@@ -33,12 +33,12 @@
                         <div class="avatar me-4">
                             <span class="avatar-initial rounded bg-label-primary"><i class="icon-base ti tabler-truck icon-28px"></i></span>
                         </div>
-                        <h4 class="mb-0">{{ $newenquiriescount }}</h4>
+                        <h4 class="mb-0">{{ $newleadscount }}</h4>
                     </div>
                     <p class="mb-1">New Leads</p>
                     <p class="mb-0">
-                        <span class="text-heading fw-medium me-2">0%</span>
-                        <small class="text-body-secondary">greater than last week</small>
+                        <span class="text-heading fw-medium me-2">{{ $percentageChange }}%</span>
+                        <small class="text-body-secondary">{{ $trend }} than last week</small>
                     </p>
                 </div>
             </div>
@@ -50,11 +50,11 @@
                         <div class="avatar me-4">
                             <span class="avatar-initial rounded bg-label-warning"><i class="icon-base ti tabler-alert-triangle icon-28px"></i></span>
                         </div>
-                        <h4 class="mb-0">{{ $canceledenquiriescount }}</h4>
+                        <h4 class="mb-0">{{ $ongoingleadscount }}</h4>
                     </div>
                     <p class="mb-1">Under Review</p>
                     <p class="mb-0">
-                        <span class="text-heading fw-medium me-2">-1%</span>
+                        <span class="text-heading fw-medium me-2">0%</span>
                         <small class="text-body-secondary">than last week</small>
                     </p>
                 </div>
@@ -67,12 +67,12 @@
                         <div class="avatar me-4">
                             <span class="avatar-initial rounded bg-label-danger"><i class="icon-base ti tabler-git-fork icon-28px"></i></span>
                         </div>
-                        <h4 class="mb-0">{{ $totalenquiriescount }}</h4>
+                        <h4 class="mb-0">{{ $cancelledleadscount }}</h4>
                     </div>
                     <p class="mb-1">Cancelled Leads</p>
                     <p class="mb-0">
                         <span class="text-heading fw-medium me-2">0%</span>
-                        <small class="text-body-secondary">total customers enrolled</small>
+                        <small class="text-body-secondary">total customers cancelled</small>
                     </p>
                 </div>
             </div>
@@ -102,7 +102,7 @@
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="card-title m-0 me-2">New Leads</h5>
 
-                    <a href="{{ route('enquiries.index') }}"
+                    <a href="{{ route('leads.index') }}"
                         class="btn rounded-pill btn-primary waves-effect waves-light">
                         SEE ALL >>
                     </a>
@@ -113,7 +113,6 @@
                         <thead class="border-bottom">
                             <tr>
                                 <th>DATE</th>
-                                <th>LEAD FROM</th>
                                 <th>COMPANY</th>
                                 <th>ADDRESS</th>
                                 <th>CONTACT</th>
@@ -126,23 +125,22 @@
                                 <td class="pt-5">
                                     <div class="d-flex flex-column">
                                         <small class="text-body text-nowrap">{{ \Carbon\Carbon::parse($neq->created_at)->format('j F Y') }}</small>
-                                        <span class="badge rounded-pill bg-label-primary">{{ $neq->enquiry_status }}</span>
+                                        <span class="badge rounded-pill bg-label-primary">{{ $neq->lead_status }}</span>
                                     </div>
                                 </td>
-                                <td class="pt-5"><span class="badge bg-label-success">{{ $neq->enquiry_source }} </span></td>
 
                                 <td class="pt-5">
                                     <p class="mb-0 text-heading">{{ $neq->customer->company_name }} </p>
                                 </td>
                                 <td class="pt-5">
-                                    <p class="mb-0 text-heading">{{ $neq->enquiryaddress->address ?? '' }}, {{ $neq->enquiryaddress->county ?? '' }} {{ $neq->enquiryaddress->postcode ?? '' }}</p>
+                                    <p class="mb-0 text-heading">{{ $neq->leadaddress->address ?? '' }}, {{ $neq->leadaddress->county ?? '' }}</p>
                                 </td>
                                 <td class="pt-5">
                                     <p class="mb-0 text-heading">{{ $neq->customer->contact_firstname }} {{ $neq->customer->contact_lastname }}</p>
                                     <p class="mb-0 text-heading"> <i class="fa-solid fa-phone"></i> {{ $neq->customer->contact_phone }}</p>
                                 </td>
                                 <td class="pt-5">
-                                    <a href="{{ route('enquiries.show', $neq->slug) }}" class="btn btn-sm btn-dark waves-effect waves-light">REVIEW</a>
+                                    <a href="{{ route('leads.show', $neq->slug) }}" class="btn btn-sm btn-dark waves-effect waves-light">REVIEW</a>
                                 </td>
                             </tr>
                             @endforeach
@@ -152,7 +150,7 @@
                 </div>
             </div>
         </div>
-        <!--/ New Enquiries -->
+        <!--/ New leads -->
 
         <!-- Leads Under Review -->
         <div class="col-md-12 col-12">
@@ -170,7 +168,6 @@
                         <thead class="border-bottom">
                             <tr>
                                 <th>DATE</th>
-                                <th>LEAD FROM</th>
                                 <th>COMPANY</th>
                                 <th>ADDRESS</th>
                                 <th>CONTACT</th>
@@ -183,23 +180,22 @@
                                 <td class="pt-5">
                                     <div class="d-flex flex-column">
                                         <small class="text-body text-nowrap">{{ \Carbon\Carbon::parse($nld->created_at)->format('j F Y') }}</small>
-                                        <span class="badge rounded-pill bg-label-info">{{ $nld->enquiry_status }}</span>
+                                        <span class="badge rounded-pill bg-label-info">{{ $nld->lead_status }}</span>
                                     </div>
                                 </td>
-                                <td class="pt-5"><span class="badge bg-label-success">{{ $nld->enquiry_source }} </span></td>
 
                                 <td class="pt-5">
                                     <p class="mb-0 text-heading">{{ $nld->customer->company_name }} </p>
                                 </td>
                                 <td class="pt-5">
-                                    <p class="mb-0 text-heading">{{ $nld->enquiryaddress->address ?? '' }}, {{ $nld->enquiryaddress->county ?? '' }} {{ $nld->enquiryaddress->postcode ?? '' }}</p>
+                                    <p class="mb-0 text-heading">{{ $nld->leadaddress->address ?? '' }}, {{ $nld->leadaddress->county ?? '' }} {{ $nld->leadaddress->postcode ?? '' }}</p>
                                 </td>
                                 <td class="pt-5">
                                     <p class="mb-0 text-heading">{{ $nld->customer->contact_firstname }} {{ $nld->customer->contact_lastname }}</p>
                                     <p class="mb-0 text-heading"> <i class="fa-solid fa-phone"></i> {{ $nld->customer->contact_phone }}</p>
                                 </td>
                                 <td class="pt-5">
-                                    <a href="{{ route('enquiries.show', $nld->slug) }}" class="btn btn-sm btn-dark waves-effect waves-light">REVIEW</a>
+                                    <a href="{{ route('leads.show', $nld->slug) }}" class="btn btn-sm btn-dark waves-effect waves-light">REVIEW</a>
                                 </td>
                             </tr>
                             @endforeach

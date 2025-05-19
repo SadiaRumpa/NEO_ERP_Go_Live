@@ -29,6 +29,16 @@
                 <div class="card-body">
                     <form class="form-repeater" action="{{ route('quotationtemplates.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
+                        @if (count($errors) > 0)
+                        <div class="alert alert-danger">
+                            <strong>Whoops!</strong> There were some problems with your input.<br><br>
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        @endif
                         <div class="row g-6">
                             <div class="col-md-6 mb-6">
                                 <label class="form-label" for="multicol-jobtype">Job Type</label>
@@ -94,7 +104,7 @@
                                 <i class="icon-base ti tabler-arrow-right icon-xs"></i>
                             </button>
                         </div>
-                        
+
                     </form>
                 </div>
             </div>

@@ -8,7 +8,7 @@
         let postcode = $('#basic-default-postcode').val().replace(/\s/g, '');
 
         if (!postcode) {
-            alert("Please enter a postcode.");
+            toastr.error("Please enter a postcode.");
             return;
         }
 
@@ -97,7 +97,7 @@
             contentType: false,
             success: function(response) {
                 const successBox = $('#success-message');
-                successBox.show();
+                toastr.success("Your query has been submitted successfully!");
                 $('html, body').animate({
                     scrollTop: successBox.offset().top - 100 // Adjust offset if needed
                 }, 500, function() {
@@ -111,7 +111,7 @@
                 }, 2000);
             },
             error: function(xhr) {
-                alert("Something went wrong. Please check and try again.");
+                toastr.error(xhr.responseJSON.message || "An error occurred while submitting the form.");
                 console.log(xhr.responseText);
             }
         });
@@ -158,10 +158,7 @@
 <div class="row">
     <div class="col-xl">
 
-        <div class="card">
-            <div id="success-message" class="alert alert-success" style="display: none;" tabindex="-1">
-                Your query has been submitted successfully!
-            </div>
+        <div class="card">            
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">Ask us</h5>
             </div>

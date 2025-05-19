@@ -60,11 +60,11 @@
                     _token: $('meta[name="csrf-token"]').attr('content') // Get CSRF token
                 },
                 success: function(response) {
-                    alert(response.message);
+                    toastr.success(response.message);
                     $('.datatables-ajax').DataTable().ajax.reload(); // Reload DataTable
                 },
                 error: function(xhr) {
-                    alert("Error deleting customer");
+                    toastr.error(xhr.responseJSON.message);
                 }
             });
         }
