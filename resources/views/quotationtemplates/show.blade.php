@@ -114,6 +114,16 @@
                                     {!! $qts->samples[0]->sample_source !!}
                                     @endif
                                 </div>
+                                @if ($qts->has_attachments)
+                                <div class="mt-2">
+                                    <label class="form-label">Attachments</label>
+                                    <div class="row">
+                                        <input type="hidden" name="section_id_{{ $qts->section_slug }}" value="{{ $qts->id }}">
+                                        <input type="file" name="attachment_{{ $qts->section_slug }}" class="form-control" id="attachments" multiple>
+                                    </div>
+                                </div>
+                                
+                                @endif
                             </div>
                             @endif
                             @endforeach
