@@ -51,9 +51,11 @@
                                 <br>
                                 {{ $quotation->customer->company_name }}
                                 <br>
+                                @isset($quotation->customer->billingaddress)
                                 <span style="text-transform: capitalize;">
                                    {{ $quotation->customer->billingaddress->address }} , {{ $quotation->customer->billingaddress->county }}
                                 </span>
+                                @endisset
                             </p>
                         </div>
                         
