@@ -15,6 +15,7 @@ use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class QuotationController extends Controller
 {
@@ -119,7 +120,6 @@ class QuotationController extends Controller
                     'section_type' => $templateSection->section_type,
                     'has_attachments' => $templateSection->has_attachments,
                     'order' => $templateSection->order,
-                    'section_slug' => $slug,
                 ]);
 
                 // Insert section content if available
@@ -131,6 +131,32 @@ class QuotationController extends Controller
                             'sample_source' => $request->input($slug),
                         ]
                     );
+                }
+
+                // Handle file attachments if applicable
+                if ($templateSection->has_attachments && $request->hasFile("attachments.$slug")) {
+
+                    foreach ($request->file("attachments.$slug") as $file) {
+
+                        $disk = env('FILESYSTEM_DISK', 'local');
+                        $path = $file->store('uploads/quotations', $disk);
+
+                        if (!$path) {
+                            return response()->json(['status' => 'error', 'message' => 'Failed to store image.']);
+                        }
+
+                        if ($disk === 's3') {
+                            Storage::disk('s3')->setVisibility($path, 'public');
+                        }
+
+                        QuotationSectionAttachment::create([
+                            'quotation_section_id'  => $quotationSection->id,
+                            'attachment_path'  => $path,
+                            'attachment_name'  => $file->getClientOriginalName(),
+                            'attachment_url'   => Storage::disk($disk)->url($path),
+                            'source'      => $disk
+                        ]);
+                    }
                 }
             }
 
@@ -148,7 +174,9 @@ class QuotationController extends Controller
 
     public function show($id)
     {
-        $quotation = Quotation::with(['lead', 'customer', 'customer.billingaddress', 'sections', 'sections.content', 'sections.attachments'])
+        $quotation = Quotation::with(['lead', 'customer', 'customer.billingaddress', 'sections' => function ($q) {
+            $q->orderBy('order', 'desc');
+        }, 'sections.content', 'sections.attachments'])
             ->where('id', $id)->first();
 
         if (!$quotation) {
@@ -163,7 +191,9 @@ class QuotationController extends Controller
 
     public function downloadQuotationPdf($quotationId)
     {
-        $quotation = Quotation::with(['lead', 'customer', 'customer.billingaddress', 'sections', 'sections.content', 'sections.attachments'])
+        $quotation = Quotation::with(['lead', 'customer', 'customer.billingaddress', 'sections' => function ($q) {
+            $q->orderBy('order', 'desc');
+        }, 'sections.content', 'sections.attachments'])
             ->findOrFail($quotationId);
         $pdf = Pdf::loadView('pdf.quotaions', compact('quotation'));
 

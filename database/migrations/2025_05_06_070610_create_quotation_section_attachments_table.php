@@ -16,7 +16,8 @@ return new class extends Migration
             $table->bigInteger('quotation_section_id');
             $table->string('attachment_name');
             $table->string('attachment_path')->nullable();
-            $table->string('attachment_type')->nullable();
+            $table->string('attachment_url')->nullable();
+            $table->string('source')->nullable();
             $table->timestamps();
         });
     }

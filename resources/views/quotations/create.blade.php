@@ -30,7 +30,7 @@
     ];
 
     $(document).ready(function() {
-        @foreach($quotationTemplate -> sections as $qts)
+        @foreach($quotationTemplate->sections as $qts)
         @if($qts -> section_type == 'textbox')
         const quill_{{$qts -> id}} = new Quill('#{{ $qts->section_slug }}', {
             placeholder: 'Type here...',
@@ -49,6 +49,33 @@
         @endforeach
     });
 </script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('input[type="file"][id^="attachments-"]').forEach(input => {
+            input.addEventListener('change', function(event) {
+                const sectionId = this.id.split('-')[1];
+                const previewContainer = document.getElementById(`preview-${sectionId}`);
+                previewContainer.innerHTML = ''; // Clear previous previews
+
+                Array.from(this.files).forEach(file => {
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.style.height = '80px';
+                            img.style.border = '1px solid #ccc';
+                            img.style.padding = '2px';
+                            img.style.borderRadius = '4px';
+                            previewContainer.appendChild(img);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            });
+        });
+    });
+</script>
 @endsection
 
 @section('styles')
@@ -59,7 +86,6 @@
 <link rel="stylesheet" href="{{asset('assets/vendor/libs/select2/select2.css')}}" />
 <link rel="stylesheet" href="{{asset('assets/vendor/libs/swiper/swiper.css')}}" />
 <link rel="stylesheet" href="{{asset('assets/vendor/css/pages/ui-carousel.css')}}" />
-
 @endsection
 
 @section('content')
@@ -83,7 +109,9 @@
                                 </div>
                                 <h5 class="mb-2">Lead Name: {{ $leaddata->lead_name }}</h5>
                                 <p class="features-icon-description">
-                                    Lead Details: {{ \Illuminate\Support\Str::limit($leaddata->lead_description, 30, '...') }}
+                                    <span><strong>Lead Details:</strong></span> <span>
+                                        {!! \Illuminate\Support\Str::limit($leaddata->lead_description, 30, '...') !!}
+                                    </span>
                                 </p>
                                 <p><strong>Template Name: </strong> {{ $quotationTemplate->template_name }}</p>
                             </div>
@@ -92,39 +120,39 @@
                                 <ul class="list-unstyled my-3 py-1">
                                     <li class="d-flex align-items-center mb-4">
                                         <i class="icon-base ti tabler-user icon-lg"></i>
-                                        <span class="fw-medium mx-2">Contact Person:</span> 
+                                        <span class="fw-medium mx-2">Contact Person:</span>
                                         <span>{{ $customerdata->contact_firstname }} {{ $customerdata->contact_lastname }}</span>
                                     </li>
-                                     <li class="d-flex align-items-center mb-4">
-                                    <i class="icon-base ti tabler-phone-call icon-lg"></i><span class="fw-medium mx-2">Contact:</span>
-                                    <span>{{ $customerdata->contact_phone }}</span>
+                                    <li class="d-flex align-items-center mb-4">
+                                        <i class="icon-base ti tabler-phone-call icon-lg"></i><span class="fw-medium mx-2">Contact:</span>
+                                        <span>{{ $customerdata->contact_phone }}</span>
                                     </li>
                                     <li class="d-flex align-items-center mb-4">
-                                    <i class="icon-base ti tabler-messages icon-lg"></i>
-                                    <span class="fw-medium mx-2">Mobile:</span> <span>{{ $customerdata->contact_mobile }}</span>
+                                        <i class="icon-base ti tabler-messages icon-lg"></i>
+                                        <span class="fw-medium mx-2">Mobile:</span> <span>{{ $customerdata->contact_mobile }}</span>
                                     </li>
                                     <li class="d-flex align-items-center mb-4">
-                                    <i class="icon-base ti tabler-mail icon-lg"></i><span class="fw-medium mx-2">Email:</span>
-                                    <span>{{ $customerdata->contact_email }}</span>
+                                        <i class="icon-base ti tabler-mail icon-lg"></i><span class="fw-medium mx-2">Email:</span>
+                                        <span>{{ $customerdata->contact_email }}</span>
                                     </li>
                                 </ul>
                             </div>
-                            <div class="col-lg-4 col-sm-6 features-icon-box">   
+                            <div class="col-lg-4 col-sm-6 features-icon-box">
                                 <h5 class="mb-2">Site Address</h5>
                                 <ul class="list-unstyled my-3 py-1">
                                     <li class="d-flex align-items-center mb-4">
                                         <i class="icon-base ti tabler-map-pin icon-lg"></i>
-                                        <span class="fw-medium mx-2">Address:</span> 
+                                        <span class="fw-medium mx-2">Address:</span>
                                         <span>{{ $leaddata->leadaddress->address }}</span>
                                     </li>
                                     <li class="d-flex align-items-center mb-4">
                                         <i class="icon-base ti tabler-map-pin icon-lg"></i>
-                                        <span class="fw-medium mx-2">County:</span> 
+                                        <span class="fw-medium mx-2">County:</span>
                                         <span>{{ $leaddata->leadaddress->county }}</span>
                                     </li>
                                     <li class="d-flex align-items-center mb-4">
                                         <i class="icon-base ti tabler-map-pin icon-lg"></i>
-                                        <span class="fw-medium mx-2">Country:</span> 
+                                        <span class="fw-medium mx-2">Country:</span>
                                         <span>{{ $leaddata->leadaddress->country }}</span>
                                     </li>
                                 </ul>
@@ -138,12 +166,12 @@
                                     class="form-control"
                                     id="quotationVersion"
                                     placeholder="version 1.0"
-                                    name="quotation_version" required/>
+                                    name="quotation_version" required />
                             </div>
                             <div class="col-md-6 mb-6">
                                 <label for="html5-date-input" class="form-label">Date</label>
                                 <div class="col-md-10">
-                                    <input class="form-control" type="date" id="html5-date-input" name="quotation_date" required/>
+                                    <input class="form-control" type="date" id="html5-date-input" name="quotation_date" required />
                                 </div>
                             </div>
                         </div>
@@ -161,6 +189,17 @@
                                     {!! $qts->samples->first() ? $qts->samples->first()->sample_source : '' !!}
                                 </div>
                             </div>
+
+                            @if($qts->has_attachments)
+                            <div class="col-md-12 mb-4">
+                                <label class="form-label" for="attachments-{{ $qts->id }}">Attachments (Multiple Images)</label>
+                                <input type="file" class="form-control" id="attachments-{{ $qts->id }}" name="attachments[{{ $qts->section_slug }}][]" accept="image/*" multiple>
+
+                                {{-- Preview container --}}
+                                <div class="image-preview mt-2 d-flex flex-wrap gap-2" id="preview-{{ $qts->id }}"></div>
+                            </div>
+                            @endif
+
                             @endif
                             @endforeach
                         </div>

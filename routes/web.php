@@ -74,6 +74,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::resource('quotationtemplates', QuotationTemplateController::class);
     Route::post('quotationtemplate/addsection/', [QuotationTemplateController::class, 'addSection'])->name('quotationtemplate.add-section');
     Route::post('/quotationtemplate/section/populate', [QuotationTemplateController::class, 'populateSections'])->name('quotationtemplate.section-populate');
+    Route::delete('quotationtemplate/deletesection/{id}', [QuotationTemplateController::class, 'deleteSection'])->name('quotationtemplate.delete-section');
 
     Route::get('lead-quotations/{leadid}', [QuotationController::class, 'index'])->name('quotations.lead');
     Route::get('quotation/{id}', [QuotationController::class, 'show'])->name('quotations.show');

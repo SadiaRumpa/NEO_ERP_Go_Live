@@ -10,7 +10,8 @@ class QuotationSectionAttachment extends Model
         'quotation_section_id',
         'attachment_name',
         'attachment_path',
-        'attachment_type',
+        'attachment_url',
+        'source',
     ];
 
     public function quotationSection()

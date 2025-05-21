@@ -79,12 +79,12 @@ class QuotationTemplateController extends Controller
     public function addSection(Request $request)
     {
         $validation = $request->validate([
-        'section_name' => 'required|string|max:255',
-        'section_type' => 'required|in:textbox,image_gallery',
-        'is_required' => 'required|boolean',
-        'has_attachment' => 'required|boolean',
-        'quotation_template_id' => 'required|exists:quotation_templates,id',
-    ]);
+            'section_name' => 'required|string|max:255',
+            'section_type' => 'required|in:textbox,image_gallery',
+            'is_required' => 'required|boolean',
+            'has_attachment' => 'required|boolean',
+            'quotation_template_id' => 'required|exists:quotation_templates,id',
+        ]);
 
         // Create a new section
         $section = new QuotationTemplateSection();
@@ -95,21 +95,28 @@ class QuotationTemplateController extends Controller
         $section->has_attachments = $validation['has_attachment'];
         $section->save();
 
-        return response()->json(['status'=>'success', 'message' => 'Section added successfully.']);
+        return response()->json(['status' => 'success', 'message' => 'Section added successfully.']);
     }
-    public function removeSection(Request $request, $id)
+    public function deleteSection($id)
     {
-        // Validate the request
-        $validation = $request->validate([
-            'section_id' => 'required|exists:quotation_template_sections,id',
-        ]);
+        DB::beginTransaction();
 
-        // Find and delete the section
-        $section = QuotationTemplateSection::findOrFail($validation['section_id']);
-        QuotationTemplateSectionSample::where('quotation_template_section_id', $section->id)->delete(); // Delete samples
-        $section->delete();
+        try {
+            $quotationtemplatesection = QuotationTemplateSection::findOrFail($id);
 
-        return response()->json(['success' => 'Section removed successfully.']);
+            // Delete content
+            QuotationTemplateSectionSample::where('quotation_template_section_id', $id)->delete();
+
+            // Delete the quotation
+            $quotationtemplatesection->delete();
+            DB::commit();
+
+            return response()->json(['status' => 'success', 'message' => 'Quotation deleted successfully.']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json(['status' => 'error', 'message' => 'Failed to delete quotation. ' . $e->getMessage()], 500);
+        }
     }
 
     public function show($id)

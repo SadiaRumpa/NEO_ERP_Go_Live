@@ -12,8 +12,9 @@ class QuotationSection extends Model
     protected $fillable = [
         'quotation_id',
         'section_name',
-        'section_details',
         'section_type',
+        'has_attachments',
+        'order',
     ];
 
     public function getSlugOptions(): SlugOptions

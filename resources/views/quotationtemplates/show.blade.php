@@ -86,6 +86,35 @@
     });
 </script>
 
+<script>
+    $(document).ready(function() {
+        $('.delete-section').click(function() {
+            const sectionid = $(this).data('id');
+            const confirmation = confirm('Are you sure you want to delete this note?');
+            if (confirmation) {
+                $.ajax({
+                    url: `/quotationtemplate/deletesection/${sectionid}`,
+                    method: 'DELETE',
+                    data: {
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            toastr.success(response.message);
+                            window.location.reload(); // Reload the page to see the changes
+                        } else {
+                            toastr.danger('Error: ' + response.message);
+                        }
+                    },
+                    error: function(xhr) {
+                        toastr.danger('Something went wrong!');
+                    }
+                });
+            }
+        });
+    });
+</script>
+
 @endsection
 
 @section('styles')
@@ -142,7 +171,7 @@
                             <div class="col-md-12 mb-6">
                                 <small class="text-body-secondary">
                                     <span class="badge rounded-pill bg-label-danger">
-                                        <i class="fa-solid fa-trash delete-note" data-id="{{ $qts->id }}" style="cursor: pointer;"></i>
+                                        <i class="fa-solid fa-trash delete-section" data-id="{{ $qts->id }}" style="cursor: pointer;"></i>
                                     </span>
                                 </small>
 
@@ -191,7 +220,7 @@
             </div>
         </div>
         <!-- /Quotation Templates -->
-         <!-- Form with Image Modal -->
+         <!-- Form with Modal -->
         <div
             class="modal-onboarding modal fade animate__animated"
             id="addtemplateelement"
@@ -254,7 +283,7 @@
                 </div>
             </div>
         </div>
-        <!--/ Form with Image Modal -->
+        <!--/ Form with Modal -->
     </div>
 </div>
 @endsection
