@@ -23,6 +23,7 @@
 @endsection
 
 @section('content')
+@role('enquiry-manager')
 <div class="container-xxl flex-grow-1 container-p-y">
     <div class="row g-6">
         <!-- Card Border Shadow -->
@@ -100,7 +101,7 @@
         <div class="col-md-12 col-12">
             <div class="card h-100">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title m-0 me-2">Enquiries</h5>
+                    <h5 class="card-title m-0 me-2">New Enquiries</h5>
 
                     <a href="{{ route('enquiries.index') }}"
                         class="btn rounded-pill btn-primary waves-effect waves-light">
@@ -112,10 +113,10 @@
                     <table class="table table-borderless border-top">
                         <thead class="border-bottom">
                             <tr>
-                                <th>DATE</th>
+                                <th>ENQUIRY #</th>
                                 <th>LEAD FROM</th>
                                 <th>COMPANY</th>
-                                <th>ADDRESS</th>
+                                <th>SITE ADDRESS</th>
                                 <th>CONTACT</th>
                                 <th>ACTION</th>
                             </tr>
@@ -125,8 +126,8 @@
                             <tr>
                                 <td class="pt-5">
                                     <div class="d-flex flex-column">
+                                        <strong class="text-body text-nowrap">{{ $neq->slug }}</strong>
                                         <small class="text-body text-nowrap">{{ \Carbon\Carbon::parse($neq->created_at)->format('j F Y') }}</small>
-                                        <span class="badge rounded-pill bg-label-primary">{{ $neq->enquiry_status }}</span>
                                     </div>
                                 </td>
                                 <td class="pt-5"><span class="badge bg-label-success">{{ $neq->enquiry_source }} </span></td>
@@ -160,7 +161,7 @@
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="card-title m-0 me-2">Leads Under Review</h5>
                     <button
-                        class="btn rounded-pill btn-warning waves-effect waves-light"
+                        class="btn rounded-pill btn-primary waves-effect waves-light"
                         type="button">
                         SEE ALL >>
                     </button>
@@ -169,30 +170,29 @@
                     <table class="table table-borderless border-top">
                         <thead class="border-bottom">
                             <tr>
-                                <th>DATE</th>
-                                <th>LEAD FROM</th>
+                                <th>LEAD #</th>
                                 <th>COMPANY</th>
-                                <th>ADDRESS</th>
+                                <th>SITE ADDRESS</th>
                                 <th>CONTACT</th>
                                 <th>ACTION</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($newLeads as $nld)
+                            @foreach ($leadsonprogress as $nld)
                             <tr>
                                 <td class="pt-5">
                                     <div class="d-flex flex-column">
-                                        <small class="text-body text-nowrap">{{ \Carbon\Carbon::parse($nld->created_at)->format('j F Y') }}</small>
-                                        <span class="badge rounded-pill bg-label-info">{{ $nld->enquiry_status }}</span>
+                                        <strong class="text-body text-nowrap">{{ $nld->slug }}</strong>
+                                        <small class="text-body text-nowrap">
+                                        {{ \Carbon\Carbon::parse($nld->created_at)->format('j F Y') }}
+                                    </small>
                                     </div>
                                 </td>
-                                <td class="pt-5"><span class="badge bg-label-success">{{ $nld->enquiry_source }} </span></td>
-
                                 <td class="pt-5">
                                     <p class="mb-0 text-heading">{{ $nld->customer->company_name }} </p>
                                 </td>
                                 <td class="pt-5">
-                                    <p class="mb-0 text-heading">{{ $nld->enquiryaddress->address ?? '' }}, {{ $nld->enquiryaddress->county ?? '' }} {{ $nld->enquiryaddress->postcode ?? '' }}</p>
+                                    <p class="mb-0 text-heading">{{ $nld->leadaddress->address ?? '' }}, {{ $nld->leadaddress->county ?? '' }} {{ $nld->leadaddress->postcode ?? '' }}</p>
                                 </td>
                                 <td class="pt-5">
                                     <p class="mb-0 text-heading">{{ $nld->customer->contact_firstname }} {{ $nld->customer->contact_lastname }}</p>
@@ -216,5 +216,5 @@
 
     </div>
 </div>
-
+@endrole
 @endsection

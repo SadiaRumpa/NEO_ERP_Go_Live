@@ -11,10 +11,18 @@
 
 <script type="text/javascript">
     $(function() {
+        let ajaxUrl = "{{ route('enquiries.index') }}";
+
+        @if(!empty($completed) && $completed === true)
+        ajaxUrl = "{{ route('enquiry.show.completed') }}";
+        @elseif(!empty($rejected) && $rejected === true)
+        ajaxUrl = "{{ route('enquiry.show.rejected') }}";
+        @endif
+
         var table = $('.datatables-ajax').DataTable({
             processing: true,
             serverSide: true,
-            ajax: "{{ route('enquiries.index') }}",
+            ajax: ajaxUrl,
 
             columns: [{
                     data: 'DT_RowIndex',
@@ -23,36 +31,37 @@
                     searchable: false
                 },
                 {
-                    data: 'created_at',
-                    name: 'created_at',
+                    data: 'slug',
+                    name: 'slug',
                     render: function(data, type, row) {
-                        let badgeClass = 'bg-label-info'; // Default
+                        let badgeClass = 'dark'; // Default
 
                         switch (row.enquiry_status.toLowerCase()) {
                             case 'new':
-                                badgeClass = 'bg-label-info';
+                                badgeClass = 'info';
                                 break;
-                            case 'pending':
-                                badgeClass = 'bg-label-warning';
+                            case 'inprogress':
+                                badgeClass = 'warning';
                                 break;
-                            case 'closed':
-                                badgeClass = 'bg-label-success';
-                                break;
-                            case 'lead':
-                                badgeClass = 'bg-label-success';
+                            case 'completed':
+                                badgeClass = 'success';
                                 break;
                             case 'rejected':
-                                badgeClass = 'bg-label-danger';
+                                badgeClass = 'danger';
                                 break;
                             default:
-                                badgeClass = 'bg-label-secondary';
+                                badgeClass = 'secondary';
                         }
 
                         return `
-            <span class="badge rounded-pill ${badgeClass}">
-                ${row.enquiry_status}
-            </span><br>${moment(data).format('DD/MM/YYYY')}
-        `;
+                        <div class="d-flex flex-column">
+                            <span class="emp_name text-truncate text-heading fw-medium">${row.slug}</span>
+                            <small class="emp_post text-truncate">
+                            <span class="badge rounded-pill bg-label-${badgeClass}">${row.enquiry_status}</span>
+                            ${moment(row.created_at).format('DD/MM/YYYY')}
+                            </small>
+                        </div>   
+                        `;
 
                     }
                 },
@@ -108,22 +117,25 @@
 
 @section('content')
 
+
 <!-- Content -->
 <div class="container-xxl flex-grow-1 container-p-y">
     <div
+
         class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-6 row-gap-4">
         <div class="d-flex flex-column justify-content-center">
             <h4 class="mb-1">Enquiries</h4>
         </div>
         <div class="d-flex align-content-center flex-wrap gap-4">
-
+            @role('enquiry-manager')
             <a href="{{ url('enquiries/create') }}" class="btn btn-primary">
                 <i class="fa-solid fa-plus me-1_5"></i>
                 New Enquiry
             </a>
+            @endrole
             <div class="d-flex gap-4">
-                <a class="btn btn-label-danger">Cancelled</a>
-                <a class="btn btn-label-warning">Archived</a>
+                <a href="{{ route('enquiry.show.rejected') }}" class="btn btn-label-danger" @if(isset($rejected) && $rejected==true) disabled @endif>Rejected</a>
+                <a href="{{ route('enquiry.show.completed') }}" class="btn btn-label-dark" @if(isset($completed) && $completed==true) disabled @endif>Completed</a>
             </div>
         </div>
     </div>
@@ -133,7 +145,7 @@
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>DATE</th>
+                        <th>ENQUIRY</th>
                         <th width="20%">COMPANY INFO</th>
                         <th>ENQUIRY</th>
                         <th>SOURCE</th>

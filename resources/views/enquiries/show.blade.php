@@ -63,7 +63,7 @@
         const textContent = quill.getText().trim();
 
         if (textContent === '') {
-            alert('Enquiry description is required.');
+            toastr.danger('Enquiry description is required.');
             return;
         }
 
@@ -330,8 +330,6 @@
                         <button type="button" class="btn btn-label-success waves-effect">{{ $enquiry->enquiry_status }}</button>
                         @elseif($enquiry->enquiry_status == 'rejected')
                         <button type="button" class="btn btn-label-danger waves-effect">{{ $enquiry->enquiry_status }}</button>
-                        @elseif($enquiry->enquiry_status == 'lead')
-                        <button type="button" class="btn btn-label-info waves-effect">{{ $enquiry->enquiry_status }}</button>
                         @endif
                         <button type="button" class="btn btn-label-primary dropdown-toggle dropdown-toggle-split waves-effect" data-bs-toggle="dropdown" aria-expanded="false">
                             <span class="visually-hidden">Toggle Dropdown</span>
@@ -356,7 +354,7 @@
 
                     <button class="btn btn-label-success update-status-btn"
                         data-id="{{ $enquiry->id }}"
-                        data-status="lead">
+                        data-status="completed">
                         SEND LEAD MANAGER
                     </button>
                 </div>
@@ -667,12 +665,11 @@
                                         <span class="timeline-point timeline-point-primary"></span>
                                         <div class="timeline-event">
                                             <div class="timeline-header mb-3">
-                                                <h6 class="mb-0">EM</h6>
+                                                <h6 class="mb-0">{{ $enot->users->name }}</h6>
                                                 <small class="text-body-secondary">
                                                     <span class="badge rounded-pill bg-label-danger">
                                                         <i class="fa-solid fa-trash delete-note" data-id="{{ $enot->id }}" style="cursor: pointer;"></i>
                                                     </span>
-
                                                 </small>
                                             </div>
                                             <p class="mb-2">{{ $enot->note }}</p>

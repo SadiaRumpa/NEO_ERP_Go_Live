@@ -82,7 +82,7 @@
             .then(data => {
                 if (data.status === 'success') {
                     toastr.success(data.message);
-                    location.reload(); // This will reload the entire page
+                    location.reload();
                 } else {
                     toastr.error('Error: ' + data.message);
                 }
@@ -103,10 +103,10 @@
         }
 
         $.ajax({
-            url: "{{ route('leads.add-note') }}", // Your Laravel route
+            url: "{{ route('leads.add-note') }}",
             method: "POST",
             data: {
-                lead_id: leadId,
+                lead_slug: leadId,
                 note: note,
                 _token: '{{ csrf_token() }}'
             },
@@ -167,7 +167,7 @@
             const confirmation = confirm('Are you sure you want to delete this note?');
             if (confirmation) {
                 $.ajax({
-                    url: `/enquiries/delete-note/${noteId}`,
+                    url: `/lead/delete-note/${noteId}`,
                     method: 'DELETE',
                     data: {
                         _token: '{{ csrf_token() }}'
@@ -189,13 +189,44 @@
     });
 </script>
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle lead image upload
+        const imageForm = document.getElementById('lead-image-upload-form');
+        imageForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(imageForm);
+
+            fetch(imageForm.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': imageForm.querySelector('input[name="_token"]').value
+                    },
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        toastr.success(data.message);
+                        window.location.reload(); // Reload the page to see the new image
+                    } else {
+                        toastr.error(data.message || 'Upload failed');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    toastr.error('Something went wrong');
+                });
+        });
+    });
+
     $(document).ready(function() {
         $('.delete-image').click(function() {
             const imageId = $(this).data('id');
             const confirmation = confirm('Are you sure you want to delete this image?');
             if (confirmation) {
                 $.ajax({
-                    url: `/enquiries/delete-image/${imageId}`,
+                    url: `/leads/delete-image/${imageId}`,
                     method: 'DELETE',
                     data: {
                         _token: '{{ csrf_token() }}'
@@ -253,7 +284,7 @@
             });
         });
     });
-</script>   
+</script>
 <script>
     $(document).on('click', '.update-lead-status', function(e) {
         e.preventDefault();
@@ -261,7 +292,9 @@
         let status = $(this).data('status');
         let leadId = $(this).data('id');
 
-        alert(`Are you sure you want to change the status to "${status}"?`);
+        if (!confirm(`Are you sure you want to change the status to "${status}"?`)) {
+            return; // Stop if user cancels
+        }
 
         $.ajax({
             url: `/leads/updatestatus/${leadId}`,
@@ -310,7 +343,8 @@
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-6 row-gap-4">
             <div class="d-flex flex-column justify-content-center">
                 <span class="h4">
-                    LEAD #<span class="badge bg-label-success me-1 ms-2">{{ $lead->lead_name }}</span> 
+                    LEAD #<span class="badge bg-label-success me-1 ms-2">{{ $lead->lead_name }}</span>
+                    @hasrole('lead-manager')
                     <div class="btn-group">
                         @if($lead->lead_status == 'job')
                         <button type="button" class="btn btn-label-info waves-effect">{{ $lead->lead_status }}</button>
@@ -331,8 +365,12 @@
                             <li><a class="dropdown-item waves-effect update-lead-status" data-status="completed" data-id="{{ $lead->id }}" href="#">Completed</a></li>
                         </ul>
                     </div>
+                    @else
+                    <span class="badge bg-label-primary me-1 ms-2">{{ $lead->lead_status }}</span>
+                    @endrole
                 </span>
             </div>
+            @role('lead-manager')
             @if($lead->lead_status == 'inprogress')
             <div class="d-flex align-content-center flex-wrap gap-4">
                 <!-- Alert message area -->
@@ -352,6 +390,7 @@
                 </div>
             </div>
             @endif
+            @endrole
         </div>
 
         <!-- Reject mail Modal -->
@@ -434,10 +473,10 @@
                 <div class="card mb-6">
                     <div class="card-header header-elements">
                         <h5 class="mb-0 me-2">Lead Information</h5>
+                        @role('lead-manager')
                         @if($lead->lead_status == 'inprogress')
                         <div class="card-header-elements ms-auto">
                             <div class="btn-group">
-
                                 <button
                                     type="button"
                                     class="btn btn-warning waves-effect waves-light"
@@ -445,10 +484,10 @@
                                     data-bs-target="#editdescriptionModal">
                                     Edit
                                 </button>
-
                             </div>
                         </div>
                         @endif
+                        @endrole
                     </div>
                     <div class="card-body">
                         <!-- Description -->
@@ -531,6 +570,7 @@
                         <h5 class="mb-0 me-2">Lead Images</h5>
 
                         <div class="card-header-elements ms-auto">
+                            @role('lead-manager')
                             <div class="btn-group">
                                 @if($lead->lead_status == 'inprogress')
                                 <!-- Image Modal -->
@@ -544,6 +584,7 @@
                                 <!--/ Image Modal -->
                                 @endif
                             </div>
+                            @endrole
                         </div>
                     </div>
                     <div class="card-body">
@@ -552,13 +593,15 @@
                                 <div class="swiper-wrapper">
                                     @foreach ($lead->leadimages as $enim)
                                     <div class="swiper-slide position-relative" style="background-image: url({{ $enim->source == 's3' ? $enim->image_url : asset($enim->image_path) }})">
-                                        @if($lead->lead_status == 'new' || $lead->lead_status == 'inprogress')
+                                        @role('lead-manager')
+                                        @if($lead->lead_status == 'inprogress')
                                         <div class="position-absolute top-0 end-0 p-2">
                                             <button class="btn btn-sm btn-danger delete-image" data-id="{{ $enim->id }}" style="z-index: 10;">
                                                 <i class="fa-solid fa-trash"></i>
                                             </button>
                                         </div>
                                         @endif
+                                        @endrole
                                         <div class="text-white bg-dark bg-opacity-50 p-1 position-absolute bottom-0 w-100 text-center">
                                             {{ $enim->image_caption }}
                                         </div>
@@ -606,13 +649,13 @@
                                             data-bs-dismiss="modal"
                                             aria-label="Close"></button>
                                     </div>
-                                    <form accept="application/json" method="POST" action="{{ route('leads.add-images') }}" enctype="multipart/form-data">
+                                    <form id="lead-image-upload-form" method="POST" action="{{ route('leads.add-images') }}" enctype="multipart/form-data">
                                         @csrf
 
                                         <div class="modal-body p-0">
                                             <div class="onboarding-media">
                                                 <div class="mx-2">
-                                                    <!-- Optional illustration here -->
+                                                    <!-- preview image -->
                                                 </div>
                                             </div>
 
@@ -657,7 +700,7 @@
                                         <span class="timeline-point timeline-point-primary"></span>
                                         <div class="timeline-event">
                                             <div class="timeline-header mb-3">
-                                                <h6 class="mb-0">EM</h6>
+                                                <h6 class="mb-0">{{ $enot->user->name ?? 'User' }}</h6>
                                                 <small class="text-body-secondary">
                                                     <span class="badge rounded-pill bg-label-danger">
                                                         <i class="fa-solid fa-trash delete-note" data-id="{{ $enot->id }}" style="cursor: pointer;"></i>
@@ -672,12 +715,14 @@
                                 </ul>
                                 <div class="border-1 border-light border-dashed my-4"></div>
 
+                                @role('lead-manager')
                                 <div class="input-group">
                                     <input type="text" class="form-control" placeholder="Make note" id="lead_note" aria-label="Note" aria-describedby="button-addon2">
-                                    <button class="btn btn-outline-primary waves-effect" type="button" id="button-addon2" onclick="addNotes({{ $lead->id }})">
+                                    <button class="btn btn-outline-primary waves-effect" type="button" id="button-addon2" onclick="addNotes({{ $lead->slug }})">
                                         <i class="fa-solid fa-paper-plane fa-xl"></i>
                                     </button>
                                 </div>
+                                @endrole
                                 <div id="note-message" class="mt-2"></div>
                             </div>
                         </div>
@@ -697,8 +742,8 @@
                                 <h5 class="mb-0 me-2">Lead Location</h5>
 
                                 <div class="card-header-elements ms-auto">
+                                    @role('lead-manager')
                                     <div class="btn-group">
-
                                         @if($lead->lead_status == 'inprogress')
                                         <!-- Edit location -->
                                         <button
@@ -710,8 +755,8 @@
                                         </button>
                                         <!--/ Edit location -->
                                         @endif
-
                                     </div>
+                                    @endrole
                                 </div>
                             </div>
                             <div class="card-body">

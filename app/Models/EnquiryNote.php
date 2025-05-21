@@ -13,4 +13,9 @@ class EnquiryNote extends Model
         'note_type',
         'note_status'
     ];
+
+    public function users()
+    {
+        return $this->belongsTo(User::class, 'note_by');
+    }
 }

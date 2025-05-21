@@ -59,26 +59,26 @@
                                 <div class="row">
                                     <div class="mb-6 col-lg-6 col-xl-3 col-12 mb-0">
                                         <label class="form-label" for="form-repeater-1-1">Section Name</label>
-                                        <input type="text" id="form-repeater-1-1" class="form-control" name="section_name" placeholder="section name" />
+                                        <input type="text" id="form-repeater-1-1" class="form-control" name="section_name" placeholder="section name" required />
                                     </div>
 
                                     <div class="mb-6 col-lg-6 col-xl-2 col-12 mb-0">
                                         <label class="form-label" for="form-repeater-1-3">Section Type</label>
-                                        <select id="form-repeater-1-3" class="form-select" name="section_type">
+                                        <select id="form-repeater-1-3" class="form-select" name="section_type" required>
                                             <option value="textbox">Textbox</option>
                                             <option value="image_gallery">Image Gallery</option>
                                         </select>
                                     </div>
                                     <div class="mb-6 col-lg-6 col-xl-2 col-12 mb-0">
                                         <label class="form-label" for="form-repeater-1-4">Is Required?</label>
-                                        <select id="form-repeater-1-4" class="form-select" name="is_required">
+                                        <select id="form-repeater-1-4" class="form-select" name="is_required" required>
                                             <option value="1">Yes</option>
                                             <option value="0">No</option>
                                         </select>
                                     </div>
                                     <div class="mb-6 col-lg-6 col-xl-2 col-12 mb-0">
                                         <label class="form-label" for="form-repeater-1-4">Has Attachment?</label>
-                                        <select id="form-repeater-1-4" class="form-select" name="has_attachment">
+                                        <select id="form-repeater-1-4" class="form-select" name="has_attachment" required>
                                             <option value="1">Yes</option>
                                             <option value="0">No</option>
                                         </select>

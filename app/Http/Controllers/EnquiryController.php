@@ -31,7 +31,10 @@ class EnquiryController extends Controller
     {
         if ($request->ajax()) {
 
-            $data = Enquiry::with(['customer', 'enquiryaddress'])->select('*')->orderByDesc('created_at');
+            $data = Enquiry::with(['customer', 'enquiryaddress'])
+                ->select('*')
+                ->whereIn('enquiry_status', ['new', 'inprogress'])
+                ->orderByDesc('created_at');
 
             return Datatables::of($data)
                 ->addIndexColumn()
@@ -60,6 +63,86 @@ class EnquiryController extends Controller
         }
 
         return view('enquiries.index');
+    }
+
+    public function showCompleted(Request $request)
+    {
+        if ($request->ajax()) {
+
+            $data = Enquiry::with(['customer', 'enquiryaddress'])
+                ->select('*')
+                ->where('enquiry_status', 'completed')
+                ->orderByDesc('created_at');
+
+            return Datatables::of($data)
+                ->addIndexColumn()
+                ->addColumn('company_name', function ($row) {
+                    return $row->customer->company_name;
+                })
+                ->addColumn('customer_name', function ($row) {
+                    return $row->customer->contact_firstname . ' ' . $row->customer->contact_lastname;
+                })
+                ->addColumn('customer_email', function ($row) {
+                    return $row->customer->contact_email;
+                })
+                ->addColumn('customer_phone', function ($row) {
+                    return $row->customer->contact_phone;
+                })
+                ->addColumn('customer_mobile', function ($row) {
+                    return $row->customer->contact_mobile;
+                })
+                ->addColumn('action', function ($row) {
+                    $btn = '<a href="enquiries/' . $row->slug . '" class="edit btn btn-primary btn-sm">Details</a>';
+                    return $btn;
+                })
+                ->rawColumns(['action'])
+                ->addIndexColumn()
+                ->make(true);
+        }
+
+        return view('enquiries.index')->with([
+            'completed' => true,
+        ]);
+    }
+
+    public function showRejected(Request $request)
+    {
+        if ($request->ajax()) {
+
+            $data = Enquiry::with(['customer', 'enquiryaddress'])
+                ->select('*')
+                ->where('enquiry_status', 'rejected')
+                ->orderByDesc('created_at');
+
+            return Datatables::of($data)
+                ->addIndexColumn()
+                ->addColumn('company_name', function ($row) {
+                    return $row->customer->company_name;
+                })
+                ->addColumn('customer_name', function ($row) {
+                    return $row->customer->contact_firstname . ' ' . $row->customer->contact_lastname;
+                })
+                ->addColumn('customer_email', function ($row) {
+                    return $row->customer->contact_email;
+                })
+                ->addColumn('customer_phone', function ($row) {
+                    return $row->customer->contact_phone;
+                })
+                ->addColumn('customer_mobile', function ($row) {
+                    return $row->customer->contact_mobile;
+                })
+                ->addColumn('action', function ($row) {
+                    $btn = '<a href="enquiries/' . $row->slug . '" class="edit btn btn-primary btn-sm">Details</a>';
+                    return $btn;
+                })
+                ->rawColumns(['action'])
+                ->addIndexColumn()
+                ->make(true);
+        }
+
+        return view('enquiries.index')->with([
+            'rejected' => true,
+        ]);
     }
 
     /**
@@ -213,7 +296,7 @@ class EnquiryController extends Controller
      */
     public function show(string $key)
     {
-        $enquiry = Enquiry::with(['customer', 'customer.billingaddress', 'customer.siteaddress', 'enquiryaddress', 'enquiryimages', 'enquirynotes'])->where('slug', $key)->first();
+        $enquiry = Enquiry::with(['customer', 'customer.billingaddress', 'customer.siteaddress', 'enquiryaddress', 'enquiryimages', 'enquirynotes', 'enquirynotes.users'])->where('slug', $key)->first();
 
         if (!$enquiry) {
             return redirect()->route('enquiries.index')->with('error', 'Enquiry not found.');
@@ -422,8 +505,8 @@ class EnquiryController extends Controller
             'lead_name' => $enquiry->enquiry_name,
             'lead_description' => $enquiry->enquiry_description,
             'customer_id' => $enquiry->customer_id,
-            'lead_type' => $enquiry->enquiry_type,   
-            'lead_category' => $enquiry->enquiry_category,    
+            'lead_type' => $enquiry->enquiry_type,
+            'lead_category' => $enquiry->enquiry_category,
             'lead_priority' => $enquiry->enquiry_priority,
             'lead_status' => 'new',
         ]);
@@ -460,7 +543,7 @@ class EnquiryController extends Controller
             ]);
         }
         $enquiry->update(['enquiry_status' => $validated['status']]);
-        
+
 
         return response()->json(['status' => 'success', 'message' => 'Enquiry converted to lead successfully.']);
     }

@@ -26,11 +26,11 @@ class HomeController extends Controller
      */
     public function index()
     {
-        if (auth()->user()->hasRole('Admin')) {
+        if (auth()->user()->hasRole('admin')) {
             return $this->adminDashboard();
-        } elseif (auth()->user()->hasRole('Enquiry Manager')) {
+        } elseif (auth()->user()->hasRole('enquiry-manager')) {
             return $this->enquiryManagerDashboard();
-        } elseif (auth()->user()->hasRole('Lead Manager')) {
+        } elseif (auth()->user()->hasRole('lead-manager')) {
             return $this->leadManagerDashboard();
         } else {
             abort(403, 'CAN NOT ACCESS TO ROLE');
@@ -79,11 +79,16 @@ class HomeController extends Controller
         }
 
         $newEnquiries = Enquiry::with(['enquiryaddress', 'customer'])
-            ->where('enquiry_status', 'new')->orderByDesc('created_at')->limit(5)->get();
+            ->where('enquiry_status', 'new')
+            ->orderByDesc('created_at')
+            ->limit(5)
+            ->get();
 
-        $newLeads = Enquiry::with(['enquiryaddress', 'customer'])
-            ->where('enquiry_status', 'lead')->orderByDesc('created_at')->limit(5)->get();
-
+        $leadsonprogress = Lead::with(['leadaddress', 'customer'])
+            ->where('lead_status', 'inprogress')
+            ->orderByDesc('created_at')
+            ->limit(5)
+            ->get();
 
         return view('dashboards.enquiry_manager')->with([
             'newEnquiries' => $newEnquiries,
@@ -95,7 +100,7 @@ class HomeController extends Controller
             'canceledenquiriescount' => $canceledenquiriescount,
             'totalenquiriescount' => $totalenquiriescount,
             'totalcustomerscount' => $totalcustomerscount,
-            'newLeads' => $newLeads,
+            'leadsonprogress' => $leadsonprogress,
         ]);
     }
 
@@ -156,5 +161,4 @@ class HomeController extends Controller
             'ongoingLeads' => $ongoingLeads,
         ]);
     }
-    
 }

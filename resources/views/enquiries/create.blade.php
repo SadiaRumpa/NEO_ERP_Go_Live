@@ -133,7 +133,6 @@
                 }
             });
 
-
         });
 
         // Hide suggestions when clicking outside

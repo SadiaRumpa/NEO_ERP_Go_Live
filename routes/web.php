@@ -36,6 +36,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/mail-template/{id}', [MailTemplateController::class, 'showmailtemplate'])->name('mailtemplate.showmail');
 
     Route::resource('enquiries', EnquiryController::class);
+    Route::get('enquiry/completed', [EnquiryController::class, 'showCompleted'])->name('enquiry.show.completed');
+    Route::get('enquiry/rejected', [EnquiryController::class, 'showRejected'])->name('enquiry.show.rejected');
     Route::post('/enquiry/updatedescription/{id}', [EnquiryController::class, 'updateEnquiryDetails'])->name('enquiry.updatedescription');
     Route::post('/enquiry/updateaddress/{id}', [EnquiryController::class, 'updateEnquiryAddress'])->name('enquiry.updateaddress');
     Route::post('/enquiry/updatestatus/{id}', [EnquiryController::class, 'updateEnquiryStatus'])->name('enquiry.updatestatus');
@@ -55,12 +57,14 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/customer/updatefinancialdetails/{id}', [CustomerController::class, 'updateFinancialDetails'])->name('customer.updatefinancialdetails');
 
     Route::resource('leads', LeadController::class);
-    Route::post('/leads/updatedescription/{id}', [LeadController::class, 'updateLeadDetails'])->name('leads.updatedescription');
+    Route::get('lead/completed', [LeadController::class, 'showCompleted'])->name('lead.show.completed');
+    Route::get('lead/rejected', [LeadController::class, 'showRejected'])->name('lead.show.rejected');
+    Route::post('lead/updatedescription/{id}', [LeadController::class, 'updateLeadDetails'])->name('leads.updatedescription');
     Route::post('/leads/updateaddress/{id}', [LeadController::class, 'updateLeadAddress'])->name('leads.updateaddress');
     Route::post('/leads/updatestatus/{id}', [LeadController::class, 'updateLeadStatus'])->name('leads.updatestatus');
 
-    Route::post('leads/add-note', [LeadController::class, 'leadNotes'])->name('leads.add-note');
-    Route::delete('leads/delete-note/{id}', [LeadController::class, 'deleteLeadNotes'])->name('leads.destroynote');
+    Route::post('lead/add-note', [LeadController::class, 'leadNotes'])->name('leads.add-note');
+    Route::delete('lead/delete-note/{id}', [LeadController::class, 'deleteLeadNotes'])->name('leads.destroynote');
 
     Route::post('leads/add-images', [LeadController::class, 'addLeadImages'])->name('leads.add-images');
     Route::delete('leads/delete-image/{id}', [LeadController::class, 'destroyLeadImage'])->name('leads.destroy-image');
@@ -68,6 +72,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::resource('jobtypes', JobTypeController::class);
 
     Route::resource('quotationtemplates', QuotationTemplateController::class);
+    Route::post('quotationtemplate/addsection/', [QuotationTemplateController::class, 'addSection'])->name('quotationtemplate.add-section');
     Route::post('/quotationtemplate/section/populate', [QuotationTemplateController::class, 'populateSections'])->name('quotationtemplate.section-populate');
 
     Route::get('lead-quotations/{leadid}', [QuotationController::class, 'index'])->name('quotations.lead');

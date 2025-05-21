@@ -11,10 +11,18 @@
 
 <script type="text/javascript">
     $(function() {
+        let ajaxUrl = "{{ route('leads.index') }}";
+
+        @if (!empty($completed) && $completed === true)
+            ajaxUrl = "{{ route('lead.show.completed') }}";
+        @elseif (!empty($rejected) && $rejected === true)
+            ajaxUrl = "{{ route('lead.show.rejected') }}";
+        @endif
+
         var table = $('.datatables-ajax').DataTable({
             processing: true,
             serverSide: true,
-            ajax: "{{ route('leads.index') }}",
+            ajax: ajaxUrl,
 
             columns: [{
                     data: 'DT_RowIndex',
@@ -23,36 +31,37 @@
                     searchable: false
                 },
                 {
-                    data: 'created_at',
-                    name: 'created_at',
+                    data: 'slug',
+                    name: 'slug',
                     render: function(data, type, row) {
                         let badgeClass = 'bg-label-info'; // Default
 
                         switch (row.lead_status.toLowerCase()) {
                             case 'new':
-                                badgeClass = 'bg-label-info';
+                                badgeClass = 'info';
                                 break;
-                            case 'pending':
-                                badgeClass = 'bg-label-warning';
+                            case 'inprogress':
+                                badgeClass = 'warning';
                                 break;
-                            case 'closed':
-                                badgeClass = 'bg-label-success';
-                                break;
-                            case 'lead':
-                                badgeClass = 'bg-label-success';
+                            case 'completed':
+                                badgeClass = 'success';
                                 break;
                             case 'rejected':
-                                badgeClass = 'bg-label-danger';
+                                badgeClass = 'danger';
                                 break;
                             default:
-                                badgeClass = 'bg-label-secondary';
+                                badgeClass = 'secondary';
                         }
 
                         return `
-            <span class="badge rounded-pill ${badgeClass}">
-                ${row.lead_status}
-            </span><br>${moment(data).format('DD/MM/YYYY')}
-        `;
+                            <div class="d-flex flex-column">
+                                <span class="emp_name text-truncate text-heading fw-medium">${row.slug}</span>
+                                <small class="emp_post text-truncate">
+                                <span class="badge rounded-pill bg-label-${badgeClass}">${row.lead_status}</span>
+                                ${moment(row.created_at).format('DD/MM/YYYY')}
+                                </small>
+                            </div>
+                        `;
 
                     }
                 },
@@ -113,9 +122,8 @@
         </div>
         <div class="d-flex align-content-center flex-wrap gap-4">
             <div class="d-flex gap-4">
-                <a class="btn btn-label-default">Under Process</a>
-                <a class="btn btn-label-danger">Cancelled</a>
-                <a class="btn btn-label-warning">Archived</a>
+                <a href="{{ route('lead.show.rejected') }}" class="btn btn-label-danger" @if(isset($rejected) && $rejected == true) disabled @endif>Rejected</a>
+                <a href="{{ route('lead.show.completed') }}" class="btn btn-label-warning" @if(isset($completed) && $completed == true) disabled @endif>Completed</a>
             </div>
         </div>
     </div>
@@ -125,7 +133,7 @@
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>DATE</th>
+                        <th>LEADS</th>
                         <th width="20%">COMPANY INFO</th>
                         <th>Lead</th>
                         <th>ACTION</th>
