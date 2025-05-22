@@ -31,7 +31,7 @@ class JobTypeController extends Controller
         return view('jobtypes.index');
     }
 
-    public function create(){}
+    public function create() {}
 
     public function store(Request $request)
     {
@@ -51,14 +51,27 @@ class JobTypeController extends Controller
         ]);
     }
 
-    public function show($id){}
+    public function show($id) {}
 
-    public function edit($id){}
+    public function edit($id)
+    {
+        $jobType = JobType::findOrFail($id);
+        return view('jobtypes.edit', compact('jobType'));
+    }
 
     public function update(Request $request, $id)
     {
-        // Update the job type in the database
-        // ...
+        $validated = $request->validate([
+            'typeName' => 'required|string|max:255',
+            'jobTypeDetails' => 'nullable|string',
+        ]);
+
+        $jobType = JobType::findOrFail($id);
+
+        $jobType->name = $validated['typeName'];
+        $jobType->description = $validated['jobTypeDetails'];
+        $jobType->slug = null; // trigger slug regeneration
+        $jobType->save();
 
         return redirect()->route('jobtypes.index')->with('success', 'Job Type updated successfully.');
     }

@@ -71,8 +71,6 @@
                 if (data.status === 'success') {
                     toastr.success(data.message || 'Section added successfully');
                     sectionForm.reset();
-                    // Optionally close the modal and reload part of the UI
-                    $('#yourModalId').modal('hide'); // Replace `yourModalId` with actual ID
                     location.reload(); // Or use AJAX to reload table/section list
                 } else {
                     toastr.error(data.message || 'Failed to add section');

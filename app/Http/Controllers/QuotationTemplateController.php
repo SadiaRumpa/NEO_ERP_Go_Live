@@ -22,12 +22,9 @@ class QuotationTemplateController extends Controller
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
                     $showUrl = route('quotationtemplates.show', $row->id); // Edit Route
-                    $editUrl = route('quotationtemplates.edit', $row->id); // Edit Route
-                    $deleteUrl = route('quotationtemplates.destroy', $row->id); // Delete Route
-
+                    
                     return '
                     <a href="' . $showUrl . '" class="shoq btn btn-primary btn-sm">Show</a>
-                    <a href="' . $editUrl . '" class="edit btn btn-warning btn-sm">Edit</a>
                     <button class="delete btn btn-danger btn-sm" data-id="' . $row->id . '">Delete</button>
                 ';
                 })
