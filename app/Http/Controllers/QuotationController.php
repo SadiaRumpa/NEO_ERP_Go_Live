@@ -174,7 +174,7 @@ class QuotationController extends Controller
     public function show($id)
     {
         $quotation = Quotation::with(['lead', 'customer', 'customer.billingaddress', 'sections' => function ($q) {
-            $q->orderBy('order', 'desc');
+            $q->orderBy('order', 'asc');
         }, 'sections.content', 'sections.attachments'])
             ->where('id', $id)->first();
 
@@ -190,8 +190,8 @@ class QuotationController extends Controller
 
     public function edit($id)
     {
-        $quotation = Quotation::with(['lead','quotationTemplate', 'customer', 'customer.billingaddress', 'sections' => function ($q) {
-            $q->orderBy('order', 'desc');
+        $quotation = Quotation::with(['lead', 'quotationTemplate', 'customer', 'customer.billingaddress', 'sections' => function ($q) {
+            $q->orderBy('order', 'asc');
         }, 'sections.content', 'sections.attachments'])
             ->where('id', $id)->first();
 
@@ -209,7 +209,7 @@ class QuotationController extends Controller
     public function downloadQuotationPdf($quotationId)
     {
         $quotation = Quotation::with(['lead', 'customer', 'customer.billingaddress', 'sections' => function ($q) {
-            $q->orderBy('order', 'desc');
+            $q->orderBy('order', 'asc');
         }, 'sections.content', 'sections.attachments'])
             ->findOrFail($quotationId);
         $pdf = Pdf::loadView('pdf.quotaions', compact('quotation'));
@@ -242,5 +242,118 @@ class QuotationController extends Controller
 
             return response()->json(['error' => 'Failed to delete quotation. ' . $e->getMessage()], 500);
         }
+    }
+
+    public function updateQuotationStatus(Request $request, $id)
+    {
+        $quotation = Quotation::find($id);
+        if (!$quotation) {
+            return response()->json(['error' => 'Quotation not found.'], 404);
+        }
+
+        $quotation->update([
+            'status' => $request->quotation_status,
+        ]);
+
+        return response()->json(['success' => 'Quotation status updated successfully.']);
+    }
+
+    public function reorderQuotationSections(Request $request)
+    {
+        $order = $request->input('order');
+        foreach ($order as $item) {
+            QuotationSection::where('id', $item['id'])->update(['order' => $item['position']]);
+        }
+
+        return response()->json(['status' => 'success', 'message' => 'Section order updated successfully.']);
+    }
+
+    public function updateQuotationSectionsContent(Request $request, $id)
+    {
+        $request->validate([
+            'content' => 'required|string',
+            'has_attachments' => 'nullable|boolean',
+        ]);
+
+        $section = QuotationSection::findOrFail($id);
+
+        // Update section content
+        $section->content()->updateOrCreate(
+            ['quotation_section_id' => $section->id],
+            [
+                'sample_type' => 'textbox',
+                'sample_source' => $request->content
+            ]
+        );
+
+        // Update has_attachments flag
+        $section->has_attachments = $request->has_attachments ?? 0;
+        $section->save();
+
+        return response()->json(['status' => 'success', 'message' => 'Section updated successfully.']);
+    }
+
+
+    public function uploadQuotationSectionsAttachments(Request $request, $id)
+    {
+        $request->validate([
+            'attachments.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:10248',
+        ]);
+
+        $section = QuotationSection::findOrFail($id);
+
+        if (!$section->has_attachments) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'This section does not support attachments.'
+            ], 400);
+        }
+
+        $disk = env('FILESYSTEM_DISK', 'local'); // 'local' or 's3'
+
+        foreach ($request->file('attachments', []) as $file) {
+            $path = $file->store('uploads/quotations', $disk);
+
+            if (!$path) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Failed to store image.'
+                ]);
+            }
+
+            // Make public if stored in S3
+            if ($disk === 's3') {
+                Storage::disk('s3')->setVisibility($path, 'public');
+            }
+
+            $section->attachments()->create([
+                'attachment_name' => $file->getClientOriginalName(),
+                'attachment_path' => $path,
+                'attachment_url'  => Storage::disk($disk)->url($path),
+                'source'          => $disk,
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Images uploaded successfully.',
+        ]);
+    }
+
+    public function destroyQuotationSectionsAttachments($id)
+    {
+        $attachment = QuotationSectionAttachment::findOrFail($id);
+
+        if (!$attachment) {
+            return response()->json(['status' => 'error', 'message' => 'Image not found.']);
+        }
+
+        if ($attachment->source !== 's3' && Storage::disk('public')->exists($attachment->image_path)) {
+            Storage::disk('public')->delete($attachment->image_path);
+        }
+
+        $attachment->delete();
+
+        return response()->json(['status' => 'success', 'message' => 'Attachment deleted successfully.']);
     }
 }
