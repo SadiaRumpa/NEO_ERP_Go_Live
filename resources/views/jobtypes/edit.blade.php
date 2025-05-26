@@ -48,7 +48,8 @@
                                 name="typeName"
                                 class="form-control"
                                 placeholder="Enter Name"
-                                value="{{ $jobType->name }}" required />
+                                value="{{ $jobType->name }}" required 
+                                @if($jobType->hasUsed == 1) disabled @endif/>
                         </div>
                     </div>
                     <div class="row g-4">

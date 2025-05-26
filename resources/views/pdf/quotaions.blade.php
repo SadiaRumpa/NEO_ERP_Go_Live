@@ -63,21 +63,23 @@
                 </div>
                 <div class="card-body pt-1">
                     @foreach ($quotation->sections as $sections)
-                    <h5>{{ $sections->section_name }}: </h5>
-                    @if ($sections->content->sample_type == "textbox")
-                    <p class="mb-6">
-                        {!! $sections->content->sample_source !!}
-                    </p>
-                    @endif
-                    @if($sections->has_attachments)
-                        <div class="row">
-                            @foreach ($sections->attachments as $saa)
-                            <div class="col-6 mb-4">
-                            <img src="{{ $saa->source == 's3' ? $saa->attachment_url : asset($saa->attachment_path) }}" alt="{{ $saa->attachment_name }}" width="100%" class="img-fluid">
-                            </div>
-                            @endforeach
-                        </div>
-                    @endif
+                        <h5>{{ $sections->section_name }}: </h5>
+                        @isset($sections->content->sample_type)
+                            @if ($sections->content->sample_type == "textbox")
+                            <p class="mb-6">
+                                {!! $sections->content->sample_source !!}
+                            </p>
+                            @endif
+                            @if($sections->has_attachments)
+                                <div class="row">
+                                    @foreach ($sections->attachments as $saa)
+                                    <div class="col-6 mb-4">
+                                    <img src="{{ $saa->source == 's3' ? $saa->attachment_url : asset($saa->attachment_path) }}" alt="{{ $saa->attachment_name }}" width="100%" class="img-fluid">
+                                    </div>
+                                    @endforeach
+                                </div>
+                            @endif
+                        @endisset
                     @endforeach
                 </div>
             </div>

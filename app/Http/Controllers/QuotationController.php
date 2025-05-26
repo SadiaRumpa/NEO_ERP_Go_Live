@@ -42,6 +42,7 @@ class QuotationController extends Controller
                     $showUrl = route('quotations.show', $row->id);
                     return '
                     <a href="' . $showUrl . '" class="shoq btn btn-primary btn-sm">Show</a>
+                    <a href="' . route('quotations.edit', $row->id) . '" class="edit btn btn-warning btn-sm">Edit</a>
                     <button class="delete btn btn-danger btn-sm" data-id="' . $row->id . '">Delete</button>
                 ';
                 })
@@ -170,8 +171,6 @@ class QuotationController extends Controller
         }
     }
 
-
-
     public function show($id)
     {
         $quotation = Quotation::with(['lead', 'customer', 'customer.billingaddress', 'sections' => function ($q) {
@@ -185,6 +184,24 @@ class QuotationController extends Controller
         // return $quotation;
 
         return view('quotations.show')->with([
+            'quotation' => $quotation,
+        ]);
+    }
+
+    public function edit($id)
+    {
+        $quotation = Quotation::with(['lead','quotationTemplate', 'customer', 'customer.billingaddress', 'sections' => function ($q) {
+            $q->orderBy('order', 'desc');
+        }, 'sections.content', 'sections.attachments'])
+            ->where('id', $id)->first();
+
+        if (!$quotation) {
+            return redirect()->route('quotations.index')->with('error', 'Quotation not found.');
+        }
+
+        // return $quotation;
+
+        return view('quotations.edit')->with([
             'quotation' => $quotation,
         ]);
     }

@@ -29,22 +29,29 @@
 <!-- Content -->
 <div class="container-xxl flex-grow-1 container-p-y">
     <div
-        class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-6 row-gap-4">
+        class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-6 row-gap-2">
         <div class="d-flex flex-column justify-content-center">
             <div class="mb-1">
                 <a href="{{ route( 'quotations.lead', $quotation->lead->id) }}"
                     class="btn btn-icon btn-label-secondary waves-effect btn-sm me-2">
                     <span class="icon-base ti tabler-corner-up-left-double icon-20px"></span>
                 </a>
-                <span class="h5">QUOTATION FOR LEAD #{{ $quotation->lead->lead_name }} </span>
+                <span class="h5">QUOTATION FOR LEAD #{{ $quotation->lead->lead_name }}
+                    <a type="button" class="btn btn-icon btn-sm btn-warning waves-effect waves-light"
+                        href="{{ route('quotations.edit', $quotation->id) }}">
+                        <span class="icon-base ti tabler-edit icon-18px"></span>
+                    </a>
+                </span>
                 <span class="badge bg-label-success me-1 ms-2">{{ $quotation->quotation_version }}</span>
-                <span class="badge bg-label-info">{{ $quotation->status }}</span>
-            </div>
 
+                <span class="badge bg-label-primary me-1 ms-2">{{ $quotation->status }}</span>
+
+                <span class="justify-content-center ms-12" style="padding-left: 50px;">
+                    <a href="{{ route('quotations.download-pdf', $quotation->id) }}" class="btn btn-sm btn-label-dark">Download PDF</a>
+                </span>
+            </div>
         </div>
-        <div class="d-flex align-content-center flex-wrap gap-2">
-            <a href="{{ route('quotations.download-pdf', $quotation->id) }}" class="btn btn-sm btn-label-primary">Download PDF</a>
-        </div>
+
     </div>
 
     <div class="row">
@@ -82,6 +89,7 @@
                 </div>
                 <div class="card-body pt-1">
                     @foreach ( $quotation->sections as $sections )
+
                     <h5>{{ $sections->section_name }}: </h5>
 
                     @if ($sections->section_type == "textbox")
@@ -92,13 +100,13 @@
                     </p>
                     @endif
                     @if($sections->has_attachments)
-                        <div class="row">
-                            @foreach ($sections->attachments as $saa)
-                            <div class="col-6 mb-4">
+                    <div class="row">
+                        @foreach ($sections->attachments as $saa)
+                        <div class="col-6 mb-4">
                             <img src="{{ $saa->source == 's3' ? $saa->attachment_url : asset($saa->attachment_path) }}" alt="{{ $saa->attachment_name }}" width="100%" class="img-fluid">
-                            </div>
-                            @endforeach
                         </div>
+                        @endforeach
+                    </div>
                     @endif
 
                     @endforeach

@@ -116,12 +116,9 @@
                         class="btn btn-icon btn-label-secondary waves-effect btn-sm me-2">
                         <span class="icon-base ti tabler-corner-up-left-double icon-20px"></span>
                     </a>
-                    <span class="h5">QUOTATIONS FOR LEAD #<span class="badge bg-label-success me-1 ms-2">{{ $leaddata->lead_name }}</span> </span>
+                    <span class="h4">QUOTATIONS FOR LEAD #<span class="badge bg-label-success me-1 ms-2">{{ $leaddata->lead_name }}</span> </span>
                 </div>
-
-
             </div>
-
         </div>
         <div class="d-flex align-content-center flex-wrap gap-4">
             <div class="d-flex gap-4">
