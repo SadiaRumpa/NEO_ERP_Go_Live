@@ -17,6 +17,6 @@ class CustomerAddress extends Model
         'postcode',
         'country',
         'location',
-        'type'
+        'address_type'
     ];
 }

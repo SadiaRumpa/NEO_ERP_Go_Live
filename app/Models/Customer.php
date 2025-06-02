@@ -18,11 +18,11 @@ class Customer extends Model
 
     public function billingaddress()
     {
-        return $this->hasOne(CustomerAddress::class, 'customer_id', 'id')->where('type', 'billing');
+        return $this->hasOne(CustomerAddress::class, 'customer_id', 'id')->where('address_type', 'billing');
     }
     public function siteaddress()
     {
-        return $this->hasMany(CustomerAddress::class, 'customer_id', 'id')->where('type', 'site');
+        return $this->hasMany(CustomerAddress::class, 'customer_id', 'id')->where('address_type', 'site');
     }
     public function findetails()
     {

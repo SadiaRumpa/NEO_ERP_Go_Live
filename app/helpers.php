@@ -94,9 +94,24 @@ if (! function_exists('lookup_places')) {
                 $data['country'] = $entry['COUNTRY'] ?? '';
             }
             return $data;
-
         } else {
             throw new Exception('Failed to fetch postcode: ' . $response->body());
+        }
+    }
+    if (!function_exists('formatPoundNumber')) {
+        function formatPoundNumber($number, $precision = 1)
+        {
+            if (!is_numeric($number)) return '£0';
+
+            if ($number < 1000) {
+                return '£' . number_format($number, 0);
+            }
+
+            $units = ['', 'K', 'M', 'B', 'T'];
+            $power = floor(log($number, 1000));
+            $formatted = round($number / pow(1000, $power), $precision);
+
+            return '£' . $formatted . $units[$power];
         }
     }
 }

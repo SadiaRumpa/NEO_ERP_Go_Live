@@ -160,10 +160,10 @@ class EnquiryController extends Controller
     {
         $validated = $request->validate([
             'customer_id' => 'required_without:companyName',
-            'companyName' => 'required_without:customer_id',
+            'companyName' => 'required_without:customer_id|string|max:255',
             'contactPersonFirstName' => 'required_without:customer_id|string|max:255',
-            'contactPhone' => 'required_without:customer_id|string|max:20',
-            'contactMobile' => 'required_without:customer_id|string|max:20',
+            'contactPhone'  => 'required_without_all:customer_id,contactMobile|max:20',
+            'contactMobile' => 'required_without_all:customer_id,contactPhone|max:20',
             'contactEmail' => 'required_without:customer_id|email|max:255',
             'enquirydescription' => 'required|string',
             'enquiry_postcode' => 'required|string|max:20',
@@ -183,54 +183,15 @@ class EnquiryController extends Controller
             if (!$customerid) {
                 $customer = Customer::create([
                     'company_name' => $validated['companyName'],
-                    'contact_firstname' => $request->contactPersonFirstName,
-                    'contact_lastname' => $request->contactPersonLastName,
-                    'contact_phone' => $request->contactPhone,
-                    'contact_mobile' => $request->contactMobile,
-                    'contact_email' => $request->contactEmail,
+                    'contact_firstname' => $validated['contactPersonFirstName'],
+                    'contact_lastname' => $validated['contactPersonLastName'] ?? '',
+                    'contact_phone' => $validated['contactPhone'] ?? '',
+                    'contact_mobile' => $validated['contactMobile'] ?? '',
+                    'contact_email' => $validated['contactEmail'],
                     'status' => 'active'
                 ]);
 
                 $customerid = $customer->id;
-
-                // if ($request->billingAddress) {
-                //     $customer->addresses()->create([
-                //         'contact_firstname' => $request->billingContactFirstName,
-                //         'contact_lastname' => $request->billingContactLastName,
-                //         'contact_phone' => $request->billingcontactPhone,
-                //         'contact_mobile' => $request->billingcontactMobile,
-                //         'contact_email' => $request->billingcontactEmail,
-                //         'address' => $request->billingAddress,
-                //         'county' => $request->billingCounty,
-                //         'postcode' => $request->billingPostcode,
-                //         'country' => $request->billingCountry,
-                //         'type' => 'billing'
-                //     ]);
-                // }
-
-                // if ($request->siteAddress) {
-                //     $customer->addresses()->create([
-                //         'contact_firstname' => $request->siteContactFirstName,
-                //         'contact_lastname' => $request->siteContactLastName,
-                //         'contact_phone' => $request->sitecontactPhone,
-                //         'contact_mobile' => $request->sitecontactMobile,
-                //         'contact_email' => $request->sitecontactEmail,
-                //         'address' => $request->siteAddress,
-                //         'county' => $request->siteCounty,
-                //         'postcode' => $request->sitePostcode,
-                //         'country' => $request->siteCountry,
-                //         'type' => 'site'
-                //     ]);
-                // }
-
-                // $customer->details()->create([
-                //     'company_name' => $request->assetsCompanyName,
-                //     'registration_number' => $request->assetsRegistrationNo,
-                //     'assets' => $request->assets ?? 0,
-                //     'net_assets' => $request->netAssets ?? 0,
-                //     'liabilities' => $request->liabilities ?? 0,
-                //     'cash_in_bank' => $request->cashInBank ?? 0,
-                // ]);
             }
 
             $enquiry = Enquiry::create([
@@ -255,6 +216,22 @@ class EnquiryController extends Controller
                 'country' => $validated['enquiry_country']
             ]);
 
+            CustomerAddress::create([
+                'customer_id' => $customerid,
+                'contact_firstname' => $validated['contactPersonFirstName'],
+                'contact_lastname' => $validated['contactPersonLastName'] ?? '',
+                'contact_phone' => $validated['contactPhone'] ?? '',
+                'contact_mobile' => $validated['contactMobile'] ?? '',
+                'contact_email' => $validated['contactEmail'],
+                'address' => $validated['enquiry_address'],
+                'county' => $validated['enquiry_county'],
+                'postcode' => $validated['enquiry_postcode'],
+                'country' => $validated['enquiry_country'],
+                'default' => 'yes',
+                'address_type' => 'site',
+            ]);
+
+
             $disk = env('FILESYSTEM_DISK', 'local');
 
             foreach (['photo1', 'photo2', 'photo3'] as $photoField) {
@@ -278,6 +255,17 @@ class EnquiryController extends Controller
                         'source' => $disk
                     ]);
                 }
+            }
+
+            $enquiryNote = $request->input('enquirynote');
+            if ($enquiryNote) {
+                EnquiryNote::create([
+                    'enquiry_id' => $enquiry->id,
+                    'note_by' => Auth::id(),
+                    'note' => $enquiryNote,
+                    'note_type' => 'internal',
+                    'note_status' => 'active',
+                ]);
             }
 
             DB::commit();

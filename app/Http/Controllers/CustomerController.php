@@ -145,34 +145,7 @@ class CustomerController extends Controller
         return redirect()->back()->with('success', 'Customer updated successfully.');
     }
 
-    // private function updateCustomerAddress(Request $request, $customerId, $type)
-    // {
-    //     $prefix = $type === 'billing' ? 'billing' : 'site';
-
-    //     if (!$request->filled("{$prefix}Address")) {
-    //         return;
-    //     }
-
-    //     $addressData = [
-    //         'contact_firstname' => $request->input("{$prefix}PersonFirstName"),
-    //         'contact_lastname' => $request->input("{$prefix}PersonLastName"),
-    //         'contact_phone'    => $request->input("{$prefix}Phone"),
-    //         'contact_mobile'   => $request->input("{$prefix}Mobile"),
-    //         'contact_email'    => $request->input("{$prefix}Email"),
-    //         'address'     => $request->input("{$prefix}Address"),
-    //         'county'     => $request->input("{$prefix}County") ?? 'United Kingdom',
-    //         'postcode'    => $request->input("{$prefix}Postcode"),
-    //         'customer_id' => $customerId,
-    //         'type'        => $type,
-    //     ];
-
-    //     $customerAddress = CustomerAddress::firstOrNew([
-    //         'customer_id' => $customerId,
-    //         'type'        => $type,
-    //     ]);
-
-    //     $customerAddress->fill($addressData)->save();
-    // }
+    
     private function updateCustomerDetails(Request $request, $customerId)
     {
         $detailsData = [
@@ -242,7 +215,7 @@ class CustomerController extends Controller
         $customerAddress->address = $validated['address'];
         $customerAddress->county = $validated['county'] ?? 'United Kingdom';
         $customerAddress->postcode = $validated['postcode'];
-        $customerAddress->type = $validated['type'];
+        $customerAddress->address_type = $validated['type'];
         $customerAddress->save();
 
         return redirect()->back()->with('success', 'Customer address created successfully.');
