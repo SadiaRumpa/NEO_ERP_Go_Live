@@ -51,6 +51,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('enquiry-to-lead-conversion', [EnquiryController::class, 'enquerytoLeadConversion'])->name('enquiry.leadconversion');
 
     Route::resource('customers', CustomerController::class);
+    Route::post('/customers/{id}/update-basic-info', [CustomerController::class, 'updateBasicInfo']);
     Route::post('/customer/storeaddress/{id}', [CustomerController::class, 'storeCustomerAddress'])->name('customer.storeaddress');
     Route::post('/customer/address-update/{id}', [CustomerController::class, 'updateCustomerAddress'])->name('customer.address-update');
     Route::post('/customer/address-delete/{id}', [CustomerController::class, 'deleteCustomerAddress'])->name('customer.address-delete');

@@ -145,7 +145,7 @@ class CustomerController extends Controller
         return redirect()->back()->with('success', 'Customer updated successfully.');
     }
 
-    
+
     private function updateCustomerDetails(Request $request, $customerId)
     {
         $detailsData = [
@@ -160,6 +160,35 @@ class CustomerController extends Controller
 
         $customerDetails = CustomerDetails::firstOrNew(['customer_id' => $customerId]);
         $customerDetails->fill($detailsData)->save();
+    }
+
+    public function updateBasicInfo(Request $request, $id)
+    {
+        $request->validate([
+            'contactPersonFirstName' => 'required|string|max:255',
+            'contactEmail' => 'required|email',
+            'contactPhone' => 'required_without:contactMobile|max:20',
+            'contactMobile' => 'required_without:contactPhone|max:20',
+        ]);
+
+        $customer = Customer::findOrFail($id);
+        if (!$customer) {
+            return response()->json(['message' => 'Customer not found.'], 404);
+        }
+        // Update the customer's basic information
+        $customer->contact_firstname = $request->input('contactPersonFirstName');
+        $customer->contact_lastname = $request->input('contactPersonLastName');
+        $customer->contact_email = $request->input('contactEmail');
+        $customer->contact_phone = $request->input('contactPhone');
+        $customer->contact_mobile = $request->input('contactMobile');
+        $customer->status = 'active'; // Ensure the customer is active
+        // Save the updated customer
+        if (!$customer->save()) {
+            return response()->json(['message' => 'Failed to update customer info.'], 500);
+        }
+       
+
+        return response()->json(['message' => 'Customer info updated successfully.']);
     }
 
     public function updateFinancialDetails(Request $request, string $id)

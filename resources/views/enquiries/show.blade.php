@@ -49,9 +49,6 @@
             const editorContainer = document.querySelector('#enquiry-description-edit');
             if (editorContainer) {
                 quill = new Quill(editorContainer, {
-                    modules: {
-                        toolbar: '.enquiry-toolbar'
-                    },
                     placeholder: 'Enquiry Description',
                     theme: 'snow'
                 });
@@ -83,7 +80,7 @@
                     if (data.status === 'success') {
                         toastr.success(data.message);
                         // Optionally close modal
-                        $('#yourModalId').modal('hide');
+                        $('#editdescriptionModal').modal('hide');
                         location.reload(); // This will reload the entire page
                     } else {
                         toastr.danger('Error: ' + data.message);
@@ -97,20 +94,32 @@
     </script>
 
     <script>
-        function addNotes(enquiryId) {
-            const note = $('#enquiry_note').val();
+        const quilln = new Quill('#enquirynotes', {
+            theme: 'snow',
+            placeholder: 'Write note here...',
+        });
 
-            if (!note.trim()) {
-                $('#note-message').html('<div class="alert alert-warning">Note cannot be empty.</div>');
+        function addNotes(enquiryId) {
+            const htmlContent = quilln.root.innerHTML.trim();
+            const textContent = quilln.getText().trim();
+
+            if (textContent === '') {
+                toastr.danger('Note is required.');
                 return;
             }
 
+            // Add to hidden input
+            document.getElementById('enquirynotes-hidden').value = htmlContent;
+            // const notedata = document.getElementById('enquirynotesForm');
+
+            const notedata = quilln.root.innerHTML.trim();
+            
             $.ajax({
                 url: "{{ route('enquiry.add-note') }}", // Your Laravel route
                 method: "POST",
                 data: {
                     enquiry_id: enquiryId,
-                    note: note,
+                    note: notedata,
                     _token: '{{ csrf_token() }}'
                 },
                 success: function(response) {
@@ -136,6 +145,35 @@
                 }
             });
         }
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            $('.delete-note').click(function() {
+                const noteId = $(this).data('id');
+                const confirmation = confirm('Are you sure you want to delete this note?');
+                if (confirmation) {
+                    $.ajax({
+                        url: `/enquiries/delete-note/${noteId}`,
+                        method: 'DELETE',
+                        data: {
+                            _token: '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response.status === 'success') {
+                                toastr.success(response.message);
+                                window.location.reload(); // Reload the page to see the changes
+                            } else {
+                                toastr.danger('Error: ' + response.message);
+                            }
+                        },
+                        error: function(xhr) {
+                            toastr.danger('Something went wrong!');
+                        }
+                    });
+                }
+            });
+        });
     </script>
 
     <script>
@@ -165,35 +203,6 @@
         // On form submit
         $('form').on('submit', function() {
             $('#mailmessage_input').val(quill.root.innerHTML);
-        });
-    </script>
-
-    <script>
-        $(document).ready(function() {
-            $('.delete-note').click(function() {
-                const noteId = $(this).data('id');
-                const confirmation = confirm('Are you sure you want to delete this note?');
-                if (confirmation) {
-                    $.ajax({
-                        url: `/enquiries/delete-note/${noteId}`,
-                        method: 'DELETE',
-                        data: {
-                            _token: '{{ csrf_token() }}'
-                        },
-                        success: function(response) {
-                            if (response.status === 'success') {
-                                toastr.success(response.message);
-                                window.location.reload(); // Reload the page to see the changes
-                            } else {
-                                toastr.danger('Error: ' + response.message);
-                            }
-                        },
-                        error: function(xhr) {
-                            toastr.danger('Something went wrong!');
-                        }
-                    });
-                }
-            });
         });
     </script>
 
@@ -477,7 +486,7 @@
                                             <button type="button" class="btn-close" data-bs-dismiss="modal"
                                                 aria-label="Close"></button>
                                         </div>
-                                        <form id="enquiryForm">
+                                        <form id="enquiryForm" style="margin-top: -10px;">
                                             @csrf
                                             <div class="modal-body p-0">
                                                 <div class="onboarding-content mb-0">
@@ -493,19 +502,6 @@
 
                                                                 <div class="form-control p-0">
                                                                     <div class="enquiry-toolbar border-0 border-bottom">
-                                                                        <div class="d-flex justify-content-start">
-                                                                            <span class="ql-formats me-0">
-                                                                                <button class="ql-bold"></button>
-                                                                                <button class="ql-italic"></button>
-                                                                                <button class="ql-underline"></button>
-                                                                                <button class="ql-list"
-                                                                                    value="ordered"></button>
-                                                                                <button class="ql-list"
-                                                                                    value="bullet"></button>
-                                                                                <button class="ql-link"></button>
-                                                                                <button class="ql-image"></button>
-                                                                            </span>
-                                                                        </div>
                                                                     </div>
                                                                     <div class="border-0 pb-6"
                                                                         id="enquiry-description-edit">
@@ -674,21 +670,36 @@
                                                             </span>
                                                         </small>
                                                     </div>
-                                                    <p class="mb-2">{{ $enot->note }}</p>
+                                                    <p class="mb-2">{!! $enot->note !!}</p>
                                                 </div>
                                             </li>
                                         @endforeach
                                     </ul>
                                     <div class="border-1 border-light border-dashed my-4"></div>
+                                    <form id="enquirynotesForm" style="margin-top: -10px;">
+                                        @csrf
 
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" placeholder="Make note"
-                                            id="enquiry_note" aria-label="Note" aria-describedby="button-addon2">
-                                        <button class="btn btn-outline-primary waves-effect" type="button"
-                                            id="button-addon2" onclick="addNotes({{ $enquiry->id }})">
-                                            <i class="fa-solid fa-paper-plane fa-xl"></i>
-                                        </button>
-                                    </div>
+                                        <div class="mb-2">
+                                            <label class="mb-1">Notes</label>
+
+                                            <input type="hidden" name="enquirynotes" id="enquirynotes-hidden">
+                                            <input type="hidden" name="enquiry_id" value="{{ $enquiry->id }}">
+
+                                            <div class="form-control p-0">
+                                                <div class="enquiry-toolbar border-0 border-bottom">
+                                                </div>
+                                                <div class="border-0 pb-6" id="enquirynotes"></div>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex justify-content-end">
+                                            <button type="button" class="btn btn-primary me-4 waves-effect waves-light"
+                                                onclick="addNotes({{ $enquiry->id }})">
+                                                <i class="fa-solid fa-paper-plane fa-md"></i> Add Note
+                                            </button>
+                                            <button type="reset"
+                                                class="btn btn-label-secondary waves-effect">Cancel</button>
+                                        </div>
+                                    </form>
                                     <div id="note-message" class="mt-2"></div>
                                 </div>
                             </div>
