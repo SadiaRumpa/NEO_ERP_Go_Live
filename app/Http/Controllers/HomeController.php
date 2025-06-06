@@ -32,6 +32,8 @@ class HomeController extends Controller
             return $this->enquiryManagerDashboard();
         } elseif (auth()->user()->hasRole('lead-manager')) {
             return $this->leadManagerDashboard();
+        } elseif (auth()->user()->hasRole('accounts-manager')) {
+            return $this->accountsManagerDashboard();
         } else {
             abort(403, 'CAN NOT ACCESS TO ROLE');
         }
@@ -149,6 +151,64 @@ class HomeController extends Controller
 
 
         return view('dashboards.lead_manager')->with([
+            'newLeads' => $newLeads,
+            'this_week' => $thisWeekCount,
+            'last_week' => $lastWeekCount,
+            'percentageChange' => $percentageChange,
+            'trend' => $trend,
+            'newleadscount' => $newleadscount,
+            'ongoingleadscount' => $ongoingleadscount,
+            'cancelledleadscount' => $cancelledleadscount,
+            'totalcustomerscount' => $totalcustomerscount,
+            'ongoingLeads' => $ongoingLeads,
+        ]);
+    }
+
+    public function accountsManagerDashboard()
+    {
+        $newleadscount  = Lead::where('lead_status', 'new')->count();
+        $ongoingleadscount  = Lead::where('lead_status', 'inprogress')->count();
+        $cancelledleadscount  = Lead::where('lead_status', 'cancelled')->count();
+        $totalcustomerscount = Lead::distinct('customer_id')->count('customer_id');
+
+        $startOfThisWeek = Carbon::now()->startOfWeek(); // Monday
+        $startOfLastWeek = Carbon::now()->subWeek()->startOfWeek();
+        $endOfLastWeek = Carbon::now()->subWeek()->endOfWeek();
+
+        // Count for this week
+        $thisWeekCount = Lead::where('lead_status', 'new')
+            ->where('created_at', '>=', $startOfThisWeek)
+            ->count();
+
+        // Count for last week
+        $lastWeekCount = Lead::where('lead_status', 'new')
+            ->whereBetween('created_at', [$startOfLastWeek, $endOfLastWeek])
+            ->count();
+
+        if ($lastWeekCount > 0) {
+            $change = (($thisWeekCount - $lastWeekCount) / $lastWeekCount) * 100;
+        } else {
+            $change = $thisWeekCount > 0 ? 100 : 0; // handle divide by zero
+        }
+
+        $percentageChange = round($change, 2); // e.g. 25.00
+
+        if ($percentageChange > 0) {
+            $trend = 'increase';
+        } elseif ($percentageChange < 0) {
+            $trend = 'decrease';
+        } else {
+            $trend = 'no change';
+        }
+
+        $newLeads = Lead::with(['leadaddress', 'customer'])
+            ->where('lead_status', 'new')->orderByDesc('created_at')->limit(5)->get();
+
+        $ongoingLeads = Lead::with(['leadaddress', 'customer'])
+            ->where('lead_status', 'completed')->orderByDesc('created_at')->limit(5)->get();
+
+
+        return view('dashboards.accounts_manager')->with([
             'newLeads' => $newLeads,
             'this_week' => $thisWeekCount,
             'last_week' => $lastWeekCount,

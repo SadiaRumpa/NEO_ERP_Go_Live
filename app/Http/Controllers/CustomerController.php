@@ -145,6 +145,34 @@ class CustomerController extends Controller
         return redirect()->back()->with('success', 'Customer updated successfully.');
     }
 
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        $customer = Customer::findOrFail($id);
+
+        if ($customer) {
+            $custenquiry = Enquiry::where('customer_id', $id)->exists(); // Check if Enquiry exists
+
+            if ($custenquiry) {
+                // If enquiries exist, update customer status to 'inactive'
+                $customer->update(['status' => 'inactive']);
+
+                return response()->json(['message' => 'Customer has active enquiries and is set to inactive.']);
+            } else {
+                // If no enquiries exist, delete the customer
+                $customer->delete();
+                CustomerAddress::where('customer_id', $id)->delete();
+                CustomerDetails::where('customer_id', $id)->delete();
+
+                return response()->json(['message' => 'Customer deleted successfully.']);
+            }
+        }
+
+        return response()->json(['message' => 'Customer not found.'], 404);
+    }
+
 
     private function updateCustomerDetails(Request $request, $customerId)
     {
@@ -227,10 +255,12 @@ class CustomerController extends Controller
 
     public function storeCustomerAddress(Request $request, string $id)
     {
+        // return $request->all();
         $validated = $request->validate([
             'address' => 'required|string|max:255',
             'county' => 'nullable|string|max:255',
             'postcode' => 'required|string|max:20',
+            'country' => 'required|string|max:255',
             'type' => 'required|string|in:billing,site',
         ]);
 
@@ -242,7 +272,8 @@ class CustomerController extends Controller
         $customerAddress->contact_mobile = $request->input('contactMobile');
         $customerAddress->contact_email = $request->input('contactEmail');
         $customerAddress->address = $validated['address'];
-        $customerAddress->county = $validated['county'] ?? 'United Kingdom';
+        $customerAddress->county = $validated['county'] ?? '';
+        $customerAddress->country = $validated['country'];
         $customerAddress->postcode = $validated['postcode'];
         $customerAddress->address_type = $validated['type'];
         $customerAddress->save();
@@ -250,33 +281,16 @@ class CustomerController extends Controller
         return redirect()->back()->with('success', 'Customer address created successfully.');
     }
 
-
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function deleteCustomerAddress($id)
     {
-        $customer = Customer::findOrFail($id);
-
-        if ($customer) {
-            $custenquiry = Enquiry::where('customer_id', $id)->exists(); // Check if Enquiry exists
-
-            if ($custenquiry) {
-                // If enquiries exist, update customer status to 'inactive'
-                $customer->update(['status' => 'inactive']);
-
-                return response()->json(['message' => 'Customer has active enquiries and is set to inactive.']);
-            } else {
-                // If no enquiries exist, delete the customer
-                $customer->delete();
-                CustomerAddress::where('customer_id', $id)->delete();
-                CustomerDetails::where('customer_id', $id)->delete();
-
-                return response()->json(['message' => 'Customer deleted successfully.']);
-            }
+        $address = CustomerAddress::findOrFail($id);
+        if ($address) {
+            $address->delete();
+            return redirect()->back()->with('success', 'Customer address deleted successfully.');
         }
-
-        return response()->json(['message' => 'Customer not found.'], 404);
+        return redirect()->back()->with('error', 'Customer address not found.');
     }
+
+
+    
 }

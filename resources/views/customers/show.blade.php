@@ -57,6 +57,30 @@
                 }
             });
         }
+
+        function deleteCustomerAddress(addressid) {
+            if (confirm('Are you sure you want to delete this customer? This action cannot be undone.')) {
+                const customerId = {{ $customer->id }}; // Pass server-side ID to JS
+                $.ajax({
+                    url: `/customer/deleteaddress/${addressid}`,
+                    type: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        toastr.success('Address deleted successfully.');
+                        window.location.href = `/customers/${customerId}`; // Redirect to customers list
+                    },
+                    error: function(xhr) {
+                        let message = 'Delete failed.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            message = xhr.responseJSON.message;
+                        }
+                        toastr.error(message);
+                    }
+                });
+            }
+        };
         $(document).ready(function() {
             // Event listener to handle clicking on a suggestion (run this once on page load)
             $(document).on('click', '.suggestion-item', function(e) {
@@ -127,6 +151,21 @@
                     }
                 });
             });
+
+
+            $('#addNewAddress').on('show.bs.modal', function(event) {
+                const button = $(document.activeElement); // works with buttons clicked
+                const addressType = button.data('address-type'); // get data-address-type
+
+                if (addressType) {
+                    $('#customeraddresstype').val(addressType);
+                }
+            });
+
+            $('#addNewAddress').on('hidden.bs.modal', function() {
+                $('#customeraddresstype').val(''); // optional: clear value
+            });
+
         });
     </script>
 @endsection
@@ -184,7 +223,7 @@
 
         <div class="row">
             <!-- Customer-detail Sidebar -->
-            <div class="col-xl-4 col-lg-5 col-md-5 order-1 order-md-0">
+            <div class="col-xl-4 col-lg-4 col-md-4 order-1 order-md-0">
                 <!-- Customer-detail Card -->
                 <div class="card mb-6">
                     <div class="card-body pt-12">
@@ -279,17 +318,19 @@
             <!--/ Customer Sidebar -->
 
             <!-- Customer Content -->
-            <div class="col-xl-8 col-lg-7 col-md-7 order-0 order-md-1">
+            <div class="col-xl-8 col-lg-8 col-md-8 order-0 order-md-1">
                 <!-- Customer Pills -->
                 <div class="nav-align-top">
                     <ul class="nav nav-pills flex-column flex-md-row mb-6 row-gap-2 flex-wrap">
 
                         <li class="nav-item">
-                            <button class="nav-link active" data-bs-target="#addNewAddress" data-bs-toggle="modal">
-                                <i class="icon-base ti tabler-map-pin icon-sm me-1_5"></i>Add Site Address
+                            <button class="nav-link active" data-bs-toggle="modal" data-bs-target="#addNewAddress"
+                                data-address-type="billing">
+                                <i class="icon-base ti tabler-map-pin icon-sm me-1_5"></i> Add Billing Address
                             </button>
-                            <button class="nav-link active" data-bs-target="#addNewAddress" data-bs-toggle="modal">
-                                <i class="icon-base ti tabler-map-pin icon-sm me-1_5"></i>Add Billing Address
+                            <button class="nav-link active" data-bs-toggle="modal" data-bs-target="#addNewAddress"
+                                data-address-type="site">
+                                <i class="icon-base ti tabler-map-pin icon-sm me-1_5"></i> Add Site Address
                             </button>
                         </li>
 
@@ -300,59 +341,99 @@
                 <div class="row">
                     <!-- Billing Address -->
                     @if ($customer->billingaddress)
-                        <div class="col-md-6 col-xxl-6 mb-6">
-                            <div class="card h-100">
-                                <div class="card-body">
-                                    <div class="bg-label-primary rounded text-center mb-4 pt-4">
-                                        <iframe width="100%" height="450" frameborder="0" style="border:0"
+                        <div class="col-md-6 mb-4">
+                            <div class="card">
+                                <div class="d-flex flex-md-row flex-column">
+                                    <div>
+                                        <iframe width="100%" height="300" frameborder="0" style="border:0"
                                             referrerpolicy="no-referrer-when-downgrade"
-                                            src="https://www.google.com/maps/embed/v1/place?key={{ config('services.google.maps_api_key') }}&q={{ $customer->billingaddress->address }}, {{ $customer->billingaddress->county }}, {{ $customer->billingaddress->postcode }}+{{ $customer->billingaddress->address }}, {{ $customer->billingaddress->county }}, {{ $customer->billingaddress->country }}"
+                                            src="https://www.google.com/maps/embed/v1/place?key={{ config('services.google.maps_api_key') }}&q={{ $customer->billingaddress->address ?? '' }}, {{ $customer->billingaddress->county ?? '' }}, {{ $customer->billingaddress->postcode ?? '' }}+{{ $customer->billingaddress->address ?? '' }}, {{ $customer->billingaddress->county ?? '' }}, {{ $customer->billingaddress->country ?? '' }}"
                                             allowfullscreen>
                                         </iframe>
                                     </div>
-                                    <h5 class="mb-2">Billing Address</h5>
-                                    <p class="user-info" style="text-transform: uppercase;">
-                                        {{ $customer->billingaddress->address }}, {{ $customer->billingaddress->county }},
-                                        {{ $customer->billingaddress->country }}
-                                    </p>
+                                    <div>
+                                        <div class="card-body">
+                                            <h5 class="card-title">Billing Address</h5>
+                                            <p class="card-text">
+                                                <span class="badge bg-label-dark mb-2">Contact: </span>
+                                                {{ $customer->billingaddress->contact_firstname }}
+                                                {{ $customer->billingaddress->contact_lastname }}
+                                                </br>
+                                                <span class="badge bg-label-dark mb-2">Email: </span>
+                                                {{ $customer->billingaddress->contact_email }}
+                                                </br>
+                                                <span class="badge bg-label-dark mb-2">Phone: </span>
+                                                {{ $customer->billingaddress->contact_phone }}
+                                                </br>
+                                                <span class="badge bg-label-dark mb-2">Mobile: </span>
+                                                {{ $customer->billingaddress->contact_mobile }}
+                                            </p>
 
-                                    <a href="javascript:void(0);" class="btn btn-outline-dark waves-effect">UPDATE</a>
-                                    <a href="javascript:void(0);" class="btn btn-outline-danger waves-effect delete-address"
-                                        data-id="{{ $customer->billingaddress->id }}">DELETE</a>
+                                            <p class="card-text">
+                                                {{ $customer->billingaddress->address }},
+                                                {{ $customer->billingaddress->county }},
+                                                {{ $customer->billingaddress->country }}
+                                            </p>
+                                            <a href="javascript:void(0);"
+                                                class="btn btn-outline-dark btn-sm waves-effect">UPDATE</a>
+                                            <a href="javascript:void(0);"
+                                                onclick="deleteCustomerAddress({{ $customer->billingaddress->id }})"
+                                                class="btn btn-outline-danger btn-sm waves-effect">DELETE</a>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     @endif
                     <!--/ Billing Address -->
-
+                </div>
+                <div class="row">
                     <!-- Site Address -->
                     @if ($customer->siteaddress)
                         @foreach ($customer->siteaddress as $csaddress)
-                            <div class="col-md-6 col-xxl-6 mb-6">
-                                <div class="card h-100">
-                                    <div class="card-body">
-                                        <div class="bg-label-primary rounded text-center mb-4 pt-4">
-                                            <iframe width="100%" height="450" frameborder="0" style="border:0"
+                            <div class="col-md-6 mb-4">
+                                <div class="card">
+                                    <div class="d-flex flex-md-row flex-column">
+                                        <div>
+                                            <iframe width="100%" height="300" frameborder="0" style="border:0"
                                                 referrerpolicy="no-referrer-when-downgrade"
                                                 src="https://www.google.com/maps/embed/v1/place?key={{ config('services.google.maps_api_key') }}&q={{ $csaddress->address }}, {{ $csaddress->county }}, {{ $csaddress->postcode }}+{{ $csaddress->address }}, {{ $csaddress->county }}, {{ $csaddress->country }}"
                                                 allowfullscreen>
                                             </iframe>
                                         </div>
-                                        <h5 class="mb-2">Site Address</h5>
-                                        <p class="user-info" style="text-transform: uppercase;">
-                                            {{ $csaddress->address }}, {{ $csaddress->county }},
-                                            {{ $csaddress->country }}
-                                        </p>
+                                        <div>
+                                            <div class="card-body">
+                                                <h5 class="card-title">Site Address</h5>
+                                                <p class="card-text">
+                                                    <span class="badge bg-label-dark mb-2">Contact: </span>
+                                                    {{ $csaddress->contact_firstname }}
+                                                    {{ $csaddress->contact_lastname }}
+                                                    </br>
+                                                    <span class="badge bg-label-dark mb-2">Email: </span>
+                                                    {{ $csaddress->contact_email }}
+                                                    </br>
+                                                    <span class="badge bg-label-dark mb-2">Phone: </span>
+                                                    {{ $csaddress->contact_phone }}
+                                                    </br>
+                                                    <span class="badge bg-label-dark mb-2">Mobile: </span>
+                                                    {{ $csaddress->contact_mobile }}
+                                                </p>
+                                                <p class="card-text">
+                                                    {{ $csaddress->address }}, {{ $csaddress->county }},
+                                                    {{ $csaddress->country }}
+                                                </p>
+                                                <a href="javascript:void(0);"
+                                                    class="btn btn-outline-dark btn-sm waves-effect">UPDATE</a>
 
-                                        <a href="javascript:void(0);" class="btn btn-outline-dark waves-effect">UPDATE</a>
-                                        <a href="javascript:void(0);"
-                                            class="btn btn-outline-danger waves-effect delete-address"
-                                            data-id="{{ $csaddress->id }}">DELETE</a>
+                                                <a href="javascript:void(0);"
+                                                    onclick="deleteCustomerAddress({{ $csaddress->id }})"
+                                                    class="btn btn-outline-danger btn-sm waves-effect">DELETE</a>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         @endforeach
-
                     @endif
                     <!--/ Site Address -->
 
@@ -484,7 +565,7 @@
         <!--/ Edit Financial Info Modal -->
 
         <!-- Add New Address Modal -->
-        <div class="modal fade" id="addNewAddress" tabindex="-1" aria-hidden="true">
+        <div class="modal fade" id="addNewAddress" tabindex="-1">
             <div class="modal-dialog modal-lg modal-simple modal-add-new-address">
                 <div class="modal-content">
                     <div class="modal-body">
@@ -492,53 +573,11 @@
                         <div class="text-center mb-6">
                             <h4 class="address-title mb-2">Add New Address</h4>
                         </div>
-                        <form class="row g-6" action="{{ route('customer.storeaddress', $customer->id) }}"
-                            method="POST">
+                        <form method="POST" class="row g-6"
+                            action="{{ route('customer.storeaddress', $customer->id) }}">
                             @csrf
-                            <div class="col-12 form-control-validation">
-                                <div class="row">
-                                    <div class="col-md mb-md-0 mb-4">
-                                        <div class="form-check custom-option custom-option-icon">
-                                            <label class="form-check-label custom-option-content" for="customRadioHome">
-                                                <span class="custom-option-body">
-                                                    <svg width="28" height="28" viewBox="0 0 28 28"
-                                                        fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path opacity="0.2"
-                                                            d="M16.625 23.625V16.625H11.375V23.625H4.37501V12.6328C4.37437 12.5113 4.39937 12.391 4.44837 12.2798C4.49737 12.1686 4.56928 12.069 4.65939 11.9875L13.4094 4.03592C13.5689 3.88911 13.7778 3.80762 13.9945 3.80762C14.2113 3.80762 14.4202 3.88911 14.5797 4.03592L23.3406 11.9875C23.4287 12.0706 23.4992 12.1706 23.548 12.2814C23.5969 12.3922 23.6231 12.5117 23.625 12.6328V23.625H16.625Z" />
-                                                        <path
-                                                            d="M23.625 23.625V12.6328C23.623 12.5117 23.5969 12.3922 23.548 12.2814C23.4992 12.1706 23.4287 12.0706 23.3406 11.9875L14.5797 4.03592C14.4202 3.88911 14.2113 3.80762 13.9945 3.80762C13.7777 3.80762 13.5689 3.88911 13.4094 4.03592L4.65937 11.9875C4.56926 12.069 4.49736 12.1686 4.44836 12.2798C4.39936 12.391 4.37436 12.5113 4.375 12.6328V23.625M1.75 23.625H26.25M16.625 23.625V17.5C16.625 17.2679 16.5328 17.0454 16.3687 16.8813C16.2046 16.7172 15.9821 16.625 15.75 16.625H12.25C12.0179 16.625 11.7954 16.7172 11.6313 16.8813C11.4672 17.0454 11.375 17.2679 11.375 17.5V23.625"
-                                                            stroke-width="2" stroke-linecap="round"
-                                                            stroke-linejoin="round" />
-                                                    </svg>
-                                                    <span class="custom-option-title">Billing</span>
-                                                </span>
-                                                <input name="type" class="form-check-input" type="radio"
-                                                    value="billing" id="customRadioHome" checked />
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md mb-md-0 mb-4">
-                                        <div class="form-check custom-option custom-option-icon">
-                                            <label class="form-check-label custom-option-content" for="customRadioOffice">
-                                                <span class="custom-option-body">
-                                                    <svg width="28" height="28" viewBox="0 0 28 28"
-                                                        fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path opacity="0.2"
-                                                            d="M15.75 23.625V4.375C15.75 4.14294 15.6578 3.92038 15.4937 3.75628C15.3296 3.59219 15.1071 3.5 14.875 3.5H4.375C4.14294 3.5 3.92038 3.59219 3.75628 3.75628C3.59219 3.92038 3.5 4.14294 3.5 4.375V23.625" />
-                                                        <path
-                                                            d="M1.75 23.625H26.25M15.75 23.625V4.375C15.75 4.14294 15.6578 3.92038 15.4937 3.75628C15.3296 3.59219 15.1071 3.5 14.875 3.5H4.375C4.14294 3.5 3.92038 3.59219 3.75628 3.75628C3.59219 3.92038 3.5 4.14294 3.5 4.375V23.625M24.5 23.625V11.375C24.5 11.1429 24.4078 10.9204 24.2437 10.7563C24.0796 10.5922 23.8571 10.5 23.625 10.5H15.75M7 7.875H10.5M8.75 14.875H12.25M7 19.25H10.5M19.25 19.25H21M19.25 14.875H21"
-                                                            stroke-opacity="0.9" stroke-width="2" stroke-linecap="round"
-                                                            stroke-linejoin="round" />
-                                                    </svg>
-                                                    <span class="custom-option-title"> Site </span>
-                                                </span>
-                                                <input name="type" class="form-check-input" type="radio"
-                                                    value="site" id="customRadioOffice" />
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <input type="hidden" name="type" id="customeraddresstype" />
+
                             <div class="col-12 form-control-validation col-md-6">
                                 <label class="form-label" for="modalAddressFirstName">First Name</label>
                                 <input type="text" id="modalAddressFirstName" name="contactPersonFirstName"
@@ -565,9 +604,8 @@
 
                             <div class="col-12 form-control-validation col-md-4">
                                 <label class="form-label" for="modalAddressMobile">Mobile</label>
-                                <input type="text" id="modalAddressMobile" name="contactMobile"
-                                    class="form-control" placeholder="14169884411" maxlength="11" pattern="\d{11}"
-                                    inputmode="numeric"
+                                <input type="text" id="modalAddressMobile" name="contactMobile" class="form-control"
+                                    placeholder="14169884411" maxlength="11" pattern="\d{11}" inputmode="numeric"
                                     oninput="this.value = this.value.replace(/\D/g, '').slice(0, 11);" />
                             </div>
 

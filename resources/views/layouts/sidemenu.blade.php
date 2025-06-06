@@ -131,5 +131,13 @@
             </a>
         </li>
         @endhasrole
+        @hasrole('accounts-manager')
+        <li class="menu-item {{(request()->is('leads') || request()->is('leads/*') || request()->is('lead/*')) ? 'active' : '' }}">
+            <a href="{{ url('leads') }}" class="menu-link">
+                <i class="menu-icon icon-base ti tabler-access-point"></i>
+                <div data-i18n="Leads">Leads</div>
+            </a>
+        </li>
+        @endhasrole
     </ul>
 </aside>

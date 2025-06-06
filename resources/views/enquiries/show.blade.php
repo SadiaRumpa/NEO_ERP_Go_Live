@@ -43,6 +43,7 @@
             }
         });
     </script>
+
     <script>
         let quill;
         document.addEventListener('DOMContentLoaded', function() {
@@ -329,8 +330,7 @@
             @if (session('error'))
                 <div class="alert alert-danger mt-2">{{ session('error') }}</div>
             @endif
-            <div
-                class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-6 row-gap-4">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-6 row-gap-4">
                 <div class="d-flex flex-column justify-content-center">
                     <span class="h4">
                         ENQUIRY #<span class="badge bg-label-success me-1 ms-2">{{ $enquiry->enquiry_name }}</span>

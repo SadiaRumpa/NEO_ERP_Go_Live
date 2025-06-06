@@ -9,6 +9,7 @@ use App\Models\MailTemplate;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Storage;
+use Auth;
 
 class LeadController extends Controller
 {
@@ -185,6 +186,7 @@ class LeadController extends Controller
 
         return response()->json(['status' => 'error', 'message' => 'Failed to add enquiry image.']);
     }
+
     public function destroyLeadImage($id)
     {
         $image = LeadImage::find($id);
@@ -202,27 +204,29 @@ class LeadController extends Controller
 
         return response()->json(['status' => 'success', 'message' => 'Image deleted successfully.']);
     }
+
     public function leadNotes(Request $request)
     {
         $validated = $request->validate([
-            'note' => 'required|string',
-            'lead_slug' => 'required|string',
+            'lead_id' => 'required|exists:leads,id',
+            'note'       => 'required|string',
         ]);
-        $lead = Lead::where('slug', $request->lead_slug)->first();
-        if (!$lead) {
-            return response()->json(['error' => 'Lead not found.'], 404);
+
+        $enquirynote = LeadNote::create([
+            'lead_id'  => $validated['lead_id'],
+            'note_by'     => Auth::id(),
+            'note'        => $validated['note'],
+            'note_type'   => 'internal',
+            'note_status' => 'active',
+        ]);
+
+        if ($enquirynote) {
+            return response()->json(['status' => 'success', 'message' => 'Note added successfully.']);
         }
 
-        $lead->leadnotes()->create([
-            'note' => $validated['note'],
-            'note_by' => optional(auth()->user())->id,
-        ]);
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Lead details updated successfully.'
-        ]);
+        return response()->json(['status' => 'error', 'message' => 'Failed to add enquiry note.']);
     }
+
     public function deleteLeadNotes($id)
     {
         $leadNote = LeadNote::find($id);
