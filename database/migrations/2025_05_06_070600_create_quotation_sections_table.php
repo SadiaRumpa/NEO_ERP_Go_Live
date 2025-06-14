@@ -15,12 +15,13 @@ return new class extends Migration
             $table->id();
             $table->foreignId('quotation_id')->constrained('quotations')->onDelete('cascade');
             $table->string('section_name');
-            $table->string('section_slug');
+            $table->string('section_slug')->unique()->comment('Unique slug for the quotation section');
             $table->string('section_type', 100);
             $table->boolean('is_required')->default(0);
             $table->boolean('has_attachments')->default(0);
             $table->string('attachment_type')->nullable();
             $table->integer('order')->default(0);
+            $table->string('status')->default('active')->comment('active, inactive');
             $table->timestamps();
         });
     }

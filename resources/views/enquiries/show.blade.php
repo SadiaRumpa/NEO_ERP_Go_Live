@@ -114,7 +114,7 @@
             // const notedata = document.getElementById('enquirynotesForm');
 
             const notedata = quilln.root.innerHTML.trim();
-            
+
             $.ajax({
                 url: "{{ route('enquiry.add-note') }}", // Your Laravel route
                 method: "POST",
@@ -238,12 +238,12 @@
 
     <script>
         $(document).ready(function() {
-            $('.update-status-btn').on('click', function() {
+            $('.convert-to-lead-btn').on('click', function() {
                 let enquiryId = $(this).data('id');
                 let status = $(this).data('status');
 
                 // Confirmation dialog
-                if (!confirm(`Are you sure you want to change the status to "${status}"?`)) {
+                if (!confirm(`Are you sure you want to send it to Lead Manager?`)) {
                     return; // Stop if user cancels
                 }
 
@@ -330,49 +330,63 @@
             @if (session('error'))
                 <div class="alert alert-danger mt-2">{{ session('error') }}</div>
             @endif
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-6 row-gap-4">
+            <div
+                class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-6 row-gap-4">
+
                 <div class="d-flex flex-column justify-content-center">
                     <span class="h4">
                         ENQUIRY #<span class="badge bg-label-success me-1 ms-2">{{ $enquiry->enquiry_name }}</span>
+
                         <div class="btn-group">
                             @if ($enquiry->enquiry_status == 'new')
                                 <button type="button"
-                                    class="btn btn-label-primary waves-effect">{{ $enquiry->enquiry_status }}</button>
+                                    class="btn btn-label-primary waves-effect">{{ beautify_status($enquiry->enquiry_status) }}</button>
                             @elseif($enquiry->enquiry_status == 'inprogress')
                                 <button type="button"
-                                    class="btn btn-label-warning waves-effect">{{ $enquiry->enquiry_status }}</button>
-                            @elseif($enquiry->enquiry_status == 'completed')
+                                    class="btn btn-label-dark waves-effect">{{ beautify_status($enquiry->enquiry_status) }}</button>
+                            @elseif($enquiry->enquiry_status == 'on_hold')
                                 <button type="button"
-                                    class="btn btn-label-success waves-effect">{{ $enquiry->enquiry_status }}</button>
-                            @elseif($enquiry->enquiry_status == 'rejected')
+                                    class="btn btn-label-warning waves-effect">{{ beautify_status($enquiry->enquiry_status) }}</button>
+                            @elseif($enquiry->enquiry_status == 'converted_to_lead')
                                 <button type="button"
-                                    class="btn btn-label-danger waves-effect">{{ $enquiry->enquiry_status }}</button>
+                                    class="btn btn-label-success waves-effect">{{ beautify_status($enquiry->enquiry_status) }}</button>
+                            @elseif($enquiry->enquiry_status == 'rejected' || $enquiry->enquiry_status == 'archived')
+                                <button type="button"
+                                    class="btn btn-label-danger waves-effect">{{ beautify_status($enquiry->enquiry_status) }}</button>
                             @endif
                             <button type="button"
                                 class="btn btn-label-primary dropdown-toggle dropdown-toggle-split waves-effect"
                                 data-bs-toggle="dropdown" aria-expanded="false">
                                 <span class="visually-hidden">Toggle Dropdown</span>
                             </button>
-                            <ul class="dropdown-menu" style="">
-                                <li><a class="dropdown-item waves-effect update-enquiry-status" data-status="inprogress"
-                                        data-id="{{ $enquiry->id }}" href="#">Inprogress</a></li>
-                                <li><a class="dropdown-item waves-effect update-enquiry-status" data-status="completed"
-                                        data-id="{{ $enquiry->id }}" href="#">Completed</a></li>
-                            </ul>
+
+                            @if (!in_array($enquiry->enquiry_status, ['converted_to_lead', 'rejected']))
+                                <ul class="dropdown-menu" style="">
+                                    <li><a class="dropdown-item waves-effect update-enquiry-status" data-status="inprogress"
+                                            data-id="{{ $enquiry->id }}" href="#">Inprogress</a></li>
+                                    <li><a class="dropdown-item waves-effect update-enquiry-status" data-status="on_hold"
+                                            data-id="{{ $enquiry->id }}" href="#">On Hold</a></li>
+                                    <li><a class="dropdown-item waves-effect update-enquiry-status" data-status="archived"
+                                            data-id="{{ $enquiry->id }}" href="#">Archived</a></li>
+                                </ul>
+                            @endif
                         </div>
+                        @if (!in_array($enquiry->enquiry_status, ['converted_to_lead', 'rejected', 'archived']))
+                            <button class="btn btn-label-success convert-to-lead-btn" data-id="{{ $enquiry->id }}"
+                                data-status="converted_to_lead">
+                                SEND LEAD MANAGER
+                            </button>
+                        @endif
+
                     </span>
                 </div>
+
                 @if ($enquiry->enquiry_status == 'new' || $enquiry->enquiry_status == 'inprogress')
                     <div class="d-flex align-content-center flex-wrap gap-4">
                         <div class="d-flex gap-4">
                             <button type="button" class="btn btn-danger waves-effect waves-light" data-bs-toggle="modal"
                                 data-bs-target="#rejectEnquiryModal">
                                 REJECT ENQUIRY
-                            </button>
-
-                            <button class="btn btn-label-success update-status-btn" data-id="{{ $enquiry->id }}"
-                                data-status="completed">
-                                SEND LEAD MANAGER
                             </button>
                         </div>
                     </div>
@@ -828,19 +842,23 @@
                                     <div class="card-title mb-0">
                                         <h5 class="mb-1">Customer details</h5>
                                     </div>
-                                    <div class="dropdown">
-                                        <button
-                                            class="btn btn-text-secondary btn-icon rounded-pill text-body-secondary border-0 me-n1 waves-effect"
-                                            type="button" id="salesByCountryTabs" data-bs-toggle="dropdown"
-                                            aria-haspopup="true" aria-expanded="false">
-                                            <i class="icon-base ti tabler-dots-vertical icon-22px text-body-secondary"></i>
-                                        </button>
-                                        <div class="dropdown-menu dropdown-menu-end" aria-labelledby="salesByCountryTabs">
-                                            <a class="dropdown-item waves-effect"
-                                                href="{{ route('customers.show', $enquiry->customer->id) }}"
-                                                target="_blank">Update</a>
+                                    @if ($enquiry->enquiry_status == 'inprogress')
+                                        <div class="dropdown">
+                                            <button
+                                                class="btn btn-text-secondary btn-icon rounded-pill text-body-secondary border-0 me-n1 waves-effect"
+                                                type="button" id="salesByCountryTabs" data-bs-toggle="dropdown"
+                                                aria-haspopup="true" aria-expanded="false">
+                                                <i
+                                                    class="icon-base ti tabler-dots-vertical icon-22px text-body-secondary"></i>
+                                            </button>
+                                            <div class="dropdown-menu dropdown-menu-end"
+                                                aria-labelledby="salesByCountryTabs">
+                                                <a class="dropdown-item waves-effect"
+                                                    href="{{ route('customers.show', $enquiry->customer->id) }}"
+                                                    target="_blank">Update</a>
+                                            </div>
                                         </div>
-                                    </div>
+                                    @endif
                                 </div>
                                 <div class="card-body p-0">
                                     <div class="nav-align-top">
@@ -913,14 +931,16 @@
                                                                     Reg No.:
                                                                     {{ $enquiry->customer->findetails->registration_number ?? 'N/A' }}
                                                                 </small>
-                                                                <small class="text-success text-uppercase">
-                                                                    <button type="button"
-                                                                        class="btn btn-primary btn-sm waves-effect waves-light"
-                                                                        data-bs-toggle="modal"
-                                                                        data-bs-target="#enquirydetailseditmodal">
-                                                                        Edit
-                                                                    </button>
-                                                                </small>
+                                                                @if ($enquiry->enquiry_status == 'inprogress')
+                                                                    <small class="text-success text-uppercase">
+                                                                        <button type="button"
+                                                                            class="btn btn-primary btn-sm waves-effect waves-light"
+                                                                            data-bs-toggle="modal"
+                                                                            data-bs-target="#enquirydetailseditmodal">
+                                                                            Edit
+                                                                        </button>
+                                                                    </small>
+                                                                @endif
                                                             </div>
                                                             <p class="text-body mb-0">
                                                                 <span class="text-heading fw-medium">Assets: </span>

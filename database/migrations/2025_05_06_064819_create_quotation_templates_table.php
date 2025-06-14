@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('job_type_id')->constrained('job_types')->onDelete('cascade');
             $table->string('job_type_name', 200)->nullable();
-            $table->string('template_name', 200);
-            $table->string('template_slug', 200);
-            $table->boolean('status')->default(1);
-            $table->timestamps();            
+            $table->string('template_name');
+            $table->string('template_slug')->unique()->comment('Unique slug for the quotation template');
+            $table->string('status')->default('active')->comment('active, inactive');
+            $table->timestamps();
         });
     }
 

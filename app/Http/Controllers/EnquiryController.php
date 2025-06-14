@@ -33,7 +33,7 @@ class EnquiryController extends Controller
 
             $data = Enquiry::with(['customer', 'enquiryaddress'])
                 ->select('*')
-                ->whereIn('enquiry_status', ['new', 'inprogress'])
+                ->whereIn('enquiry_status', ['new', 'inprogress', 'on_hold'])
                 ->orderByDesc('created_at');
 
             return Datatables::of($data)
@@ -71,7 +71,7 @@ class EnquiryController extends Controller
 
             $data = Enquiry::with(['customer', 'enquiryaddress'])
                 ->select('*')
-                ->where('enquiry_status', 'completed')
+                ->where('enquiry_status', 'converted_to_lead')
                 ->orderByDesc('created_at');
 
             return Datatables::of($data)
@@ -111,7 +111,7 @@ class EnquiryController extends Controller
 
             $data = Enquiry::with(['customer', 'enquiryaddress'])
                 ->select('*')
-                ->where('enquiry_status', 'rejected')
+                ->whereIn('enquiry_status', ['rejected', 'archived'])
                 ->orderByDesc('created_at');
 
             return Datatables::of($data)
@@ -279,9 +279,6 @@ class EnquiryController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $key)
     {
         $enquiry = Enquiry::with(['customer', 'customer.billingaddress', 'customer.siteaddress', 'enquiryaddress', 'enquiryimages', 'enquirynotes', 'enquirynotes.users'])->where('slug', $key)->first();

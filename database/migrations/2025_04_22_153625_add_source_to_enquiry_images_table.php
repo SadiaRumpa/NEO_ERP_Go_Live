@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('enquiry_images', function (Blueprint $table) {
             $table->text('image_url')->nullable();
-            $table->string('source', 50)->nullable();
+            $table->string('source', 100)->nullable();
         });
     }
 

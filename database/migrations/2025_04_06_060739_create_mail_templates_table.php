@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('mail_templates', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
+            $table->string('slug')->unique()->comment('Unique slug for the mail template');
             $table->string('subject')->nullable();
             $table->text('body');
             $table->text('attachments')->nullable()->comment('comma separated list of file paths');

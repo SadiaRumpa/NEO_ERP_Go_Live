@@ -114,4 +114,11 @@ if (! function_exists('lookup_places')) {
             return '£' . $formatted . $units[$power];
         }
     }
+    if (!function_exists('beautify_status')) {
+        function beautify_status(string $status): string
+        {
+            // Replace underscores or dashes with spaces and capitalize words
+            return ucwords(str_replace(['_', '-'], ' ', $status));
+        }
+    }
 }

@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 class Customer extends Model
 {
+    use HasSlug;
     protected $fillable = [
         'company_name',
         'contact_firstname',
@@ -15,6 +18,13 @@ class Customer extends Model
         'contact_email',
         'status',
     ];
+
+    public function getSlugOptions() : SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('company_name')
+            ->saveSlugsTo('slug');
+    }
 
     public function billingaddress()
     {

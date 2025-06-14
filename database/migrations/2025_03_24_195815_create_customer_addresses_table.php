@@ -16,9 +16,9 @@ return new class extends Migration
             $table->foreignId('customer_id')->constrained('customers')->onDelete('cascade');
             $table->string('contact_firstname');
             $table->string('contact_lastname')->nullable();
-            $table->string('contact_phone')->nullable();
-            $table->string('contact_mobile')->nullable();
-            $table->string('contact_email')->nullable();
+            $table->string('contact_phone', 20)->nullable();
+            $table->string('contact_mobile', 20)->nullable();
+            $table->string('contact_email', 100)->nullable();
             $table->text('address')->nullable();
             $table->string('county', 100)->nullable();
             $table->string('postcode', 50)->nullable();

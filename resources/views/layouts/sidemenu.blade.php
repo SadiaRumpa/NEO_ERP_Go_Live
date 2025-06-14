@@ -48,7 +48,7 @@
                 <div data-i18n="Dashboards">Dashboards</div>
             </a>
         </li>
-        @hasrole('admin')
+        @hasanyrole('super_admin|admin')
         <li class="menu-item {{(request()->is('mailtemplates') || request()->is('mailtemplates/*'))  ? 'active' : '' }}">
             <a
                 href="{{ url('mailtemplates') }}"

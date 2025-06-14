@@ -26,7 +26,7 @@ class HomeController extends Controller
      */
     public function index()
     {
-        if (auth()->user()->hasRole('admin')) {
+        if (auth()->user()->hasRole('super_admin|admin')) {
             return $this->adminDashboard();
         } elseif (auth()->user()->hasRole('enquiry-manager')) {
             return $this->enquiryManagerDashboard();

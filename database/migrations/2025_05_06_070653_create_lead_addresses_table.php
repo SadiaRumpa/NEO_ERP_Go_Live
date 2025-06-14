@@ -16,14 +16,16 @@ return new class extends Migration
             $table->foreignId('lead_id')->constrained('leads')->onDelete('cascade');
             $table->string('contact_firstname');
             $table->string('contact_lastname')->nullable();
-            $table->string('contact_phone')->nullable();
-            $table->string('contact_mobile')->nullable();
-            $table->string('contact_email')->nullable();
-            $table->string('address', 100)->nullable();
+            $table->string('contact_phone', 20)->nullable();
+            $table->string('contact_mobile', 20)->nullable();
+            $table->string('contact_email', 100)->nullable();
+            $table->text('address')->nullable();
             $table->string('county', 100)->nullable();
             $table->string('postcode', 50)->nullable();
             $table->string('country', 100)->nullable();
             $table->text('location')->nullable();
+            $table->string('status')->default('active')->comment('active, inactive');
+            $table->string('default')->default('no')->comment('yes, no');
             $table->timestamps();
         });
     }

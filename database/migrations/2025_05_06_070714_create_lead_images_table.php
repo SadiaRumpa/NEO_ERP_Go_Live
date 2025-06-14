@@ -17,9 +17,9 @@ return new class extends Migration
             $table->string('image_path')->nullable();
             $table->string('image_name');
             $table->string('image_caption')->nullable();
-            $table->string('uploaded_by')->nullable();
             $table->text('image_url')->nullable();
             $table->string('source')->nullable();
+            $table->string('uploaded_by')->nullable()->comment('customer, staff');
             $table->timestamps();
         });
     }

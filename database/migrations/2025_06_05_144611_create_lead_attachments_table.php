@@ -13,6 +13,12 @@ return new class extends Migration
     {
         Schema::create('lead_attachments', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('lead_id')->constrained('leads')->onDelete('cascade');
+            $table->string('attachment_name');
+            $table->string('attachment_path')->nullable();
+            $table->string('attachment_type')->default('doc')->comment('doc,pdf')->nullable();
+            $table->string('status')->default('active')->comment('active, inactive');
+            $table->string('uploaded_by')->nullable()->comment('customer, staff');
             $table->timestamps();
         });
     }

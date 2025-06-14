@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('attachment_name');
             $table->string('attachment_path')->nullable();
             $table->string('attachment_type')->nullable();
+            $table->string('status')->default('active')->comment('active, inactive');
             $table->timestamps();
         });
     }

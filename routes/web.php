@@ -28,7 +28,7 @@ Route::get('/checkpostcode/{key}', [GlobalController::class, 'checkPostCode'])->
 Route::get('/checkposttown/{key}', [GlobalController::class, 'checkPostTown'])->name('query.checkposttown');
 Route::post('/submit-query', [GlobalController::class, 'storeQuery'])->name('query.submit');
 
-Route::group(['middleware' => ['auth']], function () {
+Route::middleware(['auth'])->group(function () {
     Route::resource('roles', RoleController::class);
     Route::resource('permissions', PermissionController::class);
     Route::resource('users', UserController::class);

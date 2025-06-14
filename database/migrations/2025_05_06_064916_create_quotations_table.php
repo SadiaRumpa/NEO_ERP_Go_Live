@@ -16,7 +16,7 @@ return new class extends Migration
             $table->bigInteger('lead_id');
             $table->bigInteger('customer_id');
             $table->bigInteger('job_type_id');
-            $table->string('quotation_version', 100)->nullable();
+            $table->string('quotation_version', 200)->nullable();
             $table->string('quotation_date', 100)->nullable();
             $table->text('cover_letter')->nullable();
             $table->bigInteger('quotation_template_id');

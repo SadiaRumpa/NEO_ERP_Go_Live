@@ -23,7 +23,7 @@ class GlobalController extends Controller
     {
         $postcode = str_replace(' ', '', $key);
         $postcode = strtoupper($postcode);
-        
+
         $check = lookup_postcode($postcode);
         return response()->json(['address' => $check]);
     }
@@ -43,13 +43,14 @@ class GlobalController extends Controller
             'firstname'        => 'required|string|max:255',
             'lastname'         => 'nullable|string|max:255',
             'company'          => 'required|string|max:255',
-            'phone'            => 'required|string|max:11',
-            'email'            => 'required|email|max:255',
+            'phone'  => 'required_without_all:mobile|max:20',
+            'mobile' => 'required_without_all:phone|max:20',
+            'email'            => 'required|email|max:200',
             'jobdescription'   => 'required',
             'postcode'         => 'required|string|max:20',
             'address'          => 'required|string',
-            'county'           => 'nullable|string|max:255',
-            'country'          => 'nullable|string|max:255',
+            'county'           => 'nullable|string|max:100',
+            'country'          => 'nullable|string|max:100',
             'photo1'           => 'required|image|mimes:jpg,jpeg,png|max:10240',
             'photo2'           => 'nullable|image|mimes:jpg,jpeg,png|max:10240',
             'photo3'           => 'nullable|image|mimes:jpg,jpeg,png|max:10240',
@@ -60,24 +61,31 @@ class GlobalController extends Controller
 
         try {
             // Create customer
-            $customer = Customer::create([
-                'company_name'      => $validated['company'],
-                'contact_firstname' => $validated['firstname'],
-                'contact_lastname'  => $validated['lastname'],
-                'contact_phone'     => $validated['phone'],
-                'contact_mobile'    => $validated['phone'],
-                'contact_email'     => $validated['email'],
-                'status'            => 'active',
-            ]);
+            $customer = Customer::firstOrCreate(
+                [
+                    'company_name'   => $validated['company'],
+                    'contact_email'  => $validated['email'],
+                ],
+                [ // Only used if creating a new customer
+                    'contact_firstname' => $validated['firstname'],
+                    'contact_lastname'  => $validated['lastname'],
+                    'contact_phone'     => $validated['phone'],
+                    'contact_mobile'    => $validated['mobile'],
+                    'status'            => 'active',
+                ]
+            );
+
+            $customerId = $customer->id;
 
             // Create enquiry
             $enquiry = Enquiry::create([
                 'enquiry_name'        => randomenquiryGenerator(),
-                'customer_id'         => $customer->id,
+                'customer_id'         => $customerId,
                 'enquiry_description' => $validated['jobdescription'],
                 'enquiry_type'        => 'query',
-                'enquiry_source'      => $validated['enquiry_source'] ?? 'website',
+                'enquiry_source'      => 'website',
                 'enquiry_status'      => 'new',
+
             ]);
 
             // Save address
@@ -85,8 +93,8 @@ class GlobalController extends Controller
                 'enquiry_id'       => $enquiry->id,
                 'contact_firstname' => $validated['firstname'],
                 'contact_lastname'  => $validated['lastname'],
-                'contact_phone'     => $validated['phone'],
-                'contact_mobile'    => $validated['phone'],
+                'contact_phone'     => $validated['phone'] ?? '',
+                'contact_mobile'    => $validated['mobile'] ?? '',
                 'contact_email'     => $validated['email'],
                 'address'           => $validated['address'],
                 'county'            => $validated['county'],
