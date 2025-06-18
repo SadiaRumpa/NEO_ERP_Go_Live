@@ -65,11 +65,16 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/leads/updateaddress/{id}', [LeadController::class, 'updateLeadAddress'])->name('leads.updateaddress');
     Route::post('/leads/updatestatus/{id}', [LeadController::class, 'updateLeadStatus'])->name('leads.updatestatus');
 
+    Route::post('lead-to-job-conversion', [LeadController::class, 'leadtoJobConversion'])->name('lead.jobconversion');
+
     Route::post('lead/add-note', [LeadController::class, 'leadNotes'])->name('leads.add-note');
     Route::delete('lead/delete-note/{id}', [LeadController::class, 'deleteLeadNotes'])->name('leads.destroynote');
 
     Route::post('leads/add-images', [LeadController::class, 'addLeadImages'])->name('leads.add-images');
     Route::delete('leads/delete-image/{id}', [LeadController::class, 'destroyLeadImage'])->name('leads.destroy-image');
+
+    Route::post('leads/attachments-upload', [LeadController::class, 'uploadLeadAttachments'])->name('leads.attachments-upload');
+    Route::delete('leads/delete-attachment/{id}', [LeadController::class, 'destroyLeadAttachment'])->name('leads.destroy-attachment');
 
     Route::resource('jobtypes', JobTypeController::class);
 
@@ -85,6 +90,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('quotation/edit/{id}', [QuotationController::class, 'edit'])->name('quotations.edit');
     Route::post('quotation/update/{id}', [QuotationController::class, 'update'])->name('quotations.update');
     Route::delete('quotation/destroy/{id}', [QuotationController::class, 'destroy'])->name('quotations.destroy');
+    
     Route::post('quotation/updatestatus/{id}', [QuotationController::class, 'updateQuotationStatus'])->name('quotations.updatestatus');
     
     Route::post('quotationsections/reorder', [QuotationController::class, 'reorderQuotationSections'])->name('quotationsections.reorder');
@@ -92,7 +98,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('quotationsections/upload-attachments/{id}', [QuotationController::class, 'uploadQuotationSectionsAttachments'])->name('quotationsections.upload-attachments');
     Route::delete('quotationsections/delete-attachments/{id}', [QuotationController::class, 'destroyQuotationSectionsAttachments'])->name('quotationsections.destroy-attachments');
 
-
     Route::get('quotation/pdf/{quotationId}', [QuotationController::class, 'downloadQuotationPdf'])->name('quotations.download-pdf');
+
+    
 
 });

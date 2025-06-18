@@ -15,10 +15,13 @@ return new class extends Migration
             $table->id();
             $table->foreignId('lead_id')->constrained('leads')->onDelete('cascade');
             $table->string('attachment_name');
+            $table->text('description')->nullable();
             $table->string('attachment_path')->nullable();
+            $table->text('attachment_url')->nullable();
             $table->string('attachment_type')->default('doc')->comment('doc,pdf')->nullable();
+            $table->string('source')->nullable();
             $table->string('status')->default('active')->comment('active, inactive');
-            $table->string('uploaded_by')->nullable()->comment('customer, staff');
+            $table->bigInteger('uploaded_by')->nullable();
             $table->timestamps();
         });
     }

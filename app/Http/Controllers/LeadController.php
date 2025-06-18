@@ -2,14 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Fjob;
+use App\Models\FjobAddress;
+use App\Models\FjobAttachment;
+use App\Models\FjobImage;
+use App\Models\FjobNote;
+use App\Models\FjobQuotation;
 use App\Models\Lead;
+use App\Models\LeadAttachment;
 use App\Models\LeadImage;
 use App\Models\LeadNote;
 use App\Models\MailTemplate;
+use Illuminate\Contracts\Queue\Job;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Storage;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 
 class LeadController extends Controller
 {
@@ -24,7 +32,7 @@ class LeadController extends Controller
 
             $data = Lead::with(['customer', 'leadaddress'])
                 ->select('*')
-                ->whereIn('lead_status', ['new', 'inprogress'])
+                ->whereIn('lead_status', ['new', 'inprogress', 'on_hold'])
                 ->orderByDesc('created_at');
 
             return Datatables::of($data)
@@ -62,7 +70,7 @@ class LeadController extends Controller
 
             $data = Lead::with(['customer', 'leadaddress'])
                 ->select('*')
-                ->where('lead_status', 'completed')
+                ->where('converted_to_job')
                 ->orderByDesc('created_at');
 
             return Datatables::of($data)
@@ -102,7 +110,7 @@ class LeadController extends Controller
 
             $data = Lead::with(['customer', 'leadaddress'])
                 ->select('*')
-                ->where('lead_status', 'rejected')
+                ->whereIn('lead_status', ['rejected', 'archived'])
                 ->orderByDesc('created_at');
 
             return Datatables::of($data)
@@ -138,8 +146,19 @@ class LeadController extends Controller
 
     public function show($key)
     {
-        $lead = Lead::with(['customer', 'customer.billingaddress', 'customer.siteaddress', 'leadaddress', 'leadimages', 'leadnotes', 'leadnotes.user'])
+        $lead = Lead::with([
+            'customer',
+            'customer.billingaddress',
+            'customer.siteaddress',
+            'leadaddress',
+            'leadimages',
+            'leadnotes',
+            'leadnotes.user',
+            'leadattachments',
+            'completedquotation'
+        ])
             ->where('slug', $key)->first();
+        // dd($lead);
         if (!$lead) {
             return redirect()->route('leads.index')->with('error', 'Lead details not found.');
         }
@@ -263,6 +282,7 @@ class LeadController extends Controller
             'message' => 'Lead details updated successfully.'
         ]);
     }
+
     public function updateLeadAddress(Request $request, $id)
     {
         $lead = Lead::find($id);
@@ -280,6 +300,68 @@ class LeadController extends Controller
 
         return response()->json(['success' => 'Lead address updated successfully.']);
     }
+
+    public function uploadLeadAttachments(Request $request)
+    {
+        $request->validate([
+            'leadid' => 'required|exists:leads,id',
+            'attachment_type' => 'required|string',
+            'title' => 'required|string|max:255',
+            'attachment' => 'file|mimes:pdf,jpg,jpeg,png,doc,docx|max:10024',
+        ]);
+
+        $disk = env('FILESYSTEM_DISK', 'local');
+
+        if ($request->hasFile('attachment')) {
+            $file = $request->file('attachment');
+            $path = $file->store('uploads/attachments', $disk);
+
+            if (!$path) {
+                return response()->json(['status' => 'error', 'message' => 'Failed to store image.']);
+            }
+
+            if ($disk === 's3') {
+                Storage::disk('s3')->setVisibility($path, 'public');
+            }
+
+            LeadAttachment::create([
+                'lead_id'  => $request->input('leadid'),
+                'attachment_path'  => $path,
+                'attachment_name'  => $request->input('title'),
+                'description' => $request->input('attachment_type'),
+                'attachment_type'  => $file->getClientOriginalExtension(),
+                'attachment_url'   => Storage::disk($disk)->url($path),
+                'source'      => $disk,
+                'uploaded_by' => Auth::id(),
+            ]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Attachment added successfully.'
+            ]);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    public function destroyLeadAttachment($id)
+    {
+        $attachment = LeadAttachment::find($id);
+
+        if (!$attachment) {
+            return response()->json(['status' => 'error', 'message' => 'Attachment not found.']);
+        }
+
+        // Optional: delete from storage if needed
+        if ($attachment->source !== 's3' && Storage::disk('public')->exists($attachment->attachment_path)) {
+            Storage::disk('public')->delete($attachment->attachment_path);
+        }
+
+        $attachment->delete();
+
+        return response()->json(['status' => 'success', 'message' => 'Attachment deleted successfully.']);
+    }
+
     public function updateLeadStatus(Request $request, $id)
     {
         $lead = Lead::find($id);
@@ -292,5 +374,109 @@ class LeadController extends Controller
         ]);
 
         return response()->json(['success' => 'Lead status updated successfully.']);
+    }
+
+    public function leadtoJobConversion(Request $request)
+    {
+        $validated = $request->validate([
+            'lead_id' => 'required|exists:leads,id',
+            'status' => 'required|string',
+        ]);
+
+        $lead = Lead::with([
+            'leadaddress',
+            'leadimages',
+            'leadnotes',
+            'leadnotes.user',
+            'leadattachments',
+            'completedquotation'
+        ])
+            ->where('id', $validated['lead_id'])->first();
+
+        $fjob = Fjob::create([
+            'enquiry_id' => $lead->enquiry_id,
+            'lead_id' => $validated['lead_id'],
+            'job_name' => $lead->lead_name,
+            'job_description' => $lead->lead_description,
+            'customer_id' => $lead->customer_id,
+            'job_type' => $lead->lead_type,
+            'job_category' => $lead->lead_category,
+            'job_priority' => $lead->lead_priority,
+            'job_status' => 'draft'
+        ]);
+
+        $jobid = $fjob->id;
+
+        if ($lead->leadaddress) {
+            FjobAddress::create([
+                'fjob_id' => $jobid,
+                'contact_firstname' => $lead->leadaddress->contact_firstname,
+                'contact_lastname' => $lead->leadaddress->contact_lastname,
+                'contact_email' => $lead->leadaddress->contact_email,
+                'contact_phone' => $lead->leadaddress->contact_phone,
+                'contact_mobile' => $lead->leadaddress->contact_mobile,
+                'address' => $lead->leadaddress->address,
+                'county' => $lead->leadaddress->county,
+                'postcode' => $lead->leadaddress->postcode,
+                'country' => $lead->leadaddress->country,
+                'location' => $lead->leadaddress->location
+            ]);
+        }
+
+        if ($lead->leadimages) {
+            foreach ($lead->leadimages as $image) {
+                FjobImage::create([
+                    'fjob_id' => $jobid,
+                    'image_path' => $image->image_path,
+                    'image_name' => $image->image_name,
+                    'image_url' => $image->image_url,
+                    'source' => $image->source
+                ]);
+            }
+        }
+
+        if ($lead->leadnotes) {
+            foreach ($lead->leadnotes as $note) {
+                FjobNote::create([
+                    'fjob_id' => $jobid,
+                    'note_by' => $note->note_by,
+                    'note' => $note->note,
+                    'note_type' => $note->note_type,
+                    'note_status' => $note->note_status,
+                ]);
+            }
+        }
+
+        if ($lead->completedquotation) {
+            FjobQuotation::create([
+                'fjob_id' => $jobid,
+                'quotation_id' => $lead->completedquotation->id,
+                'quotation_number' => $lead->completedquotation->quotation_version,
+                'quotation_date' => $lead->completedquotation->quotation_date,
+                'valid_until' => $lead->completedquotation->valid_until,
+                'total_amount' => $lead->completedquotation->total_amount,
+                'status' => $lead->completedquotation->status,
+            ]);
+        }
+
+        if ($lead->leadattachments) {
+            foreach ($lead->leadattachments as $attachment) {
+                FjobAttachment::create([
+                    'fjob_id' => $jobid,
+                    'attachment_name' => $attachment->attachment_name,
+                    'description' => $attachment->description,
+                    'attachment_path' => $attachment->attachment_path,
+                    'attachment_url' => $attachment->attachment_url,
+                    'attachment_type' => $attachment->attachment_type,
+                    'source' => $attachment->source,
+                    'uploaded_by' => Auth::id(),
+                ]);
+            }
+        }
+
+        $lead->lead_status = $validated['status'];
+        $lead->save();
+
+        return response()->json(['status' => 'success', 'message' => 'Lead converted to job successfully.']);
     }
 }

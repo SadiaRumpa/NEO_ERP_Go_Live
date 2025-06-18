@@ -46,4 +46,14 @@ class Lead extends Model
     {
         return $this->hasMany(LeadNote::class);
     }
+
+    public function leadattachments()
+    {
+        return $this->hasMany(LeadAttachment::class);
+    }
+
+    public function completedquotation()
+    {
+        return $this->hasOne(Quotation::class)->where('status', 'accepted');
+    }
 }

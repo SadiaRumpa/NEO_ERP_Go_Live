@@ -172,7 +172,7 @@
                             </div>
                         </div>
                         <div class="row g-6">
-                            <div class="col-md-6 mb-6">
+                            <div class="col-md-4 mb-6">
                                 <label for="quotationVersion" class="form-label">Quotation Version</label>
                                 <input
                                     type="text"
@@ -181,10 +181,16 @@
                                     placeholder="version 1.0"
                                     name="quotation_version" required />
                             </div>
-                            <div class="col-md-6 mb-6">
-                                <label for="html5-date-input" class="form-label">Date</label>
+                            <div class="col-md-4 mb-6">
+                                <label for="html5-date-input" class="form-label">Valid Until</label>
                                 <div class="col-md-10">
                                     <input class="form-control" type="date" id="html5-date-input" name="quotation_date" required />
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-6">
+                                <label for="html5-date-input" class="form-label">Approximate Cost</label>
+                                <div class="col-md-10">
+                                    <input class="form-control" type="number" id="html5-date-input" name="quotation_amount" min="0" step="0.1" required />
                                 </div>
                             </div>
                         </div>

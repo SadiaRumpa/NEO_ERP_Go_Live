@@ -31,51 +31,62 @@
         <div class="col-12 col-lg-8">
             <div class="card mb-6">
                 <div class="card-header">
-                    <div class="row">
-                        <div class="col-6 text-end">
-                            <p class="mb-6">
-                                <img src="https://www.practicalroofing.co.uk/wp-content/uploads/media/xlogo-main.webp.pagespeed.ic.X6MBz-BBzW.webp" width="100" alt="Practical Roofing">
-                                <br>
-                                Tel: 0800 924 7663
-                                <br>
-                                Email: info@practicalroofing.co.uk
-                                <br>
-                                Website: www.practicalroofing.co.uk
-                            </p>
-                        </div>
-                        <div class="col-6">
-                            <p class="mb-6">
+                    <table width="100%" style="margin-bottom: 20px;">
+                        <tr>
+                            <td width="50%" style="vertical-align: top; text-align: left;">
                                 {{ \Carbon\Carbon::parse($quotation->quotation_date)->format('F jS Y') }}
                                 <br><br>
-                                {{ $quotation->customer->contact_firstname }} {{ $quotation->customer->contact_lastname }}
-                                <br>
-                                {{ $quotation->customer->company_name }}
-                                <br>
+                                {{ $quotation->customer->contact_firstname }}
+                                {{ $quotation->customer->contact_lastname }}<br>
+                                {{ $quotation->customer->company_name }}<br>
                                 @isset($quotation->customer->billingaddress)
-                                <span style="text-transform: capitalize;">
-                                   {{ $quotation->customer->billingaddress->address }} , {{ $quotation->customer->billingaddress->county }}
-                                </span>
+                                    <span style="text-transform: capitalize;">
+                                        {{ $quotation->customer->billingaddress->address }},
+                                        {{ $quotation->customer->billingaddress->county }}
+                                    </span>
                                 @endisset
-                            </p>
-                        </div>
-                        
-                    </div>
+                            </td>
+                            <td width="50%" style="vertical-align: top; text-align: right;">
+                                <img src="https://www.practicalroofing.co.uk/wp-content/uploads/media/xlogo-main.webp.pagespeed.ic.X6MBz-BBzW.webp"
+                                    width="100" alt="Practical Roofing">
+                                <br>
+                                Tel: 0800 924 7663 <br>
+                                Email: info@practicalroofing.co.uk <br>
+                                Website: www.practicalroofing.co.uk
+                            </td>
+                            
+                        </tr>
+                    </table>
+
+
+                    <table width="100%">
+                        <tr>
+                            <td width="50%" style="text-align: left;">
+                                <strong>Estimated Total Cost:</strong> {{ formatPoundNumber($quotation->total_amount) }}
+                            </td>
+                            <td width="50%" style="text-align: right;">
+                                <strong>Proposal valid until:</strong>
+                                {{ \Carbon\Carbon::parse($quotation->valid_until)->format('F jS Y') }}
+                            </td>
+                        </tr>
+                    </table>
                 </div>
                 <div class="card-body pt-1">
                     @foreach ($quotation->sections as $sections)
                         <h5>{{ $sections->section_name }}: </h5>
                         @isset($sections->content->sample_type)
-                            @if ($sections->content->sample_type == "textbox")
-                            <p class="mb-6">
-                                {!! $sections->content->sample_source !!}
-                            </p>
+                            @if ($sections->content->sample_type == 'textbox')
+                                <p class="mb-6">
+                                    {!! $sections->content->sample_source !!}
+                                </p>
                             @endif
-                            @if($sections->has_attachments)
+                            @if ($sections->has_attachments)
                                 <div class="row">
                                     @foreach ($sections->attachments as $saa)
-                                    <div class="col-6 mb-4">
-                                    <img src="{{ $saa->source == 's3' ? $saa->attachment_url : asset($saa->attachment_path) }}" alt="{{ $saa->attachment_name }}" width="100%" class="img-fluid">
-                                    </div>
+                                        <div class="col-6 mb-4">
+                                            <img src="{{ $saa->source == 's3' ? $saa->attachment_url : asset($saa->attachment_path) }}"
+                                                alt="{{ $saa->attachment_name }}" width="100%" class="img-fluid">
+                                        </div>
                                     @endforeach
                                 </div>
                             @endif

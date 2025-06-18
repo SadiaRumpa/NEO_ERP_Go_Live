@@ -110,7 +110,6 @@
 
             // Add to hidden input
             document.getElementById('leadnotes-hidden').value = htmlContent;
-            // const notedata = document.getElementById('enquirynotesForm');
 
             const notedata = quilln.root.innerHTML.trim();
 
@@ -126,7 +125,6 @@
                     if (response.status === 'success') {
                         $('#note-message').html('<div class="alert alert-success">' + response.message +
                             '</div>');
-                        $('#enquiry_note').val('');
                         toastr.success('Note added successfully');
                         window.location.reload(); // Reload the page to see the new note
                     } else {
@@ -202,6 +200,33 @@
                 }
             });
         });
+        $(document).ready(function() {
+            $('.delete-attachment').click(function() {
+                const attachmentId = $(this).data('id');
+                const confirmation = confirm('Are you sure you want to delete this attachment?');
+                if (confirmation) {
+                    $.ajax({
+                        url: `/leads/delete-attachment/${attachmentId}`,
+                        method: 'DELETE',
+                        data: {
+                            _token: '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response.status === 'success') {
+                                toastr.success(response.message);
+                                window.location.reload(); // Reload the page to see the changes
+                            } else {
+                                toastr.error('Error: ' + response.message);
+                            }
+                        },
+                        error: function(xhr) {
+                            toastr.error('Something went wrong!');
+                        }
+                    });
+                }
+            });
+        });
+        
     </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -264,17 +289,17 @@
     </script>
     <script>
         $(document).ready(function() {
-            $('.update-status-btn').on('click', function() {
+            $('.convert-to-job-btn').on('click', function() {
                 let leadId = $(this).data('id');
                 let status = $(this).data('status');
 
                 // Confirmation dialog
-                if (!confirm(`Are you sure you want to change the status to "${status}"?`)) {
+                if (!confirm(`Are you sure you want to send it to Lead Manager?`)) {
                     return; // Stop if user cancels
                 }
 
                 $.ajax({
-                    url: '/lead-to-lead-conversion',
+                    url: '/lead-to-job-conversion',
                     type: 'POST',
                     data: {
                         _token: '{{ csrf_token() }}',
@@ -294,7 +319,7 @@
                             errorMsg = xhr.responseJSON.message;
                         }
 
-                        toastr.error(errorMsg);
+                        toastr.danger(errorMsg);
                     }
                 });
             });
@@ -325,6 +350,35 @@
                 },
                 error: function(xhr) {
                     toastr.danger('Something went wrong');
+                }
+            });
+        });
+    </script>
+    <script>
+        $('#uploadAttachmentsForm').on('submit', function(e) {
+            e.preventDefault();
+
+            let form = $(this)[0];
+            let formData = new FormData(form);
+
+            $.ajax({
+                url: "{{ route('leads.attachments-upload') }}", // Change to your actual route
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                beforeSend: function() {
+                    // Optional: Show loader/spinner
+                },
+                success: function(response) {
+                    $('#uploadAttachmentsForm')[0].reset();
+                    $('#uploadAttachmentsModalTitle').closest('.modal').modal('hide');
+                    toastr.success('Attachments uploaded successfully');
+                    // Optionally reload part of the page
+                },
+                error: function(xhr) {
+                    toastr.error(xhr.responseJSON.message || 'Failed to upload attachments.');
+                    console.error(xhr.responseText);
                 }
             });
         });
@@ -362,56 +416,64 @@
                         LEAD #<span class="badge bg-label-success me-1 ms-2">{{ $lead->lead_name }}</span>
                         @hasrole('lead-manager')
                             <div class="btn-group">
-                                @if ($lead->lead_status == 'job')
+                                @if($lead->lead_status == 'new')
                                     <button type="button"
-                                        class="btn btn-label-info waves-effect">{{ $lead->lead_status }}</button>
-                                @elseif($lead->lead_status == 'new')
+                                        class="btn btn-label-primary waves-effect">{{ beautify_status($lead->lead_status) }}</button>
+                                @elseif($lead->lead_status == 'inprogress' || $lead->lead_status == 'on_hold')
                                     <button type="button"
-                                        class="btn btn-label-primary waves-effect">{{ $lead->lead_status }}</button>
-                                @elseif($lead->lead_status == 'inprogress')
+                                        class="btn btn-label-warning waves-effect">{{ beautify_status($lead->lead_status) }}</button>
+                                @elseif($lead->lead_status == 'converted_to_job')
                                     <button type="button"
-                                        class="btn btn-label-warning waves-effect">{{ $lead->lead_status }}</button>
-                                @elseif($lead->lead_status == 'completed')
+                                        class="btn btn-label-success waves-effect">{{ beautify_status($lead->lead_status) }}</button>
+                                @elseif($lead->lead_status == 'rejected' || $lead->lead_status == 'archived')
                                     <button type="button"
-                                        class="btn btn-label-success waves-effect">{{ $lead->lead_status }}</button>
-                                @elseif($lead->lead_status == 'rejected')
-                                    <button type="button"
-                                        class="btn btn-label-danger waves-effect">{{ $lead->lead_status }}</button>
+                                        class="btn btn-label-danger waves-effect">{{ beautify_status($lead->lead_status) }}</button>
                                 @endif
                                 <button type="button"
                                     class="btn btn-label-primary dropdown-toggle dropdown-toggle-split waves-effect"
                                     data-bs-toggle="dropdown" aria-expanded="false">
                                     <span class="visually-hidden">Toggle Dropdown</span>
                                 </button>
-                                <ul class="dropdown-menu" style="">
-                                    <li><a class="dropdown-item waves-effect update-lead-status" data-status="inprogress"
-                                            data-id="{{ $lead->id }}" href="#">Inprogress</a></li>
-                                    <li><a class="dropdown-item waves-effect update-lead-status" data-status="completed"
-                                            data-id="{{ $lead->id }}" href="#">Completed</a></li>
-                                </ul>
+                                @if (!in_array($lead->lead_status, ['converted_to_job', 'rejected']))
+                                    <ul class="dropdown-menu" style="">
+                                        <li><a class="dropdown-item waves-effect update-lead-status" data-status="inprogress"
+                                                data-id="{{ $lead->id }}" href="#">Inprogress</a></li>
+                                        <li><a class="dropdown-item waves-effect update-lead-status" data-status="on_hold"
+                                                data-id="{{ $lead->id }}" href="#">On Hold</a></li>
+                                        <li><a class="dropdown-item waves-effect update-lead-status" data-status="archived"
+                                                data-id="{{ $lead->id }}" href="#">Archived</a></li>
+                                    </ul>
+                                @endif
                             </div>
+                            <a class="btn btn-label-primary" href="{{ route('quotations.lead', $lead->id) }}">
+                                GENERATE QUOTATION
+                            </a>
                         @else
-                            <span class="badge bg-label-primary me-1 ms-2">{{ $lead->lead_status }}</span>
+                            <span class="badge bg-label-primary me-1 ms-2">{{ beautify_status($lead->lead_status) }}</span>
                         @endrole
                     </span>
                 </div>
                 @role('lead-manager')
-                    @if ($lead->lead_status == 'inprogress')
-                        <div class="d-flex align-content-center flex-wrap gap-4">
-                            <!-- Alert message area -->
-                            <div id="status-alert" style="display:none;" class="alert mt-2"></div>
-                            <div class="d-flex gap-4">
-                                <a class="btn btn-label-primary" href="{{ route('quotations.lead', $lead->id) }}">
-                                    GENERATE QUOTATION
-                                </a>
 
+                    <div class="d-flex align-content-center flex-wrap gap-4">
+                        <!-- Alert message area -->
+                        <div id="status-alert" style="display:none;" class="alert mt-2"></div>
+                        <div class="d-flex gap-4">
+                            @if (!in_array($lead->lead_status, ['new', 'converted_to_job', 'rejected', 'archived']))
+                                <button class="btn btn-label-success convert-to-job-btn" data-id="{{ $lead->id }}"
+                                    data-status="converted_to_job">
+                                    SEND JOB MANAGER
+                                </button>
+                            @endif
+                            @if ($lead->lead_status == 'inprogress')
                                 <button type="button" class="btn btn-danger waves-effect waves-light" data-bs-toggle="modal"
                                     data-bs-target="#rejectleadModal">
                                     REJECT LEAD
                                 </button>
-                            </div>
+                            @endif
                         </div>
-                    @endif
+                    </div>
+
                 @endrole
             </div>
 
@@ -715,14 +777,16 @@
                                                 <div class="timeline-event">
                                                     <div class="timeline-header mb-3">
                                                         <h6 class="mb-0">{{ $enot->user->name ?? 'User' }}</h6>
-                                                        <small class="text-body-secondary">
-                                                            <span class="badge rounded-pill bg-label-danger">
-                                                                <i class="fa-solid fa-trash delete-note"
-                                                                    data-id="{{ $enot->id }}"
-                                                                    style="cursor: pointer;"></i>
-                                                            </span>
+                                                        @if ($lead->lead_status == 'inprogress')
+                                                            <small class="text-body-secondary">
+                                                                <span class="badge rounded-pill bg-label-danger">
+                                                                    <i class="fa-solid fa-trash delete-note"
+                                                                        data-id="{{ $enot->id }}"
+                                                                        style="cursor: pointer;"></i>
+                                                                </span>
 
-                                                        </small>
+                                                            </small>
+                                                        @endif
                                                     </div>
                                                     <p class="mb-2">{!! $enot->note !!}</p>
                                                 </div>
@@ -730,31 +794,33 @@
                                         @endforeach
                                     </ul>
                                     <div class="border-1 border-light border-dashed my-4"></div>
+                                    @if ($lead->lead_status == 'inprogress')
+                                        <form id="leadnotesForm" style="margin-top: -10px;">
+                                            @csrf
+                                            <div class="mb-2">
+                                                <label class="mb-1">Notes</label>
 
-                                    <form id="leadnotesForm" style="margin-top: -10px;">
-                                        @csrf
-                                        <div class="mb-2">
-                                            <label class="mb-1">Notes</label>
+                                                <input type="hidden" name="leadnotes" id="leadnotes-hidden">
+                                                <input type="hidden" name="lead_id" value="{{ $lead->id }}">
 
-                                            <input type="hidden" name="leadnotes" id="leadnotes-hidden">
-                                            <input type="hidden" name="lead_id" value="{{ $lead->id }}">
-
-                                            <div class="form-control p-0">
-                                                <div class="lead-toolbar border-0 border-bottom">
+                                                <div class="form-control p-0">
+                                                    <div class="lead-toolbar border-0 border-bottom">
+                                                    </div>
+                                                    <div class="border-0 pb-6" id="leadnotes"></div>
                                                 </div>
-                                                <div class="border-0 pb-6" id="leadnotes"></div>
                                             </div>
-                                        </div>
-                                        <div class="d-flex justify-content-end">
-                                            <button type="button" class="btn btn-primary me-4 waves-effect waves-light"
-                                                onclick="addNotes({{ $lead->id }})">
-                                                <i class="fa-solid fa-paper-plane fa-md me-1"></i> Add Note
-                                            </button>
-                                            <button type="reset"
-                                                class="btn btn-label-secondary waves-effect">Cancel</button>
-                                        </div>
-                                    </form>
-                                    <div id="note-message" class="mt-2"></div>
+                                            <div class="d-flex justify-content-end">
+                                                <button type="button"
+                                                    class="btn btn-primary me-4 waves-effect waves-light"
+                                                    onclick="addNotes({{ $lead->id }})">
+                                                    <i class="fa-solid fa-paper-plane fa-md me-1"></i> Add Note
+                                                </button>
+                                                <button type="reset"
+                                                    class="btn btn-label-secondary waves-effect">Cancel</button>
+                                            </div>
+                                        </form>
+                                        <div id="note-message" class="mt-2"></div>
+                                    @endif
 
                                 </div>
                             </div>
@@ -767,6 +833,150 @@
 
                 <!-- lead location column -->
                 <div class="col-12 col-lg-4">
+                    <!-- Attachments -->
+                    <div class="row mb-6 gy-6">
+                        <div class="col-xl order-2 order-xl-0">
+                            <div class="card h-100">
+                                <div class="card-header d-flex justify-content-between">
+                                    <h5 class="card-title m-0 me-2 pt-1 mb-2 d-flex align-items-center">
+                                        <i class="icon-base ti tabler-list-details me-3"></i> Attachments
+                                    </h5>
+                                    @if ($lead->lead_status == 'inprogress')
+                                        <div class="card-header-elements ms-auto">
+                                            <button type="button" class="btn btn-xs btn-dark waves-effect waves-light"
+                                                data-bs-toggle="modal" data-bs-target="#uploadAttachmentsModal">
+                                                <span class="icon-base ti tabler-plus icon-xs me-1"></span>Upload
+                                                Attachments
+                                            </button>
+                                        </div>
+                                    @endif
+                                </div>
+                                <div class="card-body pb-0">
+                                    <ul class="timeline mb-0">
+
+                                        @if ($lead->completedquotation)
+                                            <li class="timeline-item timeline-item-transparent">
+                                                <span class="timeline-point timeline-point-success"></span>
+                                                <div class="timeline-event">
+                                                    <div class="timeline-header mb-3">
+                                                        <h6 class="mb-0">Accepted Quotaion</h6>
+                                                        <small class="text-body-secondary">Created on
+                                                            {{ $lead->completedquotation->created_at->format('d M Y') }}
+                                                        </small>
+                                                    </div>
+                                                    <p class="mb-2">{{ $lead->completedquotation->remarks }}</p>
+
+                                                    <div class="d-flex align-items-center mb-2">
+                                                        <a href="{{ route('quotations.download-pdf', $lead->completedquotation->id) }}"
+                                                            target="_blank" download class="text-decoration-none">
+                                                            <div
+                                                                class="badge bg-lighter rounded d-flex align-items-center p-2">
+                                                                <img src="{{ asset('assets/img/icons/misc/pdf.png') }}"
+                                                                    alt="PDF Icon" width="15" class="me-2" />
+                                                                <span
+                                                                    class="h6 mb-0 text-body">{{ $lead->completedquotation->quotation_version }}</span>
+                                                            </div>
+                                                        </a>
+                                                    </div>
+
+                                                </div>
+                                            </li>
+                                        @endif
+                                        @if ($lead->leadattachments->count() > 0)
+                                            @foreach ($lead->leadattachments as $enat)
+                                                <li class="timeline-item timeline-item-transparent">
+                                                    <span class="timeline-point timeline-point-primary"></span>
+                                                    <div class="timeline-event">
+                                                        <div class="timeline-header mb-3">
+                                                            <h6 class="mb-0">{{ $enat->attachment_name }}</h6>
+                                                            @if ($lead->lead_status == 'inprogress')
+                                                            <small class="text-body-secondary">
+                                                                <span class="badge rounded-pill bg-label-danger">
+                                                                    <i class="fa-solid fa-trash delete-attachment"
+                                                                        data-id="{{ $enat->id }}"
+                                                                        style="cursor: pointer;"></i>
+                                                                </span>
+
+                                                            </small>
+                                                        @endif
+                                                        </div>
+                                                        <p class="mb-2">PO has been sent by the company</p>
+                                                        <div class="d-flex align-items-center mb-2">
+                                                            <a href="{{ $enat->attachment_url }}" target="_blank"
+                                                                download class="text-decoration-none">
+                                                                <div
+                                                                    class="badge bg-lighter rounded d-flex align-items-center p-2">
+                                                                    <img src="{{ asset('assets/img/icons/misc/pdf.png') }}"
+                                                                        alt="PDF Icon" width="15" class="me-2" />
+                                                                    <span
+                                                                        class="h6 mb-0 text-body">{{ $enat->attachment_name }}</span>
+                                                                </div>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            @endforeach
+                                        @endif
+
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Modal -->
+                    <div class="modal fade" id="uploadAttachmentsModal" data-bs-backdrop="static" tabindex="-1">
+                        <div class="modal-dialog">
+                            <form id="uploadAttachmentsForm" class="modal-content" enctype="multipart/form-data">
+                                @csrf
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="uploadAttachmentsModalTitle">Upload Attachments</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+
+                                <div class="modal-body">
+                                    <div class="row g-4">
+                                        <div class="col mb-0">
+                                            <div class="mb-4">
+                                                <label for="attachmentType" class="form-label">Attachment Type</label>
+                                                <select class="form-select" name="attachment_type" id="attachmentType"
+                                                    required>
+                                                    <option value="">Select</option>
+                                                    <option value="PO">PO</option>
+                                                    <option value="Others">Others</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col mb-4">
+                                            <label for="attachmentTitle" class="form-label">Title</label>
+                                            <input type="text" name="title" id="attachmentTitle"
+                                                class="form-control" placeholder="Enter Title" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="row g-4">
+                                        <div class="col mb-0">
+                                            <label for="attachmentFiles" class="form-label">
+                                                Upload Files (.doc, .pdf, .jpg, .png)
+                                            </label>
+                                            <input class="form-control" type="file" name="attachment"
+                                                id="attachmentFiles" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <input type="hidden" name="leadid" value="{{ $lead->id }}">
+                                    <button type="button" class="btn btn-label-secondary"
+                                        data-bs-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary">Save</button>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                    <!--/ Attachments -->
+
                     <div class="row mb-6 gy-6">
                         <div class="col-xl">
                             <div class="card mb-6">
@@ -889,11 +1099,14 @@
                                             aria-haspopup="true" aria-expanded="false">
                                             <i class="icon-base ti tabler-dots-vertical icon-22px text-body-secondary"></i>
                                         </button>
-                                        <div class="dropdown-menu dropdown-menu-end" aria-labelledby="salesByCountryTabs">
-                                            <a class="dropdown-item waves-effect"
-                                                href="{{ route('customers.show', $lead->customer->id) }}"
-                                                target="_blank">Update</a>
-                                        </div>
+                                        @if ($lead->lead_status == 'inprogress')
+                                            <div class="dropdown-menu dropdown-menu-end"
+                                                aria-labelledby="salesByCountryTabs">
+                                                <a class="dropdown-item waves-effect"
+                                                    href="{{ route('customers.show', $lead->customer->id) }}"
+                                                    target="_blank">Update</a>
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                                 <div class="card-body p-0">
@@ -967,14 +1180,16 @@
                                                                     Reg No.:
                                                                     {{ $lead->customer->findetails->registration_number ?? 'N/A' }}
                                                                 </small>
-                                                                <small class="text-success text-uppercase">
-                                                                    <button type="button"
-                                                                        class="btn btn-primary btn-sm waves-effect waves-light"
-                                                                        data-bs-toggle="modal"
-                                                                        data-bs-target="#leaddetailseditmodal">
-                                                                        Edit
-                                                                    </button>
-                                                                </small>
+                                                                @if ($lead->lead_status == 'inprogress')
+                                                                    <small class="text-success text-uppercase">
+                                                                        <button type="button"
+                                                                            class="btn btn-primary btn-sm waves-effect waves-light"
+                                                                            data-bs-toggle="modal"
+                                                                            data-bs-target="#leaddetailseditmodal">
+                                                                            Edit
+                                                                        </button>
+                                                                    </small>
+                                                                @endif
                                                             </div>
                                                             <p class="text-body mb-0">
                                                                 <span class="text-heading fw-medium">Assets: </span>
@@ -1057,93 +1272,6 @@
                         </div>
                     </div>
 
-                    <!-- Attachments -->
-                    <div class="row mb-6 gy-6">
-                        <div class="col-xl order-2 order-xl-0">
-                            <div class="card h-100">
-                                <div class="card-header d-flex justify-content-between">
-                                    <h5 class="card-title m-0 me-2 pt-1 mb-2 d-flex align-items-center">
-                                        <i class="icon-base ti tabler-list-details me-3"></i> Attachments
-                                    </h5>
-                                    <div class="card-header-elements ms-auto">
-                                        <button type="button" class="btn btn-xs btn-dark waves-effect waves-light"
-                                            data-bs-toggle="modal" data-bs-target="#uploadAttachmentsModal">
-                                            <span class="icon-base ti tabler-plus icon-xs me-1"></span>Upload Attachments
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="card-body pb-0">
-                                    <ul class="timeline mb-0">
-                                        <li class="timeline-item timeline-item-transparent">
-                                            <span class="timeline-point timeline-point-primary"></span>
-                                            <div class="timeline-event">
-                                                <div class="timeline-header mb-3">
-                                                    <h6 class="mb-0">PO sent</h6>
-                                                    <small class="text-body-secondary">12 min ago</small>
-                                                </div>
-                                                <p class="mb-2">PO has been sent by the company</p>
-                                                <div class="d-flex align-items-center mb-2">
-                                                    <div class="badge bg-lighter rounded d-flex align-items-center">
-                                                        <img src="../../assets//img/icons/misc/pdf.png" alt="img"
-                                                            width="15" class="me-2" />
-                                                        <span class="h6 mb-0 text-body">invoices.pdf</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </li>
-
-
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Modal -->
-                    <div class="modal fade" id="uploadAttachmentsModal" data-bs-backdrop="static" tabindex="-1">
-                        <div class="modal-dialog">
-                            <form class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="uploadAttachmentsModalTitle">Upload Attachments</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                        aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="row g-4">
-                                        <div class="col mb-0">
-                                            <div class="mb-4">
-                                                <label for="roleEx" class="form-label">Attachment Type</label>
-                                                <select class="form-select" tabindex="0" id="roleEx">
-                                                    <option>PO</option>
-                                                    <option>Security Docs</option>
-                                                    <option>Others</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col mb-4">
-                                            <label for="nameBackdrop" class="form-label">Title</label>
-                                            <input type="text" id="nameBackdrop" class="form-control"
-                                                placeholder="Enter Name" />
-                                        </div>
-                                    </div>
-
-                                    <div class="row g-4">
-                                        <div class="col mb-0">
-                                            <label for="formFile" class="form-label">Upload multiple files *(.dox, .pdf)</label>
-                                            <input class="form-control" type="file" id="formFile">
-                                        </div>
-
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">
-                                        Close
-                                    </button>
-                                    <button type="button" class="btn btn-primary">Save</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                    <!--/ Attachments -->
                 </div>
             </div>
             <!-- Customar Financial Modal -->

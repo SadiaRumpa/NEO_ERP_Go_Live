@@ -11,7 +11,7 @@ class JobTypeController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = JobType::select('*');
+            $data = JobType::select('*')->orderBy('slug', 'asc');
 
             return Datatables::of($data)
                 ->addIndexColumn()

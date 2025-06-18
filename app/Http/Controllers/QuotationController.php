@@ -40,11 +40,14 @@ class QuotationController extends Controller
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
                     $showUrl = route('quotations.show', $row->id);
-                    return '
-                    <a href="' . $showUrl . '" class="shoq btn btn-primary btn-sm">Show</a>
-                    <a href="' . route('quotations.edit', $row->id) . '" class="edit btn btn-warning btn-sm">Edit</a>
-                    <button class="delete btn btn-danger btn-sm" data-id="' . $row->id . '">Delete</button>
-                ';
+                    $actions = '<a href="' . $showUrl . '" class="shoq btn btn-primary btn-sm">Show</a>';
+
+                    if ($row->status !== 'accepted') {
+                        $actions .= ' <a href="' . route('quotations.edit', $row->id) . '" class="edit btn btn-warning btn-sm">Edit</a>';
+                        $actions .= ' <button class="delete btn btn-danger btn-sm" data-id="' . $row->id . '">Delete</button>';
+                    }
+
+                    return $actions;
                 })
                 ->rawColumns(['action'])
                 ->make(true);
@@ -99,9 +102,11 @@ class QuotationController extends Controller
                 'customer_id' => $request->customer_id,
                 'job_type_id' => $request->job_type_id,
                 'quotation_template_id' => $request->quotation_template_id,
-                'quotation_date' => $request->quotation_date,
+                'valid_until' => $request->quotation_date,
                 'quotation_version' => $request->quotation_version,
                 'cover_letter' => $request->cover_letter,
+                'quotation_date' => now(),
+                'total_amount' => $request->quotation_amount,
                 'remarks' => $request->remarks,
                 'status' => 'draft',
             ]);
@@ -246,17 +251,41 @@ class QuotationController extends Controller
 
     public function updateQuotationStatus(Request $request, $id)
     {
+        $request->validate([
+            'status' => 'required|string|in:accepted,rejected,pending',
+            'remarks' => 'nullable|string|max:255',
+        ]);
+
         $quotation = Quotation::find($id);
+
         if (!$quotation) {
             return response()->json(['error' => 'Quotation not found.'], 404);
         }
 
-        $quotation->update([
-            'status' => $request->quotation_status,
-        ]);
+        $lead_id = $quotation->lead_id;
+
+        if ($request->status === 'accepted') {
+            // Cancel all other quotations under the same lead
+            Quotation::where('lead_id', $lead_id)
+                ->where('id', '!=', $quotation->id)
+                ->update(['status' => 'cancelled']);
+
+            // Accept current quotation
+            $quotation->update([
+                'status' => 'accepted',
+                'remarks' => $request->remarks,
+            ]);
+        } else {
+            // Just update the current quotation
+            $quotation->update([
+                'status' => $request->status,
+                'remarks' => $request->remarks,
+            ]);
+        }
 
         return response()->json(['success' => 'Quotation status updated successfully.']);
     }
+
 
     public function reorderQuotationSections(Request $request)
     {

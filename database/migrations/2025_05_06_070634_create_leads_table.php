@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('lead_type')->default('general')->comment('general, sales, support, technical');
             $table->string('lead_category')->nullable()->comment('complaint, query, request, feedback');
             $table->string('lead_priority')->default('low')->comment('low, medium, high');
-            $table->string('lead_status')->default('open')->comment('draft, open, accepted, declined, expired');
+            $table->string('lead_status')->default('new')->comment('new, inprogress, on_hold, converted_to_job, rejected, archived');
             $table->string('lead_closed_by')->nullable();
             $table->dateTime('lead_closed_at')->nullable();
             $table->text('lead_close_reason')->nullable();

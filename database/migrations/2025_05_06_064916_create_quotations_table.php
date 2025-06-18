@@ -20,7 +20,9 @@ return new class extends Migration
             $table->string('quotation_date', 100)->nullable();
             $table->text('cover_letter')->nullable();
             $table->bigInteger('quotation_template_id');
-            $table->string('status', 100)->comment("('draft', 'sent', 'accepted', 'declined', 'expired')")->default('draft');
+            $table->date('valid_until')->nullable();
+            $table->decimal('total_amount', 15, 2)->nullable();
+            $table->string('status', 100)->comment('draft, accepted, declined')->default('draft');
             $table->text('remarks')->nullable();
             $table->timestamps();
         });

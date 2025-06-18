@@ -13,6 +13,10 @@ class Quotation extends Model
         'quotation_version',
         'cover_letter',
         'quotation_template_id',
+        'quotation_date',
+        'total_amount',
+        'remarks',
+        'valid_until',
         'status'
     ];
 

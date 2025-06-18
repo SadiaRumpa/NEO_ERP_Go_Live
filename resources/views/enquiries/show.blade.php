@@ -127,7 +127,6 @@
                     if (response.status === 'success') {
                         $('#note-message').html('<div class="alert alert-success">' + response.message +
                             '</div>');
-                        $('#enquiry_note').val('');
                         toastr.success('Note added successfully');
                         window.location.reload(); // Reload the page to see the new note
                     } else {
