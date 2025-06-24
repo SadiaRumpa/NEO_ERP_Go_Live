@@ -33,9 +33,9 @@
                         <div class="avatar me-4">
                             <span class="avatar-initial rounded bg-label-primary"><i class="icon-base ti tabler-truck icon-28px"></i></span>
                         </div>
-                        <h4 class="mb-0">{{ $newleadscount }}</h4>
+                        <h4 class="mb-0">{{ $newjobscount }}</h4>
                     </div>
-                    <p class="mb-1">New Leads</p>
+                    <p class="mb-1">New Jobs</p>
                     <p class="mb-0">
                         <span class="text-heading fw-medium me-2">{{ $percentageChange }}%</span>
                         <small class="text-body-secondary">{{ $trend }} than last week</small>
@@ -50,7 +50,7 @@
                         <div class="avatar me-4">
                             <span class="avatar-initial rounded bg-label-warning"><i class="icon-base ti tabler-alert-triangle icon-28px"></i></span>
                         </div>
-                        <h4 class="mb-0">{{ $ongoingleadscount }}</h4>
+                        <h4 class="mb-0">{{ $ongoingjobscount }}</h4>
                     </div>
                     <p class="mb-1">Under Review</p>
                     <p class="mb-0">
@@ -67,9 +67,9 @@
                         <div class="avatar me-4">
                             <span class="avatar-initial rounded bg-label-danger"><i class="icon-base ti tabler-git-fork icon-28px"></i></span>
                         </div>
-                        <h4 class="mb-0">{{ $cancelledleadscount }}</h4>
+                        <h4 class="mb-0">{{ $cancelledjobscount }}</h4>
                     </div>
-                    <p class="mb-1">Cancelled Leads</p>
+                    <p class="mb-1">Cancelled Jobs</p>
                     <p class="mb-0">
                         <span class="text-heading fw-medium me-2">0%</span>
                         <small class="text-body-secondary">total customers cancelled</small>
@@ -96,11 +96,11 @@
         </div>
         <!--/ Card Border Shadow -->
 
-        <!-- Leads Under Review -->
+        <!-- Jobs Under Review -->
         <div class="col-md-12 col-12">
             <div class="card h-100">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title m-0 me-2">Leads Under Review</h5>
+                    <h5 class="card-title m-0 me-2">Jobs Under Review</h5>
                     <button
                         class="btn rounded-pill btn-warning waves-effect waves-light"
                         type="button">
@@ -119,12 +119,12 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($ongoingLeads as $nld)
+                            @foreach ($draftjobs as $nld)
                             <tr>
                                 <td class="pt-5">
                                     <div class="d-flex flex-column">
                                         <small class="text-body text-nowrap">{{ \Carbon\Carbon::parse($nld->created_at)->format('j F Y') }}</small>
-                                        <span class="badge rounded-pill bg-label-info">{{ $nld->lead_status }}</span>
+                                        <span class="badge rounded-pill bg-label-info">{{ $nld->job_status }}</span>
                                     </div>
                                 </td>
 
@@ -132,14 +132,14 @@
                                     <p class="mb-0 text-heading">{{ $nld->customer->company_name }} </p>
                                 </td>
                                 <td class="pt-5">
-                                    <p class="mb-0 text-heading">{{ $nld->leadaddress->address ?? '' }}, {{ $nld->leadaddress->county ?? '' }} {{ $nld->leadaddress->postcode ?? '' }}</p>
+                                    <p class="mb-0 text-heading">{{ $nld->jobaddress->address ?? '' }}, {{ $nld->jobaddress->county ?? '' }} {{ $nld->jobaddress->postcode ?? '' }}</p>
                                 </td>
                                 <td class="pt-5">
                                     <p class="mb-0 text-heading">{{ $nld->customer->contact_firstname }} {{ $nld->customer->contact_lastname }}</p>
                                     <p class="mb-0 text-heading"> <i class="fa-solid fa-phone"></i> {{ $nld->customer->contact_phone }}</p>
                                 </td>
                                 <td class="pt-5">
-                                    <a href="{{ route('leads.show', $nld->slug) }}" class="btn btn-sm btn-dark waves-effect waves-light">REVIEW</a>
+                                    <a href="{{ route('job.show', $nld->id) }}" class="btn btn-sm btn-dark waves-effect waves-light">REVIEW</a>
                                 </td>
                             </tr>
                             @endforeach
@@ -148,7 +148,7 @@
                 </div>
             </div>
         </div>
-        <!--/ Leads Under Review -->
+        <!--/ Jobs Under Review -->
 
     </div>
 </div>

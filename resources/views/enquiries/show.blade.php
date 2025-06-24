@@ -336,46 +336,66 @@
                     <span class="h4">
                         ENQUIRY #<span class="badge bg-label-success me-1 ms-2">{{ $enquiry->enquiry_name }}</span>
 
-                        <div class="btn-group">
-                            @if ($enquiry->enquiry_status == 'new')
-                                <button type="button"
-                                    class="btn btn-label-primary waves-effect">{{ beautify_status($enquiry->enquiry_status) }}</button>
-                            @elseif($enquiry->enquiry_status == 'inprogress')
-                                <button type="button"
-                                    class="btn btn-label-dark waves-effect">{{ beautify_status($enquiry->enquiry_status) }}</button>
-                            @elseif($enquiry->enquiry_status == 'on_hold')
-                                <button type="button"
-                                    class="btn btn-label-warning waves-effect">{{ beautify_status($enquiry->enquiry_status) }}</button>
-                            @elseif($enquiry->enquiry_status == 'converted_to_lead')
-                                <button type="button"
-                                    class="btn btn-label-success waves-effect">{{ beautify_status($enquiry->enquiry_status) }}</button>
-                            @elseif($enquiry->enquiry_status == 'rejected' || $enquiry->enquiry_status == 'archived')
-                                <button type="button"
-                                    class="btn btn-label-danger waves-effect">{{ beautify_status($enquiry->enquiry_status) }}</button>
-                            @endif
-                            <button type="button"
-                                class="btn btn-label-primary dropdown-toggle dropdown-toggle-split waves-effect"
-                                data-bs-toggle="dropdown" aria-expanded="false">
-                                <span class="visually-hidden">Toggle Dropdown</span>
-                            </button>
+                        @hasrole(['lead-manager', 'enquiry-manager'])
+                            <div class="btn-group">
+                                @php
+                                    $status = $enquiry->enquiry_status;
+                                    $labelClass = match ($status) {
+                                        'new' => 'primary',
+                                        'inprogress' => 'dark',
+                                        'on_hold' => 'warning',
+                                        'converted_to_lead' => 'success',
+                                        'rejected', 'archived' => 'danger',
+                                        default => 'secondary',
+                                    };
+                                @endphp
 
-                            @if (!in_array($enquiry->enquiry_status, ['converted_to_lead', 'rejected']))
-                                <ul class="dropdown-menu" style="">
-                                    <li><a class="dropdown-item waves-effect update-enquiry-status" data-status="inprogress"
-                                            data-id="{{ $enquiry->id }}" href="#">Inprogress</a></li>
-                                    <li><a class="dropdown-item waves-effect update-enquiry-status" data-status="on_hold"
-                                            data-id="{{ $enquiry->id }}" href="#">On Hold</a></li>
-                                    <li><a class="dropdown-item waves-effect update-enquiry-status" data-status="archived"
-                                            data-id="{{ $enquiry->id }}" href="#">Archived</a></li>
-                                </ul>
+                                <button type="button" class="btn btn-label-{{ $labelClass }} waves-effect">
+                                    {{ beautify_status($status) }}
+                                </button>
+
+                                @if (!in_array($status, ['converted_to_lead', 'rejected']))
+                                    <button type="button"
+                                        class="btn btn-label-{{ $labelClass }} dropdown-toggle dropdown-toggle-split waves-effect"
+                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                        <span class="visually-hidden">Toggle Dropdown</span>
+                                    </button>
+
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a class="dropdown-item waves-effect update-enquiry-status" href="#"
+                                                data-status="inprogress" data-id="{{ $enquiry->id }}">
+                                                In Progress
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item waves-effect update-enquiry-status" href="#"
+                                                data-status="on_hold" data-id="{{ $enquiry->id }}">
+                                                On Hold
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item waves-effect update-enquiry-status" href="#"
+                                                data-status="archived" data-id="{{ $enquiry->id }}">
+                                                Archived
+                                            </a>
+                                        </li>
+                                    </ul>
+                                @endif
+                            </div>
+
+                            @if (!in_array($status, ['converted_to_lead', 'rejected', 'archived']))
+                                <button class="btn btn-label-success convert-to-lead-btn ms-2" data-id="{{ $enquiry->id }}"
+                                    data-status="converted_to_lead">
+                                    SEND LEAD MANAGER
+                                </button>
                             @endif
-                        </div>
-                        @if (!in_array($enquiry->enquiry_status, ['converted_to_lead', 'rejected', 'archived']))
-                            <button class="btn btn-label-success convert-to-lead-btn" data-id="{{ $enquiry->id }}"
-                                data-status="converted_to_lead">
-                                SEND LEAD MANAGER
-                            </button>
-                        @endif
+                        @else
+                            <span class="badge bg-label-primary me-1 ms-2">
+                                {{ beautify_status($enquiry->enquiry_status) }}
+                            </span>
+                        @endhasrole
+
 
                     </span>
                 </div>

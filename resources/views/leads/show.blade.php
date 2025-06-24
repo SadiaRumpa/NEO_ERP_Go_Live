@@ -226,7 +226,6 @@
                 }
             });
         });
-        
     </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -416,41 +415,51 @@
                         LEAD #<span class="badge bg-label-success me-1 ms-2">{{ $lead->lead_name }}</span>
                         @hasrole('lead-manager')
                             <div class="btn-group">
-                                @if($lead->lead_status == 'new')
-                                    <button type="button"
-                                        class="btn btn-label-primary waves-effect">{{ beautify_status($lead->lead_status) }}</button>
-                                @elseif($lead->lead_status == 'inprogress' || $lead->lead_status == 'on_hold')
-                                    <button type="button"
-                                        class="btn btn-label-warning waves-effect">{{ beautify_status($lead->lead_status) }}</button>
-                                @elseif($lead->lead_status == 'converted_to_job')
-                                    <button type="button"
-                                        class="btn btn-label-success waves-effect">{{ beautify_status($lead->lead_status) }}</button>
-                                @elseif($lead->lead_status == 'rejected' || $lead->lead_status == 'archived')
-                                    <button type="button"
-                                        class="btn btn-label-danger waves-effect">{{ beautify_status($lead->lead_status) }}</button>
-                                @endif
-                                <button type="button"
-                                    class="btn btn-label-primary dropdown-toggle dropdown-toggle-split waves-effect"
-                                    data-bs-toggle="dropdown" aria-expanded="false">
-                                    <span class="visually-hidden">Toggle Dropdown</span>
+                                @php
+                                    $status = $lead->lead_status;
+                                    $labelClass = match ($status) {
+                                        'new' => 'primary',
+                                        'inprogress', 'on_hold' => 'warning',
+                                        'converted_to_job' => 'success',
+                                        'rejected', 'archived' => 'danger',
+                                        default => 'secondary',
+                                    };
+                                @endphp
+
+                                <button type="button" class="btn btn-label-{{ $labelClass }} waves-effect">
+                                    {{ beautify_status($status) }}
                                 </button>
-                                @if (!in_array($lead->lead_status, ['converted_to_job', 'rejected']))
-                                    <ul class="dropdown-menu" style="">
-                                        <li><a class="dropdown-item waves-effect update-lead-status" data-status="inprogress"
-                                                data-id="{{ $lead->id }}" href="#">Inprogress</a></li>
-                                        <li><a class="dropdown-item waves-effect update-lead-status" data-status="on_hold"
-                                                data-id="{{ $lead->id }}" href="#">On Hold</a></li>
-                                        <li><a class="dropdown-item waves-effect update-lead-status" data-status="archived"
-                                                data-id="{{ $lead->id }}" href="#">Archived</a></li>
+
+                                @if (!in_array($status, ['converted_to_job', 'rejected']))
+                                    <button type="button"
+                                        class="btn btn-label-{{ $labelClass }} dropdown-toggle dropdown-toggle-split waves-effect"
+                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                        <span class="visually-hidden">Toggle Dropdown</span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a class="dropdown-item waves-effect update-lead-status" data-status="inprogress"
+                                                data-id="{{ $lead->id }}" href="#">In Progress</a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item waves-effect update-lead-status" data-status="on_hold"
+                                                data-id="{{ $lead->id }}" href="#">On Hold</a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item waves-effect update-lead-status" data-status="archived"
+                                                data-id="{{ $lead->id }}" href="#">Archived</a>
+                                        </li>
                                     </ul>
                                 @endif
                             </div>
-                            <a class="btn btn-label-primary" href="{{ route('quotations.lead', $lead->id) }}">
+
+                            <a class="btn btn-label-primary ms-2" href="{{ route('quotations.lead', $lead->id) }}">
                                 GENERATE QUOTATION
                             </a>
                         @else
                             <span class="badge bg-label-primary me-1 ms-2">{{ beautify_status($lead->lead_status) }}</span>
-                        @endrole
+                        @endhasrole
+
                     </span>
                 </div>
                 @role('lead-manager')
@@ -890,15 +899,15 @@
                                                         <div class="timeline-header mb-3">
                                                             <h6 class="mb-0">{{ $enat->attachment_name }}</h6>
                                                             @if ($lead->lead_status == 'inprogress')
-                                                            <small class="text-body-secondary">
-                                                                <span class="badge rounded-pill bg-label-danger">
-                                                                    <i class="fa-solid fa-trash delete-attachment"
-                                                                        data-id="{{ $enat->id }}"
-                                                                        style="cursor: pointer;"></i>
-                                                                </span>
+                                                                <small class="text-body-secondary">
+                                                                    <span class="badge rounded-pill bg-label-danger">
+                                                                        <i class="fa-solid fa-trash delete-attachment"
+                                                                            data-id="{{ $enat->id }}"
+                                                                            style="cursor: pointer;"></i>
+                                                                    </span>
 
-                                                            </small>
-                                                        @endif
+                                                                </small>
+                                                            @endif
                                                         </div>
                                                         <p class="mb-2">PO has been sent by the company</p>
                                                         <div class="d-flex align-items-center mb-2">

@@ -10,11 +10,13 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Redirect;
 use App\Http\Controllers\EnquiryController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\FjobController;
 use App\Http\Controllers\GlobalController;
 use App\Http\Controllers\JobTypeController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\QuotationTemplateController;
+use App\Http\Controllers\SchedulerController;
 
 Route::get('/', function () {
     return Redirect::to('/login');
@@ -100,6 +102,25 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('quotation/pdf/{quotationId}', [QuotationController::class, 'downloadQuotationPdf'])->name('quotations.download-pdf');
 
-    
+    Route::get('jobs', [FjobController::class, 'index'])->name('job.index');
+    Route::get('jobs/completed', [FjobController::class, 'showCompleted'])->name('job.show.completed');
+    Route::get('jobs/rejected', [FjobController::class, 'showRejected'])->name('job.show.rejected');
+    Route::get('job/{id}', [FjobController::class, 'show'])->name('job.show');
+    Route::post('job/updatedescription/{id}', [FjobController::class, 'updateJobDetails'])->name('job.updatedescription');
+    Route::post('job/updateaddress/{id}', [FjobController::class, 'updateJobAddress'])->name('job.updateaddress');
+    Route::post('job/updatestatus/{id}', [FjobController::class, 'updateJobStatus'])->name('job.updatestatus');
+
+    Route::post('job/add-note', [FjobController::class, 'jobNotes'])->name('job.add-note');
+    Route::delete('job/delete-note/{id}', [FjobController::class, 'deleteJobNotes'])->name('job.destroynote');
+
+    Route::post('job/add-images', [FjobController::class, 'addJobImages'])->name('job.add-images');
+    Route::delete('job/delete-image/{id}', [FjobController::class, 'destroyJobImage'])->name('job.destroy-image');
+
+    Route::post('job/attachments-upload', [FjobController::class, 'uploadJobAttachments'])->name('job.attachments-upload');
+    Route::delete('job/delete-attachment/{id}', [FjobController::class, 'destroyJobAttachment'])->name('job.destroy-attachment');
+
+    Route::get('scheduler', [SchedulerController::class, 'index'])->name('scheduler.indaex');
+    Route::post('scheduler/workers', [SchedulerController::class, 'getSchedulerCalendarData'])->name('scheduler.workers-calendar');
+    Route::post('scheduler/store-job-schedule', [SchedulerController::class, 'storeJobSchedule'])->name('scheduler.store-job-schedule');
 
 });

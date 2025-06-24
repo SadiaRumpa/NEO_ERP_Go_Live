@@ -16,12 +16,12 @@ class Fjob extends Model
         'job_description',
         'customer_id',
         'job_type',
-        'fjob_category',
-        'job_priority',
-        'fjob_status',
-        'fjob_closed_by',
-        'fjob_closed_at',
-        'fjob_close_reason'
+        'job_category',
+        'ob_priority',
+        'job_status',
+        'job_closed_by',
+        'job_closed_at',
+        'job_close_reason'
     ];
     public function getSlugOptions(): SlugOptions
     {
@@ -33,23 +33,23 @@ class Fjob extends Model
     {
         return $this->belongsTo(Customer::class);
     }
-    public function fjobaddress()
+    public function jobaddress()
     {
         return $this->hasOne(FjobAddress::class);
     }
-    public function fjobimages()
+    public function jobimages()
     {
         return $this->hasMany(FjobImage::class);
     }
-    public function fjobnotes()
+    public function jobnotes()
     {
         return $this->hasMany(FjobNote::class);
     }
-    public function fjobquotations()
+    public function jobquotations()
     {
-        return $this->hasMany(FjobQuotation::class);
+        return $this->hasOne(FjobQuotation::class);
     }
-    public function fjobattachments()
+    public function  jobattachments()
     {
         return $this->hasMany(FjobAttachment::class);
     }

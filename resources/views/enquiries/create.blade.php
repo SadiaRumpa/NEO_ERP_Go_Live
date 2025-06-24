@@ -25,7 +25,7 @@
                 const toolbarSelector = $editor.data('toolbar');
 
                 const quill = new Quill(this, {
-                    
+
                     placeholder: 'Write here...',
                     theme: 'snow'
                 });
@@ -48,6 +48,34 @@
                     }
                 });
             });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const input = document.getElementById('attachments');
+            const previewContainer = document.getElementById('preview');
+
+            if (input) {
+                input.addEventListener('change', function(event) {
+                    previewContainer.innerHTML = ''; // Clear existing previews
+
+                    Array.from(this.files).forEach(file => {
+                        if (file.type.startsWith('image/')) {
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                const img = document.createElement('img');
+                                img.src = e.target.result;
+                                img.style.height = '80px';
+                                img.style.border = '1px solid #ccc';
+                                img.style.padding = '2px';
+                                img.style.borderRadius = '4px';
+                                previewContainer.appendChild(img);
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                    });
+                });
+            }
         });
     </script>
     <script>
@@ -117,38 +145,37 @@
             });
         }
 
-        $(document).ready(function() {
-            // Event listener to handle clicking on a suggestion (run this once on page load)
-            $(document).on('click', '.suggestion-item', function(e) {
-                e.preventDefault();
-                let selectedAddress = $(this).text();
-                let posttown = $('#posttown').val();
-                $.ajax({
-                    url: `/checkposttown/${posttown}`,
-                    method: 'GET',
-                    success: function(response) {
-                        if (response && response.address) {
-                            $('#formtabs-enquiry-address').val(selectedAddress);
-                            $('#formtabs-enquiry-county').val(response.address.county);
-                            $('#formtabs-enquiry-country').val(response.address.country);
-                            $('#address-suggestions').hide();
-                        } else {
-                            $('#formtabs-enquiry-address').val("Error fetching address.");
-                        }
-                    },
-                    error: function() {
+
+        // Event listener to handle clicking on a suggestion (run this once on page load)
+        $(document).on('click', '.suggestion-item', function(e) {
+            e.preventDefault();
+            let selectedAddress = $(this).text();
+            let posttown = $('#posttown').val();
+            $.ajax({
+                url: `/checkposttown/${posttown}`,
+                method: 'GET',
+                success: function(response) {
+                    if (response && response.address) {
+                        $('#formtabs-enquiry-address').val(selectedAddress);
+                        $('#formtabs-enquiry-county').val(response.address.county);
+                        $('#formtabs-enquiry-country').val(response.address.country);
+                        $('#address-suggestions').hide();
+                    } else {
                         $('#formtabs-enquiry-address').val("Error fetching address.");
                     }
-                });
-
-            });
-
-            // Hide suggestions when clicking outside
-            $(document).click(function(event) {
-                if (!$(event.target).closest('#formtabs-enquiry-postcode, #address-suggestions').length) {
-                    $('#address-suggestions').hide();
+                },
+                error: function() {
+                    $('#formtabs-enquiry-address').val("Error fetching address.");
                 }
             });
+
+        });
+
+        // Hide suggestions when clicking outside
+        $(document).click(function(event) {
+            if (!$(event.target).closest('#formtabs-enquiry-postcode, #address-suggestions').length) {
+                $('#address-suggestions').hide();
+            }
         });
     </script>
 @endsection
@@ -304,8 +331,7 @@
                                                                 email</label>
                                                             <input type="email" id="formtabs-contact-email"
                                                                 class="form-control" placeholder="john.doe@example.com"
-                                                                aria-label="john.doe@example.com" name="contactEmail"
-                                                                required />
+                                                                aria-label="john.doe@example.com" name="contactEmail" />
                                                         </div>
                                                     </div>
                                                     <div class="col-md-4">
@@ -372,22 +398,14 @@
                                         <small class="text-body-secondary float-end">(optional)</small>
                                     </div>
                                     <div class="card-body">
+                                        <div class="col-md-12 mb-4">
+                                            <label class="form-label" for="attachments">Attachments (Multiple
+                                                Images)</label>
+                                            <input type="file" class="form-control" id="attachments"
+                                                name="attachments[]" accept="image/*" multiple>
 
-                                        <div class="mb-4">
-                                            <label for="formFile" class="form-label">Image 1</label>
-                                            <input class="form-control" type="file" name="photo1">
-                                        </div>
-                                        <div class="mb-4">
-                                            <label for="formFile" class="form-label">Image 2</label>
-                                            <input class="form-control" type="file" name="photo2">
-                                        </div>
-                                        <div class="mb-4">
-                                            <label for="formFile" class="form-label">Image 3</label>
-                                            <input class="form-control" type="file" name="photo3">
-                                        </div>
-                                        <div class="mb-4">
-                                            <label for="formFile" class="form-label">Image 4</label>
-                                            <input class="form-control" type="file" name="photo4">
+                                            {{-- Preview container --}}
+                                            <div class="image-preview mt-2 d-flex flex-wrap gap-2" id="preview"></div>
                                         </div>
                                     </div>
                                 </div>

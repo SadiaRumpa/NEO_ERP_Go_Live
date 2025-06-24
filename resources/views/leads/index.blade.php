@@ -163,7 +163,7 @@
                             <th>ID</th>
                             <th>LEADS</th>
                             <th width="20%">COMPANY INFO</th>
-                            <th>Lead</th>
+                            <th>CONTACT</th>
                             <th>ACTION</th>
                         </tr>
                     </thead>

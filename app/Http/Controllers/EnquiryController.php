@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use App\Models\CustomerAddress;
-use App\Models\CustomerDetails;
 use App\Models\Enquiry;
 use App\Models\EnquiryAddress;
 use App\Models\EnquiryImage;
@@ -158,21 +157,20 @@ class EnquiryController extends Controller
      */
     public function store(Request $request)
     {
+
         $validated = $request->validate([
-            'customer_id' => 'required_without:companyName',
-            'companyName' => 'required_without:customer_id|string|max:255',
-            'contactPersonFirstName' => 'required_without:customer_id|string|max:255',
-            'contactPhone'  => 'required_without_all:customer_id,contactMobile|max:20',
-            'contactMobile' => 'required_without_all:customer_id,contactPhone|max:20',
-            'contactEmail' => 'required_without:customer_id|email|max:255',
+            'customer_id' => 'nullable|exists:customers,id',
+            'companyName' => 'required_without:customer_id|nullable|string|max:255',
+            'contactPersonFirstName' => 'required_without:customer_id|nullable|string|max:255',
+            'contactPhone'  => 'required_without_all:customer_id,contactMobile|nullable|max:20',
+            'contactMobile' => 'required_without_all:customer_id,contactPhone|nullable|max:20',
+            'contactEmail' => 'required_without:customer_id|nullable|email|max:255',
             'enquirydescription' => 'required|string',
             'enquiry_postcode' => 'required|string|max:20',
             'enquiry_address' => 'required|string',
             'enquiry_county' => 'nullable|string|max:255',
             'enquiry_country' => 'nullable|string|max:255',
-            'photo1' => 'required|image|mimes:jpg,jpeg,png|max:2048',
-            'photo2' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'photo3' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'attachments.*' => 'nullable|image|mimes:jpg,jpeg,png|max:10024',
         ]);
 
         DB::beginTransaction();
@@ -180,7 +178,9 @@ class EnquiryController extends Controller
         try {
             $customerid = $validated['customer_id'] ?? null;
 
-            if (!$customerid) {
+            if ($customerid) {
+                $customer = Customer::find($customerid);
+            } else {
                 $customer = Customer::create([
                     'company_name' => $validated['companyName'],
                     'contact_firstname' => $validated['contactPersonFirstName'],
@@ -192,6 +192,21 @@ class EnquiryController extends Controller
                 ]);
 
                 $customerid = $customer->id;
+
+                CustomerAddress::create([
+                    'customer_id' => $customerid,
+                    'contact_firstname' => $validated['contactPersonFirstName'],
+                    'contact_lastname' => $validated['contactPersonLastName'] ?? '',
+                    'contact_phone' => $validated['contactPhone'] ?? '',
+                    'contact_mobile' => $validated['contactMobile'] ?? '',
+                    'contact_email' => $validated['contactEmail'],
+                    'address' => $validated['enquiry_address'],
+                    'county' => $validated['enquiry_county'],
+                    'postcode' => $validated['enquiry_postcode'],
+                    'country' => $validated['enquiry_country'],
+                    'default' => 'yes',
+                    'address_type' => 'site',
+                ]);
             }
 
             $enquiry = Enquiry::create([
@@ -205,42 +220,26 @@ class EnquiryController extends Controller
 
             EnquiryAddress::create([
                 'enquiry_id' => $enquiry->id,
-                'contact_firstname' => $request->contactPersonFirstName,
-                'contact_lastname' => $request->contactPersonLastName,
-                'contact_phone' => $request->contactPhone,
-                'contact_mobile' => $request->contactMobile,
-                'contact_email' => $request->contactEmail,
+                'contact_firstname' => $validated['contactPersonFirstName'] ?? $customer->contact_firstname,
+                'contact_lastname' => $validated['contactPersonLastName'] ?? $customer->contact_lastname,
+                'contact_phone' => $validated['contactPhone'] ?? $customer->contact_phone,
+                'contact_mobile' => $validated['contactMobile'] ?? $customer->contact_mobile,
+                'contact_email' => $validated['contactEmail'] ?? $customer->contact_email,
                 'address' => $validated['enquiry_address'],
                 'county' => $validated['enquiry_county'],
                 'postcode' => $validated['enquiry_postcode'],
                 'country' => $validated['enquiry_country']
             ]);
 
-            CustomerAddress::create([
-                'customer_id' => $customerid,
-                'contact_firstname' => $validated['contactPersonFirstName'],
-                'contact_lastname' => $validated['contactPersonLastName'] ?? '',
-                'contact_phone' => $validated['contactPhone'] ?? '',
-                'contact_mobile' => $validated['contactMobile'] ?? '',
-                'contact_email' => $validated['contactEmail'],
-                'address' => $validated['enquiry_address'],
-                'county' => $validated['enquiry_county'],
-                'postcode' => $validated['enquiry_postcode'],
-                'country' => $validated['enquiry_country'],
-                'default' => 'yes',
-                'address_type' => 'site',
-            ]);
 
+            if ($request->hasFile('attachments')) {
+                $disk = env('FILESYSTEM_DISK', 'local');
 
-            $disk = env('FILESYSTEM_DISK', 'local');
-
-            foreach (['photo1', 'photo2', 'photo3'] as $photoField) {
-                if ($request->hasFile($photoField)) {
-                    $file = $request->file($photoField);
+                foreach ($request->file('attachments') as $file) {
                     $path = $file->store('uploads/enqueries', $disk);
 
                     if (!$path) {
-                        throw new \Exception("Failed to store file: $photoField");
+                        throw new \Exception("Failed to store file: " . $file->getClientOriginalName());
                     }
 
                     if ($disk === 's3') {
@@ -252,12 +251,12 @@ class EnquiryController extends Controller
                         'image_path' => $path,
                         'image_name' => $file->getClientOriginalName(),
                         'image_url' => Storage::disk($disk)->url($path),
-                        'source' => $disk
+                        'source' => $disk,
                     ]);
                 }
             }
 
-            $enquiryNote = $request->input('enquirynote');
+            $enquiryNote = $request->input('enquiryNote');
             if ($enquiryNote) {
                 EnquiryNote::create([
                     'enquiry_id' => $enquiry->id,

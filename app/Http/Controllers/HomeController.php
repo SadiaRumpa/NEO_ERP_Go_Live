@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Enquiry;
+use App\Models\Fjob;
 use App\Models\Lead;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -34,6 +35,8 @@ class HomeController extends Controller
             return $this->leadManagerDashboard();
         } elseif (auth()->user()->hasRole('accounts-manager')) {
             return $this->accountsManagerDashboard();
+        } elseif (auth()->user()->hasRole('job-manager')) {
+            return $this->jobManagerDashboard();
         } else {
             abort(403, 'CAN NOT ACCESS TO ROLE');
         }
@@ -166,22 +169,22 @@ class HomeController extends Controller
 
     public function accountsManagerDashboard()
     {
-        $newleadscount  = Lead::where('lead_status', 'new')->count();
-        $ongoingleadscount  = Lead::where('lead_status', 'inprogress')->count();
-        $cancelledleadscount  = Lead::where('lead_status', 'cancelled')->count();
-        $totalcustomerscount = Lead::distinct('customer_id')->count('customer_id');
+        $newjobscount  = Fjob::where('job_status', 'new')->count();
+        $ongoingjobscount  = Fjob::where('job_status', 'inprogress')->count();
+        $cancelledjobscount  = Fjob::where('job_status', 'cancelled')->count();
+        $totalcustomerscount = Fjob::distinct('customer_id')->count('customer_id');
 
         $startOfThisWeek = Carbon::now()->startOfWeek(); // Monday
         $startOfLastWeek = Carbon::now()->subWeek()->startOfWeek();
         $endOfLastWeek = Carbon::now()->subWeek()->endOfWeek();
 
         // Count for this week
-        $thisWeekCount = Lead::where('lead_status', 'new')
+        $thisWeekCount = Fjob::where('job_status', 'new')
             ->where('created_at', '>=', $startOfThisWeek)
             ->count();
 
         // Count for last week
-        $lastWeekCount = Lead::where('lead_status', 'new')
+        $lastWeekCount = Fjob::where('job_status', 'new')
             ->whereBetween('created_at', [$startOfLastWeek, $endOfLastWeek])
             ->count();
 
@@ -201,24 +204,82 @@ class HomeController extends Controller
             $trend = 'no change';
         }
 
-        $newLeads = Lead::with(['leadaddress', 'customer'])
-            ->where('lead_status', 'new')->orderByDesc('created_at')->limit(5)->get();
+        $draftjobs = Fjob::with(['jobaddress', 'customer'])
+            ->where('job_status', 'draft')->orderByDesc('created_at')->limit(5)->get();
 
-        $ongoingLeads = Lead::with(['leadaddress', 'customer'])
-            ->where('lead_status', 'completed')->orderByDesc('created_at')->limit(5)->get();
+        $ongoingjobs = Fjob::with(['jobaddress', 'customer'])
+            ->where('job_status', 'ongoing')->orderByDesc('created_at')->limit(5)->get();
 
 
         return view('dashboards.accounts_manager')->with([
-            'newLeads' => $newLeads,
+            'draftjobs' => $draftjobs,
             'this_week' => $thisWeekCount,
             'last_week' => $lastWeekCount,
             'percentageChange' => $percentageChange,
             'trend' => $trend,
-            'newleadscount' => $newleadscount,
-            'ongoingleadscount' => $ongoingleadscount,
-            'cancelledleadscount' => $cancelledleadscount,
+            'newjobscount' => $newjobscount,
+            'ongoingjobscount' => $ongoingjobscount,
+            'cancelledjobscount' => $cancelledjobscount,
             'totalcustomerscount' => $totalcustomerscount,
-            'ongoingLeads' => $ongoingLeads,
+            'ongoingjobs' => $ongoingjobs,
+        ]);
+    }
+
+    public function jobManagerDashboard()
+    {
+        $newjobscount  = Fjob::where('job_status', 'new')->count();
+        $ongoingjobscount  = Fjob::where('job_status', 'inprogress')->count();
+        $cancelledjobscount  = Fjob::where('job_status', 'cancelled')->count();
+        $totalcustomerscount = Fjob::distinct('customer_id')->count('customer_id');
+
+        $startOfThisWeek = Carbon::now()->startOfWeek(); // Monday
+        $startOfLastWeek = Carbon::now()->subWeek()->startOfWeek();
+        $endOfLastWeek = Carbon::now()->subWeek()->endOfWeek();
+
+        // Count for this week
+        $thisWeekCount = Fjob::where('job_status', 'new')
+            ->where('created_at', '>=', $startOfThisWeek)
+            ->count();
+
+        // Count for last week
+        $lastWeekCount = Fjob::where('job_status', 'new')
+            ->whereBetween('created_at', [$startOfLastWeek, $endOfLastWeek])
+            ->count();
+
+        if ($lastWeekCount > 0) {
+            $change = (($thisWeekCount - $lastWeekCount) / $lastWeekCount) * 100;
+        } else {
+            $change = $thisWeekCount > 0 ? 100 : 0; // handle divide by zero
+        }
+
+        $percentageChange = round($change, 2); // e.g. 25.00
+
+        if ($percentageChange > 0) {
+            $trend = 'increase';
+        } elseif ($percentageChange < 0) {
+            $trend = 'decrease';
+        } else {
+            $trend = 'no change';
+        }
+
+        $draftjobs = Fjob::with(['jobaddress', 'customer'])
+            ->whereIn('job_status', ['accepted', 'new'])->orderByDesc('created_at')->limit(5)->get();
+
+        $ongoingjobs = Fjob::with(['jobaddress', 'customer'])
+            ->where('job_status', 'ongoing')->orderByDesc('created_at')->limit(5)->get();
+
+
+        return view('dashboards.job_manager')->with([
+            'draftjobs' => $draftjobs,
+            'this_week' => $thisWeekCount,
+            'last_week' => $lastWeekCount,
+            'percentageChange' => $percentageChange,
+            'trend' => $trend,
+            'newjobscount' => $newjobscount,
+            'ongoingjobscount' => $ongoingjobscount,
+            'cancelledjobscount' => $cancelledjobscount,
+            'totalcustomerscount' => $totalcustomerscount,
+            'ongoingjobs' => $ongoingjobs,
         ]);
     }
 }

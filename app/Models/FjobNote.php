@@ -18,4 +18,8 @@ class FjobNote extends Model
     {
         return $this->belongsTo(Fjob::class);
     }
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'note_by');
+    }
 }
