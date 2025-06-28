@@ -15,9 +15,14 @@ class JobSchedule extends Model
         'status',
     ];
 
+    public function job()
+    {
+        return $this->belongsTo(Fjob::class, 'job_id');
+    }
+
     public function workers()
     {
-        return $this->belongsToMany(User::class, 'job_schedule_workers')
+        return $this->belongsToMany(User::class, 'job_schedule_workers', 'job_schedule_id', 'user_id')
             ->withPivot('assigned_date', 'completion_date', 'status', 'notes')
             ->withTimestamps();
     }

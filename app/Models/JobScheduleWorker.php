@@ -8,7 +8,7 @@ class JobScheduleWorker extends Model
 {
     protected $fillable = [
         'job_schedule_id',
-        'worker_id',
+        'user_id',
         'assigned_date',
         'completion_date',
         'status',
@@ -20,8 +20,8 @@ class JobScheduleWorker extends Model
         return $this->belongsTo(JobSchedule::class);
     }
 
-    public function user()
+    public function worker() // if you want to reference the user
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

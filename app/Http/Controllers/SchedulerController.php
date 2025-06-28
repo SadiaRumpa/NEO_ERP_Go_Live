@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Fjob;
 use App\Models\JobSchedule;
+use App\Models\JobScheduleAttachment;
 use App\Models\JobScheduleWorker;
 use App\Models\User;
 use Illuminate\Http\Request;
-use DateInterval;
-use DatePeriod;
+use Illuminate\Container\Attributes\Storage;
 use Carbon\Carbon;
 use DB;
 
@@ -35,9 +35,9 @@ class SchedulerController extends Controller
         $selectedMonths = $request->get('months', [now()->format('F')]);
 
         $data = $this->generateCalendarData($selectedMonths);
-        $jobs = Fjob::whereIn('job_status',  ['accepted', 'inprogress', 'inprogress'])
+        $jobs = Fjob::whereIn('job_status',  ['accepted', 'inprogress'])
             ->get();
-        $stuffs = User::role('stuff')->get();
+        $stuffs = User::role('stuff')->orderBy('name', 'asc')->get();
         return view('scheduler.index', array_merge($data, [
             'allMonths' => $allMonths,
             'selectedMonths' => $selectedMonths,
@@ -66,24 +66,55 @@ class SchedulerController extends Controller
             $end = Carbon::parse("last day of $month $startYear");
 
             for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
-                $datesByMonth[$month][] = $date->toDateString(); // Carbon instance, safe to use
+                $datesByMonth[$month][] = $date->toDateString();
             }
         }
 
-        $workers = User::role('stuff')->get();
+        $workers = User::role('stuff')->orderBy('name', 'asc')->get();
 
-        // Normalize selectedMonths to match PostgreSQL 'Month' format (capitalized first letter)
-        $normalizedMonths = array_map(fn($m) => ucfirst(strtolower($m)), $selectedMonths);
-
-        // Use PostgreSQL-friendly month name filter
+        // Fetch all assignments in the selected months (based on assigned_date or completion_date range)
         $assignments = JobScheduleWorker::with('jobSchedule')
-            ->whereIn(DB::raw("TRIM(TO_CHAR(assigned_date, 'Month'))"), $normalizedMonths)
-            ->get()
-            ->groupBy('worker_id');
+            ->whereMonth('assigned_date', '>=', Carbon::parse('first day of ' . $selectedMonths[0])->month)
+            ->whereMonth('completion_date', '<=', Carbon::parse('last day of ' . end($selectedMonths))->month)
+            ->get();
 
-        return compact('datesByMonth', 'workers', 'assignments');
+        // Build a lookup: [user_id][date] = assignment
+        $assignmentMap = [];
+
+        foreach ($assignments as $assignment) {
+            $start = Carbon::parse($assignment->assigned_date);
+            $end = Carbon::parse($assignment->completion_date);
+
+            for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
+                $assignmentMap[$assignment->user_id][$date->toDateString()] = $assignment;
+            }
+        }
+
+        return compact('datesByMonth', 'workers', 'assignmentMap');
     }
 
+    public function showSchedule($id)
+    {
+        $schedule = JobSchedule::with([
+            'job' => function ($q) {
+                $q->select('id', 'job_description', 'customer_id', 'job_type', 'job_status');
+            },
+            'job.jobaddress' => function ($q) {
+                $q->select('id', 'fjob_id', 'address', 'country', 'county', 'contact_firstname', 'contact_lastname', 'contact_phone', 'contact_mobile', 'contact_email');
+            },
+            'job.customer'=> function ($q) {
+                $q->select('id', 'company_name');
+            },
+            'workers'])->findOrFail($id);
+
+        return response()->json([
+            'schedule' => $schedule,
+            'workers' => $schedule->workers,
+            'job' => $schedule->job,
+            'customer' => $schedule->job->customer,
+            'jobAddress' => $schedule->job->jobaddress,
+        ]);
+    }
 
     public function storeJobSchedule(Request $request)
     {
@@ -119,8 +150,9 @@ class SchedulerController extends Controller
         foreach ($validated['workers'] ?? [] as $workerId) {
             JobScheduleWorker::create([
                 'job_schedule_id' => $jobSchedule->id,
-                'worker_id'       => $workerId,
+                'user_id'       => $workerId,
                 'assigned_date'   => $startDate,
+                'completion_date' => $endDate,
                 'status'          => 'assigned',
             ]);
         }
@@ -129,5 +161,35 @@ class SchedulerController extends Controller
             'message'      => 'Job schedule created successfully',
             'job_schedule' => $jobSchedule
         ], 201);
+    }
+
+    public function deleteSchedule(Request $request, $id)
+    {
+        $schedule = JobSchedule::find($id);
+
+        if (!$schedule) {
+            return response()->json(['error' => 'Schedule not found'], 404);
+        }
+
+        // Delete associated workers
+        JobScheduleWorker::where('job_schedule_id', $id)->delete();
+
+        // Handle attachments
+        $attachments = JobScheduleAttachment::where('job_schedule_id', $id)->get();
+        foreach ($attachments as $attachment) {
+            $disk = $attachment->source === 's3' ? 's3' : 'public';
+            $path = $attachment->attachment_path;
+
+            if (Storage::disk($disk)->exists($path)) {
+                Storage::disk($disk)->delete($path);
+            }
+
+            $attachment->delete();
+        }
+
+        // Finally, delete the schedule
+        $schedule->delete();
+
+        return response()->json(['message' => 'Schedule deleted successfully']);
     }
 }

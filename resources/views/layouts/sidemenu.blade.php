@@ -124,6 +124,12 @@
                 <div data-i18n="Quotation Templates">Quotation Templates</div>
             </a>
         </li>
+        <li class="menu-item {{(request()->is('jobs') || request()->is('jobs/*') || request()->is('job/*')) ? 'active' : '' }}">
+            <a href="{{ url('jobs') }}" class="menu-link">
+                <i class="menu-icon icon-base ti tabler-briefcase"></i>
+                <div data-i18n="Jobs">Jobs</div>
+            </a>
+        </li>
         <li class="menu-item {{(request()->is('customers') || request()->is('customers/*')) ? 'active' : '' }}">
             <a href="{{ url('customers') }}" class="menu-link">
                 <i class="menu-icon icon-base ti tabler-user-cog"></i>

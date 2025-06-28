@@ -46,4 +46,11 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function jobSchedules()
+    {
+        return $this->belongsToMany(JobSchedule::class, 'job_schedule_workers', 'user_id', 'job_schedule_id')
+            ->withPivot('assigned_date', 'completion_date', 'status', 'notes')
+            ->withTimestamps();
+    }
 }

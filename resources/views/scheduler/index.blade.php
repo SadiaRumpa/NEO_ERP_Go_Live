@@ -11,28 +11,30 @@
     <script src="{{ asset('assets/vendor/libs/bootstrap-daterangepicker/bootstrap-daterangepicker.js') }}"></script>
     <script src="{{ asset('assets/vendor/libs/pickr/pickr.js') }}"></script>
     <script src="{{ asset('assets/vendor/libs/select2/select2.js') }}"></script>
+    <script src="{{ asset('assets/vendor/libs/tagify/tagify.js') }}"></script>
+    <script src="{{ asset('assets/vendor/libs/bootstrap-select/bootstrap-select.js') }}"></script>
+    <script src="{{ asset('assets/vendor/libs/typeahead-js/typeahead.js') }}"></script>
+    <script src="{{ asset('assets/vendor/libs/bloodhound/bloodhound.js') }}"></script>
     <script src="{{ asset('assets/js/forms-pickers.js') }}"></script>
 
-    <script>
-        // select2 (jquery)
-        $(function() {
-            // Init custom option check
-            window.Helpers.initCustomOptionCheck();
+    <script src="{{ asset('assets/js/forms-selects.js') }}"></script>
+    <script src="{{ asset('assets/js/forms-tagify.js') }}"></script>
+    <script src="{{ asset('assets/js/forms-typeahead.js') }}"></script>
 
-            // Select2 Country
-            var select2 = $('.select2');
-            if (select2.length) {
-                select2.each(function() {
-                    var $this = $(this);
-                    $this.wrap('<div class="position-relative"></div>').select2({
-                        placeholder: 'Select value',
-                        dropdownParent: $this.parent()
-                    });
+    <script>
+        $(function() {
+            const flatpickrRange = document.querySelector('#flatpickr-range');
+
+            if (typeof flatpickrRange != undefined) {
+                flatpickrRange.flatpickr({
+                    mode: 'range',
+                    static: true,
+                    allowInput: false,
+                    dateFormat: 'Y-m-d',
                 });
             }
-
-
         });
+
         $('#monthFilterForm').on('submit', function(e) {
             e.preventDefault();
 
@@ -65,36 +67,54 @@
         $('#saveScheduleBtn').on('click', function(e) {
             e.preventDefault();
 
-            // Get the instruction content (e.g., from Quill, TinyMCE, or plain div)
+            const $btn = $(this);
+            const $form = $('#scheduleForm');
             const instructionHtml = $('#instruction').html();
             $('#instruction_input').val(instructionHtml);
 
-            const form = $('#scheduleForm')[0];
-            const formData = new FormData(form);
+            const formData = new FormData($form[0]);
 
             $.ajax({
-                url: "{{ route('scheduler.store-job-schedule') }}", // Update with your actual route
+                url: "{{ route('scheduler.store-job-schedule') }}",
                 method: "POST",
                 data: formData,
                 processData: false,
                 contentType: false,
                 beforeSend: function() {
-                    $('#saveScheduleBtn').prop('disabled', true);
+                    $btn.prop('disabled', true).html(
+                        '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...'
+                    );
                 },
                 success: function(response) {
-                    toastr.success('Schedule saved successfully!');
-                    $('#scheduleForm')[0].reset();
-                    $('#saveScheduleBtn').prop('disabled', false);
-                    $('.modal').modal('hide'); // Hide modal
-                    // Optional: refresh DataTable or update page
+                    toastr.success(response.message || 'Schedule saved successfully!');
+                    $form[0].reset();
+                    $('#instruction_input').val('');
+                    $('#scheduleModal').modal('hide');
+                    $btn.prop('disabled', false).html('Save');
+
+                    // 🔁 Reload the page after success
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000); // Optional small delay to allow toast to show
                 },
                 error: function(xhr) {
-                    toastr.error(xhr.responseJSON.message || "Error saving schedule.");
-                    $('#saveScheduleBtn').prop('disabled', false);
-                    console.log(xhr.responseText);
+                    let errorMsg = "Error saving schedule.";
+                    if (xhr.status === 422 && xhr.responseJSON.errors) {
+                        const firstError = Object.values(xhr.responseJSON.errors)[0];
+                        if (firstError && firstError.length) {
+                            errorMsg = firstError[0];
+                        }
+                    } else if (xhr.responseJSON.message) {
+                        errorMsg = xhr.responseJSON.message;
+                    }
+
+                    toastr.error(errorMsg);
+                    console.error('Schedule save error:', xhr.responseText);
+                    $btn.prop('disabled', false).html('Save');
                 }
             });
         });
+
 
 
         // On form submit
@@ -112,12 +132,15 @@
     <link rel="stylesheet" href="{{ asset('assets/vendor/libs/quill/editor.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/vendor/libs/flatpickr/flatpickr.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/vendor/libs/select2/select2.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/vendor/libs/tagify/tagify.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/vendor/libs/bootstrap-select/bootstrap-select.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/vendor/libs/typeahead-js/typeahead.css') }}" />
     <link rel="stylesheet"
-        href="{{ asset('assets/vendor/libs/bootstrap-daterangepicker/bootstrap-daterangepicker.csss') }}" />
+        href="{{ asset('assets/vendor/libs/bootstrap-daterangepicker/bootstrap-daterangepicker.css') }}" />
     <style>
         .calendar-table th,
         .calendar-table td {
-            font-size: 10px;
+            font-size: 12px;
             white-space: nowrap;
             text-align: center;
             padding: 3px;
@@ -133,6 +156,15 @@
         .calendar-wrapper {
             overflow-x: auto;
             max-width: 100%;
+        }
+
+        .form-check-input:checked {
+            background-color: #7367f0;
+            border-color: #7367f0;
+        }
+
+        .form-check-input {
+            width: 1.25rem;
         }
     </style>
 @endsection
@@ -153,29 +185,37 @@
             </div>
         </div>
         <div class="card mb-4">
-            <div class="card-header d-flex  justify-content-between">
-                <h5 class="card-title">Calendar</h5>
-                {{-- Month selection filter --}}
-                <form id="monthFilterForm" class="mb-3">
-                    <div class="row">
-                        @foreach ($allMonths as $month)
-                            <div class="col-auto">
-                                <label>
-                                    <input type="checkbox" name="months[]" value="{{ $month }}"
-                                        {{ in_array($month, $selectedMonths) ? 'checked' : '' }}>
-                                    {{ $month }}
-                                </label>
-                            </div>
-                        @endforeach
+            <div
+                class="card-header py-3 px-4 bg-white shadow-sm rounded d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+                <!-- Month Filter Form -->
+                <form id="monthFilterForm" class="d-flex flex-wrap align-items-center gap-3">
+                    <div class="d-flex align-items-center me-3">
+                        <i class="icon-base ti tabler-calendar-week fs-4 me-2 text-primary"></i>
+                        <h6 class="mb-0 fw-bold">Months</h6>
                     </div>
-                    <div class="mt-2">
-                        <button type="submit" class="btn btn-sm btn-primary">Filter</button>
-                    </div>
+
+                    @foreach ($allMonths as $month)
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input rounded" type="checkbox" name="months[]"
+                                value="{{ $month }}" id="month_{{ $month }}"
+                                {{ in_array($month, $selectedMonths) ? 'checked' : '' }}>
+                            <label class="form-check-label" for="month_{{ $month }}">{{ $month }}</label>
+                        </div>
+                    @endforeach
+
+                    <button type="submit" class="btn btn-sm btn-primary d-flex align-items-center px-3 py-2">
+                        <i class="icon-base ti tabler-adjustments-alt"></i> Filter
+                    </button>
                 </form>
-                <button type="button" class="btn btn-warning btn-md" data-bs-toggle="modal"
-                    data-bs-target="#backDropModal">
-                    <i class="icon-base ti tabler-browser-plus"></i> Schedule
-                </button>
+
+                <!-- Schedule Button -->
+                <div class="mt-3 mt-md-0">
+                    <button type="button" class="btn btn-warning btn-md d-flex align-items-center px-3 py-2"
+                        data-bs-toggle="modal" data-bs-target="#backDropModal">
+                        <i class="icon-base ti tabler-browser-plus"></i> Schedule
+                    </button>
+                </div>
+
                 <!-- Modal -->
                 <div class="modal fade" id="backDropModal" data-bs-backdrop="static" tabindex="-1">
                     <div class="modal-dialog">
@@ -201,14 +241,16 @@
                                 </div>
                                 <div class="row g-4">
                                     <div class="col mb-0">
-                                        <label class="form-label" for="multicol-stuffs">Stuffs</label>
-                                        <select id="multicol-stuffs" class="select2 form-select" name="workers[]" multiple>
-                                            <option value="">Select</option>
-                                            @foreach ($stuffs as $stuff)
-                                                <option value="{{ $stuff->id }}">{{ $stuff->name }}</option>
-                                            @endforeach
-                                        </select>
+                                        <label for="select2Dark" class="form-label">Stuffs</label>
+                                        <div class="select2-dark">
+                                            <select id="select2Dark" class="select2 form-select" name="workers[]" multiple>
+                                                @foreach ($stuffs as $stuff)
+                                                    <option value="{{ $stuff->id }}">{{ $stuff->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
                                     </div>
+
                                     <div class="col mb-0">
                                         <label for="flatpickr-range" class="form-label">Range Picker</label>
                                         <input type="text" class="form-control" placeholder="YYYY-MM-DD to YYYY-MM-DD"
@@ -221,7 +263,7 @@
                                         <div class="form-control p-0">
                                             <div class="border-0 pb-6" id="instruction"></div>
                                         </div>
-                                        
+
                                         <input type="hidden" name="instructions" id="instruction_input">
                                     </div>
                                 </div>
@@ -236,6 +278,8 @@
                     </div>
                 </div>
             </div>
+
+
             <div class="card-body calendar-wrapper">
                 {{-- Calendar table --}}
                 <div id="calendar-table">

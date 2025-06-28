@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Fjob;
+use App\Models\FjobAttachment;
 use App\Models\MailTemplate;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
@@ -22,7 +23,7 @@ class FjobController extends Controller
 
             $data = Fjob::with(['customer', 'jobaddress'])
                 ->select('*')
-                ->whereIn('job_status', ['accepted', 'new', 'inprogress', 'on_hold'])
+                ->whereIn('job_status', ['draft','accepted', 'new', 'inprogress', 'on_hold'])
                 ->orderByDesc('created_at');
 
             return Datatables::of($data)
@@ -43,7 +44,7 @@ class FjobController extends Controller
                     return $row->customer->contact_mobile;
                 })
                 ->addColumn('action', function ($row) {
-                    $btn = '<a href="/jobs/' . $row->slug . '" class="edit btn btn-primary btn-sm">Details</a>';
+                    $btn = '<a href="/job/' . $row->id . '" class="edit btn btn-primary btn-sm">Details</a>';
                     return $btn;
                 })
                 ->rawColumns(['action'])
@@ -82,6 +83,68 @@ class FjobController extends Controller
             ->orderBy('id', 'desc')->get();
 
         return view('jobs.show', compact('job','mailtemplates'));
+    }
+
+    public function uploadJobAttachments(Request $request)
+    {
+        $request->validate([
+            'jobid' => 'required|exists:fjobs,id',
+            'attachment_type' => 'required|string',
+            'title' => 'required|string|max:255',
+            'attachment' => 'file|mimes:pdf,jpg,jpeg,png,doc,docx|max:10024',
+        ]);
+
+        $disk = env('FILESYSTEM_DISK', 'local');
+
+        if ($request->hasFile('attachment')) {
+            $file = $request->file('attachment');
+            $path = $file->store('uploads/attachments', $disk);
+
+            if (!$path) {
+                return response()->json(['status' => 'error', 'message' => 'Failed to store image.']);
+            }
+
+            if ($disk === 's3') {
+                Storage::disk('s3')->setVisibility($path, 'public');
+            }
+
+            FjobAttachment::create([
+                'fjob_id'  => $request->input('jobid'),
+                'attachment_path'  => $path,
+                'attachment_name'  => $request->input('title'),
+                'description' => $request->input('attachment_type'),
+                'attachment_type'  => $file->getClientOriginalExtension(),
+                'attachment_url'   => Storage::disk($disk)->url($path),
+                'source'      => $disk,
+                'uploaded_by' => Auth::id(),
+                'status' => 'active',
+            ]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Attachment added successfully.'
+            ]);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    public function destroyLeadAttachment($id)
+    {
+        $attachment = FjobAttachment::find($id);
+
+        if (!$attachment) {
+            return response()->json(['status' => 'error', 'message' => 'Attachment not found.']);
+        }
+
+        // Optional: delete from storage if needed
+        if ($attachment->source !== 's3' && Storage::disk('public')->exists($attachment->attachment_path)) {
+            Storage::disk('public')->delete($attachment->attachment_path);
+        }
+
+        $attachment->delete();
+
+        return response()->json(['status' => 'success', 'message' => 'Attachment deleted successfully.']);
     }
 
     public function updateJobStatus(Request $request, $id)

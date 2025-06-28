@@ -452,10 +452,11 @@
                                     </ul>
                                 @endif
                             </div>
-
-                            <a class="btn btn-label-primary ms-2" href="{{ route('quotations.lead', $lead->id) }}">
-                                GENERATE QUOTATION
-                            </a>
+                            @if ($lead->lead_status == 'inprogress')
+                                <a class="btn btn-label-primary ms-2" href="{{ route('quotations.lead', $lead->id) }}">
+                                    GENERATE QUOTATION
+                                </a>
+                            @endif
                         @else
                             <span class="badge bg-label-primary me-1 ms-2">{{ beautify_status($lead->lead_status) }}</span>
                         @endhasrole

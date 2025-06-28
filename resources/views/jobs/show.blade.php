@@ -337,6 +337,7 @@
                     $('#uploadAttachmentsModalTitle').closest('.modal').modal('hide');
                     toastr.success('Attachments uploaded successfully');
                     // Optionally reload part of the page
+                    location.reload(); // Reload the page to see the new attachments
                 },
                 error: function(xhr) {
                     toastr.error(xhr.responseJSON.message || 'Failed to upload attachments.');
@@ -458,10 +459,9 @@
                         <div id="status-alert" style="display:none;" class="alert mt-2"></div>
                         <div class="d-flex gap-4">
                             @if (!in_array($job->job_status, ['new', 'converted_to_job', 'rejected', 'archived']))
-                                <button class="btn btn-label-success convert-to-job-btn" data-id="{{ $job->id }}"
-                                    data-status="converted_to_job">
-                                    SEND JOB MANAGER
-                                </button>
+                                <a class="btn btn-label-success convert-to-job-btn" href="{{ route('scheduler.index') }}" target="_blank">
+                                    SCHEDULER
+                                </a>
                             @endif
                             @if ($job->job_status == 'inprogress')
                                 <button type="button" class="btn btn-danger waves-effect waves-light" data-bs-toggle="modal"
@@ -839,7 +839,7 @@
                                     <h5 class="card-title m-0 me-2 pt-1 mb-2 d-flex align-items-center">
                                         <i class="icon-base ti tabler-list-details me-3"></i> Attachments
                                     </h5>
-                                    @if ($job->job_status == 'inprogress')
+                                    @if ($job->job_status == 'draft')
                                         <div class="card-header-elements ms-auto">
                                             <button type="button" class="btn btn-xs btn-dark waves-effect waves-light"
                                                 data-bs-toggle="modal" data-bs-target="#uploadAttachmentsModal">

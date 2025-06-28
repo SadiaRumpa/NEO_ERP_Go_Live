@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('job_schedule_workers', function (Blueprint $table) {
             $table->id();
             $table->foreignId('job_schedule_id')->constrained('job_schedules')->onDelete('cascade');
-            $table->foreignId('worker_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->date('assigned_date')->nullable();
             $table->date('completion_date')->nullable();
             $table->string('status')->default('pending')->comment('pending, inprogress, completed, cancelled');

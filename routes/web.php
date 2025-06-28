@@ -119,8 +119,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('job/attachments-upload', [FjobController::class, 'uploadJobAttachments'])->name('job.attachments-upload');
     Route::delete('job/delete-attachment/{id}', [FjobController::class, 'destroyJobAttachment'])->name('job.destroy-attachment');
 
-    Route::get('scheduler', [SchedulerController::class, 'index'])->name('scheduler.indaex');
+    Route::get('scheduler', [SchedulerController::class, 'index'])->name('scheduler.index');
     Route::post('scheduler/workers', [SchedulerController::class, 'getSchedulerCalendarData'])->name('scheduler.workers-calendar');
+    Route::get('scheduler/job-schedule/{id}', [SchedulerController::class, 'showSchedule'])->name('scheduler.job-schedule');
     Route::post('scheduler/store-job-schedule', [SchedulerController::class, 'storeJobSchedule'])->name('scheduler.store-job-schedule');
-
+    Route::delete('scheduler/delete-schedule/{id}', [SchedulerController::class, 'deleteSchedule'])->name('scheduler.delete-schedule');
 });
