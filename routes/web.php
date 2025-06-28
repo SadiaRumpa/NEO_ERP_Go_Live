@@ -122,6 +122,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('scheduler', [SchedulerController::class, 'index'])->name('scheduler.index');
     Route::post('scheduler/workers', [SchedulerController::class, 'getSchedulerCalendarData'])->name('scheduler.workers-calendar');
     Route::get('scheduler/job-schedule/{id}', [SchedulerController::class, 'showSchedule'])->name('scheduler.job-schedule');
+    
     Route::post('scheduler/store-job-schedule', [SchedulerController::class, 'storeJobSchedule'])->name('scheduler.store-job-schedule');
+    Route::put('scheduler/update-job-schedule/{id}', [SchedulerController::class, 'updateJobSchedule'])->name('scheduler.update-job-schedule');
     Route::delete('scheduler/delete-schedule/{id}', [SchedulerController::class, 'deleteSchedule'])->name('scheduler.delete-schedule');
 });

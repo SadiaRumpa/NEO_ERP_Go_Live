@@ -99,12 +99,69 @@
                 },
                 error: function(xhr) {
                     let errorMsg = "Error saving schedule.";
+
+                    if (xhr.status === 422 && xhr.responseJSON?.errors) {
+                        const firstError = Object.values(xhr.responseJSON.errors)[0];
+                        if (firstError && firstError.length) {
+                            errorMsg = firstError[0];
+                        }
+                    } else if (xhr.responseJSON?.error) {
+                        // ✅ handles 409 and other custom error messages
+                        errorMsg = xhr.responseJSON.error;
+                    } else if (xhr.responseJSON?.message) {
+                        errorMsg = xhr.responseJSON.message;
+                    }
+
+                    toastr.error(errorMsg);
+                    console.error('Schedule save error:', xhr.responseText);
+                    $btn.prop('disabled', false).html('Save');
+                }
+
+            });
+        });
+
+        // Submit the form on Save button click
+        $('#updateScheduleBtn').on('click', function(e) {
+            e.preventDefault();
+
+            const $btn = $(this);
+            const $form = $('#scheduleUpdateForm');
+            const instructionHtml = $('#instructionu').html();
+            $('#instructionu_input').val(instructionHtml);
+
+            const jobScheduleId = $('#jobScheduleId').val();
+            const updateUrl = `/scheduler/update-job-schedule/${jobScheduleId}`;
+
+            const formData = new FormData($form[0]);
+
+            $.ajax({
+                url: updateUrl,
+                method: 'POST', // Method spoofed via @method('PUT') inside form
+                data: formData,
+                processData: false,
+                contentType: false,
+                beforeSend: function() {
+                    $btn.prop('disabled', true).html(
+                        '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...'
+                    );
+                },
+                success: function(response) {
+                    toastr.success(response.message || 'Schedule updated successfully!');
+                    $form[0].reset();
+                    $('#instructionu_input').val('');
+                    $('#scheduleUpdateModal').modal('hide');
+                    $btn.prop('disabled', false).html('Save');
+
+                    setTimeout(() => location.reload(), 1000);
+                },
+                error: function(xhr) {
+                    let errorMsg = "Error saving schedule.";
                     if (xhr.status === 422 && xhr.responseJSON.errors) {
                         const firstError = Object.values(xhr.responseJSON.errors)[0];
                         if (firstError && firstError.length) {
                             errorMsg = firstError[0];
                         }
-                    } else if (xhr.responseJSON.message) {
+                    } else if (xhr.responseJSON?.message) {
                         errorMsg = xhr.responseJSON.message;
                     }
 
@@ -114,8 +171,6 @@
                 }
             });
         });
-
-
 
         // On form submit
         $('form').on('submit', function() {

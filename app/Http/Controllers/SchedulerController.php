@@ -38,6 +38,7 @@ class SchedulerController extends Controller
         $jobs = Fjob::whereIn('job_status',  ['accepted', 'inprogress'])
             ->get();
         $stuffs = User::role('stuff')->orderBy('name', 'asc')->get();
+        // return $jobs;
         return view('scheduler.index', array_merge($data, [
             'allMonths' => $allMonths,
             'selectedMonths' => $selectedMonths,
@@ -86,7 +87,7 @@ class SchedulerController extends Controller
             $end = Carbon::parse($assignment->completion_date);
 
             for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
-                $assignmentMap[$assignment->user_id][$date->toDateString()] = $assignment;
+                $assignmentMap[$assignment->user_id][$date->toDateString()][] = $assignment;
             }
         }
 
@@ -102,10 +103,13 @@ class SchedulerController extends Controller
             'job.jobaddress' => function ($q) {
                 $q->select('id', 'fjob_id', 'address', 'country', 'county', 'contact_firstname', 'contact_lastname', 'contact_phone', 'contact_mobile', 'contact_email');
             },
-            'job.customer'=> function ($q) {
+            'job.customer' => function ($q) {
                 $q->select('id', 'company_name');
             },
-            'workers'])->findOrFail($id);
+            'workers'
+        ])->findOrFail($id);
+
+        $workerslist = User::role('stuff')->orderBy('name', 'asc')->get();
 
         return response()->json([
             'schedule' => $schedule,
@@ -113,6 +117,7 @@ class SchedulerController extends Controller
             'job' => $schedule->job,
             'customer' => $schedule->job->customer,
             'jobAddress' => $schedule->job->jobaddress,
+            'workerslist' => $workerslist,
         ]);
     }
 
@@ -120,6 +125,81 @@ class SchedulerController extends Controller
     {
         $validated = $request->validate([
             'job_id'      => 'required|exists:fjobs,id',
+            'daterange'   => 'required|string',
+            'workers'     => 'array',
+            'workers.*'   => 'exists:users,id',
+            'instructions' => 'nullable|string',
+        ]);
+
+        // Extract start and end dates
+        $dateParts = explode(' to ', $validated['daterange']);
+        $startDate = Carbon::parse($dateParts[0])->toDateString();
+        $endDate = isset($dateParts[1])
+            ? Carbon::parse($dateParts[1])->toDateString()
+            : $startDate; // Single date
+
+        // Validate date logic
+        if ($startDate > $endDate) {
+            return response()->json(['error' => 'Start date must be before end date'], 422);
+        }
+
+
+
+        // ✅ Check for duplicate job schedule with same job_id, workers, and date range
+        $workerIds = $validated['workers'] ?? [];
+
+        $existing = JobSchedule::where('job_id', $validated['job_id'])
+            ->whereDate('start_date', $startDate)
+            ->whereDate('end_date', $endDate)
+            ->whereHas('workers', function ($query) use ($workerIds) {
+                $query->whereIn('user_id', $workerIds);
+            })
+            ->whereRaw("
+            (
+                SELECT COUNT(*) 
+                FROM job_schedule_workers 
+                WHERE job_schedule_id = job_schedules.id 
+                AND user_id IN (" . implode(',', array_fill(0, count($workerIds), '?')) . ")
+            ) = ?
+            ", array_merge($workerIds, [count($workerIds)]))
+            ->first();
+        // dd($existing);
+        if ($existing) {
+            return response()->json(['error' => 'Duplicate job schedule already exists'], 409);
+        }
+
+        // ✅ Create job schedule
+        $jobSchedule = JobSchedule::create([
+            'job_id'       => $validated['job_id'],
+            'job_name'     => Fjob::find($validated['job_id'])->job_name,
+            'start_date'   => $startDate,
+            'end_date'     => $endDate,
+            'instructions' => $validated['instructions'],
+            'status'       => 'pending',
+        ]);
+
+        // ✅ Assign workers
+        foreach ($workerIds as $workerId) {
+            JobScheduleWorker::create([
+                'job_schedule_id' => $jobSchedule->id,
+                'user_id'         => $workerId,
+                'assigned_date'   => $startDate,
+                'completion_date' => $endDate,
+                'status'          => 'assigned',
+            ]);
+        }
+
+        return response()->json([
+            'message'      => 'Job schedule created successfully',
+            'job_schedule' => $jobSchedule
+        ], 201);
+    }
+
+
+    public function updateJobSchedule(Request $request, $id)
+    {
+        // dd($request->all());
+        $validated = $request->validate([
             'daterange'   => 'required|string',
             'workers'     => 'array',
             'workers.*'   => 'exists:users,id',
@@ -136,17 +216,17 @@ class SchedulerController extends Controller
             return response()->json(['error' => 'Start date must be before end date'], 422);
         }
 
-        // Create the Job Schedule
-        $jobSchedule = JobSchedule::create([
-            'job_id'      => $validated['job_id'],
-            'job_name'    => Fjob::find($validated['job_id'])->job_name,
+        // Find the Job Schedule
+        $jobSchedule = JobSchedule::findOrFail($id);
+        $jobSchedule->update([
             'start_date'  => $startDate,
             'end_date'    => $endDate,
             'instructions' => $validated['instructions'],
             'status'      => 'pending',
         ]);
 
-        // Assign workers (if any)
+        // Update workers
+        JobScheduleWorker::where('job_schedule_id', $id)->delete();
         foreach ($validated['workers'] ?? [] as $workerId) {
             JobScheduleWorker::create([
                 'job_schedule_id' => $jobSchedule->id,
@@ -158,9 +238,8 @@ class SchedulerController extends Controller
         }
 
         return response()->json([
-            'message'      => 'Job schedule created successfully',
-            'job_schedule' => $jobSchedule
-        ], 201);
+            'message'      => 'Job schedule updated successfully',
+        ]);
     }
 
     public function deleteSchedule(Request $request, $id)

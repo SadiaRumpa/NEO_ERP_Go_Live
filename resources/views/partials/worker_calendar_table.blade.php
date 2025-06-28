@@ -24,11 +24,31 @@
                             $assigned = $assignmentMap[$worker->id][$date] ?? null;
                         @endphp
                         <td>
-                            @if ($assigned)
-                                <button type="button" class="btn btn-dark btn-sm" data-bs-toggle="modal"
-                                    data-bs-target="#scheduleModal" data-id="{{ $assigned->job_schedule_id }}">
-                                    {{ 'Job# ' . $assigned->jobSchedule->job_name ?? 'Job #' . $assigned->job_schedule_id }}
-                                </button>
+                            @if (!empty($assignmentMap[$worker->id][$date]) && is_array($assignmentMap[$worker->id][$date]))
+                                @foreach ($assignmentMap[$worker->id][$date] as $assigned)
+                                    @php
+                                        $job = $assigned->jobSchedule ?? null;
+                                        $jobName = $job->job_name ?? 'Job #' . $assigned->job_schedule_id;
+                                        $jobStatus = $job->job_status ?? 'unknown';
+
+                                        $today = \Carbon\Carbon::today();
+                                        $jobDate = \Carbon\Carbon::parse($date);
+                                        $btnClass = 'btn-dark';
+
+                                        if ($jobDate->isToday()) {
+                                            $btnClass = 'btn-warning';
+                                        } elseif ($jobDate->isPast() && $jobStatus !== 'completed') {
+                                            $btnClass = 'btn-danger';
+                                        }
+                                    @endphp
+
+                                    <button type="button" class="btn {{ $btnClass }} btn-sm mb-1 w-100 text-start"
+                                        data-bs-toggle="modal" data-bs-target="#scheduleUpdateModal"
+                                        data-id="{{ $assigned->job_schedule_id }}">
+                                        {{ $jobName }}
+                                    </button>
+                                </br>
+                                @endforeach
                             @else
                                 -
                             @endif
@@ -40,9 +60,11 @@
     </tbody>
 </table>
 <!-- Modal -->
-<div class="modal fade" id="scheduleModal" data-bs-backdrop="static" tabindex="-1">
+<div class="modal fade" id="scheduleUpdateModal" data-bs-backdrop="static" tabindex="-1">
     <div class="modal-dialog modal-xl">
-        <form class="modal-content">
+        <form class="modal-content" id="scheduleUpdateForm">
+            @csrf
+            @method('PUT')
             <div class="modal-header">
                 <h5 class="modal-title" id="backDropModalTitle">Schedule Details</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -84,7 +106,7 @@
                     </div>
                     <div class="col">
                         <div class="row">
-                            <div class="modal-job-details" style="height: 550px; overflow-y: auto;">
+                            <div class="modal-job-details" style="height: 530px; overflow-y: auto;">
 
                                 <iframe id="jobMap" width="100%" height="250" frameborder="0" style="border:0"
                                     referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
@@ -122,7 +144,7 @@
                 <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">
                     Close
                 </button>
-                <button type="button" class="btn btn-primary">Update</button>
+                <button type="button" class="btn btn-primary" id="updateScheduleBtn">Update</button>
                 <button class="btn btn-md btn-danger"
                     onclick="removeAssignment(this.closest('form').querySelector('#jobScheduleId').value); return false;">
                     <i class="bi bi-trash"></i>
@@ -134,7 +156,7 @@
 </div>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const modal = document.getElementById('scheduleModal');
+        const modal = document.getElementById('scheduleUpdateModal');
 
         if (!modal) return;
 
@@ -178,6 +200,7 @@
                     .then(data => {
                         const schedule = data.schedule;
                         const workers = data.workers;
+                        const workerslist = data.workerslist;
                         const job = data.job;
                         const jobAddress = data.jobAddress;
                         const jobCustomer = data.customer;
@@ -192,23 +215,31 @@
                         quillmu.clipboard.dangerouslyPasteHTML(schedule.instructions || '');
                         instructionInput.value = schedule.instructions || '';
 
-
                         const assignedWorkerIds = workers.map(w => w.id.toString());
 
-                        // Populate options
-                        workers.forEach(worker => {
+                        // Clear old options (in case this is reused)
+                        workerSelect.innerHTML = '';
+
+                        // Populate all options
+                        workerslist.forEach(worker => {
                             const option = document.createElement('option');
                             option.value = worker.id;
                             option.textContent = worker.name;
-                            option.selected = assignedWorkerIds.includes(worker.id
-                                .toString());
+
+                            // Mark as selected if this worker is assigned
+                            if (assignedWorkerIds.includes(worker.id.toString())) {
+                                option.selected = true;
+                            }
+
                             workerSelect.appendChild(option);
                         });
 
-                        // Trigger Select2 update
+                        // Trigger Select2 refresh
                         if ($(workerSelect).hasClass("select2-hidden-accessible")) {
                             $(workerSelect).trigger('change');
                         }
+
+
 
                         if (jobScheduleId) {
                             jobScheduleIdInput.value = schedule.id;
@@ -219,7 +250,7 @@
                             .job_description || '';
 
                         // Fill contact info
-                         document.getElementById('companyName').textContent =
+                        document.getElementById('companyName').textContent =
                             `${jobCustomer.company_name}`
                             .trim();
                         document.getElementById('contactName').textContent =
