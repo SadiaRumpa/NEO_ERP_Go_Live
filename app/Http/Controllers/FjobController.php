@@ -23,7 +23,7 @@ class FjobController extends Controller
 
             $data = Fjob::with(['customer', 'jobaddress'])
                 ->select('*')
-                ->whereIn('job_status', ['draft','accepted', 'new', 'inprogress', 'on_hold'])
+                ->whereIn('job_status', ['draft', 'accepted', 'new', 'inprogress', 'on_hold'])
                 ->orderByDesc('created_at');
 
             return Datatables::of($data)
@@ -82,7 +82,7 @@ class FjobController extends Controller
         $mailtemplates = MailTemplate::where('status', 'active')
             ->orderBy('id', 'desc')->get();
 
-        return view('jobs.show', compact('job','mailtemplates'));
+        return view('jobs.show', compact('job', 'mailtemplates'));
     }
 
     public function uploadJobAttachments(Request $request)
@@ -159,5 +159,25 @@ class FjobController extends Controller
         ]);
 
         return response()->json(['success' => 'Job status updated successfully.']);
+    }
+
+    public function updateJobTitle(Request $request, $id)
+    {
+        $job = Fjob::find($id);
+        if (!$job) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Job not found.'
+            ], 404);
+        }
+
+        $job->update([
+            'job_title' => $request->job_title,
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Job title updated successfully.'
+        ]);
     }
 }

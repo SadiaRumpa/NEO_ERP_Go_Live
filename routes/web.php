@@ -44,7 +44,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/enquiry/updateaddress/{id}', [EnquiryController::class, 'updateEnquiryAddress'])->name('enquiry.updateaddress');
     Route::post('/enquiry/updatestatus/{id}', [EnquiryController::class, 'updateEnquiryStatus'])->name('enquiry.updatestatus');
 
-    Route::post('enquiries/add-note', [EnquiryController::class, 'enqueryNotes'])->name('enquiry.add-note');
+    Route::post('enquiries/add-note/{enquiry_id}', [EnquiryController::class, 'enqueryNotes'])->name('enquiry.add-note');
     Route::delete('enquiries/delete-note/{id}', [EnquiryController::class, 'deleteenqueryNotes'])->name('enquiry.destroynote');
 
     Route::post('enquiries/add-images', [EnquiryController::class, 'enqueryImages'])->name('enquiry.add-images');
@@ -69,7 +69,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('lead-to-job-conversion', [LeadController::class, 'leadtoJobConversion'])->name('lead.jobconversion');
 
-    Route::post('lead/add-note', [LeadController::class, 'leadNotes'])->name('leads.add-note');
+    Route::post('lead/add-note/{leadid}', [LeadController::class, 'leadNotes'])->name('leads.add-note');
     Route::delete('lead/delete-note/{id}', [LeadController::class, 'deleteLeadNotes'])->name('leads.destroynote');
 
     Route::post('leads/add-images', [LeadController::class, 'addLeadImages'])->name('leads.add-images');
@@ -109,6 +109,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('job/updatedescription/{id}', [FjobController::class, 'updateJobDetails'])->name('job.updatedescription');
     Route::post('job/updateaddress/{id}', [FjobController::class, 'updateJobAddress'])->name('job.updateaddress');
     Route::post('job/updatestatus/{id}', [FjobController::class, 'updateJobStatus'])->name('job.updatestatus');
+    Route::post('job/updatetitle/{id}', [FjobController::class, 'updateJobTitle'])->name('job.updatetitle');
 
     Route::post('job/add-note', [FjobController::class, 'jobNotes'])->name('job.add-note');
     Route::delete('job/delete-note/{id}', [FjobController::class, 'deleteJobNotes'])->name('job.destroynote');
@@ -122,8 +123,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('scheduler', [SchedulerController::class, 'index'])->name('scheduler.index');
     Route::post('scheduler/workers', [SchedulerController::class, 'getSchedulerCalendarData'])->name('scheduler.workers-calendar');
     Route::get('scheduler/job-schedule/{id}', [SchedulerController::class, 'showSchedule'])->name('scheduler.job-schedule');
+
+    Route::post('scheduler/fake-workers', [SchedulerController::class, 'getFakeSchedulerCalendarData'])->name('scheduler.fake-workers-calendar');
+    Route::get('scheduler/job-schedule/{id}', [SchedulerController::class, 'showSchedule'])->name('scheduler.job-schedule');
     
     Route::post('scheduler/store-job-schedule', [SchedulerController::class, 'storeJobSchedule'])->name('scheduler.store-job-schedule');
     Route::put('scheduler/update-job-schedule/{id}', [SchedulerController::class, 'updateJobSchedule'])->name('scheduler.update-job-schedule');
     Route::delete('scheduler/delete-schedule/{id}', [SchedulerController::class, 'deleteSchedule'])->name('scheduler.delete-schedule');
+
+    Route::post('scheduler/store-fake-job-schedule', [SchedulerController::class, 'storeFakeJobSchedule'])->name('scheduler.store-fake-job-schedule');
+    Route::put('scheduler/update-fake-job-schedule/{id}', [SchedulerController::class, 'updateFakeJobSchedule'])->name('scheduler.update-fake-job-schedule');
+    Route::delete('scheduler/delete-fake-schedule/{id}', [SchedulerController::class, 'deleteFakeSchedule'])->name('scheduler.delete-fake-schedule');
 });

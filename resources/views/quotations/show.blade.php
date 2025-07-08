@@ -94,7 +94,12 @@
                         <span class="icon-base ti tabler-corner-up-left-double icon-20px"></span>
                     </a>
 
-                    <span class="h5">QUOTATION FOR LEAD #{{ $quotation->lead->lead_name }}
+                    <span class="h5">QUOTATION FOR LEAD #
+                        <a href="{{ route('leads.show', $quotation->lead->slug) }}">
+                            <span class="badge bg-label-success me-1 ms-2">{{ $quotation->lead->lead_name }}
+                            </span>
+                        </a>
+
                         @if ($quotation->lead->status == 'draft' || $quotation->lead->status == 'inprogress')
                             <a type="button" class="btn btn-icon btn-sm btn-warning waves-effect waves-light"
                                 href="{{ route('quotations.edit', $quotation->id) }}">
@@ -151,7 +156,7 @@
                             <h5 class="modal-title" id="acceptModalTitle">Quotaion</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div class="modal-body">                            
+                        <div class="modal-body">
                             <div class="row g-4">
                                 <div class="col mb-4">
                                     <label for="remarks" class="form-label">Remarks</label>
@@ -208,10 +213,12 @@
                         </div>
                         <div class="row">
                             <div class="col-6">
-                                <p class="text-start mb-2"><strong> Estimated Total Cost: {{ formatPoundNumber($quotation->total_amount) }}</strong></p>
+                                <p class="text-start mb-2"><strong> Estimated Total Cost:
+                                        {{ formatPoundNumber($quotation->total_amount) }}</strong></p>
                             </div>
                             <div class="col-6">
-                                <p class="text-md-end mb-2"><strong> Proposal valid until: {{ \Carbon\Carbon::parse($quotation->valid_until)->format('F jS Y') }}</strong></p>
+                                <p class="text-md-end mb-2"><strong> Proposal valid until:
+                                        {{ \Carbon\Carbon::parse($quotation->valid_until)->format('F jS Y') }}</strong></p>
                             </div>
                         </div>
                     </div>

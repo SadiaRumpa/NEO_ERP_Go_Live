@@ -165,7 +165,8 @@ class EnquiryController extends Controller
             'contactPhone'  => 'required_without_all:customer_id,contactMobile|nullable|max:20',
             'contactMobile' => 'required_without_all:customer_id,contactPhone|nullable|max:20',
             'contactEmail' => 'required_without:customer_id|nullable|email|max:255',
-            'enquirydescription' => 'required|string',
+            'enquiry' => 'required|string',
+            'enquirydescription' => 'nullable|string',
             'enquiry_postcode' => 'required|string|max:20',
             'enquiry_address' => 'required|string',
             'enquiry_county' => 'nullable|string|max:255',
@@ -212,6 +213,7 @@ class EnquiryController extends Controller
             $enquiry = Enquiry::create([
                 'enquiry_name' => randomenquiryGenerator(),
                 'customer_id' => $customerid,
+                'enquiry' => $validated['enquiry'],
                 'enquiry_description' => $validated['enquirydescription'],
                 'enquiry_type' => 'query',
                 'enquiry_source' => $validated['enquiry_source'] ?? 'call',
@@ -290,15 +292,19 @@ class EnquiryController extends Controller
         return view('enquiries.show', compact('enquiry', 'mailtemplates'));
     }
 
-    public function enqueryNotes(Request $request)
+    public function enqueryNotes(Request $request, $enquiry_id)
     {
         $validated = $request->validate([
-            'enquiry_id' => 'required|exists:enquiries,id',
             'note'       => 'required|string',
         ]);
 
+        $checkEnquiry = Enquiry::find($enquiry_id);
+        if (!$checkEnquiry) {
+            return response()->json(['status' => 'error', 'message' => 'Enquiry not found.']);
+        }
+
         $enquirynote = EnquiryNote::create([
-            'enquiry_id'  => $validated['enquiry_id'],
+            'enquiry_id'  => $enquiry_id,
             'note_by'     => Auth::id(),
             'note'        => $validated['note'],
             'note_type'   => 'internal',
@@ -486,6 +492,7 @@ class EnquiryController extends Controller
 
         $lead = Lead::create([
             'enquiry_id' => $validated['enquiry_id'],
+            'enquiry' => $enquiry->enquiry,
             'lead_name' => $enquiry->enquiry_name,
             'lead_description' => $enquiry->enquiry_description,
             'customer_id' => $enquiry->customer_id,

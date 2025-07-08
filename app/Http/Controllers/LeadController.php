@@ -224,15 +224,19 @@ class LeadController extends Controller
         return response()->json(['status' => 'success', 'message' => 'Image deleted successfully.']);
     }
 
-    public function leadNotes(Request $request)
+    public function leadNotes(Request $request, $leadid)
     {
         $validated = $request->validate([
-            'lead_id' => 'required|exists:leads,id',
             'note'       => 'required|string',
         ]);
 
+        $lead = Lead::find($leadid);
+        if (!$lead) {
+            return response()->json(['status' => 'error', 'message' => 'Lead not found.']);
+        }
+
         $enquirynote = LeadNote::create([
-            'lead_id'  => $validated['lead_id'],
+            'lead_id'  => $leadid,
             'note_by'     => Auth::id(),
             'note'        => $validated['note'],
             'note_type'   => 'internal',
@@ -395,8 +399,11 @@ class LeadController extends Controller
 
         $fjob = Fjob::create([
             'enquiry_id' => $lead->enquiry_id,
+            'enquiry' => $lead->enquiry,
             'lead_id' => $validated['lead_id'],
             'job_name' => $lead->lead_name,
+            'slug' => $lead->slug,
+            'job_title' => $lead->lead_title,
             'job_description' => $lead->lead_description,
             'customer_id' => $lead->customer_id,
             'job_type' => $lead->lead_type,

@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->bigInteger('job_id');
             $table->string('job_name')->nullable();
+            $table->string('job_title')->nullable();
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
             $table->text('instructions')->nullable();

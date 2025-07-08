@@ -9,6 +9,7 @@ class JobSchedule extends Model
     protected $fillable = [
         'job_id',
         'job_name',
+        'job_title',
         'start_date',
         'end_date',
         'instructions',

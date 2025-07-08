@@ -1,0 +1,264 @@
+$(function () {
+    // Datepicker
+    const date = new Date();
+
+    const productDate = document.querySelector('.product-date');
+
+    if (productDate) {
+        productDate.flatpickr({
+            monthSelectorType: 'static',
+            defaultDate: date
+        });
+    }
+});
+$(function () {
+    // Select2
+    var select2 = $('.select2');
+    if (select2.length) {
+        select2.each(function () {
+            var $this = $(this);
+            $this.wrap('<div class="position-relative"></div>').select2({
+                dropdownParent: $this.parent(),
+                placeholder: $this.data('placeholder') // for dynamic placeholder
+            });
+        });
+    }
+});
+
+let quill;
+document.addEventListener('DOMContentLoaded', function () {
+    const editorContainer = document.querySelector('#enquiry-description-edit');
+    if (editorContainer) {
+        quill = new Quill(editorContainer, {
+            placeholder: 'Enquiry Description',
+            theme: 'snow'
+        });
+    }
+});
+
+function updateEnquiryDetails(enquiryId) {
+    const htmlContent = quill.root.innerHTML.trim();
+    const textContent = quill.getText().trim();
+
+    if (textContent === '') {
+        toastr.danger('Enquiry description is required.');
+        return;
+    }
+
+    // Add to hidden input
+    document.getElementById('enquirydescription-hidden').value = htmlContent;
+    const form = document.getElementById('enquiryForm');
+    const formData = new FormData(form);
+    fetch(`/enquiry/updatedescription/` + enquiryId, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': form.querySelector('input[name="_token"]').value
+        },
+        body: formData
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                toastr.success(data.message);
+                // Optionally close modal
+                $('#editdescriptionModal').modal('hide');
+                location.reload(); // This will reload the entire page
+            } else {
+                toastr.danger('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            toastr.danger('Something went wrong!');
+        });
+}
+
+const quilln = new Quill('#enquirynotes', {
+    theme: 'snow',
+    placeholder: 'Write note here...',
+});
+
+
+function addNotes(enquiryId) {
+    const htmlContent = quilln.root.innerHTML.trim();
+    const textContent = quilln.getText().trim();
+
+    if (textContent === '') {
+        toastr.error('Note is required.');
+        return;
+    }
+
+    document.getElementById('enquirynotes-hidden').value = htmlContent;
+
+    $.ajax({
+        url: `/enquiries/add-note/` + enquiryId,
+        method: "POST",
+        headers: {
+            _token: document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        data: {
+            note: htmlContent
+        },
+        success: function (response) {
+            toastr.success('Note added successfully');
+            window.location.reload();
+        },
+        error: function (xhr) {
+            let message = "Something went wrong.";
+            if (xhr.responseJSON && xhr.responseJSON.errors) {
+                message = Object.values(xhr.responseJSON.errors).flat().join('<br>');
+            }
+            toastr.error(message);
+        }
+    });
+}
+
+
+
+function deleteEnquiryImage(imageId) {
+    const confirmation = confirm('Are you sure you want to delete this image?');
+
+    if (confirmation) {
+        $.ajax({
+            url: `/enquiries/delete-image/${imageId}`, // Change URL as per your route
+            method: 'DELETE',
+            data: {
+                _token: document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            success: function (response) {
+                if (response.status === 'success') {
+                    toastr.success(response.message || 'Image deleted successfully');
+                    window.location.reload(); // Or remove the DOM element dynamically
+                } else {
+                    toastr.error(response.message || 'Failed to delete image');
+                }
+            },
+            error: function (xhr) {
+                toastr.error('Something went wrong while deleting the image.');
+                console.error(xhr.responseText);
+            }
+        });
+    }
+}
+
+
+const quillm = new Quill('#mailmessage', {
+    theme: 'snow',
+    placeholder: 'Write your message...',
+});
+
+function selectMailTemplate() {
+    const templateId = document.getElementById('mailTemplateSelect').value;
+    if (!templateId) return;
+
+    $.ajax({
+        url: `/mail-template/${templateId}`,
+        method: 'GET',
+        success: function (res) {
+            quillm.root.innerHTML = res.message;
+        },
+        error: function () {
+            console.error('Failed to load mail template.');
+            toastr.danger('Failed to load mail template.');
+            quillm.root.innerHTML = '';
+        }
+    });
+}
+
+// On form submit
+$('form').on('submit', function () {
+    $('#mailmessage_input').val(quill.root.innerHTML);
+});
+
+$(document).ready(function () {
+    $('.convert-to-lead-btn').on('click', function () {
+        let enquiryId = $(this).data('id');
+        let status = $(this).data('status');
+
+        // Confirmation dialog
+        if (!confirm(`Are you sure you want to send it to Lead Manager?`)) {
+            return; // Stop if user cancels
+        }
+
+        $.ajax({
+            url: '/enquiry-to-lead-conversion',
+            type: 'POST',
+            data: {
+                _token: $('meta[name="csrf-token"]').attr('content'), // CSRF token
+                status: status,
+                enquiry_id: enquiryId
+            },
+            success: function (response) {
+                toastr.success(response.message);
+
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            },
+            error: function (xhr) {
+                let errorMsg = 'An error occurred.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMsg = xhr.responseJSON.message;
+                }
+
+                toastr.danger(errorMsg);
+            }
+        });
+    });
+});
+
+$(document).on('click', '.update-enquiry-status', function (e) {
+    e.preventDefault();
+
+    let status = $(this).data('status');
+    let enquiryId = $(this).data('id');
+
+    // Confirmation dialog
+    if (!confirm(`Are you sure you want to change the status to "${status}"?`)) {
+        return; // Stop if user cancels
+    }
+
+    $.ajax({
+        url: `/enquiry/updatestatus/${enquiryId}`,
+        type: 'POST',
+        data: {
+            status: status,
+            _token: $('meta[name="csrf-token"]').attr(
+                'content') // Make sure CSRF token is available
+        },
+        success: function (response) {
+            toastr.success('Status updated successfully');
+            location.reload();
+        },
+        error: function (xhr) {
+            toastr.danger('Something went wrong');
+        }
+    });
+});
+
+$(document).ready(function () {
+    $('.delete-image').click(function () {
+        const imageId = $(this).data('id');
+        const confirmation = confirm('Are you sure you want to delete this image?');
+        if (confirmation) {
+            $.ajax({
+                url: `/enquiries/delete-image/${imageId}`,
+                method: 'DELETE',
+                data: {
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function (response) {
+                    if (response.status === 'success') {
+                        toastr.success(response.message);
+                        window.location.reload(); // Reload the page to see the changes
+                    } else {
+                        toastr.danger('Error: ' + response.message);
+                    }
+                },
+                error: function (xhr) {
+                    toastr.danger('Something went wrong!');
+                }
+            });
+        }
+    });
+});

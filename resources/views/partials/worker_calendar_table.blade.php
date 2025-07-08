@@ -1,64 +1,70 @@
-<table class="table table-bordered calendar-table">
-    <thead class="table-light">
-        <tr>
-            <th class="sticky-col bg-white" rowspan="2">Worker Name</th>
-            @foreach ($datesByMonth as $month => $dates)
-                <th colspan="{{ count($dates) }}" class="text-center">{{ $month }}</th>
-            @endforeach
-        </tr>
-        <tr>
-            @foreach ($datesByMonth as $month => $dates)
-                @foreach ($dates as $date)
-                    <th>{{ \Carbon\Carbon::parse($date)->format('d') }}</th>
-                @endforeach
-            @endforeach
-        </tr>
-    </thead>
-    <tbody>
-        @foreach ($workers as $worker)
+<div class="table-responsive text-nowrap">
+    <table class="table table-hover">
+        <thead class="table-light">
             <tr>
-                <td class="sticky-col bg-white"><strong>{{ $worker->name }}</strong></td>
+                <th class="sticky-col bg-white" rowspan="2">Worker Name</th>
+                @foreach ($datesByMonth as $month => $dates)
+                    <th colspan="{{ count($dates) }}" class="text-center">{{ $month }}</th>
+                @endforeach
+            </tr>
+            <tr>
                 @foreach ($datesByMonth as $month => $dates)
                     @foreach ($dates as $date)
+                        <th>{{ \Carbon\Carbon::parse($date)->format('d') }}</th>
+                    @endforeach
+                @endforeach
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($workers as $worker)
+                <tr class="position-relative" style="height: 50px;"> {{-- Control row height --}}
+                    <td class="sticky-col bg-white"><strong>{{ $worker->name }}</strong></td>
+
+                    @php
+                        $allDatesArray = $allDates->toArray();
+                        $skipDates = []; // Track which dates to skip due to colspan
+                    @endphp
+
+                    @foreach ($allDatesArray as $date)
                         @php
-                            $assigned = $assignmentMap[$worker->id][$date] ?? null;
+                            $dateKey = \Carbon\Carbon::parse($date)->format('Y-m-d');
+
+                            // Get all jobs assigned to this worker that intersect this date
+                            $jobSchedules = $worker->jobSchedules->filter(function ($job) use ($dateKey) {
+                                return $dateKey >= $job->start_date && $dateKey <= $job->end_date;
+                            });
+                            
                         @endphp
-                        <td>
-                            @if (!empty($assignmentMap[$worker->id][$date]) && is_array($assignmentMap[$worker->id][$date]))
-                                @foreach ($assignmentMap[$worker->id][$date] as $assigned)
+
+                        <td class="calendar-cell">
+                            @if ($jobSchedules->isNotEmpty())
+                            
+                                @foreach ($jobSchedules as $jobSchedule)
                                     @php
-                                        $job = $assigned->jobSchedule ?? null;
-                                        $jobName = $job->job_name ?? 'Job #' . $assigned->job_schedule_id;
-                                        $jobStatus = $job->job_status ?? 'unknown';
-
-                                        $today = \Carbon\Carbon::today();
-                                        $jobDate = \Carbon\Carbon::parse($date);
-                                        $btnClass = 'btn-dark';
-
-                                        if ($jobDate->isToday()) {
-                                            $btnClass = 'btn-warning';
-                                        } elseif ($jobDate->isPast() && $jobStatus !== 'completed') {
-                                            $btnClass = 'btn-danger';
-                                        }
+                                        $startdate = $jobSchedule->start_date;
+                                        $enddate = $jobSchedule->end_date;
                                     @endphp
 
-                                    <button type="button" class="btn {{ $btnClass }} btn-sm mb-1 w-100 text-start"
-                                        data-bs-toggle="modal" data-bs-target="#scheduleUpdateModal"
-                                        data-id="{{ $assigned->job_schedule_id }}">
-                                        {{ $jobName }}
-                                    </button>
-                                </br>
+                                    <div class="mb-1">
+                                        <button type="button" class="btn btn-sm btn-primary w-100 text-start"
+                                            data-bs-toggle="modal" data-bs-target="#scheduleUpdateModal"
+                                            data-id="{{ $jobSchedule->id }}">
+                                            {{ $jobSchedule->job_name }} - {{  $jobSchedule->job_title }}
+                                        </button>
+                                    </div>
                                 @endforeach
                             @else
                                 -
                             @endif
                         </td>
                     @endforeach
-                @endforeach
-            </tr>
-        @endforeach
-    </tbody>
-</table>
+
+
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+</div>
 <!-- Modal -->
 <div class="modal fade" id="scheduleUpdateModal" data-bs-backdrop="static" tabindex="-1">
     <div class="modal-dialog modal-xl">
@@ -106,7 +112,7 @@
                     </div>
                     <div class="col">
                         <div class="row">
-                            <div class="modal-job-details" style="height: 530px; overflow-y: auto;">
+                            <div class="modal-job-details" style="height: 80%; overflow-y: auto;">
 
                                 <iframe id="jobMap" width="100%" height="250" frameborder="0" style="border:0"
                                     referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
@@ -239,15 +245,12 @@
                             $(workerSelect).trigger('change');
                         }
 
-
-
                         if (jobScheduleId) {
                             jobScheduleIdInput.value = schedule.id;
                         }
 
                         // Fill job info
-                        document.getElementById('jobDescription').textContent = job
-                            .job_description || '';
+                        document.getElementById('jobDescription').innerHTML = job.job_description || '';
 
                         // Fill contact info
                         document.getElementById('companyName').textContent =

@@ -53,4 +53,11 @@ class User extends Authenticatable
             ->withPivot('assigned_date', 'completion_date', 'status', 'notes')
             ->withTimestamps();
     }
+
+    public function fakeJobSchedules()
+    {
+        return $this->belongsToMany(FakeJobSchedule::class, 'job_schedule_workers', 'user_id', 'job_schedule_id')
+            ->withPivot('assigned_date', 'completion_date', 'status', 'notes')
+            ->withTimestamps();
+    }
 }

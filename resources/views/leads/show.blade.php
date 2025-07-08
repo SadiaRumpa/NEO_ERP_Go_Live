@@ -15,374 +15,7 @@
     <script src="{{ asset('assets/vendor/libs/swiper/swiper.js') }}"></script>
     <!-- Page JS -->
     <script src="{{ asset('assets/js/ui-carousel.js') }}"></script>
-
-    <script>
-        $(function() {
-            // Datepicker
-            const date = new Date();
-            const productDate = document.querySelector('.product-date');
-
-            if (productDate) {
-                productDate.flatpickr({
-                    monthSelectorType: 'static',
-                    defaultDate: date
-                });
-            }
-        });
-        $(function() {
-            // Select2
-            var select2 = $('.select2');
-            if (select2.length) {
-                select2.each(function() {
-                    var $this = $(this);
-                    $this.wrap('<div class="position-relative"></div>').select2({
-                        dropdownParent: $this.parent(),
-                        placeholder: $this.data('placeholder') // for dynamic placeholder
-                    });
-                });
-            }
-        });
-    </script>
-    <script>
-        let quill;
-        document.addEventListener('DOMContentLoaded', function() {
-            const editorContainer = document.querySelector('#lead-description-edit');
-            if (editorContainer) {
-                quill = new Quill(editorContainer, {
-                    modules: {
-                        toolbar: '.lead-toolbar'
-                    },
-                    placeholder: 'lead Description',
-                    theme: 'snow'
-                });
-            }
-        });
-
-        function updateleadDetails() {
-            const htmlContent = quill.root.innerHTML.trim();
-            const textContent = quill.getText().trim();
-
-            if (textContent === '') {
-                toastr.error('Description cannot be empty');
-                return;
-            }
-
-            // Add to hidden input
-            document.getElementById('leaddescription-hidden').value = htmlContent;
-            const form = document.getElementById('leadForm');
-            const formData = new FormData(form);
-            fetch(`/lead/updatedescription/{{ $lead->id }}`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': form.querySelector('input[name="_token"]').value
-                    },
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        toastr.success(data.message);
-                        location.reload();
-                    } else {
-                        toastr.error('Error: ' + data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    toastr.error('Something went wrong');
-                });
-        }
-    </script>
-    <script>
-        const quilln = new Quill('#leadnotes', {
-            theme: 'snow',
-            placeholder: 'Write note here...',
-        });
-
-        function addNotes(leadId) {
-            const htmlContent = quilln.root.innerHTML.trim();
-            const textContent = quilln.getText().trim();
-
-            if (textContent === '') {
-                toastr.danger('Note is required.');
-                return;
-            }
-
-            // Add to hidden input
-            document.getElementById('leadnotes-hidden').value = htmlContent;
-
-            const notedata = quilln.root.innerHTML.trim();
-
-            $.ajax({
-                url: "{{ route('leads.add-note') }}", // Your Laravel route
-                method: "POST",
-                data: {
-                    lead_id: leadId,
-                    note: notedata,
-                    _token: '{{ csrf_token() }}'
-                },
-                success: function(response) {
-                    if (response.status === 'success') {
-                        $('#note-message').html('<div class="alert alert-success">' + response.message +
-                            '</div>');
-                        toastr.success('Note added successfully');
-                        window.location.reload(); // Reload the page to see the new note
-                    } else {
-                        toastr.danger('Error: ' + response.message);
-                        $('#note-message').html('<div class="alert alert-danger">' + response.message +
-                            '</div>');
-                    }
-                },
-                error: function(xhr) {
-                    let message = "Something went wrong.";
-                    if (xhr.responseJSON && xhr.responseJSON.errors) {
-                        message = Object.values(xhr.responseJSON.errors).flat().join('<br>');
-                    }
-                    toastr.danger(message);
-                    $('#note-message').html('<div class="alert alert-danger">' + message + '</div>');
-                }
-            });
-        }
-    </script>
-    <script>
-        const quillm = new Quill('#mailmessage', {
-            theme: 'snow',
-            placeholder: 'Write your message...',
-        });
-
-        function selectMailTemplate() {
-            const templateId = document.getElementById('mailTemplateSelect').value;
-            if (!templateId) return;
-
-            $.ajax({
-                url: `/mail-template/${templateId}`,
-                method: 'GET',
-                success: function(res) {
-                    quillm.root.innerHTML = res.message;
-                },
-                error: function() {
-                    console.error('Failed to load mail template.');
-                    quillm.root.innerHTML = '';
-                    toastr.error('Failed to load mail template.');
-                }
-            });
-        }
-
-        // On form submit
-        $('form').on('submit', function() {
-            $('#mailmessage_input').val(quill.root.innerHTML);
-        });
-    </script>
-    <script>
-        $(document).ready(function() {
-            $('.delete-note').click(function() {
-                const noteId = $(this).data('id');
-                const confirmation = confirm('Are you sure you want to delete this note?');
-                if (confirmation) {
-                    $.ajax({
-                        url: `/lead/delete-note/${noteId}`,
-                        method: 'DELETE',
-                        data: {
-                            _token: '{{ csrf_token() }}'
-                        },
-                        success: function(response) {
-                            if (response.status === 'success') {
-                                toastr.success(response.message);
-                                window.location.reload(); // Reload the page to see the changes
-                            } else {
-                                toastr.error('Error: ' + response.message);
-                            }
-                        },
-                        error: function(xhr) {
-                            toastr.error('Something went wrong!');
-                        }
-                    });
-                }
-            });
-        });
-        $(document).ready(function() {
-            $('.delete-attachment').click(function() {
-                const attachmentId = $(this).data('id');
-                const confirmation = confirm('Are you sure you want to delete this attachment?');
-                if (confirmation) {
-                    $.ajax({
-                        url: `/leads/delete-attachment/${attachmentId}`,
-                        method: 'DELETE',
-                        data: {
-                            _token: '{{ csrf_token() }}'
-                        },
-                        success: function(response) {
-                            if (response.status === 'success') {
-                                toastr.success(response.message);
-                                window.location.reload(); // Reload the page to see the changes
-                            } else {
-                                toastr.error('Error: ' + response.message);
-                            }
-                        },
-                        error: function(xhr) {
-                            toastr.error('Something went wrong!');
-                        }
-                    });
-                }
-            });
-        });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Handle lead image upload
-            const imageForm = document.getElementById('lead-image-upload-form');
-            imageForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-
-                const formData = new FormData(imageForm);
-
-                fetch(imageForm.action, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': imageForm.querySelector('input[name="_token"]').value
-                        },
-                        body: formData
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.status === 'success') {
-                            toastr.success(data.message);
-                            window.location.reload(); // Reload the page to see the new image
-                        } else {
-                            toastr.error(data.message || 'Upload failed');
-                        }
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        toastr.error('Something went wrong');
-                    });
-            });
-        });
-
-        $(document).ready(function() {
-            $('.delete-image').click(function() {
-                const imageId = $(this).data('id');
-                const confirmation = confirm('Are you sure you want to delete this image?');
-                if (confirmation) {
-                    $.ajax({
-                        url: `/leads/delete-image/${imageId}`,
-                        method: 'DELETE',
-                        data: {
-                            _token: '{{ csrf_token() }}'
-                        },
-                        success: function(response) {
-                            if (response.status === 'success') {
-                                toastr.success(response.message);
-                                window.location.reload(); // Reload the page to see the changes
-                            } else {
-                                toastr.error('Error: ' + response.message);
-                            }
-                        },
-                        error: function(xhr) {
-                            toastr.error('Something went wrong!');
-                        }
-                    });
-                }
-            });
-        });
-    </script>
-    <script>
-        $(document).ready(function() {
-            $('.convert-to-job-btn').on('click', function() {
-                let leadId = $(this).data('id');
-                let status = $(this).data('status');
-
-                // Confirmation dialog
-                if (!confirm(`Are you sure you want to send it to Lead Manager?`)) {
-                    return; // Stop if user cancels
-                }
-
-                $.ajax({
-                    url: '/lead-to-job-conversion',
-                    type: 'POST',
-                    data: {
-                        _token: '{{ csrf_token() }}',
-                        status: status,
-                        lead_id: leadId
-                    },
-                    success: function(response) {
-                        toastr.success(response.message);
-
-                        setTimeout(() => {
-                            location.reload();
-                        }, 1500);
-                    },
-                    error: function(xhr) {
-                        let errorMsg = 'An error occurred.';
-                        if (xhr.responseJSON && xhr.responseJSON.message) {
-                            errorMsg = xhr.responseJSON.message;
-                        }
-
-                        toastr.danger(errorMsg);
-                    }
-                });
-            });
-        });
-    </script>
-    <script>
-        $(document).on('click', '.update-lead-status', function(e) {
-            e.preventDefault();
-
-            let status = $(this).data('status');
-            let leadId = $(this).data('id');
-
-            if (!confirm(`Are you sure you want to change the status to "${status}"?`)) {
-                return; // Stop if user cancels
-            }
-
-            $.ajax({
-                url: `/leads/updatestatus/${leadId}`,
-                type: 'POST',
-                data: {
-                    lead_status: status,
-                    _token: $('meta[name="csrf-token"]').attr(
-                        'content') // Make sure CSRF token is available
-                },
-                success: function(response) {
-                    toastr.success('Status updated successfully');
-                    location.reload();
-                },
-                error: function(xhr) {
-                    toastr.danger('Something went wrong');
-                }
-            });
-        });
-    </script>
-    <script>
-        $('#uploadAttachmentsForm').on('submit', function(e) {
-            e.preventDefault();
-
-            let form = $(this)[0];
-            let formData = new FormData(form);
-
-            $.ajax({
-                url: "{{ route('leads.attachments-upload') }}", // Change to your actual route
-                method: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                beforeSend: function() {
-                    // Optional: Show loader/spinner
-                },
-                success: function(response) {
-                    $('#uploadAttachmentsForm')[0].reset();
-                    $('#uploadAttachmentsModalTitle').closest('.modal').modal('hide');
-                    toastr.success('Attachments uploaded successfully');
-                    // Optionally reload part of the page
-                },
-                error: function(xhr) {
-                    toastr.error(xhr.responseJSON.message || 'Failed to upload attachments.');
-                    console.error(xhr.responseText);
-                }
-            });
-        });
-    </script>
-
+    <script src="{{ asset('assets/js/lead-show.js') }}"></script>
 @endsection
 
 @section('styles')
@@ -438,16 +71,19 @@
                                     </button>
                                     <ul class="dropdown-menu">
                                         <li>
-                                            <a class="dropdown-item waves-effect update-lead-status" data-status="inprogress"
-                                                data-id="{{ $lead->id }}" href="#">In Progress</a>
+                                            <a class="dropdown-item waves-effect" data-status="inprogress"
+                                                data-id="{{ $lead->id }}" href="#"
+                                                onclick="updateLeadStatus({{ $lead->id }}, 'inprogress')">In Progress</a>
                                         </li>
                                         <li>
-                                            <a class="dropdown-item waves-effect update-lead-status" data-status="on_hold"
-                                                data-id="{{ $lead->id }}" href="#">On Hold</a>
+                                            <a class="dropdown-item waves-effect" data-status="on_hold"
+                                                data-id="{{ $lead->id }}" href="#"
+                                                onclick="updateLeadStatus({{ $lead->id }}, 'on_hold')">On Hold</a>
                                         </li>
                                         <li>
-                                            <a class="dropdown-item waves-effect update-lead-status" data-status="archived"
-                                                data-id="{{ $lead->id }}" href="#">Archived</a>
+                                            <a class="dropdown-item waves-effect" data-status="archived"
+                                                data-id="{{ $lead->id }}" href="#"
+                                                onclick="updateLeadStatus({{ $lead->id }}, 'archived')">Archived</a>
                                         </li>
                                     </ul>
                                 @endif
@@ -472,7 +108,7 @@
                             @if (!in_array($lead->lead_status, ['new', 'converted_to_job', 'rejected', 'archived']))
                                 <button class="btn btn-label-success convert-to-job-btn" data-id="{{ $lead->id }}"
                                     data-status="converted_to_job">
-                                    SEND JOB MANAGER
+                                    SEND ACCOUNTS MANAGER
                                 </button>
                             @endif
                             @if ($lead->lead_status == 'inprogress')
@@ -559,6 +195,22 @@
             <div class="row mb-6 gy-6">
                 <!-- lead column-->
                 <div class="col-12 col-lg-8">
+                    <!-- Enquiry Information -->
+                    <div class="card mb-6">
+                        <div class="card-header header-elements">
+                            <h5 class="mb-0 me-2">Enquiry</h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- Description -->
+                            <div class="mb-6">
+                                <div class="form-control p-2">
+                                    {!! $lead->enquiry !!}
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <!-- Enquiry Information -->
                     <!-- lead Information -->
                     <div class="card mb-6">
                         <div class="card-header header-elements">
@@ -584,10 +236,10 @@
                                 </div>
                             </div>
 
-                            <!-- Form with Image Modal -->
+                            <!-- Form with Lead description Modal -->
                             <div class="modal-onboarding modal fade animate__animated" id="editdescriptionModal"
                                 tabindex="-1">
-                                <div class="modal-dialog" role="document">
+                                <div class="modal-dialog modal-lg" role="document">
                                     <div class="modal-content text-center">
                                         <div class="modal-header border-0">
                                             <a class="text-body-secondary close-label" href="javascript:void(0);"
@@ -640,13 +292,13 @@
                                                     Close
                                                 </button>
                                                 <button type="button" class="btn btn-success"
-                                                    onclick="updateleadDetails()">Save</button>
+                                                    onclick="updateleadDetails({{ $lead->id }})">Save</button>
                                             </div>
                                         </form>
                                     </div>
                                 </div>
                             </div>
-                            <!--/ Form with Image Modal -->
+                            <!--/ Form with Lead description Modal -->
                         </div>
                     </div>
                     <!-- lead Information -->
@@ -681,7 +333,8 @@
                                                     @if ($lead->lead_status == 'inprogress')
                                                         <div class="position-absolute top-0 end-0 p-2">
                                                             <button class="btn btn-sm btn-danger delete-image"
-                                                                data-id="{{ $enim->id }}" style="z-index: 10;">
+                                                                onclick="deleteLeadImage({{ $enim->id }})"
+                                                                style="z-index: 10;">
                                                                 <i class="fa-solid fa-trash"></i>
                                                             </button>
                                                         </div>
@@ -936,7 +589,8 @@
                     <!-- Modal -->
                     <div class="modal fade" id="uploadAttachmentsModal" data-bs-backdrop="static" tabindex="-1">
                         <div class="modal-dialog">
-                            <form id="uploadAttachmentsForm" class="modal-content" enctype="multipart/form-data">
+                            <form id="uploadAttachmentsForm" class="modal-content" enctype="multipart/form-data"
+                                action="{{ route('leads.attachments-upload') }}">
                                 @csrf
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="uploadAttachmentsModalTitle">Upload Attachments</h5>
@@ -979,7 +633,9 @@
                                     <input type="hidden" name="leadid" value="{{ $lead->id }}">
                                     <button type="button" class="btn btn-label-secondary"
                                         data-bs-dismiss="modal">Close</button>
-                                    <button type="submit" class="btn btn-primary">Save</button>
+
+                                    <button type="button" class="btn btn-primary"
+                                        onclick="uploadAttachments({{ $lead->id }}, this)">Save</button>
                                 </div>
                             </form>
 

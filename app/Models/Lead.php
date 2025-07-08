@@ -11,7 +11,9 @@ class Lead extends Model
     use HasSlug;
     protected $fillable = [
         'enquiry_id',
+        'enquiry',
         'lead_name',
+        'lead_title',
         'lead_description',
         'customer_id',
         'lead_type',

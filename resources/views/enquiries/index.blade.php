@@ -73,8 +73,8 @@
                     }
                 },
                 {
-                    data: 'enquiry_description',
-                    name: 'enquiry_description',
+                    data: 'enquiry',
+                    name: 'enquiry',
                     render: function(data, type, row) {
                         // Strip HTML tags
                         var div = document.createElement("div");

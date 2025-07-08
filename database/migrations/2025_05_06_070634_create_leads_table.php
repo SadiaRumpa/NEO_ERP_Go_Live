@@ -14,8 +14,10 @@ return new class extends Migration
         Schema::create('leads', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('enquiry_id');
+            $table->text('enquiry')->nullable();
             $table->string('lead_name');
             $table->string('slug');
+            $table->text('lead_title')->nullable();
             $table->text('lead_description')->nullable();
             $table->foreignId('customer_id')->nullable()->constrained('customers')->onDelete('cascade');
             $table->string('lead_type')->default('general')->comment('general, sales, support, technical');

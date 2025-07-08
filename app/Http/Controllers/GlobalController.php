@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\UkPostcode;
 use Illuminate\Http\Request;
 use App\Models\Enquiry;
 use App\Models\Customer;
@@ -81,7 +80,7 @@ class GlobalController extends Controller
             $enquiry = Enquiry::create([
                 'enquiry_name'        => randomenquiryGenerator(),
                 'customer_id'         => $customerId,
-                'enquiry_description' => $validated['jobdescription'],
+                'enquiry' => $validated['jobdescription'],
                 'enquiry_type'        => 'query',
                 'enquiry_source'      => 'website',
                 'enquiry_status'      => 'new',

@@ -103,7 +103,12 @@
                                         class="btn btn-icon btn-label-secondary waves-effect btn-sm me-2">
                                         <span class="icon-base ti tabler-corner-up-left-double icon-20px"></span>
                                     </a>
-                                    <span class="h4">Create Quotation</span>
+                                    <span class="h4">Create Quotation #
+                                        <a href="{{ route('leads.show', $leaddata->slug) }}">
+                                            <span
+                                                class="badge bg-label-success me-1 ms-2">{{ $leaddata->lead_name }}</span>
+                                        </a>
+                                    </span>
                                 </div>
                             </div>
                         </div>

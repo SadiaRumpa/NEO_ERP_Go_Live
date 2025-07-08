@@ -11,6 +11,7 @@ class Enquiry extends Model
     use HasSlug;
     protected $fillable = [
         'enquiry_name',
+        'enquiry',
         'enquiry_description',
         'customer_id',
         'enquiry_type',

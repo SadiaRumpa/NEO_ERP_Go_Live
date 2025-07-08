@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('enquiry_name')->unique()->comment('20250604-0001');
             $table->string('slug')->unique()->comment('Unique slug for the enquiry');
+            $table->text('enquiry')->nullable();
             $table->text('enquiry_description')->nullable();
             $table->foreignId('customer_id')->nullable()->constrained('customers')->onDelete('cascade');
             $table->string('enquiry_type')->default('general')->comment('general, sales, support, technical');

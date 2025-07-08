@@ -14,9 +14,11 @@ return new class extends Migration
         Schema::create('fjobs', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('enquiry_id');
+            $table->text('enquiry')->nullable();
             $table->bigInteger('lead_id');
             $table->string('job_name');
             $table->string('slug');
+            $table->text('job_title')->nullable();
             $table->text('job_description')->nullable();
             $table->foreignId('customer_id')->nullable()->constrained('customers')->onDelete('cascade');
             $table->string('job_type')->nullable();

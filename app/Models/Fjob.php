@@ -3,16 +3,16 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Sluggable\HasSlug;
-use Spatie\Sluggable\SlugOptions;
 
 class Fjob extends Model
 {
-    use HasSlug;
     protected $fillable = [
         'enquiry_id',
+        'enquiry',
         'lead_id',
         'job_name',
+        'slug',
+        'job_title',
         'job_description',
         'customer_id',
         'job_type',
@@ -23,12 +23,7 @@ class Fjob extends Model
         'job_closed_at',
         'job_close_reason'
     ];
-    public function getSlugOptions(): SlugOptions
-    {
-        return SlugOptions::create()
-            ->generateSlugsFrom('fjob_name')
-            ->saveSlugsTo('slug');
-    }
+    
     public function customer()
     {
         return $this->belongsTo(Customer::class);
