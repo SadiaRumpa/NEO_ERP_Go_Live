@@ -89,31 +89,34 @@
                             </div>
                         </div>
                         @hasrole(['accounts-manager', 'job-manager'])
-                            <div class="btn-group">
-                                @php
-                                    $status = $job->job_status;
-                                    $labelClass = match ($status) {
-                                        'new' => 'primary',
-                                        'inprogress', 'on_hold' => 'info',
-                                        'draft' => 'warning',
-                                        'rejected', 'archived' => 'danger',
-                                        default => 'secondary',
-                                    };
-                                @endphp
+                            @php
+                                $status = $job->job_status;
+                                $labelClass = match ($status) {
+                                    'new' => 'primary',
+                                    'inprogress', 'on_hold' => 'info',
+                                    'draft' => 'warning',
+                                    'rejected', 'archived' => 'danger',
+                                    default => 'secondary',
+                                };
+                            @endphp
 
+                            <div class="btn-group">
                                 <button type="button" class="btn btn-label-{{ $labelClass }} waves-effect">
                                     {{ beautify_status($status) }}
                                 </button>
 
-                                <button type="button"
-                                    class="btn btn-label-{{ $labelClass }} dropdown-toggle dropdown-toggle-split waves-effect"
-                                    data-bs-toggle="dropdown" aria-expanded="false">
-                                    <span class="visually-hidden">Toggle Dropdown</span>
-                                </button>
+                                {{-- Dropdown toggle only if status can be changed --}}
+                                @if (
+                                    (auth()->user()->hasRole('accounts-manager') && $status !== 'accepted') ||
+                                        (auth()->user()->hasRole('job-manager') && $status !== 'rejected'))
+                                    <button type="button"
+                                        class="btn btn-label-{{ $labelClass }} dropdown-toggle dropdown-toggle-split waves-effect"
+                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                        <span class="visually-hidden">Toggle Dropdown</span>
+                                    </button>
 
-                                @if (!in_array($status, ['accepted', 'rejected']))
                                     <ul class="dropdown-menu">
-                                        @role('accounts-manager')
+                                        @if (auth()->user()->hasRole('accounts-manager'))
                                             <li>
                                                 <a class="dropdown-item" href="#"
                                                     onclick="updateJobStatus({{ $job->id }}, 'accepted')">
@@ -132,7 +135,9 @@
                                                     Rejected
                                                 </a>
                                             </li>
-                                        @else
+                                        @endif
+
+                                        @if (auth()->user()->hasRole('job-manager'))
                                             <li>
                                                 <a class="dropdown-item" href="#"
                                                     onclick="updateJobStatus({{ $job->id }}, 'inprogress')">
@@ -151,7 +156,7 @@
                                                     Archived
                                                 </a>
                                             </li>
-                                        @endrole
+                                        @endif
                                     </ul>
                                 @endif
                             </div>
@@ -160,6 +165,7 @@
                                 {{ beautify_status($job->job_status) }}
                             </span>
                         @endhasrole
+
 
                     </span>
                 </div>
@@ -529,6 +535,55 @@
 
                 <!-- job location column -->
                 <div class="col-12 col-lg-4">
+                    <!-- job Attributes -->
+                    <div class="row mb-6 gy-6">
+                        <div class="col-xl order-2 order-xl-0">
+                            <div class="card mb-6">
+                                <div class="card-header header-elements">
+                                    <h5 class="mb-0 me-2">Attribuetes</h5>
+
+                                    <div class="card-header-elements ms-auto">
+                                        <a href="{{ url('job-add-attributes') }}/{{ $job->id }}" class="btn btn-xs btn-primary waves-effect waves-light">
+                                            <span class="icon-base ti tabler-plus icon-xs me-1"></span>Button
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+
+                                    <ul class="timeline mb-0">
+
+
+                                        <li class="timeline-item ps-6 border-dashed">
+                                            <span
+                                                class="timeline-indicator-advanced timeline-indicator-dark border-0 shadow-none">
+                                                <i class="icon-base ti tabler-circle-check"></i>
+                                            </span>
+                                            <div class="timeline-event ps-1">
+                                                <div class="timeline-header">
+                                                    <strong class="text-dark text-uppercase">Hires</strong>
+                                                </div>
+
+                                                <ul class="list-unstyled mb-0">
+                                                    <li class="d-flex align-items-center mb-2">
+                                                        <i class="icon-base ti tabler-check icon-lg"></i>
+                                                        <span class="fw-medium mx-2">Sissor life</span> 
+                                                    </li>
+                                                    <li class="d-flex align-items-center mb-2">
+                                                        <i class="icon-base ti tabler-check icon-lg"></i>
+                                                        <span class="fw-medium mx-2">Spider</span> 
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </li>
+
+
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- job Attributes -->
+
                     <!-- Attachments -->
                     <div class="row mb-6 gy-6">
                         <div class="col-xl order-2 order-xl-0">

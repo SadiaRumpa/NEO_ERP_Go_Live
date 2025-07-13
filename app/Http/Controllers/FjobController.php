@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Fjob;
 use App\Models\FjobAttachment;
+use App\Models\JobAttribute;
 use App\Models\MailTemplate;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
@@ -180,4 +181,22 @@ class FjobController extends Controller
             'message' => 'Job title updated successfully.'
         ]);
     }
+
+    public function jobAddAttributes($jobid)
+    {
+        $job = Fjob::find($jobid);
+        if (!$job) {
+            return redirect()->route('jobs.index')->with('error', 'Job not found.');
+        }
+
+        $jobAttributes = JobAttribute::with('attributedetails')
+            ->where('is_active', true)
+            ->orderBy('name', 'asc')
+            ->get();
+
+            // return $jobAttributes;
+
+        return view('jobs.add-attributes', compact('job', 'jobAttributes'));
+    }
+    
 }

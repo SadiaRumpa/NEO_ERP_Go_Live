@@ -12,6 +12,7 @@ use App\Http\Controllers\EnquiryController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\FjobController;
 use App\Http\Controllers\GlobalController;
+use App\Http\Controllers\JobAttributeController;
 use App\Http\Controllers\JobTypeController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\QuotationController;
@@ -120,6 +121,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('job/attachments-upload', [FjobController::class, 'uploadJobAttachments'])->name('job.attachments-upload');
     Route::delete('job/delete-attachment/{id}', [FjobController::class, 'destroyJobAttachment'])->name('job.destroy-attachment');
 
+    Route::get('job-add-attributes/{jobid}', [FjobController::class, 'jobAddAttributes'])->name('job-attributes.add');
+
     Route::get('scheduler', [SchedulerController::class, 'index'])->name('scheduler.index');
     Route::post('scheduler/workers', [SchedulerController::class, 'getSchedulerCalendarData'])->name('scheduler.workers-calendar');
     Route::get('scheduler/job-schedule/{id}', [SchedulerController::class, 'showSchedule'])->name('scheduler.job-schedule');
@@ -134,4 +137,14 @@ Route::middleware(['auth'])->group(function () {
     Route::post('scheduler/store-fake-job-schedule', [SchedulerController::class, 'storeFakeJobSchedule'])->name('scheduler.store-fake-job-schedule');
     Route::put('scheduler/update-fake-job-schedule/{id}', [SchedulerController::class, 'updateFakeJobSchedule'])->name('scheduler.update-fake-job-schedule');
     Route::delete('scheduler/delete-fake-schedule/{id}', [SchedulerController::class, 'deleteFakeSchedule'])->name('scheduler.delete-fake-schedule');
+
+    Route::get('job-attributes', [JobAttributeController::class, 'index'])->name('job-attributes.index');
+    Route::post('job-attributes/store', [JobAttributeController::class, 'storeJobAttribute'])->name('job-attributes.store');
+    Route::get('job-attributes/{id}/edit', [JobAttributeController::class, 'editJobAttribute'])->name('job-attributes.edit');
+    Route::put('job-attributes/{id}/update', [JobAttributeController::class, 'updateJobAttribute'])->name('job-attributes.update');
+    
+    Route::post('job-attributes/{jobAttribute}/storedetails', [JobAttributeController::class, 'storeAttributeDetails'])->name('job-attributes.store-details');
+    Route::put('job-attributes/{jobAttributedetails}/updatedetails', [JobAttributeController::class, 'updateAttributeDetails'])->name('job-attributes.update-details');
+
+    
 });

@@ -158,6 +158,12 @@
                 <div data-i18n="Scheduler">Scheduler</div>
             </a>
         </li>
+        <li class="menu-item {{(request()->is('job-attributes') || request()->is('job-attributes/*')) ? 'active' : '' }}">
+            <a href="{{ url('job-attributes') }}" class="menu-link">
+                <i class="menu-icon icon-base ti tabler-settings-share"></i>
+                <div data-i18n="Job Attributes">Job Attributes</div>
+            </a>
+        </li>
         @endhasrole
     </ul>
 </aside>
