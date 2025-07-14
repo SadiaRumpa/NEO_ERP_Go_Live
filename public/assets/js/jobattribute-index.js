@@ -75,7 +75,6 @@ $(document).on('click', '.edit-attribute-btn', function () {
 function updateJobAttributes() {
     const attributeId = $('#attributrId').val();
     const formData = {
-        _token: $('meta[name="csrf-token"]').attr('content'),
         _method: 'PUT',
         attributename: $('#updateattributename').val(),
         attributedescription: $('#updateattributedescription').val(),
@@ -84,6 +83,9 @@ function updateJobAttributes() {
     $.ajax({
         url: `/job-attributes/${attributeId}/update`,
         type: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': form.querySelector('input[name="_token"]').value
+        },
         data: formData,
         success: function (response) {
             toastr.success('Job Attribute updated successfully');
@@ -148,7 +150,6 @@ $(document).on('submit', '#editDetailForm', function (e) {
 
     const detailId = $('#editDetailId').val();
     const formData = {
-        _token: $('meta[name="csrf-token"]').attr('content'),
         _method: 'PUT',
         value: $('#editDetailValue').val(),
         description: $('#editDetailDescription').val(),
@@ -157,6 +158,9 @@ $(document).on('submit', '#editDetailForm', function (e) {
     $.ajax({
         url: `/job-attributes/${detailId}/updatedetails`, // 👈 Adjust this route
         type: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': form.querySelector('input[name="_token"]').value
+        },
         data: formData,
         success: function (response) {
             toastr.success('Attribute detail updated successfully');

@@ -94,7 +94,7 @@ function addNotes(enquiryId) {
         url: `/enquiries/add-note/` + enquiryId,
         method: "POST",
         headers: {
-            _token: document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
         data: {
             note: htmlContent
@@ -122,8 +122,8 @@ function deleteEnquiryImage(imageId) {
         $.ajax({
             url: `/enquiries/delete-image/${imageId}`, // Change URL as per your route
             method: 'DELETE',
-            data: {
-                _token: document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            headers: {
+                'X-CSRF-TOKEN': form.querySelector('input[name="_token"]').value
             },
             success: function (response) {
                 if (response.status === 'success') {
@@ -183,8 +183,10 @@ $(document).ready(function () {
         $.ajax({
             url: '/enquiry-to-lead-conversion',
             type: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': form.querySelector('input[name="_token"]').value
+            },
             data: {
-                _token: $('meta[name="csrf-token"]').attr('content'), // CSRF token
                 status: status,
                 enquiry_id: enquiryId
             },
@@ -221,10 +223,11 @@ $(document).on('click', '.update-enquiry-status', function (e) {
     $.ajax({
         url: `/enquiry/updatestatus/${enquiryId}`,
         type: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': form.querySelector('input[name="_token"]').value
+        },
         data: {
             status: status,
-            _token: $('meta[name="csrf-token"]').attr(
-                'content') // Make sure CSRF token is available
         },
         success: function (response) {
             toastr.success('Status updated successfully');
@@ -244,8 +247,11 @@ $(document).ready(function () {
             $.ajax({
                 url: `/enquiries/delete-image/${imageId}`,
                 method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': form.querySelector('input[name="_token"]').value
+                },
                 data: {
-                    _token: '{{ csrf_token() }}'
+
                 },
                 success: function (response) {
                     if (response.status === 'success') {

@@ -151,9 +151,10 @@ $(document).ready(function () {
             $.ajax({
                 url: `/lead/delete-note/${noteId}`,
                 method: 'DELETE',
-                data: {
-                    _token: '{{ csrf_token() }}'
+                headers: {
+                    'X-CSRF-TOKEN': form.querySelector('input[name="_token"]').value
                 },
+                data: {},
                 success: function (response) {
                     if (response.status === 'success') {
                         toastr.success(response.message);
@@ -177,9 +178,10 @@ $(document).ready(function () {
             $.ajax({
                 url: `/leads/delete-attachment/${attachmentId}`,
                 method: 'DELETE',
-                data: {
-                    _token: '{{ csrf_token() }}'
+                headers: {
+                    'X-CSRF-TOKEN': form.querySelector('input[name="_token"]').value
                 },
+                data: {},
                 success: function (response) {
                     if (response.status === 'success') {
                         toastr.success(response.message);
@@ -234,9 +236,10 @@ function deleteLeadImage(imageId) {
         $.ajax({
             url: `/leads/delete-image/${imageId}`, // Change URL as per your route
             method: 'DELETE',
-            data: {
-                _token: document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            headers: {
+                'X-CSRF-TOKEN': form.querySelector('input[name="_token"]').value
             },
+            data: {},
             success: function (response) {
                 if (response.status === 'success') {
                     toastr.success(response.message || 'Image deleted successfully');
@@ -301,9 +304,11 @@ function updateLeadStatus(leadId, status) {
     $.ajax({
         url: `/leads/updatestatus/${leadId}`,
         type: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': form.querySelector('input[name="_token"]').value
+        },
         data: {
             lead_status: status,
-            _token: $('meta[name="csrf-token"]').attr('content') // CSRF token
         },
         success: function (response) {
             toastr.success('Status updated successfully');
