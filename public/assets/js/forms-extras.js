@@ -130,45 +130,6 @@ document.addEventListener('DOMContentLoaded', function (e) {
     });
   }
 
-  // Prefix
-  if (prefixMask) {
-    const prefixOption = {
-      prefix: '+63',
-      blocks: [3, 3, 3, 4],
-      delimiter: ' '
-    };
-    registerCursorTracker({
-      input: prefixMask,
-      delimiter: ' '
-    });
-    prefixMask.value = formatGeneral('', prefixOption);
-    prefixMask.addEventListener('input', event => {
-      prefixMask.value = formatGeneral(event.target.value, prefixOption);
-    });
-  }
-
-  const inputMaxLength = document.getElementById('maxLength-example1').getAttribute('maxlength');
-  const inputInfo = document.getElementById('input-maxlength-info');
-  const inputElement = document.getElementById('maxLength-example1');
-
-  // Set initial character count
-  window.Helpers.maxLengthCount(inputElement, inputInfo, inputMaxLength);
-
-  // Add event listener to update the character count
-  inputElement.addEventListener('input', function () {
-    window.Helpers.maxLengthCount(inputElement, inputInfo, inputMaxLength);
-  });
-
-  const textareaMaxLength = document.getElementById('maxLength-example2').getAttribute('maxlength');
-  const textareaInfo = document.getElementById('textarea-maxlength-info');
-  const textareaElement = document.getElementById('maxLength-example2');
-
-  window.Helpers.maxLengthCount(textareaElement, textareaInfo, textareaMaxLength);
-
-  textareaElement.addEventListener('input', function () {
-    window.Helpers.maxLengthCount(textareaElement, textareaInfo, textareaMaxLength);
-  });
-
   // Form Repeater
   // ! Using jQuery each loop to add dynamic id and class for inputs. You may need to improve it based on form fields.
   // -----------------------------------------------------------------------------------------------------------------
@@ -177,9 +138,9 @@ document.addEventListener('DOMContentLoaded', function (e) {
   if (formRepeater.length) {
     var row = 2;
     var col = 1;
-    formRepeater.on('submit', function (e) {
-      e.preventDefault();
-    });
+    // formRepeater.on('submit', function (e) {
+    //   e.preventDefault();
+    // });
     formRepeater.repeater({
       show: function () {
         var fromControl = $(this).find('.form-control, .form-select');
