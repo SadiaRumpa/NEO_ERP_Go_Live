@@ -122,6 +122,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('job/delete-attachment/{id}', [FjobController::class, 'destroyJobAttachment'])->name('job.destroy-attachment');
 
     Route::get('job-add-attributes/{jobid}', [FjobController::class, 'jobAddAttributes'])->name('job-attributes.add');
+    Route::post('job-add-attributes/{jobid}/store', [FjobController::class, 'storeJobAddAttributes'])->name('job-attributes.add-store');
 
     Route::get('scheduler', [SchedulerController::class, 'index'])->name('scheduler.index');
     Route::post('scheduler/workers', [SchedulerController::class, 'getSchedulerCalendarData'])->name('scheduler.workers-calendar');

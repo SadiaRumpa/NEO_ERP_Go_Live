@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Fjob;
 use App\Models\FjobAttachment;
+use App\Models\FjobAttribute;
+use App\Models\FjobAttributeDetail;
 use App\Models\JobAttribute;
+use App\Models\JobAttributeDetail;
 use App\Models\MailTemplate;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
@@ -72,10 +75,12 @@ class FjobController extends Controller
             'jobnotes',
             'jobnotes.user',
             'jobattachments',
-            'jobquotations'
+            'jobquotations',
+            'jobattributes',
+            'jobattributes.details'
         ])
             ->where('id', $key)->first();
-        // dd($job);
+        // return $job;
         if (!$job) {
             return redirect()->route('jobs.index')->with('error', 'Job details not found.');
         }
@@ -194,9 +199,75 @@ class FjobController extends Controller
             ->orderBy('name', 'asc')
             ->get();
 
-            // return $jobAttributes;
+        $exsistingfjobattributes = FjobAttribute::with('details')->where('fjob_id', $jobid)->get();
+        $selectedAttributes = [];
+        foreach ($exsistingfjobattributes as $attr) {
+            $selectedAttributes[$attr->job_attribute_id] = [
+                'value' => 'yes', // You saved only selected attributes
+                'details' => collect($attr->details)->mapWithKeys(function ($detail) {
+                    return [$detail->job_attribute_detail_id => 'yes'];
+                })->toArray()
+            ];
+        }
 
-        return view('jobs.add-attributes', compact('job', 'jobAttributes'));
+        // return $jobAttributes;
+
+        return view('jobs.add-attributes', compact('job', 'jobAttributes', 'selectedAttributes'));
     }
-    
+
+
+    public function storeJobAddAttributes(Request $request, $fjobId)
+    {
+        $attributes = $request->input('attributes', []);
+
+        foreach ($attributes as $jobAttributeId => $attributeData) {
+            // Only proceed if parent is selected as 'yes'
+            if (!isset($attributeData['selected']) || $attributeData['selected'] !== 'yes') {
+                continue;
+            }
+
+            // Check if an FjobAttribute already exists
+            $fjobAttribute = FjobAttribute::firstOrNew([
+                'fjob_id' => $fjobId,
+                'job_attribute_id' => $jobAttributeId
+            ]);
+
+            $fjobAttribute->attribute_value = JobAttribute::find($jobAttributeId)?->name;
+            $fjobAttribute->remarks = $fjobAttribute->remarks ?? null;
+            $fjobAttribute->save();
+
+            // Handle attribute details (children)
+            if (isset($attributeData['children']) && is_array($attributeData['children'])) {
+                // Get all submitted detail IDs with value "yes"
+                $submittedYesDetails = collect($attributeData['children'])
+                    ->filter(fn($val) => $val === 'yes')
+                    ->keys()
+                    ->toArray();
+
+                // Delete any previously stored details that are no longer selected
+                FjobAttributeDetail::where('fjob_attribute_id', $fjobAttribute->id)
+                    ->whereNotIn('job_attribute_detail_id', $submittedYesDetails)
+                    ->delete();
+
+                // Loop through submitted "yes" children and create or update
+                foreach ($submittedYesDetails as $detailId) {
+                    FjobAttributeDetail::updateOrCreate(
+                        [
+                            'fjob_attribute_id' => $fjobAttribute->id,
+                            'job_attribute_detail_id' => $detailId,
+                        ],
+                        [
+                            'detail_value' => JobAttributeDetail::find($detailId)?->value,
+                            'remarks' => null,
+                        ]
+                    );
+                }
+            } else {
+                // No children submitted → delete all existing children for this attribute
+                FjobAttributeDetail::where('fjob_attribute_id', $fjobAttribute->id)->delete();
+            }
+        }
+
+        return redirect()->route('job.show', $fjobId)->with('success', 'Job attributes saved successfully.');
+    }
 }

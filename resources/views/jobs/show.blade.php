@@ -543,38 +543,41 @@
                                     <h5 class="mb-0 me-2">Attribuetes</h5>
 
                                     <div class="card-header-elements ms-auto">
-                                        <a href="{{ url('job-add-attributes') }}/{{ $job->id }}" class="btn btn-xs btn-primary waves-effect waves-light">
-                                            <span class="icon-base ti tabler-plus icon-xs me-1"></span>Button
+                                        <a href="{{ url('job-add-attributes') }}/{{ $job->id }}"
+                                            class="btn btn-xs btn-primary waves-effect waves-light">
+                                            <span class="icon-base ti tabler-plus icon-xs me-1"></span>Manage
                                         </a>
                                     </div>
                                 </div>
                                 <div class="card-body">
 
                                     <ul class="timeline mb-0">
+                                        
+                                        @foreach ($job->jobattributes as $fjobattb)
+                                            <li class="timeline-item ps-6 border-dashed">
+                                                <span
+                                                    class="timeline-indicator-advanced timeline-indicator-dark border-0 shadow-none">
+                                                    <i class="icon-base ti tabler-circle-check"></i>
+                                                </span>
+                                                <div class="timeline-event ps-1">
+                                                    <div class="timeline-header">
+                                                        <strong class="text-dark text-uppercase">{{$fjobattb->attribute_value}}</strong>
+                                                    </div>
 
-
-                                        <li class="timeline-item ps-6 border-dashed">
-                                            <span
-                                                class="timeline-indicator-advanced timeline-indicator-dark border-0 shadow-none">
-                                                <i class="icon-base ti tabler-circle-check"></i>
-                                            </span>
-                                            <div class="timeline-event ps-1">
-                                                <div class="timeline-header">
-                                                    <strong class="text-dark text-uppercase">Hires</strong>
+                                                    @if($fjobattb->details)
+                                                    @foreach ( $fjobattb->details as $fjobattbd)
+                                                        <ul class="list-unstyled mb-0">
+                                                        <li class="d-flex align-items-center mb-2">
+                                                            <i class="icon-base ti tabler-check icon-md"></i>
+                                                            <span class="fw-medium mx-2">{{$fjobattbd->detail_value}}</span>
+                                                        </li>
+                                                    </ul>
+                                                    @endforeach
+                                                    
+                                                    @endif
                                                 </div>
-
-                                                <ul class="list-unstyled mb-0">
-                                                    <li class="d-flex align-items-center mb-2">
-                                                        <i class="icon-base ti tabler-check icon-lg"></i>
-                                                        <span class="fw-medium mx-2">Sissor life</span> 
-                                                    </li>
-                                                    <li class="d-flex align-items-center mb-2">
-                                                        <i class="icon-base ti tabler-check icon-lg"></i>
-                                                        <span class="fw-medium mx-2">Spider</span> 
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </li>
+                                            </li>
+                                        @endforeach
 
 
                                     </ul>

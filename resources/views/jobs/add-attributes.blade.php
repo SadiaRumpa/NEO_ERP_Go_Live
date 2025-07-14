@@ -9,21 +9,26 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const yesCheckbox = document.getElementById('checkboxYes');
-            const naCheckbox = document.getElementById('checkboxNa');
-            const collapseElement = document.getElementById('collapseExample');
-            const collapseInstance = new bootstrap.Collapse(collapseElement, {
-                toggle: false
-            });
+            document.querySelectorAll('.toggle-parent').forEach(function(radio) {
+                radio.addEventListener('change', function() {
+                    const target = document.querySelector(this.dataset.target);
 
-            document.querySelectorAll('input[name="visibilityToggle"]').forEach(input => {
-                input.addEventListener('change', function() {
                     if (this.value === 'yes') {
-                        collapseInstance.show();
+                        target?.classList.add('show'); // Show collapse
                     } else {
-                        collapseInstance.hide();
+                        target?.classList.remove('show'); // Hide collapse
                     }
                 });
+
+                // Trigger once on load to apply correct state
+                if (radio.checked) {
+                    const target = document.querySelector(radio.dataset.target);
+                    if (radio.value === 'yes') {
+                        target?.classList.add('show');
+                    } else {
+                        target?.classList.remove('show');
+                    }
+                }
             });
         });
     </script>
@@ -53,7 +58,7 @@
             </div>
         </div>
 
-        <form method="POST" action="">
+        <form method="POST" action="{{ route('job-attributes.add-store', $job->id) }}">
             @csrf
 
             @foreach ($jobAttributes as $jatb)
@@ -61,12 +66,16 @@
                     <div class="card-body d-flex align-items-center gap-3">
                         <p class="card-text mb-0">{{ $jatb->name }}</p>
 
+                        @php
+                            $parentSelected = $selectedAttributes[$jatb->id]['value'] ?? 'na';
+                        @endphp
+
                         <!-- Parent Yes -->
                         <div class="form-check form-check-inline mb-0">
                             <input class="form-check-input toggle-parent" type="radio"
                                 name="attributes[{{ $jatb->id }}][selected]" id="parentYes{{ $jatb->id }}"
-                                value="yes" data-bs-toggle="collapse" data-bs-target="#collapseParent{{ $jatb->id }}"
-                                aria-expanded="false" aria-controls="collapseParent{{ $jatb->id }}">
+                                value="yes" data-target="#collapseParent{{ $jatb->id }}"
+                                {{ $parentSelected === 'yes' ? 'checked' : '' }}>
                             <label class="form-check-label" for="parentYes{{ $jatb->id }}">Yes</label>
                         </div>
 
@@ -74,9 +83,8 @@
                         <div class="form-check form-check-inline mb-0">
                             <input class="form-check-input toggle-parent" type="radio"
                                 name="attributes[{{ $jatb->id }}][selected]" id="parentNa{{ $jatb->id }}"
-                                value="na" data-bs-toggle="collapse"
-                                data-bs-target="#collapseParent{{ $jatb->id }}" aria-expanded="false"
-                                aria-controls="collapseParent{{ $jatb->id }}">
+                                value="na" data-target="#collapseParent{{ $jatb->id }}"
+                                {{ $parentSelected === 'na' ? 'checked' : '' }}>
                             <label class="form-check-label" for="parentNa{{ $jatb->id }}">N/A</label>
                         </div>
                     </div>
@@ -88,11 +96,17 @@
                                     <div class="mb-2 d-flex align-items-center gap-3">
                                         <p class="mb-0">{{ $detail->value }}</p>
 
+                                        @php
+                                            $childSelected =
+                                                $selectedAttributes[$jatb->id]['details'][$detail->id] ?? 'na';
+                                        @endphp
+
                                         <!-- Child Yes -->
                                         <div class="form-check form-check-inline mb-0">
                                             <input class="form-check-input" type="radio"
                                                 name="attributes[{{ $jatb->id }}][children][{{ $detail->id }}]"
-                                                id="childYes{{ $detail->id }}" value="yes">
+                                                id="childYes{{ $detail->id }}" value="yes"
+                                                {{ $childSelected === 'yes' ? 'checked' : '' }}>
                                             <label class="form-check-label" for="childYes{{ $detail->id }}">Yes</label>
                                         </div>
 
@@ -100,7 +114,8 @@
                                         <div class="form-check form-check-inline mb-0">
                                             <input class="form-check-input" type="radio"
                                                 name="attributes[{{ $jatb->id }}][children][{{ $detail->id }}]"
-                                                id="childNa{{ $detail->id }}" value="na">
+                                                id="childNa{{ $detail->id }}" value="na"
+                                                {{ $childSelected === 'na' ? 'checked' : '' }}>
                                             <label class="form-check-label" for="childNa{{ $detail->id }}">N/A</label>
                                         </div>
                                     </div>

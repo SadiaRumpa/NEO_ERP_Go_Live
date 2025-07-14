@@ -43,4 +43,8 @@ return [
         'api_key' => env('POSTCODE_API_KEY'),
     ],
 
+    'newpostcode' => [
+        'api_key' => env('NEW_POSTCODE_API_KEY'),
+    ],
+
 ];

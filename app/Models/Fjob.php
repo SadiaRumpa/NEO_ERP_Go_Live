@@ -48,4 +48,7 @@ class Fjob extends Model
     {
         return $this->hasMany(FjobAttachment::class);
     }
+    public function jobattributes(){
+        return $this->hasMany(FjobAttribute::class);
+    }
 }
