@@ -42,7 +42,7 @@ $(function () {
         const formData = new FormData($form[0]);
 
         $.ajax({
-            url: "{{ route('scheduler.store-job-schedule') }}",
+            url: `scheduler/store-job-schedule`,
             method: "POST",
             data: formData,
             processData: false,
