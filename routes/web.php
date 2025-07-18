@@ -129,7 +129,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('scheduler/job-schedule/{id}', [SchedulerController::class, 'showSchedule'])->name('scheduler.job-schedule');
 
     Route::post('scheduler/fake-workers', [SchedulerController::class, 'getFakeSchedulerCalendarData'])->name('scheduler.fake-workers-calendar');
-    Route::get('scheduler/job-schedule/{id}', [SchedulerController::class, 'showSchedule'])->name('scheduler.job-schedule');
+    Route::get('scheduler/fake-job-schedule/{id}', [SchedulerController::class, 'showFakeSchedule'])->name('scheduler.fake-job-schedule');
     
     Route::post('scheduler/store-job-schedule', [SchedulerController::class, 'storeJobSchedule'])->name('scheduler.store-job-schedule');
     Route::put('scheduler/update-job-schedule/{id}', [SchedulerController::class, 'updateJobSchedule'])->name('scheduler.update-job-schedule');

@@ -19,147 +19,7 @@
 
     <script src="{{ asset('assets/js/forms-selects.js') }}"></script>
     <script src="{{ asset('assets/js/forms-tagify.js') }}"></script>
-    <script src="{{ asset('assets/js/forms-typeahead.js') }}"></script>
-
-    <script>
-        $(function() {
-            // Flatpickr
-            const flatpickrRange = document.querySelector('#flatpickr-range');
-            if (flatpickrRange) {
-                flatpickrRange.flatpickr({
-                    mode: 'range',
-                    static: true,
-                    allowInput: false,
-                    dateFormat: 'Y-m-d',
-                });
-            }
-
-             const flatpickrRangeFake = document.querySelector('#flatpickr-range-fake');
-            if (flatpickrRangeFake) {
-                flatpickrRangeFake.flatpickr({
-                    mode: 'range',
-                    static: true,
-                    allowInput: false,
-                    dateFormat: 'Y-m-d',
-                });
-            }
-
-            // Quill
-            const quillm = new Quill('#instruction', {
-                theme: 'snow',
-                placeholder: 'Write your message...',
-            });
-
-            $('#saveScheduleBtn').on('click', function(e) {
-                e.preventDefault();
-
-                const $btn = $(this);
-                const $form = $('#scheduleForm');
-                $('#instruction_input').val(quillm.root.innerHTML);
-
-                const formData = new FormData($form[0]);
-
-                $.ajax({
-                    url: "{{ route('scheduler.store-job-schedule') }}",
-                    method: "POST",
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    beforeSend: function() {
-                        $btn.prop('disabled', true).html(
-                            '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...'
-                        );
-                    },
-                    success: function(response) {
-                        toastr.success(response.message || 'Schedule saved successfully!');
-                        $form[0].reset();
-                        quillm.setContents([]);
-                        $('#scheduleModal').modal('hide');
-                        $btn.prop('disabled', false).html('Save');
-                        setTimeout(() => location.reload(), 1000);
-                    },
-                    error: function(xhr) {
-                        const errMsg = xhr.responseJSON?.message || 'Error saving schedule.';
-                        toastr.error(errMsg);
-                        $btn.prop('disabled', false).html('Save');
-                    }
-                });
-            });
-
-             // Quill
-            const quillf = new Quill('#fakeinstruction', {
-                theme: 'snow',
-                placeholder: 'Write your message...',
-            });
-
-            $('#saveFakeScheduleBtn').on('click', function(e) {
-                e.preventDefault();
-
-                const $btn = $(this);
-                const $form = $('#fakeScheduleForm');
-                $('#fakeinstruction_input').val(quillm.root.innerHTML);
-
-                const formData = new FormData($form[0]);
-
-                $.ajax({
-                    url: "{{ route('scheduler.store-fake-job-schedule') }}",
-                    method: "POST",
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    beforeSend: function() {
-                        $btn.prop('disabled', true).html(
-                            '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...'
-                        );
-                    },
-                    success: function(response) {
-                        toastr.success(response.message || 'Schedule saved successfully!');
-                        $form[0].reset();
-                        quillm.setContents([]);
-                        $('#fakeScheduleModal').modal('hide');
-                        $btn.prop('disabled', false).html('Save');
-                        setTimeout(() => location.reload(), 1000);
-                    },
-                    error: function(xhr) {
-                        const errMsg = xhr.responseJSON?.message || 'Error saving schedule.';
-                        toastr.error(errMsg);
-                        $btn.prop('disabled', false).html('Save');
-                    }
-                });
-            });
-
-            // AJAX Month Filters
-            $('#realMonthFilterForm').on('submit', function(e) {
-                e.preventDefault();
-                $.ajax({
-                    url: "{{ route('scheduler.workers-calendar') }}",
-                    method: "POST",
-                    data: $(this).serialize(),
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    beforeSend: () => $('#real-calendar-table').html('<p>Loading...</p>'),
-                    success: (response) => $('#real-calendar-table').html(response.html),
-                    error: () => alert("Something went wrong. Please try again.")
-                });
-            });
-
-            $('#fakeMonthFilterForm').on('submit', function(e) {
-                e.preventDefault();
-                $.ajax({
-                    url: "{{ route('scheduler.fake-workers-calendar') }}",
-                    method: "POST",
-                    data: $(this).serialize(),
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    beforeSend: () => $('#fake-calendar-table').html('<p>Loading...</p>'),
-                    success: (response) => $('#fake-calendar-table').html(response.htmlf),
-                    error: () => alert("Something went wrong in fake calendar. Please try again.")
-                });
-            });
-        });
-    </script>
+    <script src="{{ asset('assets/js/scheduler.js') }}"></script>
 
 @endsection
 
@@ -289,15 +149,15 @@
                                 <select id="multicol-job" class="select2 form-select" name="job_id">
                                     <option value="">Select</option>
                                     @foreach ($jobs as $job)
-                                        <option value="{{ $job->id }}">{{ $job->job_name }}</option>
+                                        <option value="{{ $job->id }}">{{$job->job_title}} ({{ $job->job_name }})</option>
                                     @endforeach
                                 </select>
                             </div>
                         </div>
                         <div class="row g-4">
                             <div class="col mb-0">
-                                <label for="select2Dark" class="form-label">Stuffs</label>
-                                <select id="select2Dark" class="select2 form-select" name="workers[]" multiple>
+                                <label for="select2Workers" class="form-label">Stuffs</label>
+                                <select id="select2Workers" class="select2 form-select" name="workers[]" multiple>
                                     @foreach ($stuffs as $stuff)
                                         <option value="{{ $stuff->id }}">{{ $stuff->name }}</option>
                                     @endforeach
@@ -343,7 +203,7 @@
         <div class="card mb-4">
             <div
                 class="card-header py-3 px-4 bg-white shadow-sm rounded d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
-                <form id="fakeMonthFilterForm" class="d-flex flex-wrap align-items-center gap-3">
+                <form id="fakeMonthFilterForm" class="d-flex flex-wrap align-items-center gap-4">
                     <div class="d-flex align-items-center me-3">
                         <i class="icon-base ti tabler-calendar-week fs-4 me-2 text-primary"></i>
                         <h6 class="mb-0 fw-bold">Months</h6>
@@ -366,7 +226,7 @@
 
                 <!-- Schedule Button -->
                 <div class="mt-3 mt-md-0">
-                    <button type="button" class="btn btn-warning btn-md d-flex align-items-center px-3 py-2"
+                    <button type="button" class="btn btn-warning btn-sm d-flex align-items-center px-2 py-2"
                         data-bs-toggle="modal" data-bs-target="#fakeScheduleModal">
                         <i class="icon-base ti tabler-browser-plus"></i> Fake Schedule
                     </button>
@@ -392,7 +252,7 @@
                 <form class="modal-content" id="fakeScheduleForm">
                     @csrf
                     <div class="modal-header">
-                        <h5 class="modal-title">Schedule Job</h5>
+                        <h5 class="modal-title">Schedule Fake Job</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
@@ -402,15 +262,15 @@
                                 <select id="multicol-job" class="select2 form-select" name="fakejob_id">
                                     <option value="">Select</option>
                                     @foreach ($jobs as $job)
-                                        <option value="{{ $job->id }}">{{ $job->job_name }}</option>
+                                        <option value="{{ $job->id }}">{{$job->job_title}} ({{ $job->job_name }})</option>
                                     @endforeach
                                 </select>
                             </div>
                         </div>
                         <div class="row g-4">
                             <div class="col mb-0">
-                                <label for="select2Dark" class="form-label">Stuffs</label>
-                                <select id="select2Dark" class="select2 form-select" name="fakeworkers[]" multiple>
+                                <label for="select2Fakeworkers" class="form-label">Stuffs</label>
+                                <select id="select2Fakeworkers" class="select2 form-select" name="fakeworkers[]" multiple>
                                     @foreach ($stuffs as $stuff)
                                         <option value="{{ $stuff->id }}">{{ $stuff->name }}</option>
                                     @endforeach

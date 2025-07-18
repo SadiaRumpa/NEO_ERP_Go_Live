@@ -332,7 +332,33 @@ class SchedulerController extends Controller
         return response()->json(['message' => 'Schedule deleted successfully']);
     }
 
+    /* Fake Job Schedule Methods */
+    public function showFakeSchedule($id)
+    {
+        $schedule = FakeJobSchedule::with([
+            'job' => function ($q) {
+                $q->select('id', 'job_description', 'customer_id', 'job_type', 'job_status');
+            },
+            'job.jobaddress' => function ($q) {
+                $q->select('id', 'fjob_id', 'address', 'country', 'county', 'contact_firstname', 'contact_lastname', 'contact_phone', 'contact_mobile', 'contact_email');
+            },
+            'job.customer' => function ($q) {
+                $q->select('id', 'company_name');
+            },
+            'workers'
+        ])->findOrFail($id);
 
+        $workerslist = User::role('stuff')->orderBy('name', 'asc')->get();
+
+        return response()->json([
+            'schedule' => $schedule,
+            'workers' => $schedule->workers,
+            'job' => $schedule->job,
+            'customer' => $schedule->job->customer,
+            'jobAddress' => $schedule->job->jobaddress,
+            'workerslist' => $workerslist,
+        ]);
+    }
 
     public function storeFakeJobSchedule(Request $request)
     {
@@ -405,7 +431,6 @@ class SchedulerController extends Controller
             'job_schedule' => $jobSchedule,
         ], 201);
     }
-
 
     public function updateFakeJobSchedule(Request $request, $id)
     {

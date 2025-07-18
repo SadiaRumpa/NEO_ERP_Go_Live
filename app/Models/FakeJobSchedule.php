@@ -23,7 +23,7 @@ class FakeJobSchedule extends Model
 
     public function workers()
     {
-        return $this->belongsToMany(User::class, 'job_schedule_workers', 'job_schedule_id', 'user_id')
+        return $this->belongsToMany(User::class, 'fake_job_schedule_workers', 'fake_job_schedule_id', 'user_id')
             ->withPivot('assigned_date', 'completion_date', 'status', 'notes')
             ->withTimestamps();
     }

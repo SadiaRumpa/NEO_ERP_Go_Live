@@ -33,12 +33,11 @@
                             $jobSchedules = $worker->jobSchedules->filter(function ($job) use ($dateKey) {
                                 return $dateKey >= $job->start_date && $dateKey <= $job->end_date;
                             });
-                            
+
                         @endphp
 
                         <td class="calendar-cell">
                             @if ($jobSchedules->isNotEmpty())
-                            
                                 @foreach ($jobSchedules as $jobSchedule)
                                     @php
                                         $startdate = $jobSchedule->start_date;
@@ -49,7 +48,7 @@
                                         <button type="button" class="btn btn-sm btn-primary w-100 text-start"
                                             data-bs-toggle="modal" data-bs-target="#scheduleUpdateModal"
                                             data-id="{{ $jobSchedule->id }}">
-                                            {{ $jobSchedule->job_name }} - {{  $jobSchedule->job_title }}
+                                            {{ $jobSchedule->job_name }} - {{ $jobSchedule->job_title }}
                                         </button>
                                     </div>
                                 @endforeach
@@ -66,7 +65,7 @@
     </table>
 </div>
 <!-- Modal -->
-<div class="modal fade" id="scheduleUpdateModal" data-bs-backdrop="static" tabindex="-1">
+<div class="modal fade schedule-update-modal" id="scheduleUpdateModal" data-bs-backdrop="static" tabindex="-1">
     <div class="modal-dialog modal-xl">
         <form class="modal-content" id="scheduleUpdateForm">
             @csrf
@@ -86,9 +85,9 @@
                         </div>
                         <div class="row g-4">
                             <div class="col mb-0">
-                                <label for="select2Info" class="form-label">Stuffs</label>
+                                <label for="upSelect2Info" class="form-label">Stuffs</label>
                                 <div class="select2-info">
-                                    <select id="select2Info" class="select2 form-select" name="workers[]" multiple>
+                                    <select id="upSelect2Info" class="select2 form-select" name="workers[]" multiple>
 
                                     </select>
                                 </div>
@@ -105,7 +104,6 @@
                                 <div class="form-control p-0">
                                     <div class="border-0 pb-6" id="instructionu"></div>
                                 </div>
-
                                 <input type="hidden" name="instructions" id="instructionu_input">
                             </div>
                         </div>
@@ -163,12 +161,12 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const modal = document.getElementById('scheduleUpdateModal');
-
         if (!modal) return;
 
-        const flatpickrRange2 = document.querySelector('#flatpickr-range2');
-        if (typeof flatpickrRange2 != undefined) {
-            flatpickrRange2.flatpickr({
+        // ✅ Initialize Flatpickr
+        const flatpickrInput = modal.querySelector('#flatpickr-range2');
+        if (flatpickrInput) {
+            flatpickr(flatpickrInput, {
                 mode: 'range',
                 static: true,
                 allowInput: false,
@@ -176,28 +174,33 @@
             });
         }
 
-        const quillmu = new Quill('#instructionu', {
+        // ✅ Initialize Quill
+        const quillEditor = new Quill('#instructionu', {
             theme: 'snow',
             placeholder: 'Write your message...',
         });
 
+        // ✅ Initialize Select2 (deferred to on modal show)
+        const workerSelect = $(modal).find('#upSelect2Info');
+        if (workerSelect.length) {
+            workerSelect.select2({
+                dropdownParent: $(modal)
+            });
+        }
 
+        // 🎯 Show Event Handler
         modal.addEventListener('show.bs.modal', function(event) {
             const button = event.relatedTarget;
             const jobScheduleId = button?.getAttribute('data-id');
 
-            // 🛠️ Delay execution slightly to allow modal content to load
             setTimeout(() => {
-                const jobNameInput = document.getElementById('jobname');
-                const dateRangeInput = document.getElementById('flatpickr-range2');
-                const instructionDiv = document.getElementById('instructionu');
-                const instructionInput = document.getElementById('instructionu_input');
-                const workerSelect = document.getElementById('select2Info');
-                const jobScheduleIdInput = document.getElementById('jobScheduleId');
+                const jobNameInput = modal.querySelector('#jobname');
+                const instructionInput = modal.querySelector('#instructionu_input');
+                const jobScheduleIdInput = modal.querySelector('#jobScheduleId');
+                const workerSelectEl = modal.querySelector('#upSelect2Info');
 
-
-                if (!jobNameInput || !dateRangeInput || !instructionDiv || !workerSelect) {
-                    console.error('Some modal fields are missing in DOM.');
+                if (!jobNameInput || !flatpickrInput || !instructionInput || !workerSelectEl) {
+                    console.error('Missing fields in modal.');
                     return;
                 }
 
@@ -213,93 +216,73 @@
                         const GOOGLE_MAPS_API_KEY =
                             "{{ config('services.google.maps_api_key') }}";
 
+                        // 📝 Set Fields
                         jobNameInput.value = schedule.job_name || '';
-                        dateRangeInput.value =
+                        flatpickrInput.value =
                             `${schedule.start_date} to ${schedule.end_date}`;
-
-                        quillmu.root.innerHTML = ''; // Optional: clear existing content
-                        quillmu.clipboard.dangerouslyPasteHTML(schedule.instructions || '');
+                        quillEditor.root.innerHTML = '';
+                        quillEditor.clipboard.dangerouslyPasteHTML(schedule.instructions ||
+                            '');
                         instructionInput.value = schedule.instructions || '';
 
+                        // 👥 Populate Workers
                         const assignedWorkerIds = workers.map(w => w.id.toString());
-
-                        // Clear old options (in case this is reused)
-                        workerSelect.innerHTML = '';
-
-                        // Populate all options
+                        workerSelectEl.innerHTML = '';
                         workerslist.forEach(worker => {
                             const option = document.createElement('option');
                             option.value = worker.id;
                             option.textContent = worker.name;
-
-                            // Mark as selected if this worker is assigned
                             if (assignedWorkerIds.includes(worker.id.toString())) {
                                 option.selected = true;
                             }
-
-                            workerSelect.appendChild(option);
+                            workerSelectEl.appendChild(option);
                         });
+                        $(workerSelectEl).trigger('change');
 
-                        // Trigger Select2 refresh
-                        if ($(workerSelect).hasClass("select2-hidden-accessible")) {
-                            $(workerSelect).trigger('change');
-                        }
+                        // 🆔 Set Schedule ID
+                        jobScheduleIdInput.value = schedule.id;
 
-                        if (jobScheduleId) {
-                            jobScheduleIdInput.value = schedule.id;
-                        }
-
-                        // Fill job info
-                        document.getElementById('jobDescription').innerHTML = job.job_description || '';
-
-                        // Fill contact info
-                        document.getElementById('companyName').textContent =
-                            `${jobCustomer.company_name}`
-                            .trim();
-                        document.getElementById('contactName').textContent =
+                        // 📌 Job Details
+                        modal.querySelector('#jobDescription').innerHTML = job.job_description || '';
+                        modal.querySelector('#companyName').textContent = jobCustomer
+                            .company_name || '';
+                        modal.querySelector('#contactName').textContent =
                             `${jobAddress.contact_firstname} ${jobAddress.contact_lastname}`
                             .trim();
-                        document.getElementById('contactEmail').textContent = jobAddress
+                        modal.querySelector('#contactEmail').textContent = jobAddress
                             .contact_email || '';
-                        document.getElementById('contactPhone').textContent = jobAddress
+                        modal.querySelector('#contactPhone').textContent = jobAddress
                             .contact_phone || '';
+                        modal.querySelector('#contactMobile').textContent = jobAddress
+                            .contact_mobile || '';
+                        modal.querySelector('#jobAddress').textContent =
+                            `${jobAddress.address}, ${jobAddress.county}, ${jobAddress.country}`;
 
-                        // Fill address
-                        document.getElementById('jobAddress').textContent = jobAddress
-                            .address + ', ' + jobAddress.county + ', ' + jobAddress
-                            .country || '';
-
-                        // Update Google Map iframe
-                        const googleMap = document.getElementById('jobMap');
                         const addressParam = encodeURIComponent(
                             `${jobAddress.address}, ${jobAddress.county}, ${jobAddress.country}`
-                        );
-                        googleMap.src =
+                            );
+                        modal.querySelector('#jobMap').src =
                             `https://www.google.com/maps/embed/v1/place?key=${GOOGLE_MAPS_API_KEY}&q=${addressParam}`;
-
                     });
-            }, 100); // Slight delay helps if modal rendering is async
+            }, 100);
         });
 
-        // 🧼 Reset modal on close
+        // 🔁 Reset Modal on Close
         modal.addEventListener('hidden.bs.modal', function() {
-            // Reset modal fields
-            document.getElementById('jobname').value = '';
-            document.getElementById('flatpickr-range2').value = '';
-            document.getElementById('instructionu_input').value = '';
-            quillmu.root.innerHTML = '';
-            document.getElementById('select2Info').innerHTML = '';
-            document.getElementById('jobScheduleId').value = '';
+            modal.querySelector('#jobname').value = '';
+            flatpickrInput.value = '';
+            modal.querySelector('#instructionu_input').value = '';
+            quillEditor.root.innerHTML = '';
+            modal.querySelector('#upSelect2Info').innerHTML = '';
+            modal.querySelector('#jobScheduleId').value = '';
 
-            // Reinitialize empty Select2 if needed
-            const select2 = $('#select2Info');
+            const select2 = $(modal).find('#upSelect2Info');
             if (select2.hasClass("select2-hidden-accessible")) {
                 select2.val(null).trigger('change');
             }
 
-            // ✅ Move focus to a safe, visible element outside the modal
             setTimeout(() => {
-                document.activeElement.blur(); // Remove focus from any lingering element
+                document.activeElement.blur();
                 const fallbackFocus = document.querySelector('[data-bs-toggle="modal"]') ||
                     document.body;
                 fallbackFocus.focus();
@@ -307,6 +290,7 @@
         });
     });
 </script>
+
 <script>
     function removeAssignment(assignmentId) {
         if (!confirm('Are you sure you want to remove this assignment?')) return;
