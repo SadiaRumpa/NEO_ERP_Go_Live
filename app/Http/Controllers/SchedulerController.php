@@ -439,7 +439,7 @@ class SchedulerController extends Controller
             'daterange'   => 'required|string',
             'workers'     => 'array',
             'workers.*'   => 'exists:users,id',
-            'instructions' => 'nullable|string',
+            'instructionsf' => 'nullable|string',
         ]);
 
         // Extract start and end dates
@@ -454,18 +454,19 @@ class SchedulerController extends Controller
 
         // Find the Job Schedule
         $jobSchedule = FakeJobSchedule::findOrFail($id);
+        
         $jobSchedule->update([
             'start_date'  => $startDate,
             'end_date'    => $endDate,
-            'instructions' => $validated['instructions'],
+            'instructions' => $validated['instructionsf'],
             'status'      => 'pending',
         ]);
 
         // Update workers
-        FakeJobScheduleWorker::where('job_schedule_id', $id)->delete();
+        FakeJobScheduleWorker::where('fake_job_schedule_id', $id)->delete();
         foreach ($validated['workers'] ?? [] as $workerId) {
             FakeJobScheduleWorker::create([
-                'job_schedule_id' => $jobSchedule->id,
+                'fake_job_schedule_id' => $jobSchedule->id,
                 'user_id'       => $workerId,
                 'assigned_date'   => $startDate,
                 'completion_date' => $endDate,
@@ -487,10 +488,10 @@ class SchedulerController extends Controller
         }
 
         // Delete associated workers
-        FakeJobScheduleWorker::where('job_schedule_id', $id)->delete();
+        FakeJobScheduleWorker::where('fake_job_schedule_id', $id)->delete();
 
         // Handle attachments
-        $attachments = FakeJobScheduleAttachment::where('job_schedule_id', $id)->get();
+        $attachments = FakeJobScheduleAttachment::where('fake_job_schedule_id', $id)->get();
         foreach ($attachments as $attachment) {
             $disk = $attachment->source === 's3' ? 's3' : 'public';
             $path = $attachment->attachment_path;

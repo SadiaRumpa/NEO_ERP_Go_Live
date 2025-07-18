@@ -148,7 +148,7 @@
                 <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">
                     Close
                 </button>
-                <button type="button" class="btn btn-primary" id="updateScheduleBtn">Update</button>
+                <button type="button" class="btn btn-primary" onclick="updateSchedule(event)">Update</button>
                 <button class="btn btn-md btn-danger"
                     onclick="removeAssignment(this.closest('form').querySelector('#jobScheduleId').value); return false;">
                     <i class="bi bi-trash"></i>
@@ -292,6 +292,50 @@
 </script>
 
 <script>
+    function updateSchedule(e) {
+        e.preventDefault();
+
+        const quillEditorU = new Quill('#instructionu', {
+            theme: 'snow',
+            placeholder: 'Write your message...',
+        });
+
+        $('#instructionu_input').val(quillEditorU.root.innerHTML);
+
+        const $btn = $(this);
+        const $form = $('#scheduleUpdateForm');
+
+        const formData = new FormData($form[0]);
+        const jobScheduleId = $form.find('#jobScheduleId').val();
+
+        // console.log(jobScheduleId);
+        // return;
+        $.ajax({
+            url: `scheduler/update-job-schedule/${jobScheduleId}`,
+            method: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            beforeSend: function() {
+                $btn.prop('disabled', true).html(
+                    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...'
+                );
+            },
+            success: function(response) {
+                toastr.success(response.message || 'Schedule saved successfully!');
+                $form[0].reset();
+                quillEditorU.setContents([]);
+                $('#scheduleUpdateModal').modal('hide');
+                $btn.prop('disabled', false).html('Save');
+                setTimeout(() => location.reload(), 1000);
+            },
+            error: function(xhr) {
+                const errMsg = xhr.responseJSON?.message || 'Error saving schedule.';
+                toastr.error(errMsg);
+                $btn.prop('disabled', false).html('Save');
+            }
+        });
+    }
     function removeAssignment(assignmentId) {
         if (!confirm('Are you sure you want to remove this assignment?')) return;
 

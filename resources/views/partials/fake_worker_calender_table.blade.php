@@ -69,7 +69,7 @@
 <div class="modal fade fake-schedule-update-modal" id="fakeScheduleUpdateModal" data-bs-backdrop="static"
     tabindex="-1">
     <div class="modal-dialog modal-xl">
-        <form class="modal-content" id="scheduleUpdateForm">
+        <form class="modal-content" id="fakeScheduleUpdateForm">
             @csrf
             @method('PUT')
             <div class="modal-header">
@@ -107,7 +107,7 @@
                                     <div class="border-0 pb-6" id="instructionuf"></div>
                                 </div>
 
-                                <input type="hidden" name="instructions" id="instructionuf_input">
+                                <input type="hidden" name="instructionsf" id="instructionuf_input">
                             </div>
                         </div>
                     </div>
@@ -147,13 +147,13 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <input type="hidden" id="jobScheduleId">
+                <input type="hidden" id="fakeJobScheduleId">
                 <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">
                     Close
                 </button>
-                <button type="button" class="btn btn-primary" id="updateScheduleBtn">Update</button>
+                <button type="button" class="btn btn-primary" onclick="updateFakeSchedule(event)">Update</button>
                 <button class="btn btn-md btn-danger"
-                    onclick="removeAssignment(this.closest('form').querySelector('#jobScheduleId').value); return false;">
+                    onclick="removeFakeAssignment(this.closest('form').querySelector('#fakeJobScheduleId').value); return false;">
                     <i class="bi bi-trash"></i>
                     Delete Assignment
                 </button>
@@ -190,12 +190,12 @@
 
         modal.addEventListener('show.bs.modal', function(event) {
             const button = event.relatedTarget;
-            const jobScheduleId = button?.getAttribute('data-id');
+            const fakeJobScheduleId = button?.getAttribute('data-id');
 
             setTimeout(() => {
                 const jobNameInput = modal.querySelector('#jobname');
                 const instructionInput = modal.querySelector('#instructionuf_input');
-                const jobScheduleIdInput = modal.querySelector('#jobScheduleId');
+                const fakeJobScheduleIdInput = modal.querySelector('#fakeJobScheduleId');
                 const workerSelect = modal.querySelector('#fakeSelect2Info');
 
                 if (!jobNameInput || !flatpickrInput || !instructionInput || !workerSelect) {
@@ -203,7 +203,7 @@
                     return;
                 }
 
-                fetch(`/scheduler/fake-job-schedule/${jobScheduleId}`)
+                fetch(`/scheduler/fake-job-schedule/${fakeJobScheduleId}`)
                     .then(response => response.json())
                     .then(data => {
                         const schedule = data.schedule;
@@ -221,7 +221,8 @@
 
                         // Reset and set Quill content
                         quillEditorFake.root.innerHTML = '';
-                        quillEditorFake.clipboard.dangerouslyPasteHTML(schedule.instructions ||
+                        quillEditorFake.clipboard.dangerouslyPasteHTML(schedule
+                            .instructions ||
                             '');
                         instructionInput.value = schedule.instructions || '';
 
@@ -240,10 +241,11 @@
                         $(workerSelect).trigger('change');
 
                         // Set job schedule ID
-                        jobScheduleIdInput.value = schedule.id;
+                        fakeJobScheduleIdInput.value = schedule.id;
 
                         // Fill job info
-                        modal.querySelector('#jobDescription').innerHTML = job.job_description || '';
+                        modal.querySelector('#jobDescription').innerHTML = job
+                            .job_description || '';
                         modal.querySelector('#companyName').textContent = jobCustomer
                             .company_name || '';
                         modal.querySelector('#contactName').textContent =
@@ -261,7 +263,7 @@
 
                         const addressParam = encodeURIComponent(
                             `${jobAddress.address}, ${jobAddress.county}, ${jobAddress.country}`
-                            );
+                        );
                         modal.querySelector('#jobMap').src =
                             `https://www.google.com/maps/embed/v1/place?key=${GOOGLE_MAPS_API_KEY}&q=${addressParam}`;
                     });
@@ -274,7 +276,7 @@
             modal.querySelector('#instructionuf_input').value = '';
             quillEditorFake.root.innerHTML = '';
             modal.querySelector('#fakeSelect2Info').innerHTML = '';
-            modal.querySelector('#jobScheduleId').value = '';
+            modal.querySelector('#fakeJobScheduleId').value = '';
 
             const select2 = $(modal).find('#fakeSelect2Info');
             if (select2.hasClass("select2-hidden-accessible")) {
@@ -289,13 +291,58 @@
             }, 0);
         });
     });
+
+    function updateFakeSchedule(e) {
+        e.preventDefault();
+
+        const quillEditorFakeU = new Quill('#instructionuf', {
+            theme: 'snow',
+            placeholder: 'Write your message...',
+        });
+
+        $('#instructionuf_input').val(quillEditorFakeU.root.innerHTML);
+
+        const $btn = $(this);
+        const $form = $('#fakeScheduleUpdateForm');
+
+        const formData = new FormData($form[0]);
+        const fakeJobScheduleId = $form.find('#fakeJobScheduleId').val();
+
+        // console.log(fakeJobScheduleId);
+        // return;
+        $.ajax({
+            url: `scheduler/update-fake-job-schedule/${fakeJobScheduleId}`,
+            method: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            beforeSend: function() {
+                $btn.prop('disabled', true).html(
+                    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...'
+                );
+            },
+            success: function(response) {
+                toastr.success(response.message || 'Schedule saved successfully!');
+                $form[0].reset();
+                quillEditorFakeU.setContents([]);
+                $('#fakeScheduleUpdateModal').modal('hide');
+                $btn.prop('disabled', false).html('Save');
+                setTimeout(() => location.reload(), 1000);
+            },
+            error: function(xhr) {
+                const errMsg = xhr.responseJSON?.message || 'Error saving schedule.';
+                toastr.error(errMsg);
+                $btn.prop('disabled', false).html('Save');
+            }
+        });
+    }
 </script>
 
 <script>
-    function removeAssignment(assignmentId) {
+    function removeFakeAssignment(assignmentId) {
         if (!confirm('Are you sure you want to remove this assignment?')) return;
 
-        fetch(`/scheduler/delete-schedule/${assignmentId}`, {
+        fetch(`/scheduler/delete-fake-schedule/${assignmentId}`, {
                 method: 'DELETE',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),

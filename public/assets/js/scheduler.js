@@ -79,12 +79,12 @@ $(function () {
 
         const $btn = $(this);
         const $form = $('#fakeScheduleForm');
-        $('#fakeinstruction_input').val(quillm.root.innerHTML);
+        $('#fakeinstruction_input').val(quillf.root.innerHTML);
 
         const formData = new FormData($form[0]);
 
         $.ajax({
-            url: "{{ route('scheduler.store-fake-job-schedule') }}",
+            url: `scheduler/store-fake-job-schedule`,
             method: "POST",
             data: formData,
             processData: false,
