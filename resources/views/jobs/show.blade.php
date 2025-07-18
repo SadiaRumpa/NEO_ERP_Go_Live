@@ -536,6 +536,7 @@
                 <!-- job location column -->
                 <div class="col-12 col-lg-4">
                     <!-- job Attributes -->
+                    @role('job-manager')
                     <div class="row mb-6 gy-6">
                         <div class="col-xl order-2 order-xl-0">
                             <div class="card mb-6">
@@ -585,6 +586,7 @@
                             </div>
                         </div>
                     </div>
+                    @endrole
                     <!-- job Attributes -->
 
                     <!-- Attachments -->
