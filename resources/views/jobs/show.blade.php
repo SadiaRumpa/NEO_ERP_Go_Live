@@ -332,7 +332,7 @@
                                                     Close
                                                 </button>
                                                 <button type="button" class="btn btn-success"
-                                                    onclick="updatejobDetails()">Save</button>
+                                                    onclick="updatejobDetails({{ $job->id }})">Save</button>
                                             </div>
                                         </form>
                                     </div>

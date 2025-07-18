@@ -30,7 +30,7 @@ const quill = new Quill('#job-description-edit', {
 });
 
 
-function updatejobDetails() {
+function updatejobDetails(jobId) {
     const htmlContent = quill.root.innerHTML.trim();
     const textContent = quill.getText().trim();
 
@@ -43,7 +43,7 @@ function updatejobDetails() {
     document.getElementById('jobdescription-hidden').value = htmlContent;
     const form = document.getElementById('jobForm');
     const formData = new FormData(form);
-    fetch(`/job/updatedescription/{{ $job->id }}`, {
+    fetch(`/job/updatedescription/${jobId}`, {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': form.querySelector('input[name="_token"]').value
@@ -85,7 +85,7 @@ function addNotes(jobId) {
     const notedata = quilln.root.innerHTML.trim();
 
     $.ajax({
-        url: "{{ route('job.add-note') }}", // Your Laravel route
+        url: `/job/add-note`, // Your Laravel route
         method: "POST",
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Ensure CSRF token is included
@@ -291,7 +291,7 @@ $('#uploadAttachmentsForm').on('submit', function (e) {
     let formData = new FormData(form);
 
     $.ajax({
-        url: "{{ route('job.attachments-upload') }}", // Change to your actual route
+        url: `job/attachments-upload`, // Change to your actual route
         method: 'POST',
         data: formData,
         processData: false,

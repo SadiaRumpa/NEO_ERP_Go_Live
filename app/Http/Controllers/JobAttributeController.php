@@ -15,9 +15,11 @@ class JobAttributeController extends Controller
     {
         if ($request->ajax()) {
 
-            $data = JobAttribute::with(['attributedetails'])
+            $data = JobAttribute::with(['attributedetails' => function ($query) {
+                $query->orderBy('value', 'asc');
+            }])
                 ->select('*')
-                ->orderByDesc('created_at');
+                ->orderBy('name', 'asc');
 
             return Datatables::of($data)
                 ->addIndexColumn()

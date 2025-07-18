@@ -114,7 +114,7 @@ $(function () {
     $('#realMonthFilterForm').on('submit', function (e) {
         e.preventDefault();
         $.ajax({
-            url: "{{ route('scheduler.workers-calendar') }}",
+            url: `/scheduler/workers-calendar`,
             method: "POST",
             data: $(this).serialize(),
             headers: {
@@ -129,7 +129,7 @@ $(function () {
     $('#fakeMonthFilterForm').on('submit', function (e) {
         e.preventDefault();
         $.ajax({
-            url: "{{ route('scheduler.fake-workers-calendar') }}",
+            url: `/scheduler/fake-workers-calendar`,
             method: "POST",
             data: $(this).serialize(),
             headers: {

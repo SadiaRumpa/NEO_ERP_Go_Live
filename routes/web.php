@@ -125,10 +125,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('job-add-attributes/{jobid}/store', [FjobController::class, 'storeJobAddAttributes'])->name('job-attributes.add-store');
 
     Route::get('scheduler', [SchedulerController::class, 'index'])->name('scheduler.index');
-    Route::post('scheduler/workers', [SchedulerController::class, 'getSchedulerCalendarData'])->name('scheduler.workers-calendar');
+    Route::post('scheduler/workers-calendar', [SchedulerController::class, 'getSchedulerCalendarData'])->name('scheduler.workers-calendar');
     Route::get('scheduler/job-schedule/{id}', [SchedulerController::class, 'showSchedule'])->name('scheduler.job-schedule');
 
-    Route::post('scheduler/fake-workers', [SchedulerController::class, 'getFakeSchedulerCalendarData'])->name('scheduler.fake-workers-calendar');
+    Route::post('scheduler/fake-workers-calendar', [SchedulerController::class, 'getFakeSchedulerCalendarData'])->name('scheduler.fake-workers-calendar');
     Route::get('scheduler/fake-job-schedule/{id}', [SchedulerController::class, 'showFakeSchedule'])->name('scheduler.fake-job-schedule');
     
     Route::post('scheduler/store-job-schedule', [SchedulerController::class, 'storeJobSchedule'])->name('scheduler.store-job-schedule');
