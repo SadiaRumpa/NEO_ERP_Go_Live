@@ -85,7 +85,7 @@ function addNotes(jobId) {
     const notedata = quilln.root.innerHTML.trim();
 
     $.ajax({
-        url: `/job/add-note`, // Your Laravel route
+        url: `/job/add-note/${jobId}`, // Your Laravel route
         method: "POST",
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // Ensure CSRF token is included

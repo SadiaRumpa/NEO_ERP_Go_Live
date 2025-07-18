@@ -6,6 +6,7 @@ use App\Models\Fjob;
 use App\Models\FjobAttachment;
 use App\Models\FjobAttribute;
 use App\Models\FjobAttributeDetail;
+use App\Models\FjobNote;
 use App\Models\JobAttribute;
 use App\Models\JobAttributeDetail;
 use App\Models\MailTemplate;
@@ -58,12 +59,6 @@ class FjobController extends Controller
         return view('jobs.index');
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show($key)
     {
         $job = Fjob::with([
@@ -185,6 +180,32 @@ class FjobController extends Controller
             'status' => 'success',
             'message' => 'Job title updated successfully.'
         ]);
+    }
+
+    public function jobNotes(Request $request, $jobid)
+    {
+        $validated = $request->validate([
+            'note'       => 'required|string',
+        ]);
+
+        $job = Fjob::find($jobid);
+        if (!$job) {
+            return response()->json(['status' => 'error', 'message' => 'Job not found.']);
+        }
+
+        $jobnote = FjobNote::create([
+            'fjob_id'  => $jobid,
+            'note_by'     => Auth::id(),
+            'note'        => $validated['note'],
+            'note_type'   => 'internal',
+            'note_status' => 'active',
+        ]);
+
+        if ($jobnote) {
+            return response()->json(['status' => 'success', 'message' => 'Note added successfully.']);
+        }
+
+        return response()->json(['status' => 'error', 'message' => 'Failed to add enquiry note.']);
     }
 
     public function jobAddAttributes($jobid)

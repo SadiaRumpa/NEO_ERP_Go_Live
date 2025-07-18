@@ -112,7 +112,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('job/updatestatus/{id}', [FjobController::class, 'updateJobStatus'])->name('job.updatestatus');
     Route::post('job/updatetitle/{id}', [FjobController::class, 'updateJobTitle'])->name('job.updatetitle');
 
-    Route::post('job/add-note', [FjobController::class, 'jobNotes'])->name('job.add-note');
+    Route::post('job/add-note/{jobid}', [FjobController::class, 'jobNotes'])->name('job.add-note');
     Route::delete('job/delete-note/{id}', [FjobController::class, 'deleteJobNotes'])->name('job.destroynote');
 
     Route::post('job/add-images', [FjobController::class, 'addJobImages'])->name('job.add-images');
