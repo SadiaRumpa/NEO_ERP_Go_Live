@@ -99,20 +99,8 @@
                         }
                     },
                     {
-                        data: 'job_description',
-                        name: 'job_description',
-                        render: function(data, type, row) {
-                            // Strip HTML tags
-                            var div = document.createElement("div");
-                            div.innerHTML = data;
-                            var text = div.textContent || div.innerText || "";
-
-                            // Truncate to 200 chars
-                            var truncated = text.length > 200 ? text.substring(0, 200) + "..." :
-                                text;
-
-                            return truncated;
-                        }
+                        data: 'enquiry',
+                        name: 'enquiry',
                     },
                     {
                         data: 'action',
@@ -162,9 +150,9 @@
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>JOB</th>
+                            <th>JOB TITLE</th>
                             <th width="20%">COMPANY INFO</th>
-                            <th>CONTACT</th>
+                            <th>ENQUIRY</th>
                             <th>ACTION</th>
                         </tr>
                     </thead>

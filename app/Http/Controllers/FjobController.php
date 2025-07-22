@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class FjobController extends Controller
 {
@@ -28,24 +29,26 @@ class FjobController extends Controller
 
             $data = Fjob::with([
                 'customer:id,company_name,contact_firstname,contact_lastname,contact_email,contact_phone,contact_mobile',
-                'jobaddress:id,fjob_id,contact_firstname,contact_lastname,contact_email,contact_phone,contact_mobile,address,county,country'
             ])
                 ->select([
                     'id',
                     'job_name',
-                    'slug',
                     'job_title',
+                    'slug',
                     'job_description',
                     'customer_id',
                     'job_type',
                     'job_status',
-                    'created_at'
+                    'enquiry'
                 ])
                 ->whereIn('job_status', ['draft', 'accepted', 'new', 'inprogress', 'on_hold'])
                 ->orderByDesc('created_at');
 
             return DataTables::of($data)
                 ->addIndexColumn()
+                ->addColumn('job_name', function ($row) {
+                    return ($row->job_name ?? '') . ' - ' . ($row->job_title ?? '');
+                })
                 ->addColumn('company_name', function ($row) {
                     return $row->customer->company_name ?? '-';
                 })
@@ -60,6 +63,9 @@ class FjobController extends Controller
                 })
                 ->addColumn('customer_mobile', function ($row) {
                     return $row->customer->contact_mobile ?? '-';
+                })
+                ->addColumn('enquiry', function ($row) {
+                    return Str::limit(strip_tags($row->enquiry), 80); // use Illuminate\Support\Str
                 })
                 ->addColumn('action', function ($row) {
                     return '<a href="/job/' . $row->id . '" class="edit btn btn-primary btn-sm">Details</a>';
