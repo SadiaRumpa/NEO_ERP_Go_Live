@@ -17,7 +17,7 @@ class Fjob extends Model
         'customer_id',
         'job_type',
         'job_category',
-        'ob_priority',
+        'job_priority',
         'job_status',
         'job_closed_by',
         'job_closed_at',

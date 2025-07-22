@@ -26,34 +26,45 @@ class FjobController extends Controller
     {
         if ($request->ajax()) {
 
-            $data = Fjob::with(['customer', 'jobaddress'])
-                ->select('*')
+            $data = Fjob::with([
+                'customer:id,company_name,contact_firstname,contact_lastname,contact_email,contact_phone,contact_mobile',
+                'jobaddress:id,fjob_id,contact_firstname,contact_lastname,contact_email,contact_phone,contact_mobile,address,county,country'
+            ])
+                ->select([
+                    'id',
+                    'job_name',
+                    'slug',
+                    'job_title',
+                    'job_description',
+                    'customer_id',
+                    'job_type',
+                    'job_status',
+                    'created_at'
+                ])
                 ->whereIn('job_status', ['draft', 'accepted', 'new', 'inprogress', 'on_hold'])
                 ->orderByDesc('created_at');
 
-            return Datatables::of($data)
+            return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('company_name', function ($row) {
-                    return $row->customer->company_name;
+                    return $row->customer->company_name ?? '-';
                 })
                 ->addColumn('customer_name', function ($row) {
-                    return $row->customer->contact_firstname . ' ' . $row->customer->contact_lastname;
+                    return ($row->customer->contact_firstname ?? '') . ' ' . ($row->customer->contact_lastname ?? '');
                 })
                 ->addColumn('customer_email', function ($row) {
-                    return $row->customer->contact_email;
+                    return $row->customer->contact_email ?? '-';
                 })
                 ->addColumn('customer_phone', function ($row) {
-                    return $row->customer->contact_phone;
+                    return $row->customer->contact_phone ?? '-';
                 })
                 ->addColumn('customer_mobile', function ($row) {
-                    return $row->customer->contact_mobile;
+                    return $row->customer->contact_mobile ?? '-';
                 })
                 ->addColumn('action', function ($row) {
-                    $btn = '<a href="/job/' . $row->id . '" class="edit btn btn-primary btn-sm">Details</a>';
-                    return $btn;
+                    return '<a href="/job/' . $row->id . '" class="edit btn btn-primary btn-sm">Details</a>';
                 })
                 ->rawColumns(['action'])
-                ->addIndexColumn()
                 ->make(true);
         }
         return view('jobs.index');
