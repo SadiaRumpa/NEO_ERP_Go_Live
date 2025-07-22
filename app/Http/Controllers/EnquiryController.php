@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-
+use Illuminate\Support\Str;
 
 class EnquiryController extends Controller
 {
@@ -30,35 +30,44 @@ class EnquiryController extends Controller
     {
         if ($request->ajax()) {
 
-            $data = Enquiry::with([
-                'customer:id,company_name,contact_firstname,contact_lastname,contact_email,contact_phone,contact_mobile',
-            ])
+            $data = Enquiry::join('customers', 'enquiries.customer_id', '=', 'customers.id')
                 ->select([
-                    'id',
-                    'slug',
-                    'enquiry_status',
-                    'customer_id',
-                    'created_at'
+                    'enquiries.id',
+                    'enquiries.slug',
+                    'enquiries.enquiry_name',
+                    'enquiries.enquiry',
+                    'enquiries.enquiry_status',
+                    'customers.company_name',
+                    'customers.contact_firstname',
+                    'customers.contact_lastname',
+                    'customers.contact_email',
+                    'customers.contact_phone',
+                    'customers.contact_mobile',
+                    'enquiries.enquiry_source',
+                    'enquiries.created_at'
                 ])
                 ->whereIn('enquiry_status', ['new', 'inprogress', 'on_hold'])
-                ->orderByDesc('created_at');
+                ->orderByDesc('enquiries.created_at');
 
             return Datatables::of($data)
                 ->addIndexColumn()
                 ->addColumn('company_name', function ($row) {
-                    return optional($row->customer)->company_name;
+                    return $row->company_name;
                 })
                 ->addColumn('customer_name', function ($row) {
-                    return optional($row->customer)->contact_firstname . ' ' . optional($row->customer)->contact_lastname;
+                    return $row->contact_firstname . ' ' . $row->contact_lastname;
                 })
                 ->addColumn('customer_email', function ($row) {
-                    return optional($row->customer)->contact_email;
+                    return $row->contact_email;
                 })
                 ->addColumn('customer_phone', function ($row) {
-                    return optional($row->customer)->contact_phone;
+                    return $row->contact_phone;
                 })
                 ->addColumn('customer_mobile', function ($row) {
-                    return optional($row->customer)->contact_mobile;
+                    return $row->contact_mobile;
+                })
+                ->addColumn('enquiry', function ($row) {
+                    return Str::limit(strip_tags($row->enquiry), 50); // use Illuminate\Support\Str
                 })
                 ->addColumn('action', function ($row) {
                     $btn = '<a href="enquiries/' . $row->slug . '" class="edit btn btn-primary btn-sm">Details</a>';
