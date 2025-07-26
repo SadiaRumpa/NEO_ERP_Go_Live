@@ -5,7 +5,8 @@
 @section('scripts')
     @parent
 
-    <script src="{{ asset('assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js') }}"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
     <script src="{{ asset('assets/vendor/libs/moment/moment.js') }}"></script>
     <script src="{{ asset('assets/vendor/libs/flatpickr/flatpickr.js') }}"></script>
 
@@ -98,8 +99,8 @@
                         }
                     },
                     {
-                        data: 'lead_description',
-                        name: 'lead_description',
+                        data: 'enquiry',
+                        name: 'enquiry',
                         render: function(data, type, row) {
                             // Strip HTML tags
                             var div = document.createElement("div");
@@ -163,7 +164,7 @@
                             <th>ID</th>
                             <th>LEADS</th>
                             <th width="20%">COMPANY INFO</th>
-                            <th>CONTACT</th>
+                            <th>ENQUIRY</th>
                             <th>ACTION</th>
                         </tr>
                     </thead>

@@ -45,7 +45,6 @@
     <link rel="stylesheet" href="{{asset('assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css')}}" />
     <!-- endbuild -->
      <link rel="stylesheet" href="{{asset('assets/vendor/libs/swiper/swiper.css')}}" />
-     {{-- <link rel="stylesheet" href="{{asset('vendor/toastr/build/toastr.min.css')}}" /> --}}
      <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
 
 
@@ -298,8 +297,7 @@
     <!-- Core JS -->
     <!-- build:js assets/vendor/js/theme.js -->
     <script src="{{asset('assets/vendor/libs/jquery/jquery.js')}}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-    {{-- <script src="{{asset('vendor/toastr/toastr.js')}}"></script> --}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>    
     <script src="{{asset('assets/vendor/libs/popper/popper.js')}}"></script>
     <script src="{{asset('assets/vendor/js/bootstrap.js')}}"></script>
     <script src="{{asset('assets/vendor/libs/node-waves/node-waves.js')}}"></script>

@@ -18,6 +18,7 @@ use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class LeadController extends Controller
 {
@@ -30,27 +31,40 @@ class LeadController extends Controller
     {
         if ($request->ajax()) {
 
-            $data = Lead::with(['customer', 'leadaddress'])
-                ->select('*')
-                ->whereIn('lead_status', ['new', 'inprogress', 'on_hold'])
-                ->orderByDesc('created_at');
+            $data = DB::table('leads')
+                ->leftJoin('customers', 'leads.customer_id', '=', 'customers.id')
+                ->select(
+                    'leads.id',
+                    'leads.slug',
+                    'leads.lead_status',
+                    'leads.enquiry',
+                    'leads.created_at',
+                    'customers.company_name',
+                    'customers.contact_firstname',
+                    'customers.contact_lastname',
+                    'customers.contact_email',
+                    'customers.contact_phone',
+                    'customers.contact_mobile'
+                )
+                ->whereIn('leads.lead_status', ['new', 'inprogress', 'on_hold'])
+                ->orderByDesc('leads.created_at');
 
             return Datatables::of($data)
                 ->addIndexColumn()
                 ->addColumn('company_name', function ($row) {
-                    return $row->customer->company_name;
+                    return $row->company_name;
                 })
                 ->addColumn('customer_name', function ($row) {
-                    return $row->customer->contact_firstname . ' ' . $row->customer->contact_lastname;
+                    return $row->contact_firstname . ' ' . $row->contact_lastname;
                 })
                 ->addColumn('customer_email', function ($row) {
-                    return $row->customer->contact_email;
+                    return $row->contact_email;
                 })
                 ->addColumn('customer_phone', function ($row) {
-                    return $row->customer->contact_phone;
+                    return $row->contact_phone;
                 })
                 ->addColumn('customer_mobile', function ($row) {
-                    return $row->customer->contact_mobile;
+                    return $row->contact_mobile;
                 })
                 ->addColumn('action', function ($row) {
                     $btn = '<a href="/leads/' . $row->slug . '" class="edit btn btn-primary btn-sm">Details</a>';
