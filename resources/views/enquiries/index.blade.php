@@ -106,13 +106,8 @@
 
 @section('styles')
 @parent
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/datatables-bs5/datatables.bootstrap5.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css')}}" />
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
 <link rel="stylesheet" href="{{asset('assets/vendor/libs/flatpickr/flatpickr.css')}}" />
-
-<!-- Row Group CSS -->
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/datatables-rowgroup-bs5/rowgroup.bootstrap5.css')}}" />
 
 @endsection
 
@@ -141,7 +136,7 @@
         </div>
     </div>
     <div class="card">
-        <div class="card-datatable table-responsive pt-0">
+        <div class="card-datatable table-responsive p-2">
             <table class="datatables-ajax table table-bordered">
                 <thead>
                     <tr>
