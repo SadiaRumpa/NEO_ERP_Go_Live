@@ -18,6 +18,10 @@ use App\Http\Controllers\LeadController;
 use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\QuotationTemplateController;
 use App\Http\Controllers\SchedulerController;
+use App\Http\Controllers\StockAttributeController;
+use App\Http\Controllers\StockCategoryController;
+use App\Http\Controllers\StockItemController;
+use App\Http\Controllers\StockWarehouseController;
 
 Route::get('/', function () {
     return Redirect::to('/login');
@@ -93,9 +97,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('quotation/edit/{id}', [QuotationController::class, 'edit'])->name('quotations.edit');
     Route::post('quotation/update/{id}', [QuotationController::class, 'update'])->name('quotations.update');
     Route::delete('quotation/destroy/{id}', [QuotationController::class, 'destroy'])->name('quotations.destroy');
-    
+
     Route::post('quotation/updatestatus/{id}', [QuotationController::class, 'updateQuotationStatus'])->name('quotations.updatestatus');
-    
+
     Route::post('quotationsections/reorder', [QuotationController::class, 'reorderQuotationSections'])->name('quotationsections.reorder');
     Route::post('quotationsections/update/{id}', [QuotationController::class, 'updateQuotationSectionsContent'])->name('quotationsections.update');
     Route::post('quotationsections/upload-attachments/{id}', [QuotationController::class, 'uploadQuotationSectionsAttachments'])->name('quotationsections.upload-attachments');
@@ -130,7 +134,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('scheduler/fake-workers-calendar', [SchedulerController::class, 'getFakeSchedulerCalendarData'])->name('scheduler.fake-workers-calendar');
     Route::get('scheduler/fake-job-schedule/{id}', [SchedulerController::class, 'showFakeSchedule'])->name('scheduler.fake-job-schedule');
-    
+
     Route::post('scheduler/store-job-schedule', [SchedulerController::class, 'storeJobSchedule'])->name('scheduler.store-job-schedule');
     Route::put('scheduler/update-job-schedule/{id}', [SchedulerController::class, 'updateJobSchedule'])->name('scheduler.update-job-schedule');
     Route::delete('scheduler/delete-schedule/{id}', [SchedulerController::class, 'deleteSchedule'])->name('scheduler.delete-schedule');
@@ -143,9 +147,44 @@ Route::middleware(['auth'])->group(function () {
     Route::post('job-attributes/store', [JobAttributeController::class, 'storeJobAttribute'])->name('job-attributes.store');
     Route::get('job-attributes/{id}/edit', [JobAttributeController::class, 'editJobAttribute'])->name('job-attributes.edit');
     Route::put('job-attributes/{id}/update', [JobAttributeController::class, 'updateJobAttribute'])->name('job-attributes.update');
-    
+
     Route::post('job-attributes/{jobAttribute}/storedetails', [JobAttributeController::class, 'storeAttributeDetails'])->name('job-attributes.store-details');
     Route::put('job-attributes/{jobAttributedetails}/updatedetails', [JobAttributeController::class, 'updateAttributeDetails'])->name('job-attributes.update-details');
 
+    Route::get('stockwarehouses', [StockWarehouseController::class, 'index'])->name('stockwarehouses.index');
+    Route::post('stockwarehouses/store', [StockWarehouseController::class, 'storeWarehouse'])->name('stockwarehouses.store');
+    Route::get('stockwarehouses/{id}', [StockWarehouseController::class, 'showWarehouse'])->name('stockwarehouses.show');
+    Route::put('stockwarehouses/{id}/update', [StockWarehouseController::class, 'updateWarehouse'])->name('stockwarehouses.update');
+    Route::delete('stockwarehouses/{id}', [StockWarehouseController::class, 'destroyWarehouse'])->name('stockwarehouses.destroy');
+
+    Route::get('stockcategories', [StockCategoryController::class, 'index'])->name('stockcategories.index');
+    Route::post('stockcategories/stote', [StockCategoryController::class, 'storeCategory'])->name('stockcategories.store');
+    Route::get('stockcategories/{id}', [StockCategoryController::class, 'showCategory'])->name('stockcategories.show');
+    Route::put('stockcategories/{id}/update', [StockCategoryController::class, 'updateCategory'])->name('stockcategories.update');
+    Route::delete('stockcategories/{id}', [StockCategoryController::class, 'destroyCategory'])->name('stockcategories.destroy');
+
+    Route::get('stockattributes', [StockAttributeController::class, 'index'])->name('stockattributes.index');
+    Route::post('stockattributes/store', [StockAttributeController::class, 'storeAttribute'])->name('stockattributes.store');
+    Route::get('stockattributes/{id}', [StockAttributeController::class, 'showAttribute'])->name('stockattributes.edit');
+    Route::put('stockattributes/{id}/update', [StockAttributeController::class, 'updateAttribute'])->name('stockattributes.update');
+    Route::delete('stockattributes/{id}', [StockAttributeController::class, 'destroyAttribute'])->name('stockattributes.destroy');
+
+    Route::get('stockitems', [StockItemController::class, 'index'])->name('stockitems.index');
+    Route::post('stockitems/store', [StockItemController::class, 'storeItem'])->name('stockitems.store');
+    Route::get('stockitems/{id}', [StockItemController::class, 'showItem'])->name('stockitems.show');
+    Route::put('stockitems/{id}/update', [StockItemController::class, 'updateItem'])->name('stockitems.update');
+    Route::delete('stockitems/{id}', [StockItemController::class, 'destroyItem'])->name('stockitems.destroy');
+    Route::post('stockitems/add-attribute', [StockItemController::class, 'addAttributeToItem'])->name('stockitems.add_attribute');
+    Route::post('stockitems/{stockItem}/add-variants', [StockItemController::class, 'addItemVariants'])->name('stockitems.add_variant');
+
+    Route::get('stockitemsinventory', [StockItemController::class, 'indexInventory'])->name('stockitemsinventory.index');
+    Route::post('stockitemsinventory/add-stock', [StockItemController::class, 'addStockToInventory'])->name('stockitemsinventory.add-stock');
+    Route::get('stockitemsinventory/{id}', [StockItemController::class, 'showStockVarient'])->name('stockitemsinventory.show-stockvarient');
+    Route::post('stockitemsinventory/transfer-stock', [StockItemController::class, 'transferStock'])->name('stockitemsinventory.transfer-stock');
+    Route::get('stockitemsinventory/{id}/history', [StockItemController::class, 'stockInventoryMovementHistory'])->name('stockitemsinventory.movement-history');
+
+
+
     
+
 });

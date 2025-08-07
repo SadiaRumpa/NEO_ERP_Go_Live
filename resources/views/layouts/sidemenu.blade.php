@@ -165,5 +165,37 @@
             </a>
         </li>
         @endhasrole
+        @hasrole('inventory-manager')
+        <li class="menu-item {{(request()->is('stockwarehouses') || request()->is('stockwarehouses/*')) ? 'active' : '' }}">
+            <a href="{{ url('stockwarehouses') }}" class="menu-link">
+                <i class="menu-icon icon-base ti tabler-building-warehouse"></i>
+                <div data-i18n="Stock Warehouses">Stock Warehouses</div>
+            </a>
+        </li>
+        <li class="menu-item {{(request()->is('stockcategories') || request()->is('stockcategories/*')) ? 'active' : '' }}">
+            <a href="{{ url('stockcategories') }}" class="menu-link">
+                <i class="menu-icon icon-base ti tabler-box"></i>
+                <div data-i18n="Stock Categories">Stock Categories</div>
+            </a>
+        </li>
+        <li class="menu-item {{(request()->is('stockattributes') || request()->is('stockattributes/*')) ? 'active' : '' }}">
+            <a href="{{ url('stockattributes') }}" class="menu-link">
+                <i class="menu-icon icon-base ti tabler-attribute"></i>
+                <div data-i18n="Stock Attributes">Stock Attributes</div>
+            </a>
+        </li>
+        <li class="menu-item {{(request()->is('stockitems') || request()->is('stockitems/*')) ? 'active' : '' }}">
+            <a href="{{ url('stockitems') }}" class="menu-link">
+                <i class="menu-icon icon-base ti tabler-box-archive"></i>
+                <div data-i18n="Stock Items">Stock Items</div>
+            </a>
+        </li>
+        <li class="menu-item {{(request()->is('stockitemsinventory') || request()->is('stockitemsinventory/*')) ? 'active' : '' }}">
+            <a href="{{ url('stockitemsinventory') }}" class="menu-link">
+                <i class="menu-icon icon-base ti tabler-archive"></i>
+                <div data-i18n="Stock Items Inventory">Manage Inventory</div>
+            </a>
+        </li>
+        @endhasrole
     </ul>
 </aside>
