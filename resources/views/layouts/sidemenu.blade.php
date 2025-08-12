@@ -196,6 +196,12 @@
                 <div data-i18n="Stock Items Inventory">Manage Inventory</div>
             </a>
         </li>
+        <li class="menu-item {{(request()->is('stockitemrequisitions') || request()->is('stockitemrequisitions/*')) ? 'active' : '' }}">
+            <a href="{{ url('stockitemrequisitions') }}" class="menu-link">
+                <i class="menu-icon icon-base ti tabler-clipboard-list"></i>
+                <div data-i18n="Stock Item Requisitions">Requisitions</div>
+            </a>
+        </li>
         @endhasrole
     </ul>
 </aside>

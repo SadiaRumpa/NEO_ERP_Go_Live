@@ -8,7 +8,6 @@
     <script src="{{ asset('assets/vendor/libs/highlight/highlight.js') }}"></script>
     <script src="{{ asset('assets/vendor/libs/quill/quill.js') }}"></script>
     <script src="{{ asset('assets/vendor/libs/select2/select2.js') }}"></script>
-    <script src="{{ asset('assets/vendor/libs/jquery-repeater/jquery-repeater.js') }}"></script>
     <script src="{{ asset('assets/vendor/libs/flatpickr/flatpickr.js') }}"></script>
     <script src="{{ asset('assets/vendor/libs/tagify/tagify.js') }}"></script>
     <!-- Vendors JS -->
@@ -173,7 +172,7 @@
                             <h5 class="mb-0">Variants</h5>
                             <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                                 data-bs-target="#addProductVariantModal">
-                                Launch modal
+                                <i class="icon-base ti tabler-plus icon-xs me-1_5"></i> Add Variant
                             </button>
 
                             <!-- Modal -->
@@ -218,6 +217,19 @@
                                                         </div>
                                                     @endforeach
                                                 </div>
+                                                <div class="row g-4">
+                                                    <div class="col mb-0">
+                                                        <label for="variant-unit" class="form-label">Unit</label>
+                                                        <select id="variant-unit" class="select2 form-select"
+                                                            name="unit_id" required>
+                                                            <option value="">Select Unit</option>
+                                                            @foreach ($stockunits as $unit)
+                                                                <option value="{{ $unit->slug }}">{{ $unit->name }}
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                </div>
                                             </div>
 
                                             <div class="modal-footer">
@@ -240,6 +252,7 @@
                                             @endforeach
                                             <th>Warehouse</th>
                                             <th>Quantity</th>
+                                            <td>Unit</td>
                                             <th>Avg. Price</th>
                                             <th>Status</th>
                                             <th>Actions</th>
@@ -254,6 +267,7 @@
                                                 @endforeach
                                                 <td>{{ $variant->warehouse->name }}</td>
                                                 <td>{{ $variant->quantity }}</td>
+                                                <td>{{ $variant->unit }}</td>
                                                 <td>{{ $variant->avg_price }}</td>
                                                 <td>
                                                     <span class="badge bg-label-{{ $variant->is_active ? 'success' : 'danger' }}">

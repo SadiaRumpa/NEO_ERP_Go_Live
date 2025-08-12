@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('sku')->unique();
             $table->float('quantity')->default(0);
+            $table->string('unit', 100)->default('pcs');
             $table->decimal('avg_price', 10, 2)->default(0.00);
             $table->unsignedBigInteger('warehouse_id')->nullable();
             $table->foreign('warehouse_id')->references('id')->on('stock_warehouses')->onDelete('set null');

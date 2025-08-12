@@ -9,6 +9,7 @@ class StockItemMovement extends Model
     protected $fillable = [
         'item_variant_id',
         'quantity',
+        'unit', // Unit of measurement for the movement
         'cost',
         'movement_type',
         'movement_date',

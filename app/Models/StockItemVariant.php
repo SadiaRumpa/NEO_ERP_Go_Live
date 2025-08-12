@@ -12,6 +12,7 @@ class StockItemVariant extends Model
         'sku',
         'avg_price',
         'quantity',
+        'unit',
         'warehouse_id',
         'is_active',
     ];

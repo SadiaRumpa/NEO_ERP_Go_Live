@@ -33,9 +33,9 @@
                         <div class="avatar me-4">
                             <span class="avatar-initial rounded bg-label-primary"><i class="icon-base ti tabler-truck icon-28px"></i></span>
                         </div>
-                        <h4 class="mb-0">{{ $newjobscount }}</h4>
+                        <h4 class="mb-0">{{ $totalWarehouse }}</h4>
                     </div>
-                    <p class="mb-1">New Jobs</p>
+                    <p class="mb-1">Warehoues</p>
                     <p class="mb-0">
                         <span class="text-heading fw-medium me-2">{{ $percentageChange }}%</span>
                         <small class="text-body-secondary">{{ $trend }} than last week</small>
@@ -50,9 +50,9 @@
                         <div class="avatar me-4">
                             <span class="avatar-initial rounded bg-label-warning"><i class="icon-base ti tabler-alert-triangle icon-28px"></i></span>
                         </div>
-                        <h4 class="mb-0">{{ $ongoingjobscount }}</h4>
+                        <h4 class="mb-0">{{ $typeOfProducts }}</h4>
                     </div>
-                    <p class="mb-1">Under Review</p>
+                    <p class="mb-1">Type of products</p>
                     <p class="mb-0">
                         <span class="text-heading fw-medium me-2">0%</span>
                         <small class="text-body-secondary">than last week</small>

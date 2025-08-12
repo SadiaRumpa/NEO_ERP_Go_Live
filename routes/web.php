@@ -183,6 +183,12 @@ Route::middleware(['auth'])->group(function () {
     Route::post('stockitemsinventory/transfer-stock', [StockItemController::class, 'transferStock'])->name('stockitemsinventory.transfer-stock');
     Route::get('stockitemsinventory/{id}/history', [StockItemController::class, 'stockInventoryMovementHistory'])->name('stockitemsinventory.movement-history');
 
+    Route::get('stockitemrequisitions', [StockItemController::class, 'indexRequisitions'])->name('stockitemrequisitions.index');
+    Route::post('stockitemrequisitions/store-primary', [StockItemController::class, 'storeRequisitionPrimary'])->name('stockitemrequisitions.store-primary');
+    Route::post('stockitemrequisitions/store-details', [StockItemController::class, 'storeRequisitionDetails'])->name('stockitemrequisitions.store-details');
+    Route::get('stockitemrequisitions/{id}', [StockItemController::class, 'showRequisitionDetails'])->name('stockitemrequisitions.show');
+    Route::delete('stockitemrequisitions/details/{id}', [StockItemController::class, 'destroyRequisitionDetails'])->name('stockitemrequisitions.destroy-details');
+
 
 
     

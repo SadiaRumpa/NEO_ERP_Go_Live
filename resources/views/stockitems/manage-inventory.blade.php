@@ -81,10 +81,12 @@
                 success: function(response) {
                     if (response.status) {
                         const item = response.data;
-
+                        let quantity = item.quantity + ' ' + item.unit;
+                        // console.log(item);
                         // Safe assignment
                         $('#transfer_item_variant_id').val(item.id);
-                        $('#source_product_name').val(item.sku || ''); // Using SKU as fallback
+                        $('#source_product_name').val(item.name || '');
+                        $('#source_product_quantity').val(quantity || 0);
                         $('#source_warehouse_name').val(item.source_warehouse_name || '');
                         $('#source_warehouse_id').val(item.source_warehouse_id || '');
 
@@ -233,7 +235,6 @@
                         </form>
                     </div>
                 </div>
-
                 <!--Transfer Stock Modal -->
                 <!-- Transfer Stock Modal -->
                 <div class="modal fade" id="transferStockModal" tabindex="-1" aria-labelledby="transferStockModalLabel"
@@ -254,6 +255,10 @@
                                     <div class="mb-3">
                                         <label class="form-label">Item</label>
                                         <input type="text" class="form-control" id="source_product_name" readonly>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Stock Quantity</label>
+                                        <input type="text" class="form-control" id="source_product_quantity" readonly>
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">Source Warehouse</label>
@@ -309,7 +314,6 @@
                         </form>
                     </div>
                 </div>
-
             </div>
         </div>
 

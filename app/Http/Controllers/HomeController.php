@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Enquiry;
 use App\Models\Fjob;
 use App\Models\Lead;
+use App\Models\StockItemVariant;
+use App\Models\StockWarehouse;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -287,8 +289,8 @@ class HomeController extends Controller
 
     public function inventoryManagerDashboard()
     {
-        $newjobscount  = Fjob::where('job_status', 'new')->count();
-        $ongoingjobscount  = Fjob::where('job_status', 'inprogress')->count();
+        $totalWarehouse  = StockWarehouse::where('is_active', true)->count();
+        $typeOfProducts  = StockItemVariant::where('is_active', true)->count();
         $cancelledjobscount  = Fjob::where('job_status', 'cancelled')->count();
         $totalcustomerscount = Fjob::distinct('customer_id')->count('customer_id');
 
@@ -335,8 +337,8 @@ class HomeController extends Controller
             'last_week' => $lastWeekCount,
             'percentageChange' => $percentageChange,
             'trend' => $trend,
-            'newjobscount' => $newjobscount,
-            'ongoingjobscount' => $ongoingjobscount,
+            'totalWarehouse' => $totalWarehouse,
+            'typeOfProducts' => $typeOfProducts,
             'cancelledjobscount' => $cancelledjobscount,
             'totalcustomerscount' => $totalcustomerscount,
             'ongoingjobs' => $ongoingjobs,

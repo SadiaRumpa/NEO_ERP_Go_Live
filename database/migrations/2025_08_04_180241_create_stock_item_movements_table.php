@@ -16,6 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('item_variant_id');
             $table->foreign('item_variant_id')->references('id')->on('stock_item_variants')->onDelete('cascade');
             $table->float('quantity');
+            $table->string('unit', 100)->default('pcs'); // Unit of measurement for the movement
             $table->decimal('cost', 10, 2)->nullable(); // Cost of the item variant at the time of movement
             $table->enum('movement_type', ['in', 'out', 'transfer'])->default('in'); // Type of movement: in, out, or adjustment
             $table->timestamp('movement_date')->useCurrent();
