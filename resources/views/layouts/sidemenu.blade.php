@@ -203,5 +203,25 @@
             </a>
         </li>
         @endhasrole
+        @hasrole('fleet-manager')
+        <li class="menu-item {{(request()->is('vehiclecategories') || request()->is('vehiclecategories/*')) ? 'active' : '' }}">
+            <a href="{{ url('vehiclecategories') }}" class="menu-link">
+                <i class="menu-icon icon-base ti tabler-car"></i>
+                <div data-i18n="Vehicle Categories">Vehicle Categories</div>
+            </a>
+        </li>
+        <li class="menu-item {{(request()->is('vehicles') || request()->is('vehicles/*')) ? 'active' : '' }}">
+            <a href="{{ url('vehicles') }}" class="menu-link">
+                <i class="menu-icon icon-base ti tabler-car"></i>
+                <div data-i18n="Vehicles">Vehicles</div>
+            </a>
+        </li>
+        <li class="menu-item {{(request()->is('drivers') || request()->is('drivers/*')) ? 'active' : '' }}">
+            <a href="{{ url('drivers') }}" class="menu-link">
+                <i class="menu-icon icon-base ti tabler-user"></i>
+                <div data-i18n="Drivers">Drivers</div>
+            </a>
+        </li>
+        @endhasrole
     </ul>
 </aside>

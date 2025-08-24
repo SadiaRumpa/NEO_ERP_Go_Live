@@ -189,8 +189,28 @@ Route::middleware(['auth'])->group(function () {
     Route::get('stockitemrequisitions/{id}', [StockItemController::class, 'showRequisitionDetails'])->name('stockitemrequisitions.show');
     Route::delete('stockitemrequisitions/details/{id}', [StockItemController::class, 'destroyRequisitionDetails'])->name('stockitemrequisitions.destroy-details');
 
+    Route::get('vehiclecategories', [App\Http\Controllers\VehicleCategoryController::class, 'index'])->name('vehiclecategories.index');
+    Route::post('vehiclecategories/store', [App\Http\Controllers\VehicleCategoryController::class, 'store'])->name('vehiclecategories.store');
+    Route::get('vehiclecategories/{id}', [App\Http\Controllers\VehicleCategoryController::class, 'show'])->name('vehiclecategories.show');
+    Route::put('vehiclecategories/{id}/update', [App\Http\Controllers\VehicleCategoryController::class, 'update'])->name('vehiclecategories.update');
+    Route::delete('vehiclecategories/{id}', [App\Http\Controllers\VehicleCategoryController::class, 'destroy'])->name('vehiclecategories.destroy');
 
+    Route::get('vehicles', [App\Http\Controllers\VehicleController::class, 'index'])->name('vehicles.index');
+    Route::get('vehicles/create', [App\Http\Controllers\VehicleController::class, 'create'])->name('vehicles.create');
+    Route::post('vehicles/store', [App\Http\Controllers\VehicleController::class, 'store'])->name('vehicles.store');
+    Route::get('vehicle/{key}', [App\Http\Controllers\VehicleController::class, 'show'])->name('vehicles.show');
+    Route::get('vehicles/{id}/edit', [App\Http\Controllers\VehicleController::class, 'edit'])->name('vehicles.edit');
+    Route::put('vehicles/{id}/update', [App\Http\Controllers\VehicleController::class, 'update'])->name('vehicles.update');
+    Route::delete('vehicles/{id}', [App\Http\Controllers\VehicleController::class, 'destroy'])->name('vehicles.destroy');
 
-    
+    Route::get('drivers', [App\Http\Controllers\DriverController::class, 'index'])->name('drivers.index');
+    Route::get('drivers/create', [App\Http\Controllers\DriverController::class, 'create'])->name('drivers.create');
+    Route::post('drivers/store', [App\Http\Controllers\DriverController::class, 'store'])->name('drivers.store');
+    Route::get('driver/{id}', [App\Http\Controllers\DriverController::class, 'show'])->name('drivers.show');
+    Route::get('drivers/{id}/edit', [App\Http\Controllers\DriverController::class, 'edit'])->name('drivers.edit');
+    Route::put('drivers/{id}/update', [App\Http\Controllers\DriverController::class, 'update'])->name('drivers.update');
+    Route::delete('drivers/{id}', [App\Http\Controllers\DriverController::class, 'destroy'])->name('drivers.destroy');
 
+    Route::post('drivers/assign-vehicle', [App\Http\Controllers\DriverController::class, 'assignVehicle'])->name('drivers.assign-vehicle');
+    Route::post('drivers/remove-vehicle', [App\Http\Controllers\DriverController::class, 'removeVehicle'])->name('drivers.remove-vehicle');
 });

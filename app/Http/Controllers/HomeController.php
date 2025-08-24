@@ -41,7 +41,10 @@ class HomeController extends Controller
             return $this->jobManagerDashboard();
         } elseif (auth()->user()->hasRole('inventory-manager')) {
             return $this->inventoryManagerDashboard();
-        } else {
+        } elseif (auth()->user()->hasRole('fleet-manager')) {
+            return $this->fleetManagerDashboard();
+        } 
+        else {
             abort(403, 'CAN NOT ACCESS TO ROLE');
         }
     }
@@ -332,6 +335,64 @@ class HomeController extends Controller
 
 
         return view('dashboards.inventory_manager')->with([
+            'draftjobs' => $draftjobs,
+            'this_week' => $thisWeekCount,
+            'last_week' => $lastWeekCount,
+            'percentageChange' => $percentageChange,
+            'trend' => $trend,
+            'totalWarehouse' => $totalWarehouse,
+            'typeOfProducts' => $typeOfProducts,
+            'cancelledjobscount' => $cancelledjobscount,
+            'totalcustomerscount' => $totalcustomerscount,
+            'ongoingjobs' => $ongoingjobs,
+        ]);
+    }
+
+    public function fleetManagerDashboard()
+    {
+        $totalWarehouse  = StockWarehouse::where('is_active', true)->count();
+        $typeOfProducts  = StockItemVariant::where('is_active', true)->count();
+        $cancelledjobscount  = Fjob::where('job_status', 'cancelled')->count();
+        $totalcustomerscount = Fjob::distinct('customer_id')->count('customer_id');
+
+        $startOfThisWeek = Carbon::now()->startOfWeek(); // Monday
+        $startOfLastWeek = Carbon::now()->subWeek()->startOfWeek();
+        $endOfLastWeek = Carbon::now()->subWeek()->endOfWeek();
+
+        // Count for this week
+        $thisWeekCount = Fjob::where('job_status', 'new')
+            ->where('created_at', '>=', $startOfThisWeek)
+            ->count();
+
+        // Count for last week
+        $lastWeekCount = Fjob::where('job_status', 'new')
+            ->whereBetween('created_at', [$startOfLastWeek, $endOfLastWeek])
+            ->count();
+
+        if ($lastWeekCount > 0) {
+            $change = (($thisWeekCount - $lastWeekCount) / $lastWeekCount) * 100;
+        } else {
+            $change = $thisWeekCount > 0 ? 100 : 0; // handle divide by zero
+        }
+
+        $percentageChange = round($change, 2); // e.g. 25.00
+
+        if ($percentageChange > 0) {
+            $trend = 'increase';
+        } elseif ($percentageChange < 0) {
+            $trend = 'decrease';
+        } else {
+            $trend = 'no change';
+        }
+
+        $draftjobs = Fjob::with(['jobaddress', 'customer'])
+            ->whereIn('job_status', ['accepted', 'new'])->orderByDesc('created_at')->limit(5)->get();
+
+        $ongoingjobs = Fjob::with(['jobaddress', 'customer'])
+            ->where('job_status', 'ongoing')->orderByDesc('created_at')->limit(5)->get();
+
+
+        return view('dashboards.fleet_manager')->with([
             'draftjobs' => $draftjobs,
             'this_week' => $thisWeekCount,
             'last_week' => $lastWeekCount,
