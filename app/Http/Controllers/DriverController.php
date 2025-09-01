@@ -16,7 +16,7 @@ class DriverController extends Controller
     public function index(Request $request)
     {
         // Fetch unassigned vehicles always, so it's available for both AJAX and view
-        $unassignedvehicles = VehicleDetail::doesntHave('vehicleAssignDetail')->get();
+        $unassignedvehicles = VehicleDetail::whereIn('status', ['Available', 'Under Maintenance'])->get();
 
         if ($request->ajax()) {
             $data = DriverDetail::with(['user', 'vehicleAssigned'])->select('*');
@@ -33,14 +33,14 @@ class DriverController extends Controller
                     return $row->license_expiry ? $row->license_expiry : 'N/A';
                 })
                 ->addColumn('vehicle_assigned', function ($row) {
-                    return $row->vehicleAssigned ? $row->vehicleAssigned->vehicle->registration_no ." (". $row->vehicleAssigned->assigned_date ." to ". $row->vehicleAssigned->unassigned_date . ") " : 'Not Assigned';
+                    return $row->vehicleAssigned ? $row->vehicleAssigned->vehicle->registration_no . " (" . $row->vehicleAssigned->assigned_date . " to " . $row->vehicleAssigned->unassigned_date . ") " : 'Not Assigned';
                 })
                 ->addColumn('action', function ($row) {
                     $showUrl = route('drivers.show', $row->id);
 
                     // Check if driver already has a vehicle assigned
                     if ($row->vehicleAssigned) {
-                        $assignBtn = '<button class="unassignvehicle btn btn-danger btn-sm" data-id="' . $row->id . '">Unassign Vehicle</button>';
+                        $assignBtn = '<button class="unassugnvehicle btn btn-danger btn-sm" data-id="' . $row->id . '">Unassign Vehicle</button>';
                     } else {
                         $assignBtn = '<button class="assignvehicle btn btn-warning btn-sm" data-id="' . $row->id . '">Assign Vehicle</button>';
                     }
@@ -78,8 +78,6 @@ class DriverController extends Controller
             'digital_tacho_card' => 'boolean',
             'dbs_check_passed' => 'boolean',
             'medical_check_passed' => 'boolean',
-            'last_medical_check_date' => 'nullable|date',
-            'next_medical_due_date' => 'nullable|date',
         ]);
 
         DriverDetail::create($request->all());
@@ -90,7 +88,15 @@ class DriverController extends Controller
     public function show($id)
     {
         $driver = DriverDetail::with(['user'])->findOrFail($id);
-        return view('driverdetails.show', compact('driver'));
+        if (!$driver) {
+            return redirect()->route('drivers.index')->withErrors(['error' => 'Driver not found.']);
+        }
+        $vehicledetails = VehicleAssignDetail::with(['vehicle'])
+            ->where('user_id', $driver->id)
+            ->orderBy('assigned_date', 'desc')
+            ->get();
+        // dd($vehicledetails);
+        return view('driverdetails.show', compact('driver', 'vehicledetails'));
     }
 
     public function assignVehicle(Request $request)
@@ -127,5 +133,30 @@ class DriverController extends Controller
             $vehicle->save();
         });
         return redirect()->route('drivers.index')->with('success', 'Vehicle assigned successfully.');
+    }
+
+    public function unassignVehicle(Request $request, $id)
+    {
+        $driver = DriverDetail::findOrFail($id);
+        $vehicleAssignDetail = VehicleAssignDetail::where('user_id', $driver->id)
+            ->where('status', 'active')
+            ->first();
+        if (!$vehicleAssignDetail) {
+            return redirect()->back()->withErrors(['error' => 'No active vehicle assignment found for this driver.']);
+        }
+
+        DB::transaction(function () use ($vehicleAssignDetail) {
+            // Update the vehicle assignment status to 'inactive'
+            $vehicleAssignDetail->status = 'inactive';
+            $vehicleAssignDetail->save();
+
+            // Update the vehicle status to 'available'
+            $vehicle = VehicleDetail::findOrFail($vehicleAssignDetail->vehicle_id);
+            $vehicle->status = 'Available';
+            $vehicle->save();
+        });
+
+        return response()->json(['message' => 'Vehicle successfully unassigned.']);
+        // return redirect()->route('drivers.index')->with('success', 'Vehicle unassigned successfully.');
     }
 }

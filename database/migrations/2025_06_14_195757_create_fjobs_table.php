@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('job_type')->nullable();
             $table->string('job_category')->nullable()->comment('complaint, query, request, feedback');
             $table->string('job_priority')->default('low')->comment('low, medium, high');
-            $table->string('job_status')->default('new')->comment('new, inprogress, on_hold, converted_to_job, rejected, archived');
+            $table->string('job_status')->default('new')->comment('new, inprogress, on_hold, converted_to_job, rejected, completed, archived');
             $table->string('job_closed_by')->nullable();
             $table->dateTime('job_closed_at')->nullable();
             $table->text('job_close_reason')->nullable();

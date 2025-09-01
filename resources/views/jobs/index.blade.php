@@ -13,12 +13,12 @@
     <script type="text/javascript">
         $(function() {
             let ajaxUrl = "{{ route('job.index') }}";
-
             @if (!empty($completed) && $completed === true)
                 ajaxUrl = "{{ route('job.show.completed') }}";
             @elseif (!empty($rejected) && $rejected === true)
                 ajaxUrl = "{{ route('job.show.rejected') }}";
             @endif
+console.log(ajaxUrl);
 
             var table = $('.datatables-ajax').DataTable({
                 processing: true,

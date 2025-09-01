@@ -10,6 +10,7 @@
     <script src="{{ asset('assets/vendor/libs/moment/moment.js') }}"></script>
     <script src="{{ asset('assets/vendor/libs/flatpickr/flatpickr.js') }}"></script>
     <script src="{{ asset('assets/vendor/libs/select2/select2.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script type="text/javascript">
         $(function() {
@@ -86,6 +87,41 @@
                 });
             });
         });
+
+        $(document).on('click', '.unassugnvehicle', function(e) {
+            e.preventDefault();
+
+            let driverId = $(this).data('id'); // from button
+            let url = "{{ route('drivers.unassign-vehicle', ':id') }}".replace(':id', driverId);
+
+            Swal.fire({
+                title: "Are you sure?",
+                text: "This will unassign the vehicle from the driver.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, unassign!",
+                cancelButtonText: "Cancel"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: url,
+                        type: "POST",
+                        data: {
+                            _token: "{{ csrf_token() }}"
+                        },
+                        success: function(response) {
+                            Swal.fire("Unassigned!", response.message, "success");
+                            // refresh page or table
+                            location.reload();
+                        },
+                        error: function(xhr) {
+                            Swal.fire("Error!", xhr.responseJSON?.message ||
+                                "Something went wrong", "error");
+                        }
+                    });
+                }
+            });
+        });
     </script>
 @endsection
 
@@ -152,7 +188,8 @@
                                         <select class="form-select select2" name="vehicle_id" id="vehicle_id" required>
                                             <option value="">Select Vehicle</option>
                                             @foreach ($unassignedvehicles as $vehicle)
-                                                <option value="{{ $vehicle->id }}">{{ $vehicle->registration_no }}</option>
+                                                <option value="{{ $vehicle->id }}">{{ $vehicle->registration_no }}
+                                                </option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -177,6 +214,8 @@
                     </form>
                 </div>
             </div>
+
+
 
         </div>
     </div>

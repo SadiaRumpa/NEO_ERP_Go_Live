@@ -76,6 +76,118 @@ class FjobController extends Controller
         return view('jobs.index');
     }
 
+    public function showCompletedJobs(Request $request)
+    {
+        if ($request->ajax()) {
+
+            $data = Fjob::with([
+                'customer:id,company_name,contact_firstname,contact_lastname,contact_email,contact_phone,contact_mobile',
+            ])
+                ->select([
+                    'id',
+                    'job_name',
+                    'job_title',
+                    'slug',
+                    'job_description',
+                    'customer_id',
+                    'job_type',
+                    'job_status',
+                    'enquiry'
+                ])
+                ->whereIn('job_status', ['completed', 'archived'])
+                ->orderByDesc('created_at');
+
+            return DataTables::of($data)
+                ->addIndexColumn()
+                ->addColumn('job_name', function ($row) {
+                    return ($row->job_name ?? '') . ' - ' . ($row->job_title ?? '');
+                })
+                ->addColumn('company_name', function ($row) {
+                    return $row->customer->company_name ?? '-';
+                })
+                ->addColumn('customer_name', function ($row) {
+                    return ($row->customer->contact_firstname ?? '') . ' ' . ($row->customer->contact_lastname ?? '');
+                })
+                ->addColumn('customer_email', function ($row) {
+                    return $row->customer->contact_email ?? '-';
+                })
+                ->addColumn('customer_phone', function ($row) {
+                    return $row->customer->contact_phone ?? '-';
+                })
+                ->addColumn('customer_mobile', function ($row) {
+                    return $row->customer->contact_mobile ?? '-';
+                })
+                ->addColumn('enquiry', function ($row) {
+                    return Str::limit(strip_tags($row->enquiry), 80); // use Illuminate\Support\Str
+                })
+                ->addColumn('action', function ($row) {
+                    return '<a href="/job/' . $row->id . '" class="edit btn btn-primary btn-sm">Details</a>';
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
+        return view('jobs.index')->with([
+            'completed' => true,
+        ]);
+    }
+
+    public function showRejectedJobs(Request $request)
+    {
+        if ($request->ajax()) {
+
+            $data = Fjob::with([
+                'customer:id,company_name,contact_firstname,contact_lastname,contact_email,contact_phone,contact_mobile',
+            ])
+                ->select([
+                    'id',
+                    'job_name',
+                    'job_title',
+                    'slug',
+                    'job_description',
+                    'customer_id',
+                    'job_type',
+                    'job_status',
+                    'enquiry'
+                ])
+                ->where('job_status', 'rejected')
+                ->orderByDesc('created_at');
+
+            return DataTables::of($data)
+                ->addIndexColumn()
+                ->addColumn('job_name', function ($row) {
+                    return ($row->job_name ?? '') . ' - ' . ($row->job_title ?? '');
+                })
+                ->addColumn('company_name', function ($row) {
+                    return $row->customer->company_name ?? '-';
+                })
+                ->addColumn('customer_name', function ($row) {
+                    return ($row->customer->contact_firstname ?? '') . ' ' . ($row->customer->contact_lastname ?? '');
+                })
+                ->addColumn('customer_email', function ($row) {
+                    return $row->customer->contact_email ?? '-';
+                })
+                ->addColumn('customer_phone', function ($row) {
+                    return $row->customer->contact_phone ?? '-';
+                })
+                ->addColumn('customer_mobile', function ($row) {
+                    return $row->customer->contact_mobile ?? '-';
+                })
+                ->addColumn('enquiry', function ($row) {
+                    return Str::limit(strip_tags($row->enquiry), 80); // use Illuminate\Support\Str
+                })
+                ->addColumn('action', function ($row) {
+                    return '<a href="/job/' . $row->id . '" class="edit btn btn-primary btn-sm">Details</a>';
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+        return view('jobs.index')->with([
+            'rejected' => true,
+        ]);
+    }
+
+
     public function show($key)
     {
         $job = Fjob::with([
@@ -102,6 +214,8 @@ class FjobController extends Controller
 
         return view('jobs.show', compact('job', 'mailtemplates'));
     }
+
+    public function showCompleted($key) {}
 
     public function uploadJobAttachments(Request $request)
     {

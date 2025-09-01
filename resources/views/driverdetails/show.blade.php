@@ -5,7 +5,6 @@
 @section('scripts')
     @parent
     <script src="{{ asset('assets/vendor/libs/select2/select2.js') }}"></script>
-    <script src="{{ asset('assets/vendor/libs/dropzone/dropzone.js') }}"></script>
     <script src="{{ asset('assets/vendor/libs/flatpickr/flatpickr.js') }}"></script>
     <script src="{{ asset('assets/vendor/libs/tagify/tagify.js') }}"></script>
     <!-- Page JS -->
@@ -105,18 +104,35 @@
                 <!-- Project table -->
                 <div class="card mb-6">
                     <div class="table-responsive mb-4">
-                        <table class="table datatable-project">
+                        <table class="table table-vehicledetails">
                             <thead class="border-top">
                                 <tr>
-                                    <th></th>
-                                    <th></th>
-                                    <th>Project</th>
-                                    <th>Leader</th>
-                                    <th>Team</th>
-                                    <th class="w-px-200">Progress</th>
-                                    <th>Action</th>
+                                    <th>Vehicle Code</th>
+                                    <th>Assigned (From - Till)</th>
+                                    <th>Notes</th>
+                                    <th>Status</th>
                                 </tr>
                             </thead>
+                            <tbody>
+                                @foreach ($vehicledetails as $vehicledetail)
+                                    <tr>
+                                        <td>
+                                            {{ $vehicledetail->vehicle ? $vehicledetail->vehicle->registration_no : 'N/A' }}
+                                        </td>
+                                        <td>
+                                            {{ $vehicledetail->assigned_date }} -
+                                            {{ $vehicledetail->unassigned_date ?? 'Present' }}
+                                        </td>
+                                        <td>{{ $vehicledetail->notes ?? 'N/A' }}</td>
+                                        <td>
+                                            @if ($vehicledetail->status === 'active')
+                                                <span class="badge bg-label-success">Active</span>
+                                            @else
+                                                <span class="badge bg-label-secondary">Inactive</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
                         </table>
                     </div>
                 </div>

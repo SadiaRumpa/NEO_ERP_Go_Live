@@ -7,6 +7,8 @@ use App\Models\Fjob;
 use App\Models\Lead;
 use App\Models\StockItemVariant;
 use App\Models\StockWarehouse;
+use App\Models\VehicleAssignDetail;
+use App\Models\VehicleDetail;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -350,59 +352,22 @@ class HomeController extends Controller
 
     public function fleetManagerDashboard()
     {
-        $totalWarehouse  = StockWarehouse::where('is_active', true)->count();
-        $typeOfProducts  = StockItemVariant::where('is_active', true)->count();
-        $cancelledjobscount  = Fjob::where('job_status', 'cancelled')->count();
-        $totalcustomerscount = Fjob::distinct('customer_id')->count('customer_id');
+        $totalVehicles = VehicleDetail::count();
+        $assignedVehicles = VehicleDetail::where('status', 'Assigned')->count();
+        $underMaintenanceVehicles = VehicleDetail::where('status', 'Under Maintenance')->count();
+        $availableVehicles = VehicleDetail::where('status', 'Available')->count();
+        $inactiveVehicles = VehicleDetail::where('status', 'Inactive')->count();
 
-        $startOfThisWeek = Carbon::now()->startOfWeek(); // Monday
-        $startOfLastWeek = Carbon::now()->subWeek()->startOfWeek();
-        $endOfLastWeek = Carbon::now()->subWeek()->endOfWeek();
-
-        // Count for this week
-        $thisWeekCount = Fjob::where('job_status', 'new')
-            ->where('created_at', '>=', $startOfThisWeek)
-            ->count();
-
-        // Count for last week
-        $lastWeekCount = Fjob::where('job_status', 'new')
-            ->whereBetween('created_at', [$startOfLastWeek, $endOfLastWeek])
-            ->count();
-
-        if ($lastWeekCount > 0) {
-            $change = (($thisWeekCount - $lastWeekCount) / $lastWeekCount) * 100;
-        } else {
-            $change = $thisWeekCount > 0 ? 100 : 0; // handle divide by zero
-        }
-
-        $percentageChange = round($change, 2); // e.g. 25.00
-
-        if ($percentageChange > 0) {
-            $trend = 'increase';
-        } elseif ($percentageChange < 0) {
-            $trend = 'decrease';
-        } else {
-            $trend = 'no change';
-        }
-
-        $draftjobs = Fjob::with(['jobaddress', 'customer'])
-            ->whereIn('job_status', ['accepted', 'new'])->orderByDesc('created_at')->limit(5)->get();
-
-        $ongoingjobs = Fjob::with(['jobaddress', 'customer'])
-            ->where('job_status', 'ongoing')->orderByDesc('created_at')->limit(5)->get();
+        $assignedVehiclesList = VehicleAssignDetail::with(['vehicle', 'driver'])->where('status', 'active')->limit(10)->get();
 
 
         return view('dashboards.fleet_manager')->with([
-            'draftjobs' => $draftjobs,
-            'this_week' => $thisWeekCount,
-            'last_week' => $lastWeekCount,
-            'percentageChange' => $percentageChange,
-            'trend' => $trend,
-            'totalWarehouse' => $totalWarehouse,
-            'typeOfProducts' => $typeOfProducts,
-            'cancelledjobscount' => $cancelledjobscount,
-            'totalcustomerscount' => $totalcustomerscount,
-            'ongoingjobs' => $ongoingjobs,
+            'totalVehicles' => $totalVehicles,
+            'assignedVehicles' => $assignedVehicles,
+            'underMaintenanceVehicles' => $underMaintenanceVehicles,
+            'availableVehicles' => $availableVehicles,
+            'inactiveVehicles' => $inactiveVehicles,
+            'assignedVehiclesList' => $assignedVehiclesList            
         ]);
     }
 }

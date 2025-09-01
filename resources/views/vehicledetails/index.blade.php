@@ -26,11 +26,35 @@
                         data: 'DT_RowIndex',
                         name: 'DT_RowIndex',
                         orderable: false,
-                        searchable: false
+                        searchable: false,
+                        render: function(data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        }
+
                     },
                     {
                         data: 'registration_no',
-                        name: 'registration_no'
+                        name: 'registration_no',
+                        render: function(data, type, row, meta) {
+                            // Row number
+                            let rowNumber = meta.row + meta.settings._iDisplayStart + 1;
+
+                            // Status badge
+                            let statusBadge = '';
+                            if (row.status === 'Available') {
+                                statusBadge = '<span class="badge bg-success">Available</span>';
+                            } else if (row.status === 'Assigned') {
+                                statusBadge = '<span class="badge bg-danger">Assigned</span>';
+                            } else if (row.status === 'under-maintenance') {
+                                statusBadge =
+                                    '<span class="badge bg-warning text-dark">Under Maintenance</span>';
+                            } else {
+                                statusBadge = '<span class="badge bg-secondary">Unknown</span>';
+                            }
+
+                            // Merge row number, registration_no, and status
+                            return data + ' ' + statusBadge;
+                        }
                     }, // MEWPS
                     {
                         data: 'make_model_engine',

@@ -222,6 +222,13 @@
                 <div data-i18n="Drivers">Drivers</div>
             </a>
         </li>
+        <li class="menu-item {{(request()->is('vehicle-checkings') || request()->is('vehicle-checkings/*')) ? 'active' : '' }}">
+            <a href="{{ url('vehicle-checkings') }}" class="menu-link">
+                <i class="menu-icon icon-base ti tabler-checks"></i>
+                <div data-i18n="Vehicle Checkings">Vehicle Checkings</div>
+            </a>
+        </li>
+        
         @endhasrole
     </ul>
 </aside>
