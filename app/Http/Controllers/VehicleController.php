@@ -44,7 +44,7 @@ class VehicleController extends Controller
                 ->addColumn('action', function ($row) {
                     $showUrl = route('vehicles.show', $row->id);
                     return '
-                        <a href="' . route('vehicle-overviews.create', $row->id) . '" class="btn btn-sm btn-info">Overview</a>
+                        <a href="' . route('vehicle-overviews.index', $row->id) . '" class="btn btn-sm btn-info">Overview</a>
                         <a href="' . $showUrl . '" class="btn btn-sm btn-primary">Show</a>
                         <button class="btn btn-sm btn-danger delete" data-id="' . $row->id . '">Delete</button>
                     ';

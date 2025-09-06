@@ -164,6 +164,12 @@
                 <div data-i18n="Job Attributes">Job Attributes</div>
             </a>
         </li>
+        <li class="menu-item {{(request()->is('job-overviews') || request()->is('job-overviews/*')) ? 'active' : '' }}">
+            <a href="{{ url('job-overviews') }}" class="menu-link">
+                <i class="menu-icon icon-base ti tabler-file-info"></i>
+                <div data-i18n="Job Overviews">Job Overviews</div>
+            </a>
+        </li>
         @endhasrole
         @hasrole('inventory-manager')
         <li class="menu-item {{(request()->is('stockwarehouses') || request()->is('stockwarehouses/*')) ? 'active' : '' }}">

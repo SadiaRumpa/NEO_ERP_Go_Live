@@ -92,10 +92,7 @@
                         data: 'vehicle_codes',
                         name: 'vehicle_codes'
                     }, // mechanical_code + electronic_code + radio_code
-                    {
-                        data: 'deadlock_key_duplication_codes',
-                        name: 'deadlock_key_duplication_codes'
-                    },
+                    
                     {
                         data: 'action',
                         name: 'action',
@@ -188,7 +185,6 @@
                             <th>SERVICE DUE</th>
                             <th>VIN NUMBER</th>
                             <th>VEHICLE CODES</th>
-                            <th>DEADLOCK KEY DUPLICATION CODES</th>
                             <th>ACTION</th>
                         </tr>
                     </thead>

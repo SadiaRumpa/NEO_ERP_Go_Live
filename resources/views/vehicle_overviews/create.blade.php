@@ -62,26 +62,21 @@
                                     <div class="card mb-6">
                                         <div class="card-body">
                                             <div class="row g-6">
-                                                <div class="col-md-6">
+                                                <div class="col-md-4">
                                                     <label class="form-label" for="overview-date">Overview
-                                                        Date</label>
+                                                        Date*</label>
                                                     <input type="date" id="overview-date" class="form-control"
-                                                        placeholder="2025-09-01" />
+                                                        placeholder="2025-09-01" name="overview_date" required />
                                                 </div>
-                                                <div class="col-md-6">
-                                                    <label class="form-label" for="mileage">Mileage</label>
-                                                    <input type="text" id="mileage" class="form-control"
-                                                        placeholder="200" />
+                                                <div class="col-md-4">
+                                                    <label class="form-label" for="mileage">Mileage*</label>
+                                                    <input type="text" id="mileage" name="mileage" class="form-control"
+                                                        placeholder="200" required />
                                                 </div>
-                                                <div class="col-md-6">
-                                                    <label class="form-label" for="next-service-date">Next Service
-                                                        Date</label>
-                                                    <input type="date" id="next-service-date" class="form-control"
-                                                        placeholder="2025-09-01" />
-                                                </div>
-                                                <div class="col-md-6">
+
+                                                <div class="col-md-4">
                                                     <label class="form-label" for="Notes">Notes</label>
-                                                    <textarea id="Notes" class="form-control" rows="2" placeholder="Enter notes here..."></textarea>
+                                                    <textarea id="Notes" class="form-control" rows="2" name="notes" placeholder="Enter notes here..."></textarea>
                                                 </div>
 
                                             </div>
@@ -110,6 +105,14 @@
                                                                         <tr>
                                                                             <td>{{ $checklist->title }}</td>
                                                                             <td>
+                                                                                {{-- Hidden input for category_id --}}
+                                                                                <input type="hidden"
+                                                                                    name="checklist[{{ $checklist->id }}][parent_category_id]"
+                                                                                    value="{{ $parent->id }}">
+                                                                                <input type="hidden"
+                                                                                    name="checklist[{{ $checklist->id }}][category_id]"
+                                                                                    value="{{ $child->id }}">
+
                                                                                 @if ($checklist->has_attributes && $checklist->attributes->count())
                                                                                     {{-- Show each attribute with radio + note --}}
                                                                                     @foreach ($checklist->attributes as $attr)
@@ -129,7 +132,7 @@
                                                                                             <label class="me-2">
                                                                                                 <input type="radio"
                                                                                                     name="checklist[{{ $checklist->id }}][attributes][{{ $attr->id }}][status]"
-                                                                                                    value="0">
+                                                                                                    value="2">
                                                                                                 ✗ Not OK
                                                                                             </label>
 
@@ -152,8 +155,14 @@
                                                                                         <label class="me-2">
                                                                                             <input type="radio"
                                                                                                 name="checklist[{{ $checklist->id }}][status]"
-                                                                                                value="0">
+                                                                                                value="2">
                                                                                             ✗ Not OK
+                                                                                        </label>
+                                                                                        <label class="me-2">
+                                                                                            <input type="radio"
+                                                                                                name="checklist[{{ $checklist->id }}][status]"
+                                                                                                value="0">
+                                                                                            N/A
                                                                                         </label>
 
                                                                                         {{-- Short note input --}}

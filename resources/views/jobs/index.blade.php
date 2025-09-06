@@ -18,7 +18,6 @@
             @elseif (!empty($rejected) && $rejected === true)
                 ajaxUrl = "{{ route('job.show.rejected') }}";
             @endif
-console.log(ajaxUrl);
 
             var table = $('.datatables-ajax').DataTable({
                 processing: true,

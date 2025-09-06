@@ -10,7 +10,9 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Redirect;
 use App\Http\Controllers\EnquiryController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\DriverController;
 use App\Http\Controllers\FjobController;
+use App\Http\Controllers\FjobProgressController;
 use App\Http\Controllers\GlobalController;
 use App\Http\Controllers\JobAttributeController;
 use App\Http\Controllers\JobTypeController;
@@ -22,6 +24,10 @@ use App\Http\Controllers\StockAttributeController;
 use App\Http\Controllers\StockCategoryController;
 use App\Http\Controllers\StockItemController;
 use App\Http\Controllers\StockWarehouseController;
+use App\Http\Controllers\VehicleCategoryController;
+use App\Http\Controllers\VehicleCheckingController;
+use App\Http\Controllers\VehicleController;
+use App\Http\Controllers\VehicleOverviewController;
 
 Route::get('/', function () {
     return Redirect::to('/login');
@@ -190,46 +196,56 @@ Route::middleware(['auth'])->group(function () {
     Route::get('stockitemrequisitions/{id}', [StockItemController::class, 'showRequisitionDetails'])->name('stockitemrequisitions.show');
     Route::delete('stockitemrequisitions/details/{id}', [StockItemController::class, 'destroyRequisitionDetails'])->name('stockitemrequisitions.destroy-details');
 
-    Route::get('vehiclecategories', [App\Http\Controllers\VehicleCategoryController::class, 'index'])->name('vehiclecategories.index');
-    Route::post('vehiclecategories/store', [App\Http\Controllers\VehicleCategoryController::class, 'store'])->name('vehiclecategories.store');
-    Route::get('vehiclecategories/{id}', [App\Http\Controllers\VehicleCategoryController::class, 'show'])->name('vehiclecategories.show');
-    Route::put('vehiclecategories/{id}/update', [App\Http\Controllers\VehicleCategoryController::class, 'update'])->name('vehiclecategories.update');
-    Route::delete('vehiclecategories/{id}', [App\Http\Controllers\VehicleCategoryController::class, 'destroy'])->name('vehiclecategories.destroy');
+    Route::get('vehiclecategories', [VehicleCategoryController::class, 'index'])->name('vehiclecategories.index');
+    Route::post('vehiclecategories/store', [VehicleCategoryController::class, 'store'])->name('vehiclecategories.store');
+    Route::get('vehiclecategories/{id}', [VehicleCategoryController::class, 'show'])->name('vehiclecategories.show');
+    Route::put('vehiclecategories/{id}/update', [VehicleCategoryController::class, 'update'])->name('vehiclecategories.update');
+    Route::delete('vehiclecategories/{id}', [VehicleCategoryController::class, 'destroy'])->name('vehiclecategories.destroy');
 
-    Route::get('vehicles', [App\Http\Controllers\VehicleController::class, 'index'])->name('vehicles.index');
-    Route::get('vehicles/create', [App\Http\Controllers\VehicleController::class, 'create'])->name('vehicles.create');
-    Route::post('vehicles/store', [App\Http\Controllers\VehicleController::class, 'store'])->name('vehicles.store');
-    Route::get('vehicle/{key}', [App\Http\Controllers\VehicleController::class, 'show'])->name('vehicles.show');
-    Route::get('vehicles/{id}/edit', [App\Http\Controllers\VehicleController::class, 'edit'])->name('vehicles.edit');
-    Route::put('vehicles/{id}/update', [App\Http\Controllers\VehicleController::class, 'update'])->name('vehicles.update');
-    Route::delete('vehicles/{id}', [App\Http\Controllers\VehicleController::class, 'destroy'])->name('vehicles.destroy');
+    Route::get('vehicles', [VehicleController::class, 'index'])->name('vehicles.index');
+    Route::get('vehicles/create', [VehicleController::class, 'create'])->name('vehicles.create');
+    Route::post('vehicles/store', [VehicleController::class, 'store'])->name('vehicles.store');
+    Route::get('vehicle/{key}', [VehicleController::class, 'show'])->name('vehicles.show');
+    Route::get('vehicles/{id}/edit', [VehicleController::class, 'edit'])->name('vehicles.edit');
+    Route::put('vehicles/{id}/update', [VehicleController::class, 'update'])->name('vehicles.update');
+    Route::delete('vehicles/{id}', [VehicleController::class, 'destroy'])->name('vehicles.destroy');
 
-    Route::get('drivers', [App\Http\Controllers\DriverController::class, 'index'])->name('drivers.index');
-    Route::get('drivers/create', [App\Http\Controllers\DriverController::class, 'create'])->name('drivers.create');
-    Route::post('drivers/store', [App\Http\Controllers\DriverController::class, 'store'])->name('drivers.store');
-    Route::get('drivers/{id}', [App\Http\Controllers\DriverController::class, 'show'])->name('drivers.show');
-    Route::get('drivers/{id}/edit', [App\Http\Controllers\DriverController::class, 'edit'])->name('drivers.edit');
-    Route::put('drivers/{id}/update', [App\Http\Controllers\DriverController::class, 'update'])->name('drivers.update');
-    Route::delete('drivers/{id}', [App\Http\Controllers\DriverController::class, 'destroy'])->name('drivers.destroy');
+    Route::get('drivers', [DriverController::class, 'index'])->name('drivers.index');
+    Route::get('drivers/create', [DriverController::class, 'create'])->name('drivers.create');
+    Route::post('drivers/store', [DriverController::class, 'store'])->name('drivers.store');
+    Route::get('drivers/{id}', [DriverController::class, 'show'])->name('drivers.show');
+    Route::get('drivers/{id}/edit', [DriverController::class, 'edit'])->name('drivers.edit');
+    Route::put('drivers/{id}/update', [DriverController::class, 'update'])->name('drivers.update');
+    Route::delete('drivers/{id}', [DriverController::class, 'destroy'])->name('drivers.destroy');
 
-    Route::post('drivers/assign-vehicle', [App\Http\Controllers\DriverController::class, 'assignVehicle'])->name('drivers.assign-vehicle');
-    Route::post('drivers/unassign-vehicle/{key}', [App\Http\Controllers\DriverController::class, 'unassignVehicle'])->name('drivers.unassign-vehicle');
+    Route::post('drivers/assign-vehicle', [DriverController::class, 'assignVehicle'])->name('drivers.assign-vehicle');
+    Route::post('drivers/unassign-vehicle/{key}', [DriverController::class, 'unassignVehicle'])->name('drivers.unassign-vehicle');
 
-    Route::get('vehicle-checkings', [App\Http\Controllers\VehicleCheckingController::class, 'indexVehicleCheckingCategories'])->name('vehicle-checkings.index-categories');
-    Route::post('vehicle-checkings/store', [App\Http\Controllers\VehicleCheckingController::class, 'storeVehicleCheckingCategories'])->name('vehicle-checkings.store-categories');
+    Route::get('vehicle-checkings', [VehicleCheckingController::class, 'indexVehicleCheckingCategories'])->name('vehicle-checkings.index-categories');
+    Route::post('vehicle-checkings/store', [VehicleCheckingController::class, 'storeVehicleCheckingCategories'])->name('vehicle-checkings.store-categories');
 
-    Route::get('vehicle-checkings/checklists/{vehicle_checking_category_id}', [App\Http\Controllers\VehicleCheckingController::class, 'indexVehicleCheckingChecklists'])->name('vehicle-checkings.index-checklists');
-    Route::post('vehicle-checkings/checklists/store', [App\Http\Controllers\VehicleCheckingController::class, 'storeVehicleCheckingChecklists'])->name('vehicle-checkings.store-checklists');
-    Route::get('vehicle-checkings/checklistshow/{id}', [App\Http\Controllers\VehicleCheckingController::class, 'showVehicleCheckingChecklists'])->name('vehicle-checkings.show-checklists');
-    Route::put('vehicle-checkings/checklists/{id}/update', [App\Http\Controllers\VehicleCheckingController::class, 'updateVehicleCheckingChecklists'])->name('vehicle-checkings.update-checklists');
-    Route::delete('vehicle-checkings/checklists/{id}', [App\Http\Controllers\VehicleCheckingController::class, 'destroyVehicleCheckingChecklists'])->name('vehicle-checkings.destroy-checklists');
+    Route::get('vehicle-checkings/checklists/{vehicle_checking_category_id}', [VehicleCheckingController::class, 'indexVehicleCheckingChecklists'])->name('vehicle-checkings.index-checklists');
+    Route::post('vehicle-checkings/checklists/store', [VehicleCheckingController::class, 'storeVehicleCheckingChecklists'])->name('vehicle-checkings.store-checklists');
+    Route::get('vehicle-checkings/checklistshow/{id}', [VehicleCheckingController::class, 'showVehicleCheckingChecklists'])->name('vehicle-checkings.show-checklists');
+    Route::put('vehicle-checkings/checklists/{id}/update', [VehicleCheckingController::class, 'updateVehicleCheckingChecklists'])->name('vehicle-checkings.update-checklists');
+    Route::delete('vehicle-checkings/checklists/{id}', [VehicleCheckingController::class, 'destroyVehicleCheckingChecklists'])->name('vehicle-checkings.destroy-checklists');
 
-    Route::post('vehicle-checkings/checklist-attributes/store', [App\Http\Controllers\VehicleCheckingController::class, 'storeVehicleCheckingChecklistAttributes'])->name('vehicle-checkings.store-checklist-attributes');
-    Route::get('vehicle-checkings/checklist-attributes/{id}', [App\Http\Controllers\VehicleCheckingController::class, 'showVehicleCheckingChecklistAttributes'])->name('vehicle-checkings.show-checklist-attributes');
-    Route::put('vehicle-checkings/checklist-attributes/{id}/update', [App\Http\Controllers\VehicleCheckingController::class, 'updateVehicleCheckingChecklistAttributes'])->name('vehicle-checkings.update-checklist-attributes');
-    Route::delete('vehicle-checkings/checklist-attributes/{id}', [App\Http\Controllers\VehicleCheckingController::class, 'destroyVehicleCheckingChecklistAttributes'])->name('vehicle-checkings.destroy-checklist-attributes');
+    Route::post('vehicle-checkings/checklist-attributes/store', [VehicleCheckingController::class, 'storeVehicleCheckingChecklistAttributes'])->name('vehicle-checkings.store-checklist-attributes');
+    Route::get('vehicle-checkings/checklist-attributes/{id}', [VehicleCheckingController::class, 'showVehicleCheckingChecklistAttributes'])->name('vehicle-checkings.show-checklist-attributes');
+    Route::put('vehicle-checkings/checklist-attributes/{id}/update', [VehicleCheckingController::class, 'updateVehicleCheckingChecklistAttributes'])->name('vehicle-checkings.update-checklist-attributes');
+    Route::delete('vehicle-checkings/checklist-attributes/{id}', [VehicleCheckingController::class, 'destroyVehicleCheckingChecklistAttributes'])->name('vehicle-checkings.destroy-checklist-attributes');
 
-    Route::get('vehicle-overviews/{vehicle_id}', [App\Http\Controllers\VehicleOverviewController::class, 'index'])->name('vehicle-overviews.index');
-    Route::get('vehicle-overviews/create/{vehicle_id}', [App\Http\Controllers\VehicleOverviewController::class, 'create'])->name('vehicle-overviews.create');
-    Route::post('vehicle-overviews/store', [App\Http\Controllers\VehicleOverviewController::class, 'store'])->name('vehicle-overviews.store');
+    Route::get('vehicle-overviews/{vehicle_id}', [VehicleOverviewController::class, 'index'])->name('vehicle-overviews.index');
+    Route::get('vehicle-overviews/create/{vehicle_id}', [VehicleOverviewController::class, 'create'])->name('vehicle-overviews.create');
+    Route::post('vehicle-overviews/store', [VehicleOverviewController::class, 'store'])->name('vehicle-overviews.store');
+    Route::get('vehicle-overviews/show/{id}', [VehicleOverviewController::class, 'vehicleOverviewShow'])->name('vehicle-overviews.show');
+    Route::put('vehicle-overviews/update/{id}', [VehicleOverviewController::class, 'update'])->name('vehicle-overviews.update');
+    Route::delete('vehicle-overviews/destroy/{id}', [VehicleOverviewController::class, 'destroy'])->name('vehicle-overviews.destroy');
+    Route::get('vehicle-overviews/export/{vehicle_id}', [VehicleOverviewController::class, 'export'])->name('vehicle-overviews.export');
+    
+
+    Route::get('job-overviews', [FjobProgressController::class, 'index'])->name('job-overviews.index');
+    Route::get('job-overviews/create', [FjobProgressController::class, 'create'])->name('job-overviews.create');
+    Route::get('job-overviews/show/{job_id}', [FjobProgressController::class, 'jobOverviewsIndex'])->name('job-overviews.show');
+
 });

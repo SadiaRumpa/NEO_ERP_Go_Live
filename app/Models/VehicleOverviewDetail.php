@@ -9,6 +9,7 @@ class VehicleOverviewDetail extends Model
     protected $fillable = [
         'vehicle_overview_id',
         'vehicle_check_categories_id',
+        'vehicle_check_categories_child_id',
         'vehicle_check_checklists_id',
         'has_attribute',
         'vehicle_check_checklist_attributes_id',
