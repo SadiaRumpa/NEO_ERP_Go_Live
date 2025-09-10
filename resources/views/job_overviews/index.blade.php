@@ -13,11 +13,6 @@
     <script type="text/javascript">
         $(function() {
             let ajaxUrl = "{{ route('job-overviews.index') }}";
-            @if (!empty($completed) && $completed === true)
-                ajaxUrl = "{{ route('job.show.completed') }}";
-            @elseif (!empty($rejected) && $rejected === true)
-                ajaxUrl = "{{ route('job.show.rejected') }}";
-            @endif
 
             var table = $('.datatables-ajax').DataTable({
                 processing: true,
@@ -31,67 +26,35 @@
                         searchable: false
                     },
                     {
-                        data: 'job_name',
-                        name: 'job_name',
-                        render: function(data, type, row) {
-                            let badgeClass = 'bg-label-info'; // Default
-
-                            switch (row.job_status.toLowerCase()) {
-                                case 'new':
-                                case 'accepted':
-                                    badgeClass = 'info';
-                                    break;
-                                case 'inprogress':
-                                    badgeClass = 'warning';
-                                    break;
-                                case 'completed':
-                                    badgeClass = 'success';
-                                    break;
-                                case 'rejected':
-                                    badgeClass = 'danger';
-                                    break;
-                                default:
-                                    badgeClass = 'secondary';
-                            }
-
-                            return `
-                            <div class="d-flex flex-column">
-                                <span class="emp_name text-truncate text-heading fw-medium">${row.job_name}</span>
-                                <small class="emp_post text-truncate">
-                                <span class="badge rounded-pill bg-label-${badgeClass}">${row.job_status}</span>
-                                ${moment(row.created_at).format('DD/MM/YYYY')}
-                                </small>
-                            </div>
-                        `;
-
-                        }
+                        data: 'job_title',
+                        name: 'job_title',
                     },
                     {
-                        data: 'customer_name',
-                        name: 'customer_name',
+                        data: 'customer',
+                        name: 'customer',
                         render: function(data, type, row) {
                             let html = '';
 
-                            if (row.company_name) {
-                                html += '<strong>' + row.company_name + '</strong><br>';
+                            if (data.company_name) {
+                                html += '<strong>' + data.company_name + '</strong><br>';
                             }
 
-                            if (row.customer_name) {
-                                html += row.customer_name + '<br>';
+                            if (data.customer_name) {
+                                html += data.customer_name + '<br>';
                             }
 
-                            if (row.customer_email) {
-                                html += '<i class="icon-base fas fa-envelope mb-2 mr-2"></i> ' + row
-                                    .customer_email + '<br>';
+                            if (data.customer_email) {
+                                html += '<i class="icon-base fas fa-envelope mb-2 mr-2"></i> ' +
+                                    data.customer_email + '<br>';
                             }
 
-                            if (row.customer_phone) {
-                                html += '<i class="icon-base fas fa-phone mb-2 mr-2"></i> ' + row
+                            if (data.customer_phone) {
+                                html += '<i class="icon-base fas fa-phone mb-2 mr-2"></i> ' + data
                                     .customer_phone + '<br>';
                             }
 
-                            if (row.customer_mobile) {
-                                html += '<i class="icon-base fas fa-mobile mb-2"></i> ' + row
+                            if (data.customer_mobile) {
+                                html += '<i class="icon-base fas fa-mobile mb-2"></i> ' + data
                                     .customer_mobile;
                             }
 
@@ -131,8 +94,10 @@
             </div>
             <div class="d-flex align-content-center flex-wrap gap-4">
                 <div class="d-flex gap-4">
-                    <a href="{{ route('job.show.rejected') }}" class="btn btn-label-danger"
-                        @if (isset($rejected) && $rejected == true) disabled @endif>Rejected</a>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                        data-bs-target="#modalJobProgress">
+                        Start Job Tracking
+                    </button>
                     <a href="{{ route('job.show.completed') }}" class="btn btn-label-warning"
                         @if (isset($completed) && $completed == true) disabled @endif>Completed</a>
                 </div>
@@ -153,6 +118,69 @@
                 </table>
             </div>
         </div>
+
+
+        <!-- Create Job Progress -->
+        <div class="modal fade" id="modalJobProgress" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalJobProgressTitle">Job Progress </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form id="jobprogress" method="POST" action="{{ route('job-overviews.store') }}">
+                        @csrf
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col mb-4">
+                                    <label for="select2job" class="form-label">Select Job</label>
+                                    <select id="select2job" class="select2 form-select" data-allow-clear="true"
+                                        name="fjob_id" required>
+                                        @foreach ($fjob as $job)
+                                            <option value="{{ $job->id }}">
+                                                {{ $job->job_name }} - {{ $job->job_title }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-4">
+                                <div class="col mb-0">
+                                    <label for="startdate" class="form-label">Start Date</label>
+                                    <input type="date" id="startdate" class="form-control" name="startdate" required />
+                                </div>
+                                <div class="col mb-0">
+                                    <label for="enddate" class="form-label">End Date</label>
+                                    <input type="date" id="enddate" class="form-control" name="enddate" required />
+                                </div>
+                            </div>
+                            <div class="row ">
+                                <div class="col mb-0">
+                                    <label for="jobpriority" class="form-label">Priority</label>
+                                    <select id="jobpriority" name="jobpriority" class="form-select" data-allow-clear="true"
+                                        required>
+                                        <option value="high">High</option>
+                                        <option value="medium">Medium</option>
+                                        <option value="low">Low</option>
+                                    </select>
+                                </div>
+                                <div class="col mb-0">
+                                    <label for="notes" class="form-label">Note</label>
+                                    <textarea class="form-control" name="note"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">
+                                Close
+                            </button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
     </div>
     <!-- / Content -->
 

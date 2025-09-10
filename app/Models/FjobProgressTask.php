@@ -29,4 +29,8 @@ class FjobProgressTask extends Model
     {
         return $this->belongsTo(FjobProgress::class, 'fjob_progress_id');
     }
+
+    public function resource(){
+        return $this->belongsTo(User::class, 'assigned_to');
+    }
 }

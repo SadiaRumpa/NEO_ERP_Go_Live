@@ -242,10 +242,13 @@ Route::middleware(['auth'])->group(function () {
     Route::put('vehicle-overviews/update/{id}', [VehicleOverviewController::class, 'update'])->name('vehicle-overviews.update');
     Route::delete('vehicle-overviews/destroy/{id}', [VehicleOverviewController::class, 'destroy'])->name('vehicle-overviews.destroy');
     Route::get('vehicle-overviews/export/{vehicle_id}', [VehicleOverviewController::class, 'export'])->name('vehicle-overviews.export');
-    
 
     Route::get('job-overviews', [FjobProgressController::class, 'index'])->name('job-overviews.index');
-    Route::get('job-overviews/create', [FjobProgressController::class, 'create'])->name('job-overviews.create');
-    Route::get('job-overviews/show/{job_id}', [FjobProgressController::class, 'jobOverviewsIndex'])->name('job-overviews.show');
+    Route::post('job-overviews/store', [FjobProgressController::class, 'store'])->name('job-overviews.store');
+    Route::get('job-overviews/show/{jobprogress_id}', [FjobProgressController::class, 'jobOverviewsShow'])->name('job-overviews.show');
+
+    Route::post('job-overviews/store-task', [FjobProgressController::class, 'storeTask'])->name('job-overviews.store-task');
+    Route::get('job-overviews/show-task/{task_id}', [FjobProgressController::class, 'showTask'])->name('job-overviews.show-task');
+    Route::put('job-overviews/update-task', [FjobProgressController::class, 'updateTask'])->name('job-overviews.update-task');
 
 });
