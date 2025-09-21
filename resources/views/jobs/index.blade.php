@@ -31,6 +31,10 @@
                         searchable: false
                     },
                     {
+                        data: 'job_type',
+                        name: 'job_type',
+                    },
+                    {
                         data: 'job_name',
                         name: 'job_name',
                         render: function(data, type, row) {
@@ -54,18 +58,28 @@
                                     badgeClass = 'secondary';
                             }
 
-                            return `
-                            <div class="d-flex flex-column">
-                                <span class="emp_name text-truncate text-heading fw-medium">${row.job_name}</span>
-                                <small class="emp_post text-truncate">
-                                <span class="badge rounded-pill bg-label-${badgeClass}">${row.job_status}</span>
-                                ${moment(row.created_at).format('DD/MM/YYYY')}
-                                </small>
-                            </div>
-                        `;
+                            // 🔹 Truncate job_name safely
+                            let jobName = row.job_name || '';
+                            let truncatedName = jobName.length > 30 ? jobName.substr(0, 30) + '…' :
+                                jobName;
 
+                            return `
+                                <div class="d-flex flex-column">
+                                    <span class="emp_name text-truncate text-heading fw-medium" 
+                                        title="${jobName}">
+                                        ${truncatedName}
+                                    </span>
+                                    <small class="emp_post text-truncate">
+                                        <span class="badge rounded-pill bg-label-${badgeClass}">
+                                            ${row.job_status}
+                                        </span>
+                                        ${moment(row.created_at).format('DD/MM/YYYY')}
+                                    </small>
+                                </div>
+                            `;
                         }
                     },
+
                     {
                         data: 'customer_name',
                         name: 'customer_name',
@@ -144,6 +158,7 @@
                     <thead>
                         <tr>
                             <th>ID</th>
+                            <th>JOB TYPE</th>
                             <th>JOB TITLE</th>
                             <th width="20%">COMPANY INFO</th>
                             <th>ENQUIRY</th>

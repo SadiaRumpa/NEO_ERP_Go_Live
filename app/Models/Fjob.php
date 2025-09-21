@@ -23,7 +23,7 @@ class Fjob extends Model
         'job_closed_at',
         'job_close_reason'
     ];
-    
+
     public function customer()
     {
         return $this->belongsTo(Customer::class);
@@ -48,7 +48,16 @@ class Fjob extends Model
     {
         return $this->hasMany(FjobAttachment::class);
     }
-    public function jobattributes(){
+    public function jobattributes()
+    {
         return $this->hasMany(FjobAttribute::class);
+    }
+    public function jobhschecks()
+    {
+        return $this->hasMany(FjobHsCheck::class);
+    }
+    public function jobtype()
+    {
+        return $this->hasOne(JobType::class, 'slug', 'job_type');
     }
 }

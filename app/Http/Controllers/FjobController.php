@@ -9,6 +9,7 @@ use App\Models\FjobAttributeDetail;
 use App\Models\FjobNote;
 use App\Models\JobAttribute;
 use App\Models\JobAttributeDetail;
+use App\Models\JobType;
 use App\Models\MailTemplate;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
@@ -209,10 +210,13 @@ class FjobController extends Controller
             return redirect()->route('jobs.index')->with('error', 'Job details not found.');
         }
 
+        $jobtype = JobType::where('status', 'active')
+            ->orderBy('name', 'asc')->get();
+
         $mailtemplates = MailTemplate::where('status', 'active')
             ->orderBy('id', 'desc')->get();
 
-        return view('jobs.show', compact('job', 'mailtemplates'));
+        return view('jobs.show', compact('job', 'jobtype', 'mailtemplates'));
     }
 
     public function showCompleted($key) {}
@@ -295,6 +299,10 @@ class FjobController extends Controller
 
     public function updateJobTitle(Request $request, $id)
     {
+        $request->validate([
+            'job_title' => 'required|string|max:255',
+            'job_type' => 'required|string|max:100',
+        ]); 
         $job = Fjob::find($id);
         if (!$job) {
             return response()->json([
@@ -305,11 +313,32 @@ class FjobController extends Controller
 
         $job->update([
             'job_title' => $request->job_title,
+            'job_type' => $request->job_type,
         ]);
 
         return response()->json([
             'status' => 'success',
             'message' => 'Job title updated successfully.'
+        ]);
+    }
+
+    public function updateJobType(Request $request, $id)
+    {
+        $job = Fjob::find($id);
+        if (!$job) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Job not found.'
+            ], 404);
+        }
+
+        $job->update([
+            'job_type' => $request->job_type,
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Job type updated successfully.'
         ]);
     }
 

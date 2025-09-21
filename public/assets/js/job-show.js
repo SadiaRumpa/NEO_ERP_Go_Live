@@ -329,6 +329,7 @@ function updateJobTitle(jobId) {
         },
         data: {
             job_title: jobTitle,
+            job_type: document.getElementById('jobType').value
         },
         success: function (response) {
             if (response.status === 'success') {

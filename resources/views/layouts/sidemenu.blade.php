@@ -3,27 +3,16 @@
         <a href="{{ url('/') }}" class="app-brand-link">
             <span class="app-brand-logo demo">
                 <span class="text-primary">
-                    <svg width="32" height="22" viewBox="0 0 32 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            fill-rule="evenodd"
-                            clip-rule="evenodd"
+                    <svg width="32" height="22" viewBox="0 0 32 22" fill="none"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd"
                             d="M0.00172773 0V6.85398C0.00172773 6.85398 -0.133178 9.01207 1.98092 10.8388L13.6912 21.9964L19.7809 21.9181L18.8042 9.88248L16.4951 7.17289L9.23799 0H0.00172773Z"
                             fill="currentColor" />
-                        <path
-                            opacity="0.06"
-                            fill-rule="evenodd"
-                            clip-rule="evenodd"
-                            d="M7.69824 16.4364L12.5199 3.23696L16.5541 7.25596L7.69824 16.4364Z"
-                            fill="#161616" />
-                        <path
-                            opacity="0.06"
-                            fill-rule="evenodd"
-                            clip-rule="evenodd"
-                            d="M8.07751 15.9175L13.9419 4.63989L16.5849 7.28475L8.07751 15.9175Z"
-                            fill="#161616" />
-                        <path
-                            fill-rule="evenodd"
-                            clip-rule="evenodd"
+                        <path opacity="0.06" fill-rule="evenodd" clip-rule="evenodd"
+                            d="M7.69824 16.4364L12.5199 3.23696L16.5541 7.25596L7.69824 16.4364Z" fill="#161616" />
+                        <path opacity="0.06" fill-rule="evenodd" clip-rule="evenodd"
+                            d="M8.07751 15.9175L13.9419 4.63989L16.5849 7.28475L8.07751 15.9175Z" fill="#161616" />
+                        <path fill-rule="evenodd" clip-rule="evenodd"
                             d="M7.77295 16.3566L23.6563 0H32V6.88383C32 6.88383 31.8262 9.17836 30.6591 10.4057L19.7824 22H13.6938L7.77295 16.3566Z"
                             fill="currentColor" />
                     </svg>
@@ -42,199 +31,275 @@
 
     <ul class="menu-inner py-1">
         <!-- Dashboards -->
-        <li class="menu-item {{(request()->is('home') || request()->is('/')) ? 'active' : '' }}">
+        <li class="menu-item {{ request()->is('home') || request()->is('/') ? 'active' : '' }}">
             <a href="{{ url('/') }}" class="menu-link">
                 <i class="menu-icon icon-base ti tabler-apps"></i>
                 <div data-i18n="Dashboard">Dashboard</div>
             </a>
         </li>
         @hasanyrole('super_admin|admin')
-        <li class="menu-item {{(request()->is('mailtemplates') || request()->is('mailtemplates/*'))  ? 'active' : '' }}">
-            <a
-                href="{{ url('mailtemplates') }}"
-                class="menu-link">
-                <i class="menu-icon icon-base ti tabler-mail-spark"></i>
-                <div data-i18n="Mail Templates">Mail Templates</div>
-            </a>
-        </li>
-        <li class="menu-item {{(request()->is('jobtypes') || request()->is('jobtypes/*'))  ? 'active' : '' }}">
-            <a
-                href="{{ url('jobtypes') }}"
-                class="menu-link">
-                <i class="menu-icon icon-base ti tabler-arrows-join"></i>
-                <div data-i18n="Job Type">Job Type</div>
-            </a>
-        </li>
-        <!-- Apps & Pages -->
-        <li class="menu-item {{(request()->is('users') || request()->is('users/*')) || (request()->is('roles')||request()->is('roles/*')) ? 'open' : '' }}">
-            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon icon-base ti tabler-users"></i>
-                <div data-i18n="Users">Users</div>
-            </a>
-            <ul class="menu-sub">
-                <li class="menu-item {{(request()->is('users') || request()->is('users/*')) ? 'active' : '' }}">
-                    <a href="{{ url('users') }}" class="menu-link">
-                        <div data-i18n="List">List</div>
-                    </a>
-                </li>
-                <li class="menu-item {{(request()->is('roles')||request()->is('roles/*')) ? 'active' : '' }}">
-                    <a href="{{ url('roles') }}" class="menu-link">
-                        <div data-i18n="Roles">Roles</div>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a href="{{ url('permissions') }}" class="menu-link">
-                        <div data-i18n="Permission">Permission</div>
-                    </a>
-                </li>
+            <li class="menu-item {{ request()->is('mailtemplates') || request()->is('mailtemplates/*') ? 'active' : '' }}">
+                <a href="{{ url('mailtemplates') }}" class="menu-link">
+                    <i class="menu-icon icon-base ti tabler-mail-spark"></i>
+                    <div data-i18n="Mail Templates">Mail Templates</div>
+                </a>
+            </li>
+            <li class="menu-item {{ request()->is('jobtypes') || request()->is('jobtypes/*') ? 'active' : '' }}">
+                <a href="{{ url('jobtypes') }}" class="menu-link">
+                    <i class="menu-icon icon-base ti tabler-arrows-join"></i>
+                    <div data-i18n="Job Type">Job Type</div>
+                </a>
+            </li>
+            <!-- Apps & Pages -->
+            <li
+                class="menu-item {{ request()->is('users') || request()->is('users/*') || (request()->is('roles') || request()->is('roles/*')) ? 'open' : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon icon-base ti tabler-users"></i>
+                    <div data-i18n="Users">Users</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item {{ request()->is('users') || request()->is('users/*') ? 'active' : '' }}">
+                        <a href="{{ url('users') }}" class="menu-link">
+                            <div data-i18n="List">List</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('roles') || request()->is('roles/*') ? 'active' : '' }}">
+                        <a href="{{ url('roles') }}" class="menu-link">
+                            <div data-i18n="Roles">Roles</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="{{ url('permissions') }}" class="menu-link">
+                            <div data-i18n="Permission">Permission</div>
+                        </a>
+                    </li>
 
-            </ul>
-        </li>
+                </ul>
+            </li>
         @endhasrole
         @hasrole('enquiry-manager')
-        <li class="menu-item {{(request()->is('enquiries') || request()->is('enquiries/*') || request()->is('enquiry/*')) ? 'active' : '' }}">
-            <a href="{{ url('enquiries') }}" class="menu-link">
-                <i class="menu-icon icon-base ti tabler-message-2-question"></i>
-                <div data-i18n="Enquiries">Enquiries</div>
-            </a>
-        </li>
-        <li class="menu-item {{(request()->is('leads') || request()->is('leads/*') || request()->is('lead/*')) ? 'active' : '' }}">
-            <a href="{{ url('leads') }}" class="menu-link">
-                <i class="menu-icon icon-base ti tabler-circle-dotted-letter-l"></i>
-                <div data-i18n="Leads">Leads</div>
-            </a>
-        </li>
-        <li class="menu-item {{(request()->is('customers') || request()->is('customers/*')) ? 'active' : '' }}">
-            <a href="{{ url('customers') }}" class="menu-link">
-                <i class="menu-icon icon-base ti tabler-user-cog"></i>
-                <div data-i18n="Customers">Customers</div>
-            </a>
-        </li>
+            <li
+                class="menu-item {{ request()->is('enquiries') || request()->is('enquiries/*') || request()->is('enquiry/*') ? 'active' : '' }}">
+                <a href="{{ url('enquiries') }}" class="menu-link">
+                    <i class="menu-icon icon-base ti tabler-message-2-question"></i>
+                    <div data-i18n="Enquiries">Enquiries</div>
+                </a>
+            </li>
+            <li
+                class="menu-item {{ request()->is('leads') || request()->is('leads/*') || request()->is('lead/*') ? 'active' : '' }}">
+                <a href="{{ url('leads') }}" class="menu-link">
+                    <i class="menu-icon icon-base ti tabler-circle-dotted-letter-l"></i>
+                    <div data-i18n="Leads">Leads</div>
+                </a>
+            </li>
+            <li class="menu-item {{ request()->is('customers') || request()->is('customers/*') ? 'active' : '' }}">
+                <a href="{{ url('customers') }}" class="menu-link">
+                    <i class="menu-icon icon-base ti tabler-user-cog"></i>
+                    <div data-i18n="Customers">Customers</div>
+                </a>
+            </li>
         @endhasrole
         @hasrole('lead-manager')
-        <li class="menu-item {{(request()->is('leads') || request()->is('leads/*') || request()->is('lead/*')) ? 'active' : '' }}">
-            <a href="{{ url('leads') }}" class="menu-link">
-                <i class="menu-icon icon-base ti tabler-circle-dotted-letter-l"></i>
-                <div data-i18n="Leads">Leads</div>
-            </a>
-        </li>
-        <li class="menu-item {{(request()->is('quotationtemplates') || request()->is('quotationtemplates/*')) ? 'active' : '' }}">
-            <a href="{{ url('quotationtemplates') }}" class="menu-link">
-                <i class="menu-icon icon-base ti tabler-blockquote"></i>
-                <div data-i18n="Quotation Templates">Quotation Templates</div>
-            </a>
-        </li>
-        <li class="menu-item {{(request()->is('jobs') || request()->is('jobs/*') || request()->is('job/*')) ? 'active' : '' }}">
-            <a href="{{ url('jobs') }}" class="menu-link">
-                <i class="menu-icon icon-base ti tabler-briefcase"></i>
-                <div data-i18n="Jobs">Jobs</div>
-            </a>
-        </li>
-        <li class="menu-item {{(request()->is('customers') || request()->is('customers/*')) ? 'active' : '' }}">
-            <a href="{{ url('customers') }}" class="menu-link">
-                <i class="menu-icon icon-base ti tabler-user-cog"></i>
-                <div data-i18n="Customers">Customers</div>
-            </a>
-        </li>
+            <li
+                class="menu-item {{ request()->is('leads') || request()->is('leads/*') || request()->is('lead/*') ? 'active' : '' }}">
+                <a href="{{ url('leads') }}" class="menu-link">
+                    <i class="menu-icon icon-base ti tabler-circle-dotted-letter-l"></i>
+                    <div data-i18n="Leads">Leads</div>
+                </a>
+            </li>
+            <li
+                class="menu-item {{ request()->is('quotationtemplates') || request()->is('quotationtemplates/*') ? 'active' : '' }}">
+                <a href="{{ url('quotationtemplates') }}" class="menu-link">
+                    <i class="menu-icon icon-base ti tabler-blockquote"></i>
+                    <div data-i18n="Quotation Templates">Quotation Templates</div>
+                </a>
+            </li>
+            <li
+                class="menu-item {{ request()->is('jobs') || request()->is('jobs/*') || request()->is('job/*') ? 'active' : '' }}">
+                <a href="{{ url('jobs') }}" class="menu-link">
+                    <i class="menu-icon icon-base ti tabler-briefcase"></i>
+                    <div data-i18n="Jobs">Jobs</div>
+                </a>
+            </li>
+            <li class="menu-item {{ request()->is('customers') || request()->is('customers/*') ? 'active' : '' }}">
+                <a href="{{ url('customers') }}" class="menu-link">
+                    <i class="menu-icon icon-base ti tabler-user-cog"></i>
+                    <div data-i18n="Customers">Customers</div>
+                </a>
+            </li>
         @endhasrole
         @hasrole('accounts-manager')
-        <li class="menu-item {{(request()->is('jobs') || request()->is('jobs/*') || request()->is('job/*')) ? 'active' : '' }}">
-            <a href="{{ url('jobs') }}" class="menu-link">
-                <i class="menu-icon icon-base ti tabler-briefcase"></i>
-                <div data-i18n="Jobs">Jobs</div>
-            </a>
-        </li>
+            <li
+                class="menu-item {{ request()->is('jobs') || request()->is('jobs/*') || request()->is('job/*') ? 'active' : '' }}">
+                <a href="{{ url('jobs') }}" class="menu-link">
+                    <i class="menu-icon icon-base ti tabler-briefcase"></i>
+                    <div data-i18n="Jobs">Jobs</div>
+                </a>
+            </li>
         @endhasrole
         @hasrole('job-manager')
-        <li class="menu-item {{(request()->is('jobs') || request()->is('jobs/*') || request()->is('job/*')) ? 'active' : '' }}">
-            <a href="{{ url('jobs') }}" class="menu-link">
-                <i class="menu-icon icon-base ti tabler-briefcase"></i>
-                <div data-i18n="Jobs">Jobs</div>
-            </a>
-        </li>
-        <li class="menu-item {{(request()->is('scheduler') || request()->is('scheduler/*')) ? 'active' : '' }}">
-            <a href="{{ url('scheduler') }}" class="menu-link">
-                <i class="menu-icon icon-base ti tabler-calendar-bolt"></i>
-                <div data-i18n="Scheduler">Scheduler</div>
-            </a>
-        </li>
-        <li class="menu-item {{(request()->is('job-attributes') || request()->is('job-attributes/*')) ? 'active' : '' }}">
-            <a href="{{ url('job-attributes') }}" class="menu-link">
-                <i class="menu-icon icon-base ti tabler-settings-share"></i>
-                <div data-i18n="Job Attributes">Job Attributes</div>
-            </a>
-        </li>
-        <li class="menu-item {{(request()->is('job-overviews') || request()->is('job-overviews/*')) ? 'active' : '' }}">
-            <a href="{{ url('job-overviews') }}" class="menu-link">
-                <i class="menu-icon icon-base ti tabler-file-info"></i>
-                <div data-i18n="Job Overviews">Job Overviews</div>
-            </a>
-        </li>
+            <li
+                class="menu-item {{ request()->is('jobs') || request()->is('jobs/*') || request()->is('job/*') ? 'active' : '' }}">
+                <a href="{{ url('jobs') }}" class="menu-link">
+                    <i class="menu-icon icon-base ti tabler-briefcase"></i>
+                    <div data-i18n="Jobs">Jobs</div>
+                </a>
+            </li>
+            <li class="menu-item {{ request()->is('scheduler') || request()->is('scheduler/*') ? 'active' : '' }}">
+                <a href="{{ url('scheduler') }}" class="menu-link">
+                    <i class="menu-icon icon-base ti tabler-calendar-bolt"></i>
+                    <div data-i18n="Scheduler">Scheduler</div>
+                </a>
+            </li>
+            <li
+                class="menu-item {{ request()->is('job-attributes') || request()->is('job-attributes/*') ? 'active' : '' }}">
+                <a href="{{ url('job-attributes') }}" class="menu-link">
+                    <i class="menu-icon icon-base ti tabler-settings-share"></i>
+                    <div data-i18n="Job Attributes">Job Attributes</div>
+                </a>
+            </li>
+            <li
+                class="menu-item {{ request()->is('job-overviews') || request()->is('job-overviews/*') ? 'active' : '' }}">
+                <a href="{{ url('job-overviews') }}" class="menu-link">
+                    <i class="menu-icon icon-base ti tabler-file-info"></i>
+                    <div data-i18n="Job Overviews">Job Overviews</div>
+                </a>
+            </li>
         @endhasrole
         @hasrole('inventory-manager')
-        <li class="menu-item {{(request()->is('stockwarehouses') || request()->is('stockwarehouses/*')) ? 'active' : '' }}">
-            <a href="{{ url('stockwarehouses') }}" class="menu-link">
-                <i class="menu-icon icon-base ti tabler-building-warehouse"></i>
-                <div data-i18n="Stock Warehouses">Stock Warehouses</div>
-            </a>
-        </li>
-        <li class="menu-item {{(request()->is('stockcategories') || request()->is('stockcategories/*')) ? 'active' : '' }}">
-            <a href="{{ url('stockcategories') }}" class="menu-link">
-                <i class="menu-icon icon-base ti tabler-box"></i>
-                <div data-i18n="Stock Categories">Stock Categories</div>
-            </a>
-        </li>
-        <li class="menu-item {{(request()->is('stockattributes') || request()->is('stockattributes/*')) ? 'active' : '' }}">
-            <a href="{{ url('stockattributes') }}" class="menu-link">
-                <i class="menu-icon icon-base ti tabler-attribute"></i>
-                <div data-i18n="Stock Attributes">Stock Attributes</div>
-            </a>
-        </li>
-        <li class="menu-item {{(request()->is('stockitems') || request()->is('stockitems/*')) ? 'active' : '' }}">
-            <a href="{{ url('stockitems') }}" class="menu-link">
-                <i class="menu-icon icon-base ti tabler-box-archive"></i>
-                <div data-i18n="Stock Items">Stock Items</div>
-            </a>
-        </li>
-        <li class="menu-item {{(request()->is('stockitemsinventory') || request()->is('stockitemsinventory/*')) ? 'active' : '' }}">
-            <a href="{{ url('stockitemsinventory') }}" class="menu-link">
-                <i class="menu-icon icon-base ti tabler-archive"></i>
-                <div data-i18n="Stock Items Inventory">Manage Inventory</div>
-            </a>
-        </li>
-        <li class="menu-item {{(request()->is('stockitemrequisitions') || request()->is('stockitemrequisitions/*')) ? 'active' : '' }}">
-            <a href="{{ url('stockitemrequisitions') }}" class="menu-link">
-                <i class="menu-icon icon-base ti tabler-clipboard-list"></i>
-                <div data-i18n="Stock Item Requisitions">Requisitions</div>
-            </a>
-        </li>
+            <li
+                class="menu-item {{ request()->is('stockwarehouses') || request()->is('stockwarehouses/*') ? 'active' : '' }}">
+                <a href="{{ url('stockwarehouses') }}" class="menu-link">
+                    <i class="menu-icon icon-base ti tabler-building-warehouse"></i>
+                    <div data-i18n="Stock Warehouses">Stock Warehouses</div>
+                </a>
+            </li>
+            <li
+                class="menu-item {{ request()->is('stockcategories') || request()->is('stockcategories/*') ? 'active' : '' }}">
+                <a href="{{ url('stockcategories') }}" class="menu-link">
+                    <i class="menu-icon icon-base ti tabler-box"></i>
+                    <div data-i18n="Stock Categories">Stock Categories</div>
+                </a>
+            </li>
+            <li
+                class="menu-item {{ request()->is('stockattributes') || request()->is('stockattributes/*') ? 'active' : '' }}">
+                <a href="{{ url('stockattributes') }}" class="menu-link">
+                    <i class="menu-icon icon-base ti tabler-attribute"></i>
+                    <div data-i18n="Stock Attributes">Stock Attributes</div>
+                </a>
+            </li>
+            <li class="menu-item {{ request()->is('stockitems') || request()->is('stockitems/*') ? 'active' : '' }}">
+                <a href="{{ url('stockitems') }}" class="menu-link">
+                    <i class="menu-icon icon-base ti tabler-box-archive"></i>
+                    <div data-i18n="Stock Items">Stock Items</div>
+                </a>
+            </li>
+            <li
+                class="menu-item {{ request()->is('stockitemsinventory') || request()->is('stockitemsinventory/*') ? 'active' : '' }}">
+                <a href="{{ url('stockitemsinventory') }}" class="menu-link">
+                    <i class="menu-icon icon-base ti tabler-archive"></i>
+                    <div data-i18n="Stock Items Inventory">Manage Inventory</div>
+                </a>
+            </li>
+            <li
+                class="menu-item {{ request()->is('stockitemrequisitions') || request()->is('stockitemrequisitions/*') ? 'active' : '' }}">
+                <a href="{{ url('stockitemrequisitions') }}" class="menu-link">
+                    <i class="menu-icon icon-base ti tabler-clipboard-list"></i>
+                    <div data-i18n="Stock Item Requisitions">Requisitions</div>
+                </a>
+            </li>
         @endhasrole
         @hasrole('fleet-manager')
-        <li class="menu-item {{(request()->is('vehiclecategories') || request()->is('vehiclecategories/*')) ? 'active' : '' }}">
-            <a href="{{ url('vehiclecategories') }}" class="menu-link">
-                <i class="menu-icon icon-base ti tabler-car"></i>
-                <div data-i18n="Vehicle Categories">Vehicle Categories</div>
-            </a>
-        </li>
-        <li class="menu-item {{(request()->is('vehicles') || request()->is('vehicles/*')) ? 'active' : '' }}">
-            <a href="{{ url('vehicles') }}" class="menu-link">
-                <i class="menu-icon icon-base ti tabler-car"></i>
-                <div data-i18n="Vehicles">Vehicles</div>
-            </a>
-        </li>
-        <li class="menu-item {{(request()->is('drivers') || request()->is('drivers/*')) ? 'active' : '' }}">
-            <a href="{{ url('drivers') }}" class="menu-link">
-                <i class="menu-icon icon-base ti tabler-user"></i>
-                <div data-i18n="Drivers">Drivers</div>
-            </a>
-        </li>
-        <li class="menu-item {{(request()->is('vehicle-checkings') || request()->is('vehicle-checkings/*')) ? 'active' : '' }}">
-            <a href="{{ url('vehicle-checkings') }}" class="menu-link">
-                <i class="menu-icon icon-base ti tabler-checks"></i>
-                <div data-i18n="Vehicle Checkings">Vehicle Checkings</div>
-            </a>
-        </li>
-        
+            <li
+                class="menu-item {{ request()->is('vehiclecategories') || request()->is('vehiclecategories/*') ? 'active' : '' }}">
+                <a href="{{ url('vehiclecategories') }}" class="menu-link">
+                    <i class="menu-icon icon-base ti tabler-car"></i>
+                    <div data-i18n="Vehicle Categories">Vehicle Categories</div>
+                </a>
+            </li>
+            <li class="menu-item {{ request()->is('vehicles') || request()->is('vehicles/*') ? 'active' : '' }}">
+                <a href="{{ url('vehicles') }}" class="menu-link">
+                    <i class="menu-icon icon-base ti tabler-car"></i>
+                    <div data-i18n="Vehicles">Vehicles</div>
+                </a>
+            </li>
+            <li class="menu-item {{ request()->is('drivers') || request()->is('drivers/*') ? 'active' : '' }}">
+                <a href="{{ url('drivers') }}" class="menu-link">
+                    <i class="menu-icon icon-base ti tabler-user"></i>
+                    <div data-i18n="Drivers">Drivers</div>
+                </a>
+            </li>
+            <li
+                class="menu-item {{ request()->is('vehicle-checkings') || request()->is('vehicle-checkings/*') ? 'active' : '' }}">
+                <a href="{{ url('vehicle-checkings') }}" class="menu-link">
+                    <i class="menu-icon icon-base ti tabler-checks"></i>
+                    <div data-i18n="Vehicle Checkings">Vehicle Checkings</div>
+                </a>
+            </li>
+        @endhasrole
+        @hasanyrole('health-safety-manager')
+            @php
+                $currentJobtype = request()->query('jobtype');
+                $jobtypes = \App\Models\Jobtype::all();
+            @endphp
+
+            <li
+                class="menu-item {{ request()->is('fjob-hs-check') || request()->is('fjob-hs-check/*') ? 'active open' : '' }}">
+                <a href="{{ url('fjob-hs-check') }}" class="menu-link menu-toggle">
+                    <i class="menu-icon icon-base ti tabler-checkup-list"></i>
+                    <div data-i18n="Job H&S Check">RAMS (Jobs)</div>
+                </a>
+                <ul class="menu-sub">
+                    @foreach ($jobtypes as $jobtype)
+                        <li class="menu-item {{ $currentJobtype === $jobtype->slug ? 'active' : '' }}">
+                            <a href="{{ url('fjob-hs-check?jobtype=' . $jobtype->slug) }}" class="menu-link">
+                                <div data-i18n="{{ $jobtype->name }}">{{ $jobtype->name }}</div>
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
+            </li>
+            <li
+                class="menu-item {{ request()->is('stuff_trainings') || request()->is('stuff_trainings/*') ? 'active open' : '' }}">
+                <a href="{{ url('stuff_trainings') }}" class="menu-link menu-toggle">
+                    <i class="menu-icon icon-base ti tabler-brand-databricks"></i>
+                    <div data-i18n="Staff Training">Staff Trainings</div>
+                </a>
+                <ul class="menu-sub">
+
+                    <li class="menu-item">
+                        <a href="#" class="menu-link">
+                            <div data-i18n="Training Matrix">Training Matrix</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="#" class="menu-link">
+                            <div data-i18n="Certificates">Certificates</div>
+                        </a>
+                    </li>
+
+                </ul>
+            </li>
+            <li class="menu-item {{ request()->is('hs_tools') || request()->is('hs_tools/*') ? 'active' : '' }}">
+                <a href="{{ url('hs_tools') }}" class="menu-link">
+                    <i class="menu-icon icon-base ti tabler-tool"></i>
+                    <div data-i18n="Staff Training">HS Tools</div>
+                </a>
+            </li>
+            <li class="menu-item {{ request()->is('hs_ppe') || request()->is('hs_ppe/*') ? 'active' : '' }}">
+                <a href="{{ url('hs_ppe') }}" class="menu-link">
+                    <i class="menu-icon icon-base ti tabler-shield-check"></i>
+                    <div data-i18n="PPE">PPE</div>
+                </a>
+            </li>
+
+            <li
+                class="menu-item {{ request()->is('hs-checklists') || request()->is('hs-checklists/*') ? 'active' : '' }}">
+                <a href="{{ url('hs-checklists') }}" class="menu-link">
+                    <i class="menu-icon icon-base ti tabler-checkup-list"></i>
+                    <div data-i18n="Health & Safety Checklists">Health & Safety Checklists</div>
+                </a>
+            </li>
         @endhasrole
     </ul>
 </aside>

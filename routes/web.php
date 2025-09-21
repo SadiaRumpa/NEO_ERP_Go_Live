@@ -14,6 +14,7 @@ use App\Http\Controllers\DriverController;
 use App\Http\Controllers\FjobController;
 use App\Http\Controllers\FjobProgressController;
 use App\Http\Controllers\GlobalController;
+use App\Http\Controllers\HSController;
 use App\Http\Controllers\JobAttributeController;
 use App\Http\Controllers\JobTypeController;
 use App\Http\Controllers\LeadController;
@@ -122,6 +123,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('job/updateaddress/{id}', [FjobController::class, 'updateJobAddress'])->name('job.updateaddress');
     Route::post('job/updatestatus/{id}', [FjobController::class, 'updateJobStatus'])->name('job.updatestatus');
     Route::post('job/updatetitle/{id}', [FjobController::class, 'updateJobTitle'])->name('job.updatetitle');
+    Route::post('job/updatetype/{id}', [FjobController::class, 'updateJobType'])->name('job.updatetype');
 
     Route::post('job/add-note/{jobid}', [FjobController::class, 'jobNotes'])->name('job.add-note');
     Route::delete('job/delete-note/{id}', [FjobController::class, 'deleteJobNotes'])->name('job.destroynote');
@@ -250,5 +252,18 @@ Route::middleware(['auth'])->group(function () {
     Route::post('job-overviews/store-task', [FjobProgressController::class, 'storeTask'])->name('job-overviews.store-task');
     Route::get('job-overviews/show-task/{task_id}', [FjobProgressController::class, 'showTask'])->name('job-overviews.show-task');
     Route::put('job-overviews/update-task', [FjobProgressController::class, 'updateTask'])->name('job-overviews.update-task');
+
+    Route::delete('job-overviews/destroy-task/{task_id}', [FjobProgressController::class, 'destroyTask'])->name('job-overviews.destroy-task');
+
+    Route::get('hs-checklists', [HSController::class, 'indexHsChecklists'])->name('hs-checklists.index');
+    Route::post('hs-checklists/store', [HSController::class, 'storeHsChecklists'])->name('hs-checklists.store');
+    Route::get('hs-checklists/{id}', [HSController::class, 'showHsChecklists'])->name('hs-checklists.show');
+    Route::put('hs-checklists/{id}/update', [HSController::class, 'updateHsChecklists'])->name('hs-checklists.update');
+    Route::delete('hs-checklists/{id}', [HSController::class, 'destroyHsChecklists'])->name('hs-checklists.destroy');
+
+    Route::get('fjob-hs-check', [HSController::class, 'indexFjobHsCheck'])->name('fjob-hs-check.index');
+    Route::get('fjob-hs-check/create', [HSController::class, 'createFjobCheck'])->name('fjob-hs-check.create');
+    Route::post('fjob-hs-check/store', [HSController::class, 'storeFjobHsCheck'])->name('fjob-hs-check.store');
+    Route::get('fjob-hs-check/{id}', [HSController::class, 'showFjobHsCheck'])->name('fjob-hs-check.show');
 
 });

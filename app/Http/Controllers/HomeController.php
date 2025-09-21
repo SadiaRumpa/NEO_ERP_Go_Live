@@ -45,7 +45,9 @@ class HomeController extends Controller
             return $this->inventoryManagerDashboard();
         } elseif (auth()->user()->hasRole('fleet-manager')) {
             return $this->fleetManagerDashboard();
-        } 
+        } elseif(auth()->user()->hasRole('health-safety-manager')) {
+            return $this->healthSafetyDashboard();
+        }
         else {
             abort(403, 'CAN NOT ACCESS TO ROLE');
         }
@@ -369,5 +371,9 @@ class HomeController extends Controller
             'inactiveVehicles' => $inactiveVehicles,
             'assignedVehiclesList' => $assignedVehiclesList            
         ]);
+    }
+
+    public function healthSafetyDashboard(){
+        return view('dashboards.health_safety_manager');
     }
 }

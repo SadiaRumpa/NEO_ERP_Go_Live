@@ -48,7 +48,7 @@
                                         <small class="text-body-secondary">{{ $availableVehicles }}</small>
                                     </div>
                                 </li>
-                                <li class="d-flex gap-4 align-items-center pb-1">
+                                <li class="d-flex gap-4 align-items-center mb-lg-3 pb-1">
                                     <div class="badge rounded bg-label-warning p-1_5">
                                         <i class="icon-base ti tabler-car icon-md"></i>
                                     </div>
@@ -57,7 +57,7 @@
                                         <small class="text-body-secondary">{{ $underMaintenanceVehicles }}</small>
                                     </div>
                                 </li>
-                                <li class="d-flex gap-4 align-items-center pb-1">
+                                <li class="d-flex gap-4 align-items-center mb-lg-3 pb-1">
                                     <div class="badge rounded bg-label-dark p-1_5">
                                         <i class="icon-base ti tabler-car icon-md"></i>
                                     </div>

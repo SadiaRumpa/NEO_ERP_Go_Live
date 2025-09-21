@@ -44,13 +44,18 @@
             <div
                 class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-6 row-gap-4">
                 <div class="d-flex flex-column justify-content-center">
-                    <span class="h4">
-                        JOB #
-                        <span class="badge bg-label-success me-1 ms-2">
-                            {{ $job->job_name }} @if ($job->job_title)
+                    <div class="d-flex flex-column flex-sm-row">
+                        <span class="badge bg-label-dark text-uppercase pt-3">
+                            {{ beautify_status($job->job_type) }} #
+                        </span>
+                        <span class="badge bg-label-dark text-uppercase pt-3 ms-2" style="max-width: 400px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                            {{ $job->job_number }}
+                            {{ $job->job_name }}
+                            @if ($job->job_title)
                                 - {{ $job->job_title }}
                             @endif
                         </span>
+
                         <button type="button" class="btn btn-dark btn-sm" data-bs-toggle="modal"
                             data-bs-target="#modalCenter">
                             <i class="icon-base ti tabler-edit"></i>
@@ -61,7 +66,7 @@
                             <div class="modal-dialog modal-dialog-centered" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="modalCenterTitle">Job Title</h5>
+                                        <h5 class="modal-title" id="modalCenterTitle">Job Title & Type</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal"
                                             aria-label="Close"></button>
                                     </div>
@@ -73,7 +78,17 @@
                                                 <div class="col mb-4">
                                                     <input type="text" id="nameWithTitle" class="form-control"
                                                         placeholder="Enter Name" value="{{ $job->job_title }}"
-                                                        name="job_title" />
+                                                        name="job_title" required />
+                                                </div>
+                                                <div class="col mb-4">
+                                                    <select id="jobType" class="form-select" name="job_type" required>
+                                                        @foreach ($jobtype as $type)
+                                                            <option value="{{ $type->slug }}"
+                                                                {{ $job->job_type == $type->slug ? 'selected' : '' }}>
+                                                                {{ ucfirst(str_replace('_', ' ', $type->name)) }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
                                                 </div>
                                             </div>
                                         </div>
@@ -167,7 +182,7 @@
                         @endhasrole
 
 
-                    </span>
+                    </div>
                 </div>
                 @role('job-manager')
 
@@ -269,7 +284,7 @@
                     <!-- job Information -->
                     <div class="card mb-6">
                         <div class="card-header header-elements">
-                            <h5 class="mb-0 me-2">job Information</h5>
+                            <h5 class="mb-0 me-2">Job Information</h5>
                             @role('job-manager')
                                 @if ($job->job_status == 'inprogress')
                                     <div class="card-header-elements ms-auto">
@@ -537,55 +552,56 @@
                 <div class="col-12 col-lg-4">
                     <!-- job Attributes -->
                     @role('job-manager')
-                    <div class="row mb-6 gy-6">
-                        <div class="col-xl order-2 order-xl-0">
-                            <div class="card mb-6">
-                                <div class="card-header header-elements">
-                                    <h5 class="mb-0 me-2">Attribuetes</h5>
+                        <div class="row mb-6 gy-6">
+                            <div class="col-xl order-2 order-xl-0">
+                                <div class="card mb-6">
+                                    <div class="card-header header-elements">
+                                        <h5 class="mb-0 me-2">Attribuetes</h5>
 
-                                    <div class="card-header-elements ms-auto">
-                                        <a href="{{ url('job-add-attributes') }}/{{ $job->id }}"
-                                            class="btn btn-xs btn-primary waves-effect waves-light">
-                                            <span class="icon-base ti tabler-plus icon-xs me-1"></span>Manage
-                                        </a>
+                                        <div class="card-header-elements ms-auto">
+                                            <a href="{{ url('job-add-attributes') }}/{{ $job->id }}"
+                                                class="btn btn-xs btn-primary waves-effect waves-light">
+                                                <span class="icon-base ti tabler-plus icon-xs me-1"></span>Manage
+                                            </a>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="card-body">
+                                    <div class="card-body">
 
-                                    <ul class="timeline mb-0">
-                                        
-                                        @foreach ($job->jobattributes as $fjobattb)
-                                            <li class="timeline-item ps-6 border-dashed">
-                                                <span
-                                                    class="timeline-indicator-advanced timeline-indicator-dark border-0 shadow-none">
-                                                    <i class="icon-base ti tabler-circle-check"></i>
-                                                </span>
-                                                <div class="timeline-event ps-1">
-                                                    <div class="timeline-header">
-                                                        <strong class="text-dark text-uppercase">{{$fjobattb->attribute_value}}</strong>
+                                        <ul class="timeline mb-0">
+
+                                            @foreach ($job->jobattributes as $fjobattb)
+                                                <li class="timeline-item ps-6 border-dashed">
+                                                    <span
+                                                        class="timeline-indicator-advanced timeline-indicator-dark border-0 shadow-none">
+                                                        <i class="icon-base ti tabler-circle-check"></i>
+                                                    </span>
+                                                    <div class="timeline-event ps-1">
+                                                        <div class="timeline-header">
+                                                            <strong
+                                                                class="text-dark text-uppercase">{{ $fjobattb->attribute_value }}</strong>
+                                                        </div>
+
+                                                        @if ($fjobattb->details)
+                                                            @foreach ($fjobattb->details as $fjobattbd)
+                                                                <ul class="list-unstyled mb-0">
+                                                                    <li class="d-flex align-items-center mb-2">
+                                                                        <i class="icon-base ti tabler-check icon-md"></i>
+                                                                        <span
+                                                                            class="fw-medium mx-2">{{ $fjobattbd->detail_value }}</span>
+                                                                    </li>
+                                                                </ul>
+                                                            @endforeach
+                                                        @endif
                                                     </div>
-
-                                                    @if($fjobattb->details)
-                                                    @foreach ( $fjobattb->details as $fjobattbd)
-                                                        <ul class="list-unstyled mb-0">
-                                                        <li class="d-flex align-items-center mb-2">
-                                                            <i class="icon-base ti tabler-check icon-md"></i>
-                                                            <span class="fw-medium mx-2">{{$fjobattbd->detail_value}}</span>
-                                                        </li>
-                                                    </ul>
-                                                    @endforeach
-                                                    
-                                                    @endif
-                                                </div>
-                                            </li>
-                                        @endforeach
+                                                </li>
+                                            @endforeach
 
 
-                                    </ul>
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
                     @endrole
                     <!-- job Attributes -->
 
