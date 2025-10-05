@@ -240,8 +240,9 @@
         @hasanyrole('health-safety-manager')
             @php
                 $currentJobtype = request()->query('jobtype');
-                $jobtypes = App\Models\Jobtype::all();
+                $jobtypes = \App\Models\Jobtype::all();
             @endphp
+
 
             <li
                 class="menu-item {{ request()->is('fjob-hs-check') || request()->is('fjob-hs-check/*') ? 'active open' : '' }}">
