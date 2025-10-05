@@ -118,8 +118,8 @@
 
                     </div>
                 </div>
+                
                 @role('job-manager')
-
                     <div class="d-flex align-content-center flex-wrap gap-4">
                         <!-- Alert message area -->
                         <div id="status-alert" style="display:none;" class="alert mt-2"></div>
@@ -175,51 +175,55 @@
 
                         </div>
                     </div>
-                @elsecan('accounts-manager')
-                    <div class="d-flex align-content-center flex-wrap gap-4">
-                        <!-- Alert message area -->
-                        <div id="status-alert" style="display:none;" class="alert mt-2"></div>
-                        <div class="d-flex gap-4">
+                @else
+                    @role('accounts-manager')
+                        <div class="d-flex align-content-center flex-wrap gap-4">
+                            <!-- Alert message area -->
+                            <div id="status-alert" style="display:none;" class="alert mt-2"></div>
+                            <div class="d-flex gap-4">
 
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-label-{{ $labelClass }} waves-effect">
-                                    {{ beautify_status($status) }}
-                                </button>
-
-                                @if (auth()->user()->hasRole('accounts-manager') && $status !== 'accepted')
-                                    <button type="button"
-                                        class="btn btn-label-{{ $labelClass }} dropdown-toggle dropdown-toggle-split waves-effect"
-                                        data-bs-toggle="dropdown" aria-expanded="false">
-                                        <span class="visually-hidden">Toggle Dropdown</span>
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-label-{{ $labelClass }} waves-effect">
+                                        {{ beautify_status($status) }}
                                     </button>
 
-                                    <ul class="dropdown-menu">
+                                    @if (auth()->user()->hasRole('accounts-manager') && $status !== 'accepted')
+                                        <button type="button"
+                                            class="btn btn-label-{{ $labelClass }} dropdown-toggle dropdown-toggle-split waves-effect"
+                                            data-bs-toggle="dropdown" aria-expanded="false">
+                                            <span class="visually-hidden">Toggle Dropdown</span>
+                                        </button>
 
-                                        <li>
-                                            @if ($job->job_status == 'draft')
-                                                <a class="dropdown-item waves-effect waves-light"
-                                                    onclick="updateJobStatus({{ $job->id }}, 'accepted')">
-                                                    Accept
+                                        <ul class="dropdown-menu">
+
+                                            <li>
+                                                @if ($job->job_status == 'draft')
+                                                    <a class="dropdown-item waves-effect waves-light"
+                                                        onclick="updateJobStatus({{ $job->id }}, 'accepted')">
+                                                        Accept
+                                                    </a>
+                                                @endif
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item waves-effect waves-light" data-bs-toggle="modal"
+                                                    data-bs-target="#rejectjobModal">
+                                                    REJECT job
                                                 </a>
-                                            @endif
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item waves-effect waves-light" data-bs-toggle="modal"
-                                                data-bs-target="#rejectjobModal">
-                                                REJECT job
-                                            </a>
-                                        </li>
+                                            </li>
 
-                                    </ul>
-                                @endif
+                                        </ul>
+                                    @endif
+                                </div>
                             </div>
                         </div>
-                    </div>
-                @else
-                    <span class="badge bg-label-primary me-1 ms-2">
-                        {{ beautify_status($job->job_status) }}
-                    </span>
+                    @else
+                        <span class="badge bg-label-primary me-1 ms-2">
+                            {{ beautify_status($job->job_status) }}
+                        </span>
+                    @endrole
                 @endrole
+
+
 
             </div>
 
