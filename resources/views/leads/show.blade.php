@@ -47,6 +47,24 @@
                     <span class="h4">
                         LEAD #<span class="badge bg-label-success me-1 ms-2">{{ $lead->lead_name }}</span>
                         @hasrole('lead-manager')
+                            @if ($lead->lead_status == 'inprogress')
+                                <a class="btn btn-label-primary ms-2" href="{{ route('quotations.lead', $lead->id) }}">
+                                    GENERATE QUOTATION
+                                </a>
+                            @endif
+                        @else
+                            <span class="badge bg-label-primary me-1 ms-2">{{ beautify_status($lead->lead_status) }}</span>
+                        @endhasrole
+
+                    </span>
+                </div>
+                @role('lead-manager')
+
+                    <div class="d-flex align-content-center flex-wrap gap-4">
+                        <!-- Alert message area -->
+                        <div id="status-alert" style="display:none;" class="alert mt-2"></div>
+                        <div class="d-flex gap-4">
+
                             <div class="btn-group">
                                 @php
                                     $status = $lead->lead_status;
@@ -76,47 +94,28 @@
                                                 onclick="updateLeadStatus({{ $lead->id }}, 'inprogress')">In Progress</a>
                                         </li>
                                         <li>
-                                            <a class="dropdown-item waves-effect" data-status="on_hold"
-                                                data-id="{{ $lead->id }}" href="#"
-                                                onclick="updateLeadStatus({{ $lead->id }}, 'on_hold')">On Hold</a>
+                                            @if ($lead->lead_status == 'inprogress')
+                                                <a type="button" class="dropdown-item waves-effect waves-light"
+                                                    data-bs-toggle="modal" data-bs-target="#rejectleadModal">
+                                                    REJECT LEAD
+                                                </a>
+                                            @endif
                                         </li>
                                         <li>
-                                            <a class="dropdown-item waves-effect" data-status="archived"
-                                                data-id="{{ $lead->id }}" href="#"
-                                                onclick="updateLeadStatus({{ $lead->id }}, 'archived')">Archived</a>
+                                            @if (!in_array($lead->lead_status, ['new', 'converted_to_job', 'rejected', 'archived']))
+                                                <a type="button"
+                                                    class="dropdown-item waves-effect waves-light convert-to-job-btn"
+                                                    data-id="{{ $lead->id }}" data-status="converted_to_job">
+                                                    SEND ACCOUNTS MANAGER
+                                                </a>
+                                            @endif
                                         </li>
                                     </ul>
                                 @endif
                             </div>
-                            @if ($lead->lead_status == 'inprogress')
-                                <a class="btn btn-label-primary ms-2" href="{{ route('quotations.lead', $lead->id) }}">
-                                    GENERATE QUOTATION
-                                </a>
-                            @endif
-                        @else
-                            <span class="badge bg-label-primary me-1 ms-2">{{ beautify_status($lead->lead_status) }}</span>
-                        @endhasrole
 
-                    </span>
-                </div>
-                @role('lead-manager')
 
-                    <div class="d-flex align-content-center flex-wrap gap-4">
-                        <!-- Alert message area -->
-                        <div id="status-alert" style="display:none;" class="alert mt-2"></div>
-                        <div class="d-flex gap-4">
-                            @if (!in_array($lead->lead_status, ['new', 'converted_to_job', 'rejected', 'archived']))
-                                <button class="btn btn-label-success convert-to-job-btn" data-id="{{ $lead->id }}"
-                                    data-status="converted_to_job">
-                                    SEND ACCOUNTS MANAGER
-                                </button>
-                            @endif
-                            @if ($lead->lead_status == 'inprogress')
-                                <button type="button" class="btn btn-danger waves-effect waves-light" data-bs-toggle="modal"
-                                    data-bs-target="#rejectleadModal">
-                                    REJECT LEAD
-                                </button>
-                            @endif
+
                         </div>
                     </div>
 
@@ -262,21 +261,7 @@
                                                                     value="{{ $lead->id }}">
 
                                                                 <div class="form-control p-0">
-                                                                    <div class="lead-toolbar border-0 border-bottom">
-                                                                        <div class="d-flex justify-content-start">
-                                                                            <span class="ql-formats me-0">
-                                                                                <button class="ql-bold"></button>
-                                                                                <button class="ql-italic"></button>
-                                                                                <button class="ql-underline"></button>
-                                                                                <button class="ql-list"
-                                                                                    value="ordered"></button>
-                                                                                <button class="ql-list"
-                                                                                    value="bullet"></button>
-                                                                                <button class="ql-link"></button>
-                                                                                <button class="ql-image"></button>
-                                                                            </span>
-                                                                        </div>
-                                                                    </div>
+
                                                                     <div class="border-0 pb-6" id="lead-description-edit">
                                                                         {!! $lead->lead_description !!}
                                                                     </div>

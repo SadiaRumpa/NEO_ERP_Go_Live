@@ -54,8 +54,10 @@
                                 Assign Job
                             </button>
 
-                            <a href="" class="btn btn-secondary btn-sm">Back</a>
-                            <a href="" class="btn btn-success btn-sm">Export to Excel</a>
+                            <a href="{{ route('job-overviews.index') }}" class="btn btn-secondary btn-sm">Back</a>
+                            <a href="{{ route('job-overviews.export-gantt', $jobprogress->id) }}" class="btn btn-success btn-sm">
+                                Download Excel
+                            </a>
                         </div>
                     </div>
                     <div class="table-responsive text-nowrap">
@@ -79,9 +81,12 @@
                         <table class="table table-bordered">
                             <thead>
                                 <tr>
-                                    <th rowspan="2">Activity</th>
-                                    <th rowspan="2">Resource</th>
-                                    <th rowspan="2">Status</th>
+                                    <th rowspan="2">Task</th>
+                                    <th rowspan="2">Notes</th>
+                                    <th rowspan="2">Assigned To</th>
+                                    <th rowspan="2">Progress</th>
+                                    <th rowspan="2">Start</th>
+                                    <th rowspan="2">End</th>
                                     @foreach ($months as $month => $days)
                                         <th colspan="{{ count($days) }}" class="text-center">{{ $month }}</th>
                                     @endforeach
@@ -103,8 +108,41 @@
                                                 {{ $task->task_name }}
                                             </span>
                                         </td>
+                                        <td>{{ $task->description ?? 'N/A' }}</td>
                                         <td>{{ optional($task->resource)->name ?? 'N/A' }}</td>
-                                        <td>{{ ucfirst(str_replace('_', ' ', $task->status)) }}</td>
+                                        @php
+                                            $start = \Carbon\Carbon::parse($task->start_date);
+                                            $end = \Carbon\Carbon::parse($task->end_date);
+                                            $now = \Carbon\Carbon::now();
+
+                                            $totalDays = $start->diffInDays($end) + 1;
+                                            $completedDays = 0;
+
+                                            if ($now->lt($start)) {
+                                                $completedDays = 0;
+                                            } elseif ($now->gt($end)) {
+                                                $completedDays = $totalDays;
+                                            } else {
+                                                $completedDays = $start->diffInDays($now) + 1;
+                                            }
+
+                                            $percentage =
+                                                $totalDays > 0 ? round(($completedDays / $totalDays) * 100) : 0;
+                                        @endphp
+                                        <td>
+                                            <div class="progress" style="height: 20px;">
+                                                <div class="progress-bar bg-success" role="progressbar"
+                                                    style="width: {{ $percentage }}%;"
+                                                    aria-valuenow="{{ $percentage }}" aria-valuemin="0"
+                                                    aria-valuemax="100">
+                                                    {{ $percentage }}%
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>{{ \Carbon\Carbon::parse($task->start_date)->format('d M Y') }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($task->end_date)->format('d M Y') }}</td>
+
+                                        {{-- Generate date cells --}}
 
                                         @php
                                             $allDates = [];
@@ -122,18 +160,37 @@
                                                 $start = \Carbon\Carbon::parse($task->start_date);
                                                 $end = \Carbon\Carbon::parse($task->end_date);
                                                 $current = \Carbon\Carbon::parse($date);
+                                                $now = \Carbon\Carbon::now();
+
+                                                // Determine color class based on status and date
+                                                $status = $task->status ?? 'not_started';
+                                                $colorClass = '';
+
+                                                if (
+                                                    $status === 'completed' ||
+                                                    ($current->lt($now) &&
+                                                        $status !== 'on_hold' &&
+                                                        $status !== 'cancelled')
+                                                ) {
+                                                    $colorClass = 'bg-success text-white';
+                                                } elseif ($status === 'not_started') {
+                                                    $colorClass = 'bg-info text-white';
+                                                } elseif ($status === 'in_progress') {
+                                                    $colorClass = 'bg-warning text-dark';
+                                                } elseif ($status === 'on_hold' || $status === 'cancelled') {
+                                                    $colorClass = 'bg-dark text-white';
+                                                }
                                             @endphp
 
                                             @if ($current->between($start, $end))
                                                 @if ($current->isSameDay($start))
                                                     {{-- First day of task: show name --}}
-                                                    <td class="bg-success text-white text-center"
+                                                    <td class="{{ $colorClass }} text-center"
                                                         title="{{ $task->task_name }}">
-                                                        {{ $task->task_name }}
                                                     </td>
                                                 @else
                                                     {{-- Continuation days: just fill --}}
-                                                    <td class="bg-success"></td>
+                                                    <td class="{{ $colorClass }}"></td>
                                                 @endif
                                             @else
                                                 <td></td>
@@ -144,7 +201,6 @@
                             </tbody>
 
                         </table>
-
 
                     </div>
 
@@ -196,7 +252,8 @@
                                             </div>
                                             <div class="col mb-0">
                                                 <label for="notes" class="form-label">Notes</label>
-                                                <input type="text" id="notes" name="notes" class="form-control" />
+                                                <input type="text" id="notes" name="notes"
+                                                    class="form-control" />
                                             </div>
                                         </div>
 
@@ -295,8 +352,6 @@
                             </div>
                         </div>
                     </div>
-
-
 
                 </div>
             </div>

@@ -15,9 +15,11 @@ return new class extends Migration
             $table->id();
             $table->integer('fjob_id');
             $table->string('job_title')->nullable();
-            $table->integer('hs_check_title')->nullable();
+            $table->string('hs_check_title')->nullable();
             $table->integer('checked_by_user')->nullable();
-            $table->enum('status', ['pending', 'in_progress', 'completed', 'rejected'])->default('pending');
+            $table->date('check_date')->nullable();
+            $table->text('remarks')->nullable();
+            $table->enum('status', ['pending', 'in_progress', 'completed', 'rejected'])->default('completed');
             $table->timestamps();
         });
     }

@@ -236,7 +236,7 @@ class SchedulerController extends Controller
             'start_date'   => $startDate,
             'end_date'     => $endDate,
             'instructions' => $validated['instructions'],
-            'status'       => 'pending',
+            'status'       => 'assigned',
         ]);
 
         // ✅ Assign workers
@@ -264,6 +264,7 @@ class SchedulerController extends Controller
             'workers'     => 'array',
             'workers.*'   => 'exists:users,id',
             'instructions' => 'nullable|string',
+            'status'      => 'nullable|in:assigned,inprogress,completed,cancelled',
         ]);
 
         // Extract start and end dates
@@ -282,7 +283,7 @@ class SchedulerController extends Controller
             'start_date'  => $startDate,
             'end_date'    => $endDate,
             'instructions' => $validated['instructions'],
-            'status'      => 'pending',
+            'status'      => $validated['status'] ?? 'assigned',
         ]);
 
         // Update workers
@@ -454,7 +455,7 @@ class SchedulerController extends Controller
 
         // Find the Job Schedule
         $jobSchedule = FakeJobSchedule::findOrFail($id);
-        
+
         $jobSchedule->update([
             'start_date'  => $startDate,
             'end_date'    => $endDate,

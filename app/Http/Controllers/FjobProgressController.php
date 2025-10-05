@@ -9,6 +9,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use Carbon\Carbon;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\JobsOverviewExport;
 
 class FjobProgressController extends Controller
 {
@@ -16,7 +18,9 @@ class FjobProgressController extends Controller
     {
         if ($request->ajax()) {
 
-            $data = FjobProgress::with(['customers', 'tasks'])->select('fjob_progresses.*');
+            $data = FjobProgress::with(['fjob', 'customers', 'tasks'])
+                ->select('fjob_progresses.*')
+                ->orderBy('created_at', 'desc');
 
             return DataTables::of($data)
                 ->addIndexColumn()
@@ -132,15 +136,14 @@ class FjobProgressController extends Controller
 
     public function updateTask(Request $request)
     {
-        // dd($request->all());
-        // Validate basic fields
         $request->validate([
             'tasktitle'   => 'required|string|max:255',
             'startfrom'   => 'required|date',
             'endsat'      => 'required|date|after_or_equal:startfrom',
             'assignto'    => 'required|exists:users,id',
             'notes'       => 'nullable|string|max:500',
-            'taskid' => 'required|exists:fjob_progress_tasks,id',
+            'taskid'      => 'required|exists:fjob_progress_tasks,id',
+            'status'      => 'required|string', // Ensure status is provided
         ]);
 
         $task = FjobProgressTask::findOrFail($request->taskid);
@@ -156,9 +159,26 @@ class FjobProgressController extends Controller
         $task->assigned_to = $request->assignto;
         $task->description = $request->notes;
         $task->duration    = $duration;
-        $task->status    = $request->status;
+        $task->status      = $request->status;
         $task->save();
 
+        // Update progress_percent on parent FjobProgress
+        $jobProgress = $task->fjobProgress;
+        if ($jobProgress) {
+            $totalTasks = $jobProgress->tasks()->count();
+            $completedTasks = $jobProgress->tasks()->where('status', 'completed')->count();
+            $progressPercent = $totalTasks > 0 ? round(($completedTasks / $totalTasks) * 100) : 0;
+            $jobProgress->progress_percent = $progressPercent;
+            $jobProgress->save();
+        }
+
         return redirect()->back()->with('success', 'updated successfully');
+    }
+
+    public function exportGantt($id)
+    {
+        $jobprogress = FjobProgress::with('tasks.resource')->findOrFail($id);
+
+        return Excel::download(new JobsOverviewExport($jobprogress), 'gantt_chart.xlsx');
     }
 }

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('slug')->nullable();
             $table->tinyText('short_details')->nullable();
             $table->boolean('has_attributes')->default('false');
+            $table->string('type')->nullable();
             $table->boolean('status')->default('true');
             $table->timestamps();
         });

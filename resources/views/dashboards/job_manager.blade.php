@@ -123,6 +123,7 @@
                             <tr>
                                 <td class="pt-5">
                                     <div class="d-flex flex-column">
+                                        <span class="badge rounded-pill bg-label-dark">{{ $nld->job_type }}</span>
                                         <small class="text-body text-nowrap">{{ \Carbon\Carbon::parse($nld->created_at)->format('j F Y') }}</small>
                                         <span class="badge rounded-pill bg-label-info">{{ $nld->job_status }}</span>
                                     </div>

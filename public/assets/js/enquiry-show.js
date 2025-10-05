@@ -171,7 +171,7 @@ $('form').on('submit', function () {
 });
 
 $(document).ready(function () {
-    $('.convert-to-lead-btn').on('click', function () {
+    $('.convert-to-lead').on('click', function () {
         let enquiryId = $(this).data('id');
         let status = $(this).data('status');
 

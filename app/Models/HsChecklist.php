@@ -13,7 +13,7 @@ class HsChecklist extends Model
         'title',
         'slug',
         'short_details',
-        'has_attributes',
+        'type',
         'status',
     ];
     public function getSlugOptions(): SlugOptions

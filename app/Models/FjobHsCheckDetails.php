@@ -12,7 +12,7 @@ class FjobHsCheckDetails extends Model
         'fjob_hs_check_id',
         'hs_checklist_id',
         'hs_checklist_title',
-        'is_checked',
+        'value',
         'remarks',
     ];
 

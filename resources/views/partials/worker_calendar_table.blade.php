@@ -45,7 +45,12 @@
                                     @endphp
 
                                     <div class="mb-1">
-                                        <button type="button" class="btn btn-sm btn-primary w-100 text-start"
+                                        <button type="button"
+                                            class="btn btn-sm w-100 text-start
+                                                @if ($jobSchedule->status == 'completed') btn-dark
+                                                @elseif ($jobSchedule->status == 'inprogress') btn-success
+                                                @elseif ($jobSchedule->status == 'cancelled') btn-danger
+                                                @else btn-primary @endif"
                                             data-bs-toggle="modal" data-bs-target="#scheduleUpdateModal"
                                             data-id="{{ $jobSchedule->id }}">
                                             {{ $jobSchedule->job_name }} - {{ $jobSchedule->job_title }}
@@ -107,6 +112,14 @@
                                 <input type="hidden" name="instructions" id="instructionu_input">
                             </div>
                         </div>
+                        <div class="row g-4">
+                            <div class="col mb-0">
+                                <label for="status" class="form-label">Status</label>
+                                <select id="status" name="status" class="form-select">
+                                    
+                                </select>
+                            </div>
+                        </div>
                     </div>
                     <div class="col">
                         <div class="row">
@@ -137,7 +150,6 @@
                                     </div>
                                 </div>
                                 <p><strong>Description:</strong> <span id="jobDescription"></span></p>
-
                             </div>
                         </div>
                     </div>
@@ -198,8 +210,9 @@
                 const instructionInput = modal.querySelector('#instructionu_input');
                 const jobScheduleIdInput = modal.querySelector('#jobScheduleId');
                 const workerSelectEl = modal.querySelector('#upSelect2Info');
+                const statusSelectEl = modal.querySelector('#status');
 
-                if (!jobNameInput || !flatpickrInput || !instructionInput || !workerSelectEl) {
+                if (!jobNameInput || !flatpickrInput || !instructionInput || !workerSelectEl || !statusSelectEl) {
                     console.error('Missing fields in modal.');
                     return;
                 }
@@ -238,6 +251,19 @@
                             workerSelectEl.appendChild(option);
                         });
                         $(workerSelectEl).trigger('change');
+
+                        // 🔄 Populate Status Option
+                        const statusOptions = ['assigned', 'inprogress', 'completed', 'cancelled'];
+                        statusSelectEl.innerHTML = '';
+                        statusOptions.forEach(status => {
+                            const option = document.createElement('option');
+                            option.value = status;
+                            option.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+                            if (schedule.status === status) {
+                                option.selected = true;
+                            }
+                            statusSelectEl.appendChild(option);
+                        });
 
                         // 🆔 Set Schedule ID
                         jobScheduleIdInput.value = schedule.id;

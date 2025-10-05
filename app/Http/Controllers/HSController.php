@@ -35,11 +35,13 @@ class HSController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'short_details' => 'nullable|string',
+            'type' => 'required|string|max:255',
         ]);
 
         HsChecklist::create([
             'title' => $request->title,
             'short_details' => $request->short_details,
+            'type' => $request->type,
             'status' => true
         ]);
 
@@ -57,6 +59,7 @@ class HSController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'short_details' => 'nullable|string',
+            'type' => 'required|string|max:255',
             'status' => 'sometimes|boolean',
         ]);
 
@@ -64,6 +67,7 @@ class HSController extends Controller
         $checklist->update([
             'title' => $request->title,
             'short_details' => $request->short_details,
+            'type' => $request->type,
             'status' => $request->has('status')
         ]);
 
@@ -98,7 +102,7 @@ class HSController extends Controller
                 })
                 ->addColumn('action', function ($row) {
                     return '
-                <a href="/job/' . $row->id . '" class="edit btn btn-primary btn-sm">Details</a>
+                <a href="/fjob-hs-check/' . $row->id . '" class="edit btn btn-primary btn-sm">Details</a>
             ';
                 })
                 ->rawColumns(['action'])
@@ -134,7 +138,7 @@ class HSController extends Controller
         $fjobcheck = FjobHsCheck::create([
             'fjob_id' => $fjob->id,
             'job_title' => $fjob->job_title,
-            'hs_check_title' => $request->title ?? null,
+            'hs_check_title' => $request->hs_check_title ?? null,
             'checked_by_user' => auth()->user()->id,
             'status' => 'completed'
         ]);
@@ -145,7 +149,7 @@ class HSController extends Controller
                 'fjob_hs_check_id' => $fjobcheck->id,
                 'hs_checklist_id' => $checklistId,
                 'hs_checklist_title' => $hschecklist->title,
-                'is_checked' => $data['status'],
+                'value' => $data['value'],
                 'remarks' => $data['note'] ?? null,
             ]);
         }
@@ -155,7 +159,42 @@ class HSController extends Controller
 
     public function showFjobHsCheck($id)
     {
+        $jobs = Fjob::all();
+        $checklists = HsChecklist::where('status', true)->get();
         $fjobcheck = FjobHsCheck::with('checklist')->findOrFail($id);
-        return view('health_safety.jobchecklist_show', compact('fjobcheck'));
+        return view('health_safety.jobchecklist_show', compact('fjobcheck', 'jobs', 'checklists'));
+    }
+
+    public function updateFjobHsCheck(Request $request, $id)
+    {
+        $request->validate([
+            'hs_check_title' => 'required|string|max:255',
+            'checklist' => 'required|array',
+            'checklist.*.status' => 'required|in:0,1,2',
+            'checklist.*.note' => 'nullable|string|max:255',
+        ]);
+
+        $fjobcheck = FjobHsCheck::findOrFail($id);
+        $fjobcheck->update([
+            'hs_check_title' => $request->hs_check_title ?? null,
+        ]);
+
+        // Update or create checklist details
+        foreach ($request->checklist as $checklistId => $data) {
+            $hschecklist = HsChecklist::findOrFail($checklistId);
+            FjobHsCheckDetails::updateOrCreate(
+                [
+                    'fjob_hs_check_id' => $fjobcheck->id,
+                    'hs_checklist_id' => $checklistId,
+                ],
+                [
+                    'hs_checklist_title' => $hschecklist->title,
+                    'value' => $data['status'],
+                    'remarks' => $data['note'] ?? null,
+                ]
+            );
+        }
+
+        return redirect()->route('fjob-hs-check.show', $fjobcheck->id)->with('success', 'Field Job Health & Safety Checklist updated successfully.');
     }
 }

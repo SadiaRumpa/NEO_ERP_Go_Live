@@ -15,6 +15,7 @@ use App\Http\Controllers\FjobController;
 use App\Http\Controllers\FjobProgressController;
 use App\Http\Controllers\GlobalController;
 use App\Http\Controllers\HSController;
+use App\Http\Controllers\HsToolController;
 use App\Http\Controllers\JobAttributeController;
 use App\Http\Controllers\JobTypeController;
 use App\Http\Controllers\LeadController;
@@ -248,6 +249,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('job-overviews', [FjobProgressController::class, 'index'])->name('job-overviews.index');
     Route::post('job-overviews/store', [FjobProgressController::class, 'store'])->name('job-overviews.store');
     Route::get('job-overviews/show/{jobprogress_id}', [FjobProgressController::class, 'jobOverviewsShow'])->name('job-overviews.show');
+    Route::get('jobprogress/{id}/export-gantt', [FjobProgressController::class, 'exportGantt'])->name('job-overviews.export-gantt');
 
     Route::post('job-overviews/store-task', [FjobProgressController::class, 'storeTask'])->name('job-overviews.store-task');
     Route::get('job-overviews/show-task/{task_id}', [FjobProgressController::class, 'showTask'])->name('job-overviews.show-task');
@@ -265,5 +267,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('fjob-hs-check/create', [HSController::class, 'createFjobCheck'])->name('fjob-hs-check.create');
     Route::post('fjob-hs-check/store', [HSController::class, 'storeFjobHsCheck'])->name('fjob-hs-check.store');
     Route::get('fjob-hs-check/{id}', [HSController::class, 'showFjobHsCheck'])->name('fjob-hs-check.show');
+    Route::put('fjob-hs-check/{id}/update', [HSController::class, 'updateFjobHsCheck'])->name('fjob-hs-check.update');
 
+    Route::get('hs-tools', [HsToolController::class, 'indexHsTools'])->name('hs-tools.index');
+    Route::post('hs-tools/store', [HsToolController::class, 'storeHsTools'])->name('hs-tools.store');
+    Route::put('hs-tools/{id}/update', [HsToolController::class, 'updateHsTools'])->name('hs-tools.update');
+    Route::get('hs-tools/{id}', [HsToolController::class, 'showHsTools'])->name('hs-tools.show');
+    Route::get('hs-tools/{id}/checkup', [HsToolController::class, 'createHsToolsCheck'])->name('hs-tools.createcheck');
+    Route::post('hs-tools/{id}/checkup', [HsToolController::class, 'storeHsToolsCheck'])->name('hs-tools.storecheck');
+    Route::get('hs-tools/{id}/checkup/{checkup_id}', [HsToolController::class, 'showHsToolsCheck'])->name('hs-tools.showcheck');
+    Route::put('hs-tools/{checkup_id}/checkupdate', [HsToolController::class, 'updateHsToolsCheck'])->name('hs-tools.updatecheck');
+    Route::delete('hs-tools/{id}', [HsToolController::class, 'destroyHsTools'])->name('hs-tools.destroy');
 });

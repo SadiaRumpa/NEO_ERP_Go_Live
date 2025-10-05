@@ -259,6 +259,12 @@
                     @endforeach
                 </ul>
             </li>
+            <li class="menu-item {{ request()->is('hs-tools') || request()->is('hs-tools/*') ? 'active' : '' }}">
+                <a href="{{ url('hs-tools') }}" class="menu-link">
+                    <i class="menu-icon icon-base ti tabler-tool"></i>
+                    <div data-i18n="Staff Training">HS Tools</div>
+                </a>
+            </li>
             <li
                 class="menu-item {{ request()->is('stuff_trainings') || request()->is('stuff_trainings/*') ? 'active open' : '' }}">
                 <a href="{{ url('stuff_trainings') }}" class="menu-link menu-toggle">
@@ -280,24 +286,12 @@
 
                 </ul>
             </li>
-            <li class="menu-item {{ request()->is('hs_tools') || request()->is('hs_tools/*') ? 'active' : '' }}">
-                <a href="{{ url('hs_tools') }}" class="menu-link">
-                    <i class="menu-icon icon-base ti tabler-tool"></i>
-                    <div data-i18n="Staff Training">HS Tools</div>
-                </a>
-            </li>
-            <li class="menu-item {{ request()->is('hs_ppe') || request()->is('hs_ppe/*') ? 'active' : '' }}">
-                <a href="{{ url('hs_ppe') }}" class="menu-link">
-                    <i class="menu-icon icon-base ti tabler-shield-check"></i>
-                    <div data-i18n="PPE">PPE</div>
-                </a>
-            </li>
 
             <li
                 class="menu-item {{ request()->is('hs-checklists') || request()->is('hs-checklists/*') ? 'active' : '' }}">
                 <a href="{{ url('hs-checklists') }}" class="menu-link">
                     <i class="menu-icon icon-base ti tabler-checkup-list"></i>
-                    <div data-i18n="Health & Safety Checklists">Health & Safety Checklists</div>
+                    <div data-i18n="Health & Safety Checklists">H&S Checklists</div>
                 </a>
             </li>
         @endhasrole

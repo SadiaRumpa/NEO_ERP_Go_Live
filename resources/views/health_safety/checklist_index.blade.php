@@ -34,8 +34,8 @@
                         name: 'short_details',
                     },
                     {
-                        data: 'has_attributes',
-                        name: 'has_attributes',
+                        data: 'type',
+                        name: 'type',
                     },
                     {
                         data: 'action',
@@ -108,6 +108,16 @@
                                                     placeholder="Enter short description here..."></textarea>
                                             </div>
                                         </div>
+                                        <div class="row">
+                                            <div class="col mb-4">
+                                                <label class="form-label" for="type">Type</label>
+                                                <select id="type" class="form-select" name="type" required>
+                                                    <option value="">Select Type</option>
+                                                    <option value="jobs">For Jobs</option>
+                                                    <option value="equipments">For Equipments</option>
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">
@@ -133,7 +143,7 @@
                             <th>ID</th>
                             <th>TITLE</th>
                             <th width="20%">SHORT DESC.</th>
-                            <th>HAS ATTRIBUTES</th>
+                            <th>TYPE</th>
                             <th>ACTION</th>
                         </tr>
                     </thead>

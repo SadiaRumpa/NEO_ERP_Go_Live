@@ -28,6 +28,16 @@
                     {
                         data: 'job_title',
                         name: 'job_title',
+                        render: function(data, type, row) {
+                            let html = '';
+                            if (row.fjob && row.fjob.job_type) {
+                                html += ' <span class="badge rounded-pill bg-info text-dark" style="font-size: 0.8em;">' + row.fjob.job_type + '</span><br/>';
+                            }
+                            if (row.job_title) {
+                                html += row.job_title;
+                            }
+                            return html;
+                        }
                     },
                     {
                         data: 'customer',
@@ -108,7 +118,7 @@
                 <table class="datatables-ajax table table-bordered">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th width="5%">ID</th>
                             <th>JOB TITLE</th>
                             <th>COMPANY INFO</th>
                             <th>PROGRESS</th>

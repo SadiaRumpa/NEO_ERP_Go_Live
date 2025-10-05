@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('trainings', function (Blueprint $table) {
+        Schema::create('hs_tool_check_details', function (Blueprint $table) {
             $table->id();
-            $table->string('training_name');
-            $table->text('short_details')->nullable();
-            $table->boolean('status');
+            $table->integer('hs_tool_checkup_id');
+            $table->integer('hs_checklist_id');
+            $table->string('hs_checklist_title')->nullable();
+            $table->integer('value')->default(0);
+            $table->text('remarks')->nullable();
             $table->timestamps();
         });
     }
@@ -25,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('trainings');
+        Schema::dropIfExists('hs_tool_check_details');
     }
 };

@@ -12,12 +12,14 @@ class FjobHsCheck extends Model
         'job_title',
         'hs_check_title',
         'checked_by_user',
+        'check_date',
+        'remarks',
         'status',
     ];
 
     public function checklist()
     {
-        return $this->belongsTo(HsChecklist::class, 'hs_checklist_id');
+        return $this->hasMany(FjobHsCheckDetails::class, 'fjob_hs_check_id');
     }
 
     public function job()

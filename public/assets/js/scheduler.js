@@ -1,7 +1,15 @@
 $(function () {
-    $('#scheduleModal, #fakeScheduleModal', 'scheduleUpdateModal').on('shown.bs.modal', function () {
+    // Select2 in Modals
+    $('#scheduleModal').on('shown.bs.modal', function () {
         $(this).find('.select2').select2({
-            dropdownParent: $(this)
+            dropdownParent: $('#scheduleModal')
+        });
+    });
+
+    // If you have a fake modal as well:
+    $('#fakeScheduleModal').on('shown.bs.modal', function () {
+        $(this).find('.select2').select2({
+            dropdownParent: $('#fakeScheduleModal')
         });
     });
 
@@ -109,6 +117,8 @@ $(function () {
             }
         });
     });
+
+
 
     // AJAX Month Filters
     $('#realMonthFilterForm').on('submit', function (e) {

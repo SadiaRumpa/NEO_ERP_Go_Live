@@ -41,82 +41,71 @@
                         <div class="d-flex flex-column justify-content-center">
                             <span class="h4">
                                 ENQUIRY #<span class="badge bg-label-success me-1 ms-2">{{ $enquiry->enquiry_name }}</span>
-
-                                @hasrole(['lead-manager', 'enquiry-manager'])
-                                    <div class="btn-group">
-                                        @php
-                                            $status = $enquiry->enquiry_status;
-                                            $labelClass = match ($status) {
-                                                'new' => 'primary',
-                                                'inprogress' => 'dark',
-                                                'on_hold' => 'warning',
-                                                'converted_to_lead' => 'success',
-                                                'rejected', 'archived' => 'danger',
-                                                default => 'secondary',
-                                            };
-                                        @endphp
-
-                                        <button type="button" class="btn btn-label-{{ $labelClass }} waves-effect">
-                                            {{ beautify_status($status) }}
-                                        </button>
-
-                                        @if (!in_array($status, ['converted_to_lead', 'rejected']))
-                                            <button type="button"
-                                                class="btn btn-label-{{ $labelClass }} dropdown-toggle dropdown-toggle-split waves-effect"
-                                                data-bs-toggle="dropdown" aria-expanded="false">
-                                                <span class="visually-hidden">Toggle Dropdown</span>
-                                            </button>
-
-                                            <ul class="dropdown-menu">
-                                                <li>
-                                                    <a class="dropdown-item waves-effect update-enquiry-status" href="#"
-                                                        data-status="inprogress" data-id="{{ $enquiry->id }}">
-                                                        In Progress
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a class="dropdown-item waves-effect update-enquiry-status" href="#"
-                                                        data-status="on_hold" data-id="{{ $enquiry->id }}">
-                                                        On Hold
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a class="dropdown-item waves-effect update-enquiry-status" href="#"
-                                                        data-status="archived" data-id="{{ $enquiry->id }}">
-                                                        Archived
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                        @endif
-                                    </div>
-
-                                    @if (!in_array($status, ['converted_to_lead', 'rejected', 'archived']))
-                                        <button class="btn btn-label-success convert-to-lead-btn ms-2"
-                                            data-id="{{ $enquiry->id }}" data-status="converted_to_lead">
-                                            SEND LEAD MANAGER
-                                        </button>
-                                    @endif
-                                @else
-                                    <span class="badge bg-label-primary me-1 ms-2">
-                                        {{ beautify_status($enquiry->enquiry_status) }}
-                                    </span>
-                                @endhasrole
                             </span>
                         </div>
 
                         @if ($enquiry->enquiry_status == 'new' || $enquiry->enquiry_status == 'inprogress')
                             <div class="d-flex align-content-center flex-wrap gap-4">
                                 <div class="d-flex gap-4">
-                                    <button type="button" class="btn btn-danger waves-effect waves-light"
-                                        data-bs-toggle="modal" data-bs-target="#rejectEnquiryModal">
-                                        REJECT ENQUIRY
-                                    </button>
+                                    @hasrole(['lead-manager', 'enquiry-manager'])
+                                        <div class="btn-group">
+                                            @php
+                                                $status = $enquiry->enquiry_status;
+                                                $labelClass = match ($status) {
+                                                    'new' => 'primary',
+                                                    'inprogress' => 'dark',
+                                                    'converted_to_lead' => 'success',
+                                                    'rejected', 'archived' => 'danger',
+                                                    default => 'secondary',
+                                                };
+                                            @endphp
+
+                                            <button type="button" class="btn btn-label-{{ $labelClass }} waves-effect">
+                                                {{ beautify_status($status) }}
+                                            </button>
+
+                                            @if (!in_array($status, ['converted_to_lead', 'rejected']))
+                                                <button type="button"
+                                                    class="btn btn-label-{{ $labelClass }} dropdown-toggle dropdown-toggle-split waves-effect"
+                                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <span class="visually-hidden">Toggle Dropdown</span>
+                                                </button>
+
+                                                <ul class="dropdown-menu">
+                                                    <li>
+                                                        <a class="dropdown-item waves-effect update-enquiry-status"
+                                                            href="#" data-status="inprogress"
+                                                            data-id="{{ $enquiry->id }}">
+                                                            MARK AS IN PROGRESS
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item waves-effect" data-bs-toggle="modal"
+                                                            data-bs-target="#rejectEnquiryModal" href="#"
+                                                            data-status="reject_enquiry" data-id="{{ $enquiry->id }}">
+                                                            REJECT ENQUIRY
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item waves-effect convert-to-lead" href="#"
+                                                            data-status="converted_to_lead" data-id="{{ $enquiry->id }}">
+                                                            SEND to ESTIMATOR
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            @endif
+                                        </div>
+                                    @else
+                                        <span class="badge bg-label-primary me-1 ms-2">
+                                            {{ beautify_status($enquiry->enquiry_status) }}
+                                        </span>
+                                    @endhasrole
+
                                 </div>
                             </div>
                         @endif
                     </div>
                     <div class="card-body pt-6">
-
                         <!-- Reject mail Modal -->
                         <div class="modal-onboarding modal fade animate__animated" id="rejectEnquiryModal" tabindex="-1">
                             <div class="modal-dialog" role="document">
@@ -162,9 +151,8 @@
                                                             </div>
                                                             <div class="mb-4">
                                                                 <label for="mailsubject" class="form-label">Subject</label>
-                                                                <input class="form-control" type="text"
-                                                                    id="mailsubject" aria-label="readonly input example"
-                                                                    name="mailsubject"
+                                                                <input class="form-control" type="text" id="mailsubject"
+                                                                    aria-label="readonly input example" name="mailsubject"
                                                                     value="Enquiry {{ $enquiry->enquiry_name }} has been rejected">
                                                             </div>
                                                             <div class="form-control p-0">
@@ -799,6 +787,120 @@
                                         </div>
                                     </div>
                                 </div>
+                                <!-- Enquiry Other Info -->
+                                <div class="row mb-6 gy-6">
+                                    <div class="col-xl">
+                                        <div class="card">
+                                            <div class="card-header d-flex justify-content-between align-items-center">
+                                                <h5 class="mb-0">Other Information</h5>
+                                                <small class="text-body-secondary float-end">(optional)</small>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="mb-6">
+                                                    <label class="form-check-label">Roofing</label>
+                                                    <div class="col mt-2">
+                                                        <div class="form-check form-check-inline">
+                                                            <input name="roofing_type[]" class="form-check-input"
+                                                                type="checkbox" value="roofing_repairs"
+                                                                id="roofing_repairs" />
+                                                            <label class="form-check-label"
+                                                                for="roofing_repairs">Repairs</label>
+                                                        </div>
+                                                        <div class="form-check form-check-inline">
+                                                            <input name="roofing_type[]" class="form-check-input"
+                                                                type="checkbox" value="roofing_overclad"
+                                                                id="roofing_overclad" />
+                                                            <label class="form-check-label"
+                                                                for="roofing_overclad">Overclad</label>
+                                                        </div>
+                                                        <div class="form-check form-check-inline">
+                                                            <input name="roofing_type[]" class="form-check-input"
+                                                                type="checkbox" value="roofing_large_works"
+                                                                id="roofing_large_works" />
+                                                            <label class="form-check-label"
+                                                                for="roofing_large_works">Large Works</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-6">
+                                                    <label class="form-check-label">Annual Maintenance</label>
+                                                    <div class="col mt-2">
+                                                        <div class="form-check form-check-inline">
+                                                            <input name="annual_maintenance" class="form-check-input"
+                                                                type="checkbox" value="annual_maintenance"
+                                                                id="annual_maintenance_yes" />
+                                                            <label class="form-check-label"
+                                                                for="annual_maintenance_yes">Yes</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-6">
+                                                    <label class="form-check-label">Safety</label>
+                                                    <div class="col mt-2">
+                                                        <div class="form-check form-check-inline">
+                                                            <input name="safety_type[]" class="form-check-input"
+                                                                type="checkbox" value="install" id="safety_install" />
+                                                            <label class="form-check-label"
+                                                                for="safety_install">Install</label>
+                                                        </div>
+                                                        <div class="form-check form-check-inline">
+                                                            <input name="safety_type[]" class="form-check-input"
+                                                                type="checkbox" value="safety_repairs"
+                                                                id="safety_repairs" />
+                                                            <label class="form-check-label"
+                                                                for="safety_repairs">Repairs</label>
+                                                        </div>
+                                                        <div class="form-check form-check-inline">
+                                                            <input name="safety_type[]" class="form-check-input"
+                                                                type="checkbox" value="safety_testing"
+                                                                id="safety_testing" />
+                                                            <label class="form-check-label"
+                                                                for="safety_testing">Testing</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="mb-6">
+                                                    <label class="form-check-label">Priority</label>
+                                                    <div class="col mt-2">
+                                                        <div class="form-check form-check-inline">
+                                                            <input name="collapsible-enquiry-priotiry"
+                                                                class="form-check-input" type="radio" value="low"
+                                                                id="collapsible-enquiry-priotiry-low" checked="" />
+                                                            <label class="form-check-label"
+                                                                for="collapsible-enquiry-priotiry-low"> Low </label>
+                                                        </div>
+                                                        <div class="form-check form-check-inline">
+                                                            <input name="collapsible-enquiry-priotiry"
+                                                                class="form-check-input" type="radio" value="medium"
+                                                                id="collapsible-enquiry-priotiry-medium" />
+                                                            <label class="form-check-label"
+                                                                for="collapsible-enquiry-priotiry-medium">Medium</label>
+                                                        </div>
+                                                        <div class="form-check form-check-inline">
+                                                            <input name="collapsible-enquiry-priotiry"
+                                                                class="form-check-input" type="radio" value="high"
+                                                                id="collapsible-enquiry-priotiry-high" />
+                                                            <label class="form-check-label"
+                                                                for="collapsible-enquiry-priotiry-high">
+                                                                High
+                                                            </label>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-12 mb-6">
+                                                    <label class="form-label" for="collapsible-source">Source</label>
+                                                    <textarea name="enquiry_source" class="form-control" id="collapsible-source" rows="2"
+                                                        placeholder="https://roofcoatingindustrial.co.uk/"></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <!-- /Enquiry Other Info -->
                             </div>
                         </div>
                         <!-- Customar Financial Modal -->

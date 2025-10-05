@@ -21,6 +21,10 @@ class FjobProgress extends Model
     ];
 
     // Relationships
+    public function fjob()
+    {
+        return $this->belongsTo(Fjob::class, 'fjob_id');
+    }
     public function tasks()
     {
         return $this->hasMany(FjobProgressTask::class, 'fjob_progress_id');

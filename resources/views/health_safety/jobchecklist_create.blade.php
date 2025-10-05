@@ -85,7 +85,7 @@
                                                 </div>
 
                                                 <div class="col-md-6">
-                                                    <label class="form-label" for="Notes">Title</label>
+                                                    <label class="form-label" for="title">Title</label>
                                                     <input type="text" class="form-control" id="title"
                                                         name="hs_check_title" placeholder="Title"
                                                         value="{{ old('hs_check_title') }}" />

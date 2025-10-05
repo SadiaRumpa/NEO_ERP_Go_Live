@@ -241,7 +241,7 @@
                                     <!-- Enquiry Information -->
                                     <div class="card mb-6">
                                         <div class="card-header">
-                                            <h5 class="card-tile mb-0">Enquiry information*</h5>
+                                            <h5 class="card-tile mb-0">Access Details / Requirements*</h5>
                                         </div>
                                         <div class="card-body">
                                             <!-- Description -->
@@ -358,89 +358,46 @@
                                                     <small class="text-body-secondary float-end">(optional)</small>
                                                 </div>
                                                 <div class="card-body">
-
                                                     <div class="mb-6">
-                                                        <label class="form-check-label">Enquiry Type</label>
+                                                        <label class="form-check-label">Roofing</label>
                                                         <div class="col mt-2">
                                                             <div class="form-check form-check-inline">
-                                                                <input name="collapsible-enquiry-type"
-                                                                    class="form-check-input" type="radio"
-                                                                    value="general" id="collapsible-enquiry-type-general"
-                                                                    checked="" />
-                                                                <label class="form-check-label"
-                                                                    for="collapsible-enquiry-type-general">General</label>
+                                                                <input name="roofing_type[]" class="form-check-input" type="checkbox" value="roofing_repairs" id="roofing_repairs" />
+                                                                <label class="form-check-label" for="roofing_repairs">Repairs</label>
                                                             </div>
                                                             <div class="form-check form-check-inline">
-                                                                <input name="collapsible-enquiry-type"
-                                                                    class="form-check-input" type="radio"
-                                                                    value="sales" id="collapsible-enquiry-type-sales" />
-                                                                <label class="form-check-label"
-                                                                    for="collapsible-enquiry-type-sales">
-                                                                    Sales
-                                                                </label>
+                                                                <input name="roofing_type[]" class="form-check-input" type="checkbox" value="roofing_overclad" id="roofing_overclad" />
+                                                                <label class="form-check-label" for="roofing_overclad">Overclad</label>
                                                             </div>
                                                             <div class="form-check form-check-inline">
-                                                                <input name="collapsible-enquiry-type"
-                                                                    class="form-check-input" type="radio"
-                                                                    value="support"
-                                                                    id="collapsible-enquiry-type-support" />
-                                                                <label class="form-check-label"
-                                                                    for="collapsible-enquiry-type-support">
-                                                                    Support
-                                                                </label>
-                                                            </div>
-                                                            <div class="form-check form-check-inline">
-                                                                <input name="collapsible-enquiry-type"
-                                                                    class="form-check-input" type="radio"
-                                                                    value="technical"
-                                                                    id="collapsible-enquiry-type-technical" />
-                                                                <label class="form-check-label"
-                                                                    for="collapsible-enquiry-type-technical">
-                                                                    Technical
-                                                                </label>
+                                                                <input name="roofing_type[]" class="form-check-input" type="checkbox" value="roofing_large_works" id="roofing_large_works" />
+                                                                <label class="form-check-label" for="roofing_large_works">Large Works</label>
                                                             </div>
                                                         </div>
                                                     </div>
-
                                                     <div class="mb-6">
-                                                        <label class="form-check-label">Enquiry Category</label>
+                                                        <label class="form-check-label">Annual Maintenance</label>
                                                         <div class="col mt-2">
                                                             <div class="form-check form-check-inline">
-                                                                <input name="collapsible-enquiry-category"
-                                                                    class="form-check-input" type="radio"
-                                                                    value="query" id="collapsible-enquiry-category-query"
-                                                                    checked="" />
-                                                                <label class="form-check-label"
-                                                                    for="collapsible-enquiry-category-query"> Query
-                                                                </label>
+                                                                <input name="annual_maintenance" class="form-check-input" type="checkbox" value="annual_maintenance" id="annual_maintenance_yes" />
+                                                                <label class="form-check-label" for="annual_maintenance_yes">Yes</label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mb-6">
+                                                        <label class="form-check-label">Safety</label>
+                                                        <div class="col mt-2">
+                                                            <div class="form-check form-check-inline">
+                                                                <input name="safety_type[]" class="form-check-input" type="checkbox" value="install" id="safety_install" />
+                                                                <label class="form-check-label" for="safety_install">Install</label>
                                                             </div>
                                                             <div class="form-check form-check-inline">
-                                                                <input name="collapsible-enquiry-category"
-                                                                    class="form-check-input" type="radio"
-                                                                    value="complaint"
-                                                                    id="collapsible-enquiry-category-complaint" />
-                                                                <label class="form-check-label"
-                                                                    for="collapsible-enquiry-category-complaint">Complaint</label>
+                                                                <input name="safety_type[]" class="form-check-input" type="checkbox" value="safety_repairs" id="safety_repairs" />
+                                                                <label class="form-check-label" for="safety_repairs">Repairs</label>
                                                             </div>
                                                             <div class="form-check form-check-inline">
-                                                                <input name="collapsible-enquiry-category"
-                                                                    class="form-check-input" type="radio"
-                                                                    value="request"
-                                                                    id="collapsible-enquiry-category-request" />
-                                                                <label class="form-check-label"
-                                                                    for="collapsible-enquiry-category-request">
-                                                                    Request
-                                                                </label>
-                                                            </div>
-                                                            <div class="form-check form-check-inline">
-                                                                <input name="collapsible-enquiry-category"
-                                                                    class="form-check-input" type="radio"
-                                                                    value="feedback"
-                                                                    id="collapsible-enquiry-category-feedback" />
-                                                                <label class="form-check-label"
-                                                                    for="collapsible-enquiry-category-feedback">
-                                                                    Feedback
-                                                                </label>
+                                                                <input name="safety_type[]" class="form-check-input" type="checkbox" value="safety_testing" id="safety_testing" />
+                                                                <label class="form-check-label" for="safety_testing">Testing</label>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -494,7 +451,7 @@
                                         <div class="col-xl">
                                             <div class="card">
                                                 <div class="card-header d-flex justify-content-between align-items-center">
-                                                    <h5 class="mb-0">Notes</h5>
+                                                    <h5 class="mb-0">Internal Notes</h5>
                                                     <small class="text-body-secondary float-end">(optional)</small>
                                                 </div>
                                                 <div class="card-body">

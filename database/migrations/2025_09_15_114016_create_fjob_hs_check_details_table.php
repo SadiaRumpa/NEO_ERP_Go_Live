@@ -16,7 +16,7 @@ return new class extends Migration
             $table->integer('fjob_hs_check_id');
             $table->integer('hs_checklist_id');
             $table->string('hs_checklist_title')->nullable();
-            $table->boolean('is_checked')->default(false);
+            $table->integer('value')->default(0);
             $table->text('remarks')->nullable();
             $table->timestamps();
         });
