@@ -240,8 +240,7 @@
         @hasanyrole('health-safety-manager')
             @php
                 $currentJobtype = request()->query('jobtype');
-                $jobtypes = \App\Models\JobType::all();
-
+                $jobtypes = DB::table('job_types')->get();
             @endphp
 
 
