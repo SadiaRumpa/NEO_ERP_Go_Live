@@ -239,8 +239,9 @@
         @endhasrole
         @hasanyrole('health-safety-manager')
             @php
+            use App\Models\Jobtype;
                 $currentJobtype = request()->query('jobtype');
-                $jobtypes = \App\Models\Jobtype::all();
+                $jobtypes = Jobtype::all();
             @endphp
 
             <li
