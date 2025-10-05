@@ -10,6 +10,9 @@ use Spatie\Sluggable\SlugOptions;
 class JobType extends Model
 {
     use HasSlug;
+
+    protected $table = 'job_types';
+    
     protected $fillable = [
         'name',
         'description',
