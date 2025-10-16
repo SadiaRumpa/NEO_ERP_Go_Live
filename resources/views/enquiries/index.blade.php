@@ -123,12 +123,12 @@
             <h4 class="mb-1">Enquiries</h4>
         </div>
         <div class="d-flex align-content-center flex-wrap gap-4">
-            @role('enquiry-manager')
+            @hasanyrole('enquiry-manager|office-manager')
             <a href="{{ url('enquiries/create') }}" class="btn btn-primary">
                 <i class="fa-solid fa-plus me-1_5"></i>
                 New Enquiry
             </a>
-            @endrole
+            @endhasanyrole
             <div class="d-flex gap-4">
                 <a href="{{ route('enquiry.show.rejected') }}" class="btn btn-label-danger" @if(isset($rejected) && $rejected==true) disabled @endif>Rejected</a>
                 <a href="{{ route('enquiry.show.completed') }}" class="btn btn-label-dark" @if(isset($completed) && $completed==true) disabled @endif>Completed</a>
