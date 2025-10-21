@@ -174,7 +174,7 @@ class EnquiryController extends Controller
      */
     public function store(Request $request)
     {
-
+        // return $request->all();
         $validated = $request->validate([
             'customer_id' => 'nullable|exists:customers,id',
             'companyName' => 'required_without:customer_id|nullable|string|max:255',
@@ -189,6 +189,7 @@ class EnquiryController extends Controller
             'enquiry_county' => 'nullable|string|max:255',
             'enquiry_country' => 'nullable|string|max:255',
             'attachments.*' => 'nullable|image|mimes:jpg,jpeg,png|max:10024',
+            'enquiry_priority' => 'nullable|string|in:low,medium,high',
         ]);
 
         DB::beginTransaction();
@@ -233,10 +234,16 @@ class EnquiryController extends Controller
                 'enquiry' => $validated['enquiry'],
                 'enquiry_description' => $validated['enquirydescription'],
                 'enquiry_type' => 'query',
-                'enquiry_source' => $validated['enquiry_source'] ?? 'call',
+                'enquiry_category'     => $request->input('roofing_info') ? implode(',', $request->input('roofing_info')) : null,
+                'annual_maintenance'  => in_array('maintenance', $request->input('annual_maintenance', [])),
+                'installations'       => in_array('install', $request->input('safety', [])),
+                'repairs'             => in_array('repairs', $request->input('safety', [])),
+                'testing'             => in_array('testing', $request->input('safety', [])),
                 'enquiry_status' => 'new',
+                'enquiry_priority' => $validated['enquiry_priority'] ?? 'low',
+                'enquiry_source' => $request->input('enquiry_source') ?? 'call',
             ]);
-
+            
             EnquiryAddress::create([
                 'enquiry_id' => $enquiry->id,
                 'contact_firstname' => $validated['contactPersonFirstName'] ?? $customer->contact_firstname,
@@ -386,7 +393,6 @@ class EnquiryController extends Controller
         return response()->json(['status' => 'error', 'message' => 'Failed to add enquiry image.']);
     }
 
-
     public function destroyEnqueryImage($id)
     {
         $image = EnquiryImage::find($id);
@@ -405,6 +411,31 @@ class EnquiryController extends Controller
         return response()->json(['status' => 'success', 'message' => 'Image deleted successfully.']);
     }
 
+    public function updateEnquiryOtherOptions(Request $request, $id)
+    {
+        $enquiry = Enquiry::find($id);
+        if (!$enquiry) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Enquiry not found.'
+            ]);
+        }
+
+        $enquiry->update([
+            'enquiry_category'     => $request->input('enquiry_info') ? implode(',', $request->input('enquiry_info')) : null,
+            'annual_maintenance'  => $request->input('annual_maintenance') ?? false,
+            'installations'       => in_array('install', $request->input('safety_type', [])),
+            'repairs'             => in_array('repairs', $request->input('safety_type', [])),
+            'testing'             => in_array('testing', $request->input('safety_type', [])),
+            'enquiry_priority' => $request->enquiry_priority ?? 'low',
+            'enquiry_source' => $request->enquiry_source ?? 'call',
+        ]);
+
+        return back()->with([
+            'status' => 'success',
+            'message' => 'Enquiry options updated successfully.'
+        ]);
+    }
 
     public function updateEnquiryDetails(Request $request, $id)
     {
@@ -517,6 +548,10 @@ class EnquiryController extends Controller
             'lead_category' => $enquiry->enquiry_category,
             'lead_priority' => $enquiry->enquiry_priority,
             'lead_status' => 'new',
+            'annual_maintenance'  => $enquiry->annual_maintenance,
+            'installations'       => $enquiry->installations,
+            'repairs'             => $enquiry->repairs,
+            'testing'             => $enquiry->testing
         ]);
 
         LeadAddress::create([

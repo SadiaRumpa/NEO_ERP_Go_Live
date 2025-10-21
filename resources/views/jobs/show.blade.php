@@ -119,7 +119,7 @@
                     </div>
                 </div>
                 
-                @role('job-manager')
+                @hasrole('job-manager', 'office-manager')
                     <div class="d-flex align-content-center flex-wrap gap-4">
                         <!-- Alert message area -->
                         <div id="status-alert" style="display:none;" class="alert mt-2"></div>
@@ -176,7 +176,7 @@
                         </div>
                     </div>
                 @else
-                    @role('accounts-manager')
+                    @hasrole('accounts-manager')
                         <div class="d-flex align-content-center flex-wrap gap-4">
                             <!-- Alert message area -->
                             <div id="status-alert" style="display:none;" class="alert mt-2"></div>
@@ -220,8 +220,8 @@
                         <span class="badge bg-label-primary me-1 ms-2">
                             {{ beautify_status($job->job_status) }}
                         </span>
-                    @endrole
-                @endrole
+                    @endhasrole
+                @endhasrole
 
 
 
@@ -304,7 +304,7 @@
                     <div class="card mb-6">
                         <div class="card-header header-elements">
                             <h5 class="mb-0 me-2">Job Information</h5>
-                            @role('job-manager')
+                            @hasrole('job-manager', 'office-manager')
                                 @if ($job->job_status == 'inprogress')
                                     <div class="card-header-elements ms-auto">
                                         <div class="btn-group">
@@ -315,7 +315,7 @@
                                         </div>
                                     </div>
                                 @endif
-                            @endrole
+                            @endhasrole
                         </div>
                         <div class="card-body">
                             <!-- Description -->
@@ -382,7 +382,7 @@
                             <h5 class="mb-0 me-2">job Images</h5>
 
                             <div class="card-header-elements ms-auto">
-                                @role('job-manager')
+                                @hasrole('job-manager', 'office-manager')
                                     <div class="btn-group">
                                         @if ($job->job_status == 'inprogress')
                                             <!-- Image Modal -->
@@ -393,7 +393,7 @@
                                             <!--/ Image Modal -->
                                         @endif
                                     </div>
-                                @endrole
+                                @endhasrole
                             </div>
                         </div>
                         <div class="card-body">
@@ -403,7 +403,7 @@
                                         @foreach ($job->jobimages as $enim)
                                             <div class="swiper-slide position-relative"
                                                 style="background-image: url({{ $enim->source == 's3' ? $enim->image_url : asset($enim->image_path) }})">
-                                                @role('job-manager')
+                                                @hasrole('job-manager', 'office-manager')
                                                     @if ($job->job_status == 'inprogress')
                                                         <div class="position-absolute top-0 end-0 p-2">
                                                             <button class="btn btn-sm btn-danger delete-image"
@@ -412,7 +412,7 @@
                                                             </button>
                                                         </div>
                                                     @endif
-                                                @endrole
+                                                @endhasrole
                                                 <div
                                                     class="text-white bg-dark bg-opacity-50 p-1 position-absolute bottom-0 w-100 text-center">
                                                     {{ $enim->image_caption }}
@@ -570,7 +570,7 @@
                 <!-- job location column -->
                 <div class="col-12 col-lg-4">
                     <!-- job Attributes -->
-                    @role('job-manager')
+                    @hasrole('job-manager', 'office-manager')
                         <div class="row mb-6 gy-6">
                             <div class="col-xl order-2 order-xl-0">
                                 <div class="card mb-6">
@@ -621,7 +621,7 @@
                                 </div>
                             </div>
                         </div>
-                    @endrole
+                    @endhasrole
                     <!-- job Attributes -->
 
                     <!-- Attachments -->
@@ -774,7 +774,7 @@
                                     <h5 class="mb-0 me-2">Site Location</h5>
 
                                     <div class="card-header-elements ms-auto">
-                                        @role('job-manager')
+                                        @hasrole('job-manager', 'office-manager')
                                             <div class="btn-group">
                                                 @if ($job->job_status == 'inprogress')
                                                     <!-- Edit location -->
@@ -785,7 +785,7 @@
                                                     <!--/ Edit location -->
                                                 @endif
                                             </div>
-                                        @endrole
+                                        @endhasrole
                                     </div>
                                 </div>
                                 <div class="card-body">

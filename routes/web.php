@@ -56,6 +56,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/enquiry/updatedescription/{id}', [EnquiryController::class, 'updateEnquiryDetails'])->name('enquiry.updatedescription');
     Route::post('/enquiry/updateaddress/{id}', [EnquiryController::class, 'updateEnquiryAddress'])->name('enquiry.updateaddress');
     Route::post('/enquiry/updatestatus/{id}', [EnquiryController::class, 'updateEnquiryStatus'])->name('enquiry.updatestatus');
+    Route::post('enquiry/otheroptions/{id}', [EnquiryController::class, 'updateEnquiryOtherOptions'])->name('enquiry.otheroptions');
 
     Route::post('enquiries/add-note/{enquiry_id}', [EnquiryController::class, 'enqueryNotes'])->name('enquiry.add-note');
     Route::delete('enquiries/delete-note/{id}', [EnquiryController::class, 'deleteenqueryNotes'])->name('enquiry.destroynote');
@@ -79,6 +80,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('lead/updatedescription/{id}', [LeadController::class, 'updateLeadDetails'])->name('leads.updatedescription');
     Route::post('/leads/updateaddress/{id}', [LeadController::class, 'updateLeadAddress'])->name('leads.updateaddress');
     Route::post('/leads/updatestatus/{id}', [LeadController::class, 'updateLeadStatus'])->name('leads.updatestatus');
+    Route::post('lead/otheroptions/{id}', [LeadController::class, 'updateLeadOtherOptions'])->name('lead45CVUB.otheroptions');
 
     Route::post('lead-to-job-conversion', [LeadController::class, 'leadtoJobConversion'])->name('lead.jobconversion');
 
@@ -125,6 +127,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('job/updatestatus/{id}', [FjobController::class, 'updateJobStatus'])->name('job.updatestatus');
     Route::post('job/updatetitle/{id}', [FjobController::class, 'updateJobTitle'])->name('job.updatetitle');
     Route::post('job/updatetype/{id}', [FjobController::class, 'updateJobType'])->name('job.updatetype');
+    Route::post('job/otheroptions/{id}', [FjobController::class, 'updateJobOtherOptions'])->name('job.otheroptions');
 
     Route::post('job/add-note/{jobid}', [FjobController::class, 'jobNotes'])->name('job.add-note');
     Route::delete('job/delete-note/{id}', [FjobController::class, 'deleteJobNotes'])->name('job.destroynote');

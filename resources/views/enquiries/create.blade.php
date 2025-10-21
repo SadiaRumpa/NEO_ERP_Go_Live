@@ -222,7 +222,7 @@
                                     <!-- Enquiry -->
                                     <div class="card mb-6">
                                         <div class="card-header">
-                                            <h5 class="card-tile mb-0">Enquiry*</h5>
+                                            <h5 class="card-tile mb-0">Customer Enquiry*</h5>
                                         </div>
                                         <div class="card-body">
                                             <!-- Description -->
@@ -241,7 +241,7 @@
                                     <!-- Enquiry Information -->
                                     <div class="card mb-6">
                                         <div class="card-header">
-                                            <h5 class="card-tile mb-0">Access Details / Requirements*</h5>
+                                            <h5 class="card-tile mb-0">Access Details / Requirements / Enquiry Details</h5>
                                         </div>
                                         <div class="card-body">
                                             <!-- Description -->
@@ -353,94 +353,110 @@
                                     <div class="row mb-6 gy-6">
                                         <div class="col-xl">
                                             <div class="card">
+
                                                 <div class="card-header d-flex justify-content-between align-items-center">
                                                     <h5 class="mb-0">Other Information</h5>
-                                                    <small class="text-body-secondary float-end">(optional)</small>
+                                                    <small class="text-body-secondary float-end">
+                                                        (optional)
+                                                    </small>
                                                 </div>
                                                 <div class="card-body">
-                                                    <div class="mb-6">
-                                                        <label class="form-check-label">Roofing</label>
-                                                        <div class="col mt-2">
-                                                            <div class="form-check form-check-inline">
-                                                                <input name="roofing_type[]" class="form-check-input" type="checkbox" value="roofing_repairs" id="roofing_repairs" />
-                                                                <label class="form-check-label" for="roofing_repairs">Repairs</label>
-                                                            </div>
-                                                            <div class="form-check form-check-inline">
-                                                                <input name="roofing_type[]" class="form-check-input" type="checkbox" value="roofing_overclad" id="roofing_overclad" />
-                                                                <label class="form-check-label" for="roofing_overclad">Overclad</label>
-                                                            </div>
-                                                            <div class="form-check form-check-inline">
-                                                                <input name="roofing_type[]" class="form-check-input" type="checkbox" value="roofing_large_works" id="roofing_large_works" />
-                                                                <label class="form-check-label" for="roofing_large_works">Large Works</label>
-                                                            </div>
+                                                    {{-- Roofing --}}
+                                                    <div class="mb-4">
+                                                        <label class="form-label d-block fw-bold">Roofing</label>
+                                                        <div class="form-check form-check-inline">
+                                                            <input type="checkbox" name="roofing_info[]"
+                                                                id="roofing_info" value="repairs"
+                                                                class="form-check-input">
+                                                            <label class="form-check-label"
+                                                                for="roofing_info">Repairs</label>
                                                         </div>
-                                                    </div>
-                                                    <div class="mb-6">
-                                                        <label class="form-check-label">Annual Maintenance</label>
-                                                        <div class="col mt-2">
-                                                            <div class="form-check form-check-inline">
-                                                                <input name="annual_maintenance" class="form-check-input" type="checkbox" value="annual_maintenance" id="annual_maintenance_yes" />
-                                                                <label class="form-check-label" for="annual_maintenance_yes">Yes</label>
-                                                            </div>
+                                                        <div class="form-check form-check-inline">
+                                                            <input type="checkbox" name="roofing_info[]"
+                                                                id="roofing_overclad" value="overclad"
+                                                                class="form-check-input">
+                                                            <label class="form-check-label"
+                                                                for="roofing_overclad">Overclad</label>
                                                         </div>
-                                                    </div>
-                                                    <div class="mb-6">
-                                                        <label class="form-check-label">Safety</label>
-                                                        <div class="col mt-2">
-                                                            <div class="form-check form-check-inline">
-                                                                <input name="safety_type[]" class="form-check-input" type="checkbox" value="install" id="safety_install" />
-                                                                <label class="form-check-label" for="safety_install">Install</label>
-                                                            </div>
-                                                            <div class="form-check form-check-inline">
-                                                                <input name="safety_type[]" class="form-check-input" type="checkbox" value="safety_repairs" id="safety_repairs" />
-                                                                <label class="form-check-label" for="safety_repairs">Repairs</label>
-                                                            </div>
-                                                            <div class="form-check form-check-inline">
-                                                                <input name="safety_type[]" class="form-check-input" type="checkbox" value="safety_testing" id="safety_testing" />
-                                                                <label class="form-check-label" for="safety_testing">Testing</label>
-                                                            </div>
+                                                        <div class="form-check form-check-inline">
+                                                            <input type="checkbox" name="roofing_info[]"
+                                                                id="roofing_info_large_works" value="large_works"
+                                                                class="form-check-input">
+                                                            <label class="form-check-label"
+                                                                for="roofing_info_large_works">Large Works</label>
                                                         </div>
                                                     </div>
 
-                                                    <div class="mb-6">
-                                                        <label class="form-check-label">Priority</label>
-                                                        <div class="col mt-2">
-                                                            <div class="form-check form-check-inline">
-                                                                <input name="collapsible-enquiry-priotiry"
-                                                                    class="form-check-input" type="radio"
-                                                                    value="low" id="collapsible-enquiry-priotiry-low"
-                                                                    checked="" />
-                                                                <label class="form-check-label"
-                                                                    for="collapsible-enquiry-priotiry-low"> Low </label>
-                                                            </div>
-                                                            <div class="form-check form-check-inline">
-                                                                <input name="collapsible-enquiry-priotiry"
-                                                                    class="form-check-input" type="radio"
-                                                                    value="medium"
-                                                                    id="collapsible-enquiry-priotiry-medium" />
-                                                                <label class="form-check-label"
-                                                                    for="collapsible-enquiry-priotiry-medium">Medium</label>
-                                                            </div>
-                                                            <div class="form-check form-check-inline">
-                                                                <input name="collapsible-enquiry-priotiry"
-                                                                    class="form-check-input" type="radio"
-                                                                    value="high"
-                                                                    id="collapsible-enquiry-priotiry-high" />
-                                                                <label class="form-check-label"
-                                                                    for="collapsible-enquiry-priotiry-high">
-                                                                    High
-                                                                </label>
-                                                            </div>
-
+                                                    {{-- Annual Maintenance --}}
+                                                    <div class="mb-4">
+                                                        <label class="form-label d-block fw-bold">Annual
+                                                            Maintenance</label>
+                                                        <div class="form-check form-check-inline">
+                                                            <input type="checkbox" name="annual_maintenance[]"
+                                                                id="annual_maintenance" value="maintenance"
+                                                                class="form-check-input">
+                                                            <label class="form-check-label"
+                                                                for="annual_maintenance">Yes</label>
                                                         </div>
                                                     </div>
 
-                                                    <div class="col-12 mb-6">
-                                                        <label class="form-label" for="collapsible-source">Source</label>
-                                                        <textarea name="enquiry_source" class="form-control" id="collapsible-source" rows="2"
+                                                    {{-- Safety --}}
+                                                    <div class="mb-4">
+                                                        <label class="form-label d-block fw-bold">Safety</label>
+                                                        <div class="form-check form-check-inline">
+                                                            <input type="checkbox" name="safety[]" id="safety_install"
+                                                                value="install" class="form-check-input">
+                                                            <label class="form-check-label"
+                                                                for="safety_install">Install</label>
+                                                        </div>
+                                                        <div class="form-check form-check-inline">
+                                                            <input type="checkbox" name="safety[]" id="safety_repairs"
+                                                                value="repairs" class="form-check-input">
+                                                            <label class="form-check-label"
+                                                                for="safety_repairs">Repairs</label>
+                                                        </div>
+                                                        <div class="form-check form-check-inline">
+                                                            <input type="checkbox" name="safety[]" id="safety_testing"
+                                                                value="testing" class="form-check-input">
+                                                            <label class="form-check-label"
+                                                                for="safety_testing">Testing</label>
+                                                        </div>
+                                                    </div>
+
+                                                    {{-- Priority --}}
+                                                    <div class="mb-4">
+                                                        <label class="form-label d-block fw-bold">Priority</label>
+                                                        <div class="form-check form-check-inline">
+                                                            <input type="radio" name="enquiry_priority"
+                                                                id="priority_low" value="low" class="form-check-input"
+                                                                checked>
+                                                            <label class="form-check-label" for="priority_low">Low</label>
+                                                        </div>
+                                                        <div class="form-check form-check-inline">
+                                                            <input type="radio" name="enquiry_priority"
+                                                                id="priority_medium" value="medium"
+                                                                class="form-check-input">
+                                                            <label class="form-check-label"
+                                                                for="priority_medium">Medium</label>
+                                                        </div>
+                                                        <div class="form-check form-check-inline">
+                                                            <input type="radio" name="enquiry_priority"
+                                                                id="priority_high" value="high"
+                                                                class="form-check-input">
+                                                            <label class="form-check-label"
+                                                                for="priority_high">High</label>
+                                                        </div>
+                                                    </div>
+
+                                                    {{-- Source --}}
+                                                    <div class="mb-4">
+                                                        <label class="form-label fw-bold"
+                                                            for="enquiry_source">Source</label>
+                                                        <textarea name="enquiry_source" id="enquiry_source" rows="2" class="form-control"
                                                             placeholder="https://roofcoatingindustrial.co.uk/"></textarea>
                                                     </div>
                                                 </div>
+
                                             </div>
                                         </div>
 

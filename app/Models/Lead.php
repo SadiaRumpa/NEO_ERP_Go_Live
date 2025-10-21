@@ -20,6 +20,10 @@ class Lead extends Model
         'lead_category',
         'lead_priority',
         'lead_status',
+        'annual_maintenance',
+        'installations',
+        'repairs',
+        'testing'
     ];
 
     public function getSlugOptions(): SlugOptions

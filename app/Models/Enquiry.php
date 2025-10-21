@@ -21,7 +21,11 @@ class Enquiry extends Model
         'enquiry_status',
         'enquiry_closed_by',
         'enquiry_closed_at',
-        'enquiry_close_reason'
+        'enquiry_close_reason',
+        'annual_maintenance',
+        'installations',
+        'repairs',
+        'testing'
     ];
     public function getSlugOptions() : SlugOptions
     {

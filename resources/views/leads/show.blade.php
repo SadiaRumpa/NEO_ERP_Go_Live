@@ -46,7 +46,7 @@
                 <div class="d-flex flex-column justify-content-center">
                     <span class="h4">
                         LEAD #<span class="badge bg-label-success me-1 ms-2">{{ $lead->lead_name }}</span>
-                        @hasrole('lead-manager')
+                        @hasrole('lead-manager', 'office-manager')
                             @if ($lead->lead_status == 'inprogress')
                                 <a class="btn btn-label-primary ms-2" href="{{ route('quotations.lead', $lead->id) }}">
                                     GENERATE QUOTATION
@@ -58,7 +58,7 @@
 
                     </span>
                 </div>
-                @role('lead-manager')
+                @hasrole('lead-manager', 'office-manager')
 
                     <div class="d-flex align-content-center flex-wrap gap-4">
                         <!-- Alert message area -->
@@ -119,7 +119,7 @@
                         </div>
                     </div>
 
-                @endrole
+                @endhasrole
             </div>
 
             <!-- Reject mail Modal -->
@@ -214,7 +214,7 @@
                     <div class="card mb-6">
                         <div class="card-header header-elements">
                             <h5 class="mb-0 me-2">Lead Information</h5>
-                            @role('lead-manager')
+                            @hasrole('lead-manager', 'office-manager')
                                 @if ($lead->lead_status == 'inprogress')
                                     <div class="card-header-elements ms-auto">
                                         <div class="btn-group">
@@ -225,7 +225,7 @@
                                         </div>
                                     </div>
                                 @endif
-                            @endrole
+                            @endhasrole
                         </div>
                         <div class="card-body">
                             <!-- Description -->
@@ -293,7 +293,7 @@
                             <h5 class="mb-0 me-2">Lead Images</h5>
 
                             <div class="card-header-elements ms-auto">
-                                @role('lead-manager')
+                                @hasrole('lead-manager', 'office-manager')
                                     <div class="btn-group">
                                         @if ($lead->lead_status == 'inprogress')
                                             <!-- Image Modal -->
@@ -304,7 +304,7 @@
                                             <!--/ Image Modal -->
                                         @endif
                                     </div>
-                                @endrole
+                                @endhasrole
                             </div>
                         </div>
                         <div class="card-body">
@@ -314,7 +314,7 @@
                                         @foreach ($lead->leadimages as $enim)
                                             <div class="swiper-slide position-relative"
                                                 style="background-image: url({{ $enim->source == 's3' ? $enim->image_url : asset($enim->image_path) }})">
-                                                @role('lead-manager')
+                                                @hasrole('lead-manager', 'office-manager')
                                                     @if ($lead->lead_status == 'inprogress')
                                                         <div class="position-absolute top-0 end-0 p-2">
                                                             <button class="btn btn-sm btn-danger delete-image"
@@ -324,7 +324,7 @@
                                                             </button>
                                                         </div>
                                                     @endif
-                                                @endrole
+                                                @endhasrole
                                                 <div
                                                     class="text-white bg-dark bg-opacity-50 p-1 position-absolute bottom-0 w-100 text-center">
                                                     {{ $enim->image_caption }}
@@ -635,7 +635,7 @@
                                     <h5 class="mb-0 me-2">Site Location</h5>
 
                                     <div class="card-header-elements ms-auto">
-                                        @role('lead-manager')
+                                        @hasrole('lead-manager', 'office-manager')
                                             <div class="btn-group">
                                                 @if ($lead->lead_status == 'inprogress')
                                                     <!-- Edit location -->
@@ -646,7 +646,7 @@
                                                     <!--/ Edit location -->
                                                 @endif
                                             </div>
-                                        @endrole
+                                        @endhasrole
                                     </div>
                                 </div>
                                 <div class="card-body">
@@ -922,6 +922,119 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- lead Other Info -->
+                    <div class="row mb-6 gy-6">
+                        <div class="col-xl">
+                            <div class="card">
+                                <form method="POST" action="{{ route('lead.otheroptions', $lead->id) }}">
+                                    @csrf
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0">Other Information</h5>
+                                        <small class="text-body-secondary float-end">
+                                            @if ($lead->lead_status == 'inprogress')
+                                                <button type="submit"
+                                                    class="btn btn-primary btn-sm waves-effect waves-light">
+                                                    Update
+                                                </button>
+                                            @endif
+                                        </small>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-6">
+                                            <label class="form-check-label">Roofing</label>
+                                            <div class="col mt-2">
+                                                <div class="form-check form-check-inline">
+                                                    <input name="lead_info[]" class="form-check-input" type="checkbox"
+                                                        value="repairs" id="roofing_repairs"
+                                                        @if (in_array('repairs', explode(',', $lead->lead_category))) checked @endif />
+                                                    <label class="form-check-label" for="roofing_repairs">Repairs</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input name="lead_info[]" class="form-check-input" type="checkbox"
+                                                        value="overclad" id="roofing_overclad"
+                                                        @if (in_array('overclad', explode(',', $lead->lead_category))) checked @endif />
+                                                    <label class="form-check-label"
+                                                        for="roofing_overclad">Overclad</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input name="lead_info[]" class="form-check-input" type="checkbox"
+                                                        value="large_works" id="roofing_large_works"
+                                                        @if (in_array('large_works', explode(',', $lead->lead_category))) checked @endif />
+                                                    <label class="form-check-label" for="roofing_large_works">Large
+                                                        Works</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="mb-6">
+                                            <label class="form-check-label">Annual Maintenance</label>
+                                            <div class="col mt-2">
+                                                <div class="form-check form-check-inline">
+                                                    <input name="annual_maintenance" class="form-check-input"
+                                                        type="checkbox" value="1" id="annual_maintenance_yes"
+                                                        @if ($lead->annual_maintenance == true) checked @endif />
+                                                    <label class="form-check-label"
+                                                        for="annual_maintenance_yes">Yes</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="mb-6">
+                                            <label class="form-check-label">Safety</label>
+                                            <div class="col mt-2">
+                                                <div class="form-check form-check-inline">
+                                                    <input name="safety_type[]" class="form-check-input" type="checkbox"
+                                                        value="install" id="safety_install"
+                                                        @if ($lead->installations == true) checked @endif />
+                                                    <label class="form-check-label" for="safety_install">Install</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input name="safety_type[]" class="form-check-input" type="checkbox"
+                                                        value="repairs" id="safety_repairs"
+                                                        @if ($lead->repairs == true) checked @endif />
+                                                    <label class="form-check-label" for="safety_repairs">Repairs</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input name="safety_type[]" class="form-check-input" type="checkbox"
+                                                        value="testing" id="safety_testing"
+                                                        @if ($lead->testing == true) checked @endif />
+                                                    <label class="form-check-label" for="safety_testing">Testing</label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-6">
+                                            <label class="form-check-label">Priority</label>
+                                            <div class="col mt-2">
+                                                <div class="form-check form-check-inline">
+                                                    <input name="lead_priority" class="form-check-input" type="radio"
+                                                        value="low" id="lead-priority-low"
+                                                        @if ($lead->lead_priority == 'low') checked @endif />
+                                                    <label class="form-check-label" for="lead-priority-low"> Low </label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input name="lead_priority" class="form-check-input" type="radio"
+                                                        value="medium" id="lead-priority-medium"
+                                                        @if ($lead->lead_priority == 'medium') checked @endif />
+                                                    <label class="form-check-label"
+                                                        for="lead-priority-medium">Medium</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input name="lead_priority" class="form-check-input" type="radio"
+                                                        value="high" id="lead-priority-high"
+                                                        @if ($lead->lead_priority == 'high') checked @endif />
+                                                    <label class="form-check-label" for="lead-priority-high">
+                                                        High
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                    </div>
+                    <!-- /lead Other Info -->
 
                 </div>
             </div>

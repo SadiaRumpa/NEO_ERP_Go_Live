@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use App\Models\Enquiry;
 
 if (! function_exists('generateEnquiryName')) {
@@ -17,94 +18,59 @@ if (! function_exists('generateEnquiryName')) {
 if (!function_exists('randomenquiryGenerator')) {
     function randomenquiryGenerator()
     {
-        $date = date('Ymd');
-        $todayCount = Enquiry::whereDate('created_at', now()->toDateString())->count() + 1;
-        $sequence = str_pad($todayCount, 4, '0', STR_PAD_LEFT);
-        return $date . $sequence;
+        do {
+            // Generate a random 5-digit number (from 10000–99999)
+            $randomNumber = 3 . rand(10000, 99999);
+
+            // Check if this number already exists in the 'enquiry_name' column
+            $exists = DB::table('enquiries')->where('slug', $randomNumber)->exists();
+        } while ($exists); // Repeat if the number already exists
+
+        return (string) $randomNumber;
     }
 }
 
-if (! function_exists('lookup_postcode')) {
-    /*
+
+if (!function_exists('lookup_postcode')) {
     function lookup_postcode(string $postcode)
     {
-        $apiKey = config('services.postcode.api_key'); // API key from config
+        $apiKey = config('services.newpostcode.api_key'); // API key from config
         $postcode = strtoupper(str_replace(' ', '', $postcode)); // Normalize postcode
 
         $url = "https://api.easypostcodes.com/addresses/{$postcode}";
 
-        $response = Http::get($url);
+        try {
+            $response = Http::withHeaders([
+                'key' => $apiKey,
+                'Accept' => 'application/json',
+            ])->get($url);
 
-        $data = [
-            'addresses' => [],
-            'post_town' => '',
-        ];
+            $data = [
+                'addresses' => [],
+                'post_town' => '',
+            ];
 
-        if ($response->successful()) {
-            $check = json_decode($response->getBody(), true);
+            if ($response->successful()) {
+                $results = $response->json();
 
-            if (isset($check['error'])) {
-                Log::error('Postcode lookup error: ' . $check['error']['message']);
-                return null;
-            }
-
-            foreach ($check['results'] as $result) {
-                if (isset($result['DPA']['ADDRESS'])) {
-                    $data['addresses'][] = $result['DPA']['ADDRESS'];
-                }
-
-                if (empty($data['post_town']) && isset($result['DPA']['POST_TOWN'])) {
-                    $data['post_town'] = $result['DPA']['POST_TOWN']; // Set once
-                }
-            }
-
-            return $data;
-        } else {
-            throw new Exception('Failed to fetch postcode: ' . $response->body());
-        }
-    }
-    */
-    if (!function_exists('lookup_postcode')) {
-        function lookup_postcode(string $postcode)
-        {
-            $apiKey = config('services.newpostcode.api_key'); // API key from config
-            $postcode = strtoupper(str_replace(' ', '', $postcode)); // Normalize postcode
-
-            $url = "https://api.easypostcodes.com/addresses/{$postcode}";
-
-            try {
-                $response = Http::withHeaders([
-                    'key' => $apiKey,
-                    'Accept' => 'application/json',
-                ])->get($url);
-
-                $data = [
-                    'addresses' => [],
-                    'post_town' => '',
-                ];
-
-                if ($response->successful()) {
-                    $results = $response->json();
-
-                    foreach ($results as $result) {
-                        if (isset($result['envelopeAddress']['summaryLine'])) {
-                            $data['addresses'][] = $result['envelopeAddress']['summaryLine'];
-                        }
-
-                        if (empty($data['post_town']) && isset($result['postTown'])) {
-                            $data['post_town'] = $result['postTown'];
-                        }
+                foreach ($results as $result) {
+                    if (isset($result['envelopeAddress']['summaryLine'])) {
+                        $data['addresses'][] = $result['envelopeAddress']['summaryLine'];
                     }
 
-                    return $data;
-                } else {
-                    Log::error('Postcode API error: ' . $response->body());
-                    return null;
+                    if (empty($data['post_town']) && isset($result['postTown'])) {
+                        $data['post_town'] = $result['postTown'];
+                    }
                 }
-            } catch (\Exception $e) {
-                Log::error('Postcode lookup exception: ' . $e->getMessage());
+
+                return $data;
+            } else {
+                Log::error('Postcode API error: ' . $response->body());
                 return null;
             }
+        } catch (\Exception $e) {
+            Log::error('Postcode lookup exception: ' . $e->getMessage());
+            return null;
         }
     }
 }

@@ -21,7 +21,11 @@ class Fjob extends Model
         'job_status',
         'job_closed_by',
         'job_closed_at',
-        'job_close_reason'
+        'job_close_reason',
+        'annual_maintenance',
+        'installations',
+        'repairs',
+        'testing'
     ];
 
     public function customer()
