@@ -80,7 +80,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('lead/updatedescription/{id}', [LeadController::class, 'updateLeadDetails'])->name('leads.updatedescription');
     Route::post('/leads/updateaddress/{id}', [LeadController::class, 'updateLeadAddress'])->name('leads.updateaddress');
     Route::post('/leads/updatestatus/{id}', [LeadController::class, 'updateLeadStatus'])->name('leads.updatestatus');
-    Route::post('lead/otheroptions/{id}', [LeadController::class, 'updateLeadOtherOptions'])->name('lead45CVUB.otheroptions');
+    Route::post('lead/otheroptions/{id}', [LeadController::class, 'updateLeadOtherOptions'])->name('lead.otheroptions');
 
     Route::post('lead-to-job-conversion', [LeadController::class, 'leadtoJobConversion'])->name('lead.jobconversion');
 

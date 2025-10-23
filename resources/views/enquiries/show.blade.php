@@ -39,28 +39,30 @@
                     <div
                         class="card-header bg-label-primary d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row">
                         <div class="d-flex flex-column justify-content-center">
-                            <span class="h4">
-                                ENQUIRY #<span class="badge bg-label-success me-1 ms-2">{{ $enquiry->enquiry_name }}</span>
+                            <span class="h5 mb-0">
+                                ENQUIRY #<span
+                                    class="badge bg-label-secondary me-1 ms-2">{{ $enquiry->enquiry_name }}</span>
                             </span>
                         </div>
 
-                        @if ($enquiry->enquiry_status == 'new' || $enquiry->enquiry_status == 'inprogress')
+                        @hasrole(['lead-manager', 'enquiry-manager', 'office-manager'])
                             <div class="d-flex align-content-center flex-wrap gap-4">
                                 <div class="d-flex gap-4">
-                                    @hasrole(['lead-manager', 'enquiry-manager', 'office-manager'])
+                                    @if ($enquiry->enquiry_status == 'new' || $enquiry->enquiry_status == 'inprogress')
                                         <div class="btn-group">
                                             @php
                                                 $status = $enquiry->enquiry_status;
                                                 $labelClass = match ($status) {
                                                     'new' => 'primary',
-                                                    'inprogress' => 'dark',
+                                                    'inprogress' => 'warning',
                                                     'converted_to_lead' => 'success',
                                                     'rejected', 'archived' => 'danger',
                                                     default => 'secondary',
                                                 };
                                             @endphp
 
-                                            <button type="button" class="btn btn-label-{{ $labelClass }} waves-effect">
+                                            <button type="button"
+                                                class="btn btn-label-{{ $labelClass }} waves-effect waves-dark">
                                                 {{ beautify_status($status) }}
                                             </button>
 
@@ -72,22 +74,24 @@
                                                 </button>
 
                                                 <ul class="dropdown-menu">
-                                                    <li>
-                                                        <a class="dropdown-item waves-effect update-enquiry-status"
-                                                            href="#" data-status="inprogress"
-                                                            data-id="{{ $enquiry->id }}">
-                                                            MARK AS IN PROGRESS
-                                                        </a>
-                                                    </li>
+                                                    @if ($enquiry->enquiry_status == 'new')
+                                                        <li>
+                                                            <a class="dropdown-item waves-effect update-enquiry-status"
+                                                                href="#" data-status="inprogress"
+                                                                data-id="{{ $enquiry->id }}">
+                                                                MARK AS IN PROGRESS
+                                                            </a>
+                                                        </li>
+                                                    @endif
                                                     <li>
                                                         <a class="dropdown-item waves-effect" data-bs-toggle="modal"
-                                                            data-bs-target="#rejectEnquiryModal" href="#"
-                                                            data-status="reject_enquiry" data-id="{{ $enquiry->id }}">
+                                                            data-bs-target="#rejectEnquiryModal" data-status="reject_enquiry"
+                                                            data-id="{{ $enquiry->id }}">
                                                             REJECT ENQUIRY
                                                         </a>
                                                     </li>
                                                     <li>
-                                                        <a class="dropdown-item waves-effect convert-to-lead" href="#"
+                                                        <a class="dropdown-item waves-effect convert-to-lead"
                                                             data-status="converted_to_lead" data-id="{{ $enquiry->id }}">
                                                             SEND to ESTIMATOR
                                                         </a>
@@ -96,14 +100,20 @@
                                             @endif
                                         </div>
                                     @else
-                                        <span class="badge bg-label-primary me-1 ms-2">
+                                        <span
+                                            class="badge @if ($enquiry->enquiry_status == 'converted_to_lead') bg-success @else bg-danger @endif bg-glow me-1 ms-2">
                                             {{ beautify_status($enquiry->enquiry_status) }}
                                         </span>
-                                    @endhasrole
+                                    @endif
 
                                 </div>
                             </div>
-                        @endif
+                        @else
+                            <span
+                                class="badge @if ($enquiry->enquiry_status == 'converted_to_lead') bg-success @else bg-danger @endif bg-glow me-1 ms-2">
+                                {{ beautify_status($enquiry->enquiry_status) }}
+                            </span>
+                        @endhasrole
                     </div>
                     <div class="card-body pt-6">
                         <!-- Reject mail Modal -->
@@ -184,7 +194,7 @@
                                 <!-- Enquiry Information -->
                                 <div class="card mb-6">
                                     <div class="card-header header-elements">
-                                        <h5 class="mb-0 me-2">Customer Enquiry</h5>
+                                        <h6 class="mb-0 me-2">Customer Enquiry</h6>
                                     </div>
                                     <div class="card-body">
                                         <!-- enquiry -->
@@ -199,14 +209,14 @@
                                 <!-- Enquiry Description -->
                                 <div class="card mb-6">
                                     <div class="card-header header-elements">
-                                        <h5 class="mb-0 me-2">Office Notes</h5>
+                                        <h6 class="mb-0 me-2">Office Notes</h6>
                                         @if ($enquiry->enquiry_status == 'inprogress')
                                             <div class="card-header-elements ms-auto">
                                                 <div class="btn-group">
                                                     <button type="button"
                                                         class="btn btn-warning waves-effect waves-light"
                                                         data-bs-toggle="modal" data-bs-target="#editdescriptionModal">
-                                                        Edit
+                                                        Update
                                                     </button>
 
                                                 </div>
@@ -221,7 +231,7 @@
                                             </div>
                                         </div>
 
-                                        <!-- Form with Image Modal -->
+                                        <!-- Office Notes Modal -->
                                         <div class="modal-onboarding modal fade animate__animated"
                                             id="editdescriptionModal" tabindex="-1">
                                             <div class="modal-dialog" role="document">
@@ -274,21 +284,21 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <!--/ Form with Image Modal -->
+                                        <!--/ Office Notes Modal -->
                                     </div>
                                 </div>
                                 <!-- Enquiry Description -->
                                 <!-- Enquiry Images -->
                                 <div class="card mb-6">
                                     <div class="card-header header-elements">
-                                        <h5 class="mb-0 me-2">Enquiry Images</h5>
+                                        <h6 class="mb-0 me-2">Site Images</h6>
 
                                         <div class="card-header-elements ms-auto">
                                             <div class="btn-group">
                                                 @if ($enquiry->enquiry_status == 'inprogress')
                                                     <!-- Image Modal -->
                                                     <button type="button"
-                                                        class="btn btn-warning waves-effect waves-light"
+                                                        class="btn btn-primary waves-effect waves-light"
                                                         data-bs-toggle="modal" data-bs-target="#imageAddModal">
                                                         Add More
                                                     </button>
@@ -411,7 +421,7 @@
                                     <div class="col-xl">
                                         <div class="card mb-6">
                                             <div class="card-header header-elements">
-                                                <h5 class="mb-0 me-2">Notes</h5>
+                                                <h6 class="mb-0 me-2">Make Notes</h5>
                                             </div>
                                             <div class="card-body">
                                                 <ul class="timeline mb-0">
@@ -434,12 +444,9 @@
                                                         </li>
                                                     @endforeach
                                                 </ul>
-                                                <div class="border-1 border-light border-dashed my-4"></div>
                                                 <form id="enquirynotesForm" style="margin-top: -10px;">
                                                     @csrf
                                                     <div class="mb-2">
-                                                        <label class="mb-1">Notes</label>
-
                                                         <input type="hidden" name="enquirynotes"
                                                             id="enquirynotes-hidden">
                                                         <input type="hidden" name="enquiry_id"
@@ -477,7 +484,7 @@
                                     <div class="col-xl">
                                         <div class="card mb-6">
                                             <div class="card-header header-elements">
-                                                <h5 class="mb-0 me-2">Site Location</h5>
+                                                <h6 class="mb-0 me-2">Site Location</h6>
 
                                                 <div class="card-header-elements ms-auto">
                                                     <div class="btn-group">
@@ -488,7 +495,7 @@
                                                                 class="btn btn-warning waves-effect waves-light"
                                                                 data-bs-toggle="modal"
                                                                 data-bs-target="#editlocationModal">
-                                                                Edit
+                                                                Update
                                                             </button>
                                                             <!--/ Edit location -->
                                                         @endif
@@ -496,15 +503,15 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="card-body">
-                                                <div class="timeline-event ps-1">
-                                                    <iframe width="100%" height="450" frameborder="0"
-                                                        style="border:0" referrerpolicy="no-referrer-when-downgrade"
-                                                        src="https://www.google.com/maps/embed/v1/place?key={{ config('services.google.maps_api_key') }}&q={{ $enquiry->enquiryaddress->address }}, {{ $enquiry->enquiryaddress->county }}, {{ $enquiry->enquiryaddress->postcode }}+{{ $enquiry->enquiryaddress->address }}, {{ $enquiry->enquiryaddress->county }}, {{ $enquiry->enquiryaddress->country }}"
-                                                        allowfullscreen>
-                                                    </iframe>
-
-                                                </div>
+                                            <hr class="m-0">
+                                            <div class="card-img-top">
+                                                <iframe width="100%" height="450" frameborder="0" style="border:0"
+                                                    referrerpolicy="no-referrer-when-downgrade"
+                                                    src="https://www.google.com/maps/embed/v1/place?key={{ config('services.google.maps_api_key') }}&q={{ $enquiry->enquiryaddress->address }}, {{ $enquiry->enquiryaddress->county }}, {{ $enquiry->enquiryaddress->postcode }}+{{ $enquiry->enquiryaddress->address }}, {{ $enquiry->enquiryaddress->county }}, {{ $enquiry->enquiryaddress->country }}"
+                                                    allowfullscreen>
+                                                </iframe>
+                                            </div>
+                                            <div class="card-body ">
                                                 <ul class="timeline mb-0">
                                                     <li class="timeline-item ps-6 border-0">
                                                         <span
@@ -578,7 +585,7 @@
                                                                         Close
                                                                     </button>
                                                                     <button type="submit"
-                                                                        class="btn btn-success">Update</button>
+                                                                        class="btn btn-warning">Update</button>
                                                                 </div>
                                                             </form>
                                                         </div>
@@ -595,7 +602,7 @@
                                         <div class="card h-100">
                                             <div class="card-header d-flex align-items-center justify-content-between">
                                                 <div class="card-title mb-0">
-                                                    <h5 class="mb-1">Customer details</h5>
+                                                    <h6 class="mb-1">Customer details</h6>
                                                 </div>
                                                 @if ($enquiry->enquiry_status == 'inprogress')
                                                     <div class="dropdown">
@@ -609,13 +616,14 @@
                                                         </button>
                                                         <div class="dropdown-menu dropdown-menu-end"
                                                             aria-labelledby="salesByCountryTabs">
-                                                            <a class="dropdown-item waves-effect"
+                                                            <a class="dropdown-item waves-effect waves-light"
                                                                 href="{{ route('customers.show', $enquiry->customer->id) }}"
                                                                 target="_blank">Update</a>
                                                         </div>
                                                     </div>
                                                 @endif
                                             </div>
+                                            <hr class="m-0">
                                             <div class="card-body p-0">
                                                 <div class="nav-align-top">
                                                     <ul class="nav nav-tabs nav-fill rounded-0 timeline-indicator-advanced"
@@ -687,42 +695,25 @@
                                                                     <div class="timeline-event ps-1">
                                                                         <div class="timeline-header">
                                                                             <small class="text-success text-uppercase">
-                                                                                {{-- {{ $enquiry->customer->findetails->company_name ?? 'N/A' }}
-                                                                                <br />
-                                                                                Reg No.:
-                                                                                {{ $enquiry->customer->findetails->registration_number ?? 'N/A' }} --}}
-                                                                                 <a href="#">https://mail.google.com/mail/u/0/#inbox/FMfcgzQcqQxJJFNzgjSFDzfBzxvpLXPB</a>
+                                                                                @php($assetUrl = optional($enquiry->customer->findetails)->asset_details_url)
+                                                                                <a class="btn btn-text-reddit waves-effect{{ !$assetUrl ? ' disabled' : '' }}"
+                                                                                    href="{{ $assetUrl ?: '#' }}"
+                                                                                    target="_blank"
+                                                                                    @if (!$assetUrl) aria-disabled="true" tabindex="-1" @endif>
+                                                                                    {{ !$assetUrl ? 'Add Financial Details' : 'View Financial Details' }}
+                                                                                </a>
                                                                             </small>
                                                                             @if ($enquiry->enquiry_status == 'inprogress')
                                                                                 <small class="text-success text-uppercase">
                                                                                     <button type="button"
-                                                                                        class="btn btn-primary btn-sm waves-effect waves-light"
+                                                                                        class="btn btn-warning btn-sm waves-effect waves-light"
                                                                                         data-bs-toggle="modal"
                                                                                         data-bs-target="#enquirydetailseditmodal">
-                                                                                        Edit
+                                                                                        Update
                                                                                     </button>
                                                                                 </small>
                                                                             @endif
                                                                         </div>
-                                                                        {{-- <p class="text-body mb-0">
-                                                                            <span class="text-heading fw-medium">Assets:
-                                                                            </span>
-                                                                            <span>{{ formatPoundNumber($enquiry->customer->findetails->assets ?? 0) }}
-                                                                            </span> <br>
-                                                                            <span class="text-heading fw-medium">Net
-                                                                                Assets: </span>
-                                                                            <span>{{ formatPoundNumber($enquiry->customer->findetails->net_assets ?? 0) }}</span>
-                                                                            <br>
-                                                                            <span
-                                                                                class="text-heading fw-medium">Liabilities:
-                                                                            </span>
-                                                                            <span>{{ formatPoundNumber($enquiry->customer->findetails->liabilities ?? 0) }}</span>
-                                                                            <br>
-                                                                            <span class="text-heading fw-medium">Cash in
-                                                                                Bank: </span>
-                                                                            <span>{{ formatPoundNumber($enquiry->customer->findetails->cash_in_bank ?? 0) }}</span>
-                                                                            <br>
-                                                                        </p> --}}
                                                                     </div>
                                                                 </li>
                                                             </ul>
@@ -802,16 +793,17 @@
                                                 action="{{ route('enquiry.otheroptions', $enquiry->id) }}">
                                                 @csrf
                                                 <div class="card-header d-flex justify-content-between align-items-center">
-                                                    <h5 class="mb-0">Other Information</h5>
+                                                    <h6 class="mb-0">Other Information</h6>
                                                     <small class="text-body-secondary float-end">
                                                         @if ($enquiry->enquiry_status == 'inprogress')
                                                             <button type="submit"
-                                                                class="btn btn-primary btn-sm waves-effect waves-light">
+                                                                class="btn btn-warning btn-sm waves-effect waves-light">
                                                                 Update
                                                             </button>
                                                         @endif
                                                     </small>
                                                 </div>
+                                                <hr class="m-0">
                                                 <div class="card-body">
                                                     <div class="mb-6">
                                                         <label class="form-check-label">Roofing</label>
@@ -866,16 +858,14 @@
                                                             </div>
                                                             <div class="form-check form-check-inline">
                                                                 <input name="safety_type[]" class="form-check-input"
-                                                                    type="checkbox" value="repairs"
-                                                                    id="safety_repairs"
+                                                                    type="checkbox" value="repairs" id="safety_repairs"
                                                                     @if ($enquiry->repairs == true) checked @endif />
                                                                 <label class="form-check-label"
                                                                     for="safety_repairs">Repairs</label>
                                                             </div>
                                                             <div class="form-check form-check-inline">
                                                                 <input name="safety_type[]" class="form-check-input"
-                                                                    type="checkbox" value="testing"
-                                                                    id="safety_testing"
+                                                                    type="checkbox" value="testing" id="safety_testing"
                                                                     @if ($enquiry->testing == true) checked @endif />
                                                                 <label class="form-check-label"
                                                                     for="safety_testing">Testing</label>
@@ -887,26 +877,25 @@
                                                         <label class="form-check-label">Priority</label>
                                                         <div class="col mt-2">
                                                             <div class="form-check form-check-inline">
-                                                                <input name="enquiry_priority"
-                                                                    class="form-check-input" type="radio"
-                                                                    value="low" id="enquiry-priority-low"
+                                                                <input name="enquiry_priority" class="form-check-input"
+                                                                    type="radio" value="low"
+                                                                    id="enquiry-priority-low"
                                                                     @if ($enquiry->enquiry_priority == 'low') checked @endif />
                                                                 <label class="form-check-label"
                                                                     for="enquiry-priority-low"> Low </label>
                                                             </div>
                                                             <div class="form-check form-check-inline">
-                                                                <input name="enquiry_priority"
-                                                                    class="form-check-input" type="radio"
-                                                                    value="medium"
+                                                                <input name="enquiry_priority" class="form-check-input"
+                                                                    type="radio" value="medium"
                                                                     id="enquiry-priority-medium"
                                                                     @if ($enquiry->enquiry_priority == 'medium') checked @endif />
                                                                 <label class="form-check-label"
                                                                     for="enquiry-priority-medium">Medium</label>
                                                             </div>
                                                             <div class="form-check form-check-inline">
-                                                                <input name="enquiry_priority"
-                                                                    class="form-check-input" type="radio"
-                                                                    value="high" id="enquiry-priority-high"
+                                                                <input name="enquiry_priority" class="form-check-input"
+                                                                    type="radio" value="high"
+                                                                    id="enquiry-priority-high"
                                                                     @if ($enquiry->enquiry_priority == 'high') checked @endif />
                                                                 <label class="form-check-label"
                                                                     for="enquiry-priority-high">
@@ -969,63 +958,28 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6">
-                                                    <div class="row">
-                                                        <label class="col-sm-4 col-form-label text-sm-end"
-                                                            for="formtabs-assets">Assets</label>
-                                                        <div class="col-sm-8">
-                                                            <input type="number" min="0" id="formtabs-assets"
-                                                                name="assets" class="form-control" placeholder="0.00"
-                                                                value="{{ $enquiry->customer->findetails->assets ?? 0 }}" />
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="row">
-                                                        <label class="col-sm-4 col-form-label text-sm-end"
-                                                            for="formtabs-net-assets">Net Assets</label>
-                                                        <div class="col-sm-8">
-                                                            <input type="number" min="0" id="formtabs-net-assets"
-                                                                name="netAssets" class="form-control" placeholder="0.00"
-                                                                value="{{ $enquiry->customer->findetails->net_assets ?? 0 }}" />
-                                                        </div>
-                                                    </div>
-                                                </div>
 
-                                                <div class="col-md-6">
+                                                <div class="col-md-12">
                                                     <div class="row">
-                                                        <label class="col-sm-4 col-form-label text-sm-end"
-                                                            for="formtabs-liabilities">Liabilities</label>
-                                                        <div class="col-sm-8">
-                                                            <input type="number" min="0"
-                                                                id="formtabs-liabilities" name="liabilities"
-                                                                class="form-control" placeholder="0.00"
-                                                                value="{{ $enquiry->customer->findetails->liabilities ?? 0 }}" />
+                                                        <label class="col-sm-3 col-form-label text-sm-end"
+                                                            for="formtabs-asset-url">Asset
+                                                            URL</label>
+                                                        <div class="col-sm-6">
+                                                            <input type="url" id="formtabs-asset-url"
+                                                                name="asset_details_url" class="form-control"
+                                                                placeholder="https://example.com/financial-details"
+                                                                value="{{ $enquiry->customer->findetails->asset_details_url ?? '' }}" />
                                                         </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="row">
-                                                        <label class="col-sm-4 col-form-label text-sm-end"
-                                                            for="formtabs-cash-in-bank">Cash in Bank</label>
-                                                        <div class="col-sm-8">
-                                                            <input type="number" min="0"
-                                                                id="formtabs-cash-in-bank" name="cashInBank"
-                                                                class="form-control" placeholder="0.00"
-                                                                value="{{ $enquiry->customer->findetails->cash_in_bank ?? 0 }}" />
-                                                        </div>
-                                                    </div>
-                                                </div>
 
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-label-secondary"
-                                                data-bs-dismiss="modal">
-                                                Close
-                                            </button>
-                                            <button type="submit" class="btn btn-primary">Save changes</button>
-                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-label-secondary"
+                                                        data-bs-dismiss="modal">
+                                                        Close
+                                                    </button>
+                                                    <button type="submit" class="btn btn-primary">Save changes</button>
+                                                </div>
                                     </form>
                                 </div>
                             </div>

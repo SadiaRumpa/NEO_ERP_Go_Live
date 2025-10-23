@@ -14,5 +14,6 @@ class CustomerDetails extends Model
         'net_assets',
         'liabilities',
         'cash_in_bank',
+        'asset_details_url',
     ];
 }

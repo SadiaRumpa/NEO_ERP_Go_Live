@@ -45,21 +45,17 @@
                 class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-6 row-gap-4">
                 <div class="d-flex flex-column justify-content-center">
                     <span class="h4">
-                        LEAD #<span class="badge bg-label-success me-1 ms-2">{{ $lead->lead_name }}</span>
-                        @hasrole('lead-manager', 'office-manager')
+                        LEAD #<span class="badge bg-label-secondary me-1 ms-2">{{ $lead->lead_name }}</span>
+                        @hasrole(['lead-manager', 'office-manager'])
                             @if ($lead->lead_status == 'inprogress')
-                                <a class="btn btn-label-primary ms-2" href="{{ route('quotations.lead', $lead->id) }}">
+                                <a class="btn btn-label-info ms-2" href="{{ route('quotations.lead', $lead->id) }}">
                                     GENERATE QUOTATION
                                 </a>
                             @endif
-                        @else
-                            <span class="badge bg-label-primary me-1 ms-2">{{ beautify_status($lead->lead_status) }}</span>
                         @endhasrole
-
                     </span>
                 </div>
-                @hasrole('lead-manager', 'office-manager')
-
+                @hasrole(['lead-manager', 'office-manager'])
                     <div class="d-flex align-content-center flex-wrap gap-4">
                         <!-- Alert message area -->
                         <div id="status-alert" style="display:none;" class="alert mt-2"></div>
@@ -70,7 +66,7 @@
                                     $status = $lead->lead_status;
                                     $labelClass = match ($status) {
                                         'new' => 'primary',
-                                        'inprogress', 'on_hold' => 'warning',
+                                        'inprogress' => 'warning',
                                         'converted_to_job' => 'success',
                                         'rejected', 'archived' => 'danger',
                                         default => 'secondary',
@@ -88,12 +84,15 @@
                                         <span class="visually-hidden">Toggle Dropdown</span>
                                     </button>
                                     <ul class="dropdown-menu">
-                                        <li>
-                                            <a class="dropdown-item waves-effect" data-status="inprogress"
-                                                data-id="{{ $lead->id }}" href="#"
-                                                onclick="updateLeadStatus({{ $lead->id }}, 'inprogress')">In Progress</a>
-                                        </li>
-                                        <li>
+                                        @if ($lead->lead_status == 'new')
+                                            <li>
+                                                <a class="dropdown-item waves-effect" data-status="inprogress"
+                                                    data-id="{{ $lead->id }}" href="#"
+                                                    onclick="updateLeadStatus({{ $lead->id }}, 'inprogress')">In
+                                                    Progress</a>
+                                            </li>
+                                        @endif
+                                        ` <li>
                                             @if ($lead->lead_status == 'inprogress')
                                                 <a type="button" class="dropdown-item waves-effect waves-light"
                                                     data-bs-toggle="modal" data-bs-target="#rejectleadModal">
@@ -113,11 +112,11 @@
                                     </ul>
                                 @endif
                             </div>
-
-
-
                         </div>
                     </div>
+                @else
+                    <span
+                        class="badge badge @if ($lead->lead_status == 'converted_to_job') bg-success @else bg-danger @endif bg-glow me-1 ms-2">{{ beautify_status($lead->lead_status) }}</span>
 
                 @endhasrole
             </div>
@@ -197,7 +196,7 @@
                     <!-- Enquiry Information -->
                     <div class="card mb-6">
                         <div class="card-header header-elements">
-                            <h5 class="mb-0 me-2">Enquiry</h5>
+                            <h6 class="mb-0 me-2">Customer Enquiry</h6>
                         </div>
                         <div class="card-body">
                             <!-- Description -->
@@ -210,17 +209,17 @@
                         </div>
                     </div>
                     <!-- Enquiry Information -->
-                    <!-- lead Information -->
+                    <!-- Office Notes -->
                     <div class="card mb-6">
                         <div class="card-header header-elements">
-                            <h5 class="mb-0 me-2">Lead Information</h5>
-                            @hasrole('lead-manager', 'office-manager')
+                            <h6 class="mb-0 me-2">Office Notes</h6>
+                            @hasrole(['lead-manager', 'office-manager'])
                                 @if ($lead->lead_status == 'inprogress')
                                     <div class="card-header-elements ms-auto">
                                         <div class="btn-group">
                                             <button type="button" class="btn btn-warning waves-effect waves-light"
                                                 data-bs-toggle="modal" data-bs-target="#editdescriptionModal">
-                                                Edit
+                                                Update
                                             </button>
                                         </div>
                                     </div>
@@ -286,14 +285,14 @@
                             <!--/ Form with Lead description Modal -->
                         </div>
                     </div>
-                    <!-- lead Information -->
+                    <!-- Office Notes -->
                     <!-- lead Images -->
                     <div class="card mb-6">
                         <div class="card-header header-elements">
-                            <h5 class="mb-0 me-2">Lead Images</h5>
+                            <h6 class="mb-0 me-2">Site Images</h6>
 
                             <div class="card-header-elements ms-auto">
-                                @hasrole('lead-manager', 'office-manager')
+                                @hasrole(['lead-manager', 'office-manager'])
                                     <div class="btn-group">
                                         @if ($lead->lead_status == 'inprogress')
                                             <!-- Image Modal -->
@@ -314,7 +313,7 @@
                                         @foreach ($lead->leadimages as $enim)
                                             <div class="swiper-slide position-relative"
                                                 style="background-image: url({{ $enim->source == 's3' ? $enim->image_url : asset($enim->image_path) }})">
-                                                @hasrole('lead-manager', 'office-manager')
+                                                @hasrole(['lead-manager', 'office-manager'])
                                                     @if ($lead->lead_status == 'inprogress')
                                                         <div class="position-absolute top-0 end-0 p-2">
                                                             <button class="btn btn-sm btn-danger delete-image"
@@ -415,7 +414,7 @@
                         <div class="col-xl">
                             <div class="card mb-6">
                                 <div class="card-header header-elements">
-                                    <h5 class="mb-0 me-2">Notes</h5>
+                                    <h6 class="mb-0 me-2">Notes</h6>
                                 </div>
                                 <div class="card-body">
                                     <ul class="timeline mb-0">
@@ -440,8 +439,7 @@
                                                 </div>
                                             </li>
                                         @endforeach
-                                    </ul>
-                                    <div class="border-1 border-light border-dashed my-4"></div>
+                                    </ul>                                    
                                     @if ($lead->lead_status == 'inprogress')
                                         <form id="leadnotesForm" style="margin-top: -10px;">
                                             @csrf
@@ -486,9 +484,9 @@
                         <div class="col-xl order-2 order-xl-0">
                             <div class="card h-100">
                                 <div class="card-header d-flex justify-content-between">
-                                    <h5 class="card-title m-0 me-2 pt-1 mb-2 d-flex align-items-center">
+                                    <h6 class="card-title m-0 me-2 pt-1 mb-2 d-flex align-items-center">
                                         <i class="icon-base ti tabler-list-details me-3"></i> Attachments
-                                    </h5>
+                                    </h6>
                                     @if ($lead->lead_status == 'inprogress')
                                         <div class="card-header-elements ms-auto">
                                             <button type="button" class="btn btn-xs btn-dark waves-effect waves-light"
@@ -499,6 +497,7 @@
                                         </div>
                                     @endif
                                 </div>
+                                <hr class="m-0">
                                 <div class="card-body pb-0">
                                     <ul class="timeline mb-0">
 
@@ -632,16 +631,15 @@
                         <div class="col-xl">
                             <div class="card mb-6">
                                 <div class="card-header header-elements">
-                                    <h5 class="mb-0 me-2">Site Location</h5>
-
+                                    <h6 class="mb-0 me-2">Site Location</h6>
                                     <div class="card-header-elements ms-auto">
-                                        @hasrole('lead-manager', 'office-manager')
+                                        @hasrole(['lead-manager', 'office-manager'])
                                             <div class="btn-group">
                                                 @if ($lead->lead_status == 'inprogress')
                                                     <!-- Edit location -->
                                                     <button type="button" class="btn btn-warning waves-effect waves-light"
                                                         data-bs-toggle="modal" data-bs-target="#editlocationModal">
-                                                        Edit
+                                                        Update
                                                     </button>
                                                     <!--/ Edit location -->
                                                 @endif
@@ -649,15 +647,15 @@
                                         @endhasrole
                                     </div>
                                 </div>
+                                <hr class="m-0">
+                                <div class="card-img-top">
+                                    <iframe width="100%" height="450" frameborder="0" style="border:0"
+                                        referrerpolicy="no-referrer-when-downgrade"
+                                        src="https://www.google.com/maps/embed/v1/place?key={{ config('services.google.maps_api_key') }}&q={{ $lead->leadaddress->address }}, {{ $lead->leadaddress->county }}, {{ $lead->leadaddress->postcode }}+{{ $lead->leadaddress->address }}, {{ $lead->leadaddress->county }}, {{ $lead->leadaddress->country }}"
+                                        allowfullscreen>
+                                    </iframe>
+                                </div>
                                 <div class="card-body">
-                                    <div class="timeline-event ps-1">
-                                        <iframe width="100%" height="450" frameborder="0" style="border:0"
-                                            referrerpolicy="no-referrer-when-downgrade"
-                                            src="https://www.google.com/maps/embed/v1/place?key={{ config('services.google.maps_api_key') }}&q={{ $lead->leadaddress->address }}, {{ $lead->leadaddress->county }}, {{ $lead->leadaddress->postcode }}+{{ $lead->leadaddress->address }}, {{ $lead->leadaddress->county }}, {{ $lead->leadaddress->country }}"
-                                            allowfullscreen>
-                                        </iframe>
-
-                                    </div>
                                     <ul class="timeline mb-0">
                                         <li class="timeline-item ps-6 border-0">
                                             <span
@@ -741,7 +739,7 @@
                             <div class="card h-100">
                                 <div class="card-header d-flex align-items-center justify-content-between">
                                     <div class="card-title mb-0">
-                                        <h5 class="mb-1">Customer details</h5>
+                                        <h6 class="mb-1">Customer details</h6>
                                     </div>
                                     <div class="dropdown">
                                         <button
@@ -760,6 +758,7 @@
                                         @endif
                                     </div>
                                 </div>
+                                <hr class="m-0">
                                 <div class="card-body p-0">
                                     <div class="nav-align-top">
                                         <ul class="nav nav-tabs nav-fill rounded-0 timeline-indicator-advanced"
@@ -826,36 +825,26 @@
                                                         <div class="timeline-event ps-1">
                                                             <div class="timeline-header">
                                                                 <small class="text-success text-uppercase">
-                                                                    {{ $lead->customer->findetails->company_name ?? 'N/A' }}
-                                                                    <br />
-                                                                    Reg No.:
-                                                                    {{ $lead->customer->findetails->registration_number ?? 'N/A' }}
+                                                                    @php($assetUrl = optional($lead->customer->findetails)->asset_details_url)
+                                                                    <a class="btn btn-text-reddit waves-effect{{ !$assetUrl ? ' disabled' : '' }}"
+                                                                        href="{{ $assetUrl ?: '#' }}" target="_blank"
+                                                                        @if (!$assetUrl) aria-disabled="true" tabindex="-1" @endif>
+                                                                        {{ !$assetUrl ? 'Add Financial Details' : 'View Financial Details' }}
+                                                                    </a>
                                                                 </small>
+
                                                                 @if ($lead->lead_status == 'inprogress')
                                                                     <small class="text-success text-uppercase">
                                                                         <button type="button"
-                                                                            class="btn btn-primary btn-sm waves-effect waves-light"
+                                                                            class="btn btn-warning btn-sm waves-effect waves-light"
                                                                             data-bs-toggle="modal"
                                                                             data-bs-target="#leaddetailseditmodal">
-                                                                            Edit
+                                                                            Update
                                                                         </button>
                                                                     </small>
                                                                 @endif
                                                             </div>
-                                                            <p class="text-body mb-0">
-                                                                <span class="text-heading fw-medium">Assets: </span>
-                                                                <span>{{ formatPoundNumber($lead->customer->findetails->assets ?? 0) }}</span>
-                                                                <br>
-                                                                <span class="text-heading fw-medium">Net Assets: </span>
-                                                                <span>{{ formatPoundNumber($lead->customer->findetails->net_assets ?? 0) }}</span>
-                                                                <br>
-                                                                <span class="text-heading fw-medium">Liabilities: </span>
-                                                                <span>{{ formatPoundNumber($lead->customer->findetails->liabilities ?? 0) }}</span>
-                                                                <br>
-                                                                <span class="text-heading fw-medium">Cash in Bank: </span>
-                                                                <span>{{ formatPoundNumber($lead->customer->findetails->cash_in_bank ?? 0) }}</span>
-                                                                <br>
-                                                            </p>
+
                                                         </div>
                                                     </li>
                                                 </ul>
@@ -930,7 +919,7 @@
                                 <form method="POST" action="{{ route('lead.otheroptions', $lead->id) }}">
                                     @csrf
                                     <div class="card-header d-flex justify-content-between align-items-center">
-                                        <h5 class="mb-0">Other Information</h5>
+                                        <h6 class="mb-0">Other Information</h6>
                                         <small class="text-body-secondary float-end">
                                             @if ($lead->lead_status == 'inprogress')
                                                 <button type="submit"
@@ -940,6 +929,7 @@
                                             @endif
                                         </small>
                                     </div>
+                                    <hr class="m-0">
                                     <div class="card-body">
                                         <div class="mb-6">
                                             <label class="form-check-label">Roofing</label>
@@ -1073,60 +1063,25 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-12">
                                         <div class="row">
-                                            <label class="col-sm-4 col-form-label text-sm-end"
-                                                for="formtabs-assets">Assets</label>
-                                            <div class="col-sm-8">
-                                                <input type="number" min="0" id="formtabs-assets" name="assets"
-                                                    class="form-control" placeholder="0.00"
-                                                    value="{{ $lead->customer->findetails->assets ?? 0 }}" />
+                                            <label class="col-sm-3 col-form-label text-sm-end"
+                                                for="formtabs-asset-details-url">Asset Details URL</label>
+                                            <div class="col-sm-6">
+                                                <input type="text" id="formtabs-asset-details-url"
+                                                    name="asset_details_url" class="form-control"
+                                                    placeholder="Asset Details URL"
+                                                    value="{{ $lead->customer->findetails->asset_details_url ?? '' }}" />
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <div class="row">
-                                            <label class="col-sm-4 col-form-label text-sm-end"
-                                                for="formtabs-net-assets">Net Assets</label>
-                                            <div class="col-sm-8">
-                                                <input type="number" min="0" id="formtabs-net-assets"
-                                                    name="netAssets" class="form-control" placeholder="0.00"
-                                                    value="{{ $lead->customer->findetails->net_assets ?? 0 }}" />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <div class="row">
-                                            <label class="col-sm-4 col-form-label text-sm-end"
-                                                for="formtabs-liabilities">Liabilities</label>
-                                            <div class="col-sm-8">
-                                                <input type="number" min="0" id="formtabs-liabilities"
-                                                    name="liabilities" class="form-control" placeholder="0.00"
-                                                    value="{{ $lead->customer->findetails->liabilities ?? 0 }}" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="row">
-                                            <label class="col-sm-4 col-form-label text-sm-end"
-                                                for="formtabs-cash-in-bank">Cash in Bank</label>
-                                            <div class="col-sm-8">
-                                                <input type="number" min="0" id="formtabs-cash-in-bank"
-                                                    name="cashInBank" class="form-control" placeholder="0.00"
-                                                    value="{{ $lead->customer->findetails->cash_in_bank ?? 0 }}" />
-                                            </div>
-                                        </div>
-                                    </div>
-
                                 </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">
-                                    Close
-                                </button>
-                                <button type="submit" class="btn btn-primary">Save changes</button>
-                            </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">
+                                        Close
+                                    </button>
+                                    <button type="submit" class="btn btn-primary">Save changes</button>
+                                </div>
                         </form>
                     </div>
                 </div>

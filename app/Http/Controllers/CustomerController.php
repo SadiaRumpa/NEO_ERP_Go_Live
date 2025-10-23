@@ -223,10 +223,7 @@ class CustomerController extends Controller
     {
         $validated = $request->validate([
             'registration_no' => 'nullable|string|max:255',
-            'assets' => 'required|numeric',
-            'netAssets' => 'required|numeric',
-            'liabilities' => 'required|numeric',
-            'cashInBank' => 'required|numeric',
+            'asset_details_url' => 'required|string|max:255',
         ]);
 
         try {
@@ -239,17 +236,13 @@ class CustomerController extends Controller
                 [
                     'company_name' => $customer->company_name,
                     'registration_number' => $validated['registration_no'],
-                    'assets' => $validated['assets'],
-                    'net_assets' => $validated['netAssets'],
-                    'liabilities' => $validated['liabilities'],
-                    'cash_in_bank' => $validated['cashInBank'],
+                    'asset_details_url' => $validated['asset_details_url'],
                 ]
             );
 
             return redirect()->back()->with('success', 'Customer financial details updated successfully.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
-            // return $e->getMessage();
         }
     }
 
