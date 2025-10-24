@@ -260,7 +260,7 @@ $(document).ready(function () {
         let status = $(this).data('status');
 
         // Confirmation dialog
-        if (!confirm(`Are you sure you want to send it to Lead Manager?`)) {
+        if (!confirm(`Are you sure you want to send it?`)) {
             return; // Stop if user cancels
         }
 

@@ -22,6 +22,7 @@ use App\Http\Controllers\LeadController;
 use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\QuotationTemplateController;
 use App\Http\Controllers\SchedulerController;
+use App\Http\Controllers\StaffController;
 use App\Http\Controllers\StockAttributeController;
 use App\Http\Controllers\StockCategoryController;
 use App\Http\Controllers\StockItemController;
@@ -281,4 +282,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('hs-tools/{id}/checkup/{checkup_id}', [HsToolController::class, 'showHsToolsCheck'])->name('hs-tools.showcheck');
     Route::put('hs-tools/{checkup_id}/checkupdate', [HsToolController::class, 'updateHsToolsCheck'])->name('hs-tools.updatecheck');
     Route::delete('hs-tools/{id}', [HsToolController::class, 'destroyHsTools'])->name('hs-tools.destroy');
+
+    Route::get('tasks', [StaffController::class, 'indexTasks'])->name('tasks.index');
 });
