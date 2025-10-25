@@ -41,14 +41,14 @@ class SchedulerController extends Controller
         $fakedata = $this->generateFakeCalendarData($selectedMonths);
 
         $jobs = Fjob::whereIn('job_status', ['accepted', 'inprogress'])->get();
-        $stuffs = User::role('stuff')->orderBy('name', 'asc')->get();
+        $staffs = User::role('staff')->orderBy('name', 'asc')->get();
         $data = array_merge($data, $fakedata);
 
         return view('scheduler.index', array_merge($data, [
             'allMonths' => $allMonths,
             'selectedMonths' => $selectedMonths,
             'jobs' => $jobs,
-            'stuffs' => $stuffs,
+            'staffs' => $staffs,
         ]));
     }
 
@@ -79,7 +79,7 @@ class SchedulerController extends Controller
         }
 
         $allDates = collect($datesByMonth)->flatten()->unique()->sort()->values();
-        $workers = User::role('stuff')->orderBy('name', 'asc')->get();
+        $workers = User::role('staff')->orderBy('name', 'asc')->get();
 
         $startDate = Carbon::parse("first day of " . $selectedMonths[0] . " $startYear")->startOfDay();
         $endDate = Carbon::parse("last day of " . end($selectedMonths) . " $startYear")->endOfDay();
@@ -130,7 +130,7 @@ class SchedulerController extends Controller
         }
 
         $allDatesFake = collect($datesByMonthFake)->flatten()->unique()->sort()->values();
-        $fakeworkers = User::role('stuff')->orderBy('name', 'asc')->get();
+        $fakeworkers = User::role('staff')->orderBy('name', 'asc')->get();
 
         $startDate = Carbon::parse("first day of " . $selectedMonths[0] . " $startYear")->startOfDay();
         $endDate = Carbon::parse("last day of " . end($selectedMonths) . " $startYear")->endOfDay();
@@ -169,7 +169,7 @@ class SchedulerController extends Controller
             'workers'
         ])->findOrFail($id);
 
-        $workerslist = User::role('stuff')->orderBy('name', 'asc')->get();
+        $workerslist = User::role('staff')->orderBy('name', 'asc')->get();
 
         return response()->json([
             'schedule' => $schedule,
@@ -349,7 +349,7 @@ class SchedulerController extends Controller
             'workers'
         ])->findOrFail($id);
 
-        $workerslist = User::role('stuff')->orderBy('name', 'asc')->get();
+        $workerslist = User::role('staff')->orderBy('name', 'asc')->get();
 
         return response()->json([
             'schedule' => $schedule,

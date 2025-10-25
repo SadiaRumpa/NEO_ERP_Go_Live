@@ -506,10 +506,10 @@
                 </a>
             </li>
             <li
-                class="menu-item {{ request()->is('stuff_trainings') || request()->is('stuff_trainings/*') ? 'active open' : '' }}">
-                <a href="{{ url('stuff_trainings') }}" class="menu-link menu-toggle">
+                class="menu-item {{ request()->is('staff_trainings') || request()->is('staff_trainings/*') ? 'active open' : '' }}">
+                <a href="{{ url('staff_trainings') }}" class="menu-link menu-toggle">
                     <i class="menu-icon icon-base ti tabler-brand-databricks"></i>
-                    <div data-i18n="Staff Training">Staff Trainings</div>
+                    <div data-i18n="staff Training">staff Trainings</div>
                 </a>
                 <ul class="menu-sub">
 
@@ -543,7 +543,7 @@
                 </ul>
             </li>
         @endhasrole
-        @hasrole('stuff')
+        @hasrole('staff')
             <li class="menu-item {{ request()->is('tasks') || request()->is('tasks/*') ? 'active' : '' }}">
                 <a href="{{ url('tasks') }}" class="menu-link">
                     <i class="menu-icon icon-base ti tabler-tool"></i>
@@ -577,10 +577,10 @@
                 </a>
             </li>
             <li
-                class="menu-item {{ request()->is('stuff_trainings') || request()->is('stuff_trainings/*') ? 'active open' : '' }}">
-                <a href="{{ url('stuff_trainings') }}" class="menu-link menu-toggle">
+                class="menu-item {{ request()->is('staff_trainings') || request()->is('staff_trainings/*') ? 'active open' : '' }}">
+                <a href="{{ url('staff_trainings') }}" class="menu-link menu-toggle">
                     <i class="menu-icon icon-base ti tabler-brand-databricks"></i>
-                    <div data-i18n="Staff Training">Staff Trainings</div>
+                    <div data-i18n="staff Training">staff Trainings</div>
                 </a>
                 <ul class="menu-sub">
 

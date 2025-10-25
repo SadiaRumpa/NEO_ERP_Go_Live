@@ -243,9 +243,9 @@
                                                 <label for="assignto" class="form-label">Assign To</label>
                                                 <select id="assignto" class="select2 form-select" data-allow-clear="true"
                                                     name="assignto" required>
-                                                    @foreach ($stuffs as $stuff)
-                                                        <option value="{{ $stuff->id }}">
-                                                            {{ $stuff->name }}
+                                                    @foreach ($staffs as $staff)
+                                                        <option value="{{ $staff->id }}">
+                                                            {{ $staff->name }}
                                                         </option>
                                                     @endforeach
                                                 </select>
@@ -313,9 +313,9 @@
                                                 <label for="assigntou" class="form-label">Assign To</label>
                                                 <select id="assigntou" class="select2 form-select"
                                                     data-allow-clear="true" name="assignto" required>
-                                                    @foreach ($stuffs as $stuff)
-                                                        <option value="{{ $stuff->id }}">
-                                                            {{ $stuff->name }}
+                                                    @foreach ($staffs as $staff)
+                                                        <option value="{{ $staff->id }}">
+                                                            {{ $staff->name }}
                                                         </option>
                                                     @endforeach
                                                 </select>

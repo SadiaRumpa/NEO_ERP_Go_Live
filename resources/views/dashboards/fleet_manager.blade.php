@@ -86,7 +86,7 @@
                         <table class="table table-borderless border-top">
                             <thead class="border-bottom">
                                 <tr>
-                                    <th>STUFF</th>
+                                    <th>staff</th>
                                     <th>VEHICLE</th>
                                     <th>ASSIGNED (FROM - TO)</th>
                                 </tr>

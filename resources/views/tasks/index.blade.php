@@ -75,50 +75,6 @@
             </div>
 
             <div class="d-flex justify-content-end mb-3">
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStockItemModal">
-                    <i class="icon-base ti tabler-plus"></i>
-                    Add New Item
-                </button>
-
-                <!--Add Modal -->
-                <div class="modal fade" id="addStockItemModal" tabindex="-1" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered" role="document">
-                        <form action="{{ route('stockitems.store') }}" method="POST">
-                            @csrf
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="addStockItemModalTitle">Stock Item</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                        aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="row">
-                                        <div class="col-12 mb-4">
-                                            <label for="select2Basic" class="form-label">Select Category</label>
-                                            
-                                        </div>
-                                        <div class="col-12 mb-4">
-                                            <label for="item-name" class="form-label">Item Name</label>
-                                            <input type="text" class="form-control" name="name" id="item-name"
-                                                required>
-                                        </div>
-                                        <div class="col-12 mb-4">
-                                            <label for="item-description" class="form-label">Description</label>
-                                            <textarea class="form-control" name="description" id="item-description" rows="3"></textarea>
-                                        </div>
-
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">
-                                        Close
-                                    </button>
-                                    <button type="submit" class="btn btn-primary">Create</button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
             </div>
         </div>
 

@@ -130,7 +130,7 @@
             </div>
         </div>
 
-        <!-- Modal -->
+        <!-- Real Schedule Modal -->
         <div class="modal fade" id="scheduleModal" data-bs-backdrop="static" tabindex="-1">
             <div class="modal-dialog">
                 <form class="modal-content" id="scheduleForm">
@@ -153,10 +153,10 @@
                         </div>
                         <div class="row g-4">
                             <div class="col mb-0">
-                                <label for="select2Workers" class="form-label">Stuffs</label>
+                                <label for="select2Workers" class="form-label">staffs</label>
                                 <select id="select2Workers" class="select2 form-select" name="workers[]" multiple>
-                                    @foreach ($stuffs as $stuff)
-                                        <option value="{{ $stuff->id }}">{{ $stuff->name }}</option>
+                                    @foreach ($staffs as $staff)
+                                        <option value="{{ $staff->id }}">{{ $staff->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -183,6 +183,7 @@
                 </form>
             </div>
         </div>
+        <!-- Real Schedule Modal -->
 
         <hr class="my-5">
 
@@ -243,7 +244,7 @@
             </div>
         </div>
 
-        <!-- Modal -->
+        <!-- Fake schedule Modal -->
         <div class="modal fade" id="fakeScheduleModal" data-bs-backdrop="static" tabindex="-1">
             <div class="modal-dialog">
                 <form class="modal-content" id="fakeScheduleForm">
@@ -266,10 +267,10 @@
                         </div>
                         <div class="row g-4">
                             <div class="col mb-0">
-                                <label for="select2Fakeworkers" class="form-label">Stuffs</label>
+                                <label for="select2Fakeworkers" class="form-label">staffs</label>
                                 <select id="select2Fakeworkers" class="select2 form-select" name="fakeworkers[]" multiple>
-                                    @foreach ($stuffs as $stuff)
-                                        <option value="{{ $stuff->id }}">{{ $stuff->name }}</option>
+                                    @foreach ($staffs as $staff)
+                                        <option value="{{ $staff->id }}">{{ $staff->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -296,6 +297,7 @@
                 </form>
             </div>
         </div>
+        <!-- Fake schedule Modal -->
 
     </div>
     <!-- / Content -->

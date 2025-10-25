@@ -22,8 +22,6 @@
     @parent
     <link rel="stylesheet" href="{{ asset('assets/vendor/libs/select2/select2.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/vendor/libs/flatpickr/flatpickr.css') }}" />
-
-
 @endsection
 
 @section('content')
@@ -62,7 +60,9 @@
                                 <button class="btn btn-label-primary me-4">
                                     <span class="align-middle"> Back</span>
                                 </button>
+                                @hasrole(['office-manager','health-safety-manager'])
                                 <button type="submit" class="btn btn-primary">Update</button>
+                                @endhasrole
                             </div>
                         </div>
                         <div class="card-body pt-6">
@@ -88,7 +88,9 @@
                                                     <label class="form-label" for="title">Title</label>
                                                     <input type="text" class="form-control" id="title"
                                                         name="hs_check_title" placeholder="Title"
-                                                        value="{{ old('hs_check_title', $fjobcheck->hs_check_title) }}" />
+                                                        value="{{ old('hs_check_title', $fjobcheck->hs_check_title) }}" 
+                                                        @hasrole('staff') disabled @endhasrole
+                                                        />
                                                 </div>
 
                                             </div>
@@ -118,6 +120,7 @@
                                                     @foreach ($checklists as $checklist)
                                                         @php
                                                             $selected = $selectedChecklist[$checklist->id] ?? ['status' => null, 'note' => ''];
+                                                            
                                                         @endphp
                                                         <div class="col-md-6">
                                                             <div class="p-3 border rounded bg-primary bg-opacity-10 mb-4">
@@ -128,6 +131,7 @@
                                                                         <input type="radio"
                                                                             name="checklist[{{ $checklist->id }}][status]"
                                                                             value="1"
+                                                                            
                                                                             {{ $selected['value'] == 1 ? 'checked' : '' }}>
                                                                         <span class="ms-1 text-success">✓ OK</span>
                                                                     </label>

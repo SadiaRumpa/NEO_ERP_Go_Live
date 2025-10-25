@@ -284,4 +284,6 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('hs-tools/{id}', [HsToolController::class, 'destroyHsTools'])->name('hs-tools.destroy');
 
     Route::get('tasks', [StaffController::class, 'indexTasks'])->name('tasks.index');
+    Route::get('tasks/show/{task_id}', [StaffController::class, 'showTasks'])->name('tasks.show');
+    Route::put('tasks/update', [StaffController::class, 'updateTasks'])->name('tasks.update');
 });

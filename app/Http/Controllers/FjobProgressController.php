@@ -78,12 +78,12 @@ class FjobProgressController extends Controller
         $jobprogress = FjobProgress::with(['customers' => function ($q) {
             $q->select('id', 'company_name', 'contact_firstname', 'contact_lastname');
         }, 'tasks', 'tasks.resource'])->findOrFail($jobprogressid);
-        $stuffs = User::role('stuff')->orderBy('name', 'asc')->get();
+        $staffs = User::role('staff')->orderBy('name', 'asc')->get();
         // return $jobprogress;
 
         return view('job_overviews.show')->with([
             'jobprogress' => $jobprogress,
-            'stuffs' => $stuffs
+            'staffs' => $staffs
         ]);
     }
 

@@ -62,8 +62,6 @@
                             @endif
                         </td>
                     @endforeach
-
-
                 </tr>
             @endforeach
         </tbody>
@@ -90,7 +88,7 @@
                         </div>
                         <div class="row g-4">
                             <div class="col mb-0">
-                                <label for="upSelect2Info" class="form-label">Stuffs</label>
+                                <label for="upSelect2Info" class="form-label">staffs</label>
                                 <div class="select2-info">
                                     <select id="upSelect2Info" class="select2 form-select" name="workers[]" multiple>
 

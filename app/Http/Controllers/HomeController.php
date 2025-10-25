@@ -50,8 +50,8 @@ class HomeController extends Controller
             return $this->officerManagerDashboard();
         } elseif (auth()->user()->hasRole('lead-job-manager')) {
             return $this->leadJobManagerDashboard();
-        } elseif (auth()->user()->hasRole('stuff')) {
-            return $this->stuffDashboard();
+        } elseif (auth()->user()->hasRole('staff')) {
+            return $this->staffDashboard();
         } else {
             abort(403, 'CAN NOT ACCESS TO ROLE');
         }
@@ -493,10 +493,10 @@ class HomeController extends Controller
         ]);
     }
 
-    public function stuffDashboard()
+    public function staffDashboard()
     {
         $activetasks = Fjob::where('job_status', 'inprogress')->get();
-        return view('dashboards.stuffs')->with([
+        return view('dashboards.staffs')->with([
             'activetasks' => $activetasks,
         ]);
     }

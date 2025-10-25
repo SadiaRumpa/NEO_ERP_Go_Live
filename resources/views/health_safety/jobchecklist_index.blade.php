@@ -98,11 +98,14 @@
                         </div>
                     @endif
 
+                    @hasrole(['office-manager','health-safety-manager'])
+
                     <a href="{{ route('fjob-hs-check.create', ['jobtype' => request('jobtype')]) }}"
                         class="btn btn-primary">
                         <i class="icon-base ti tabler-plus"></i>
                         New RAMS Check
                     </a>
+                    @endhasrole
                 </div>
 
             </div>

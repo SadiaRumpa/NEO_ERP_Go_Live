@@ -63,7 +63,7 @@ class DriverController extends Controller
 
     public function create()
     {
-        $users = User::role('stuff')->orderBy('name', 'asc')->get();
+        $users = User::role('staff')->orderBy('name', 'asc')->get();
         return view('driverdetails.create')->with(['users' => $users]);
     }
 

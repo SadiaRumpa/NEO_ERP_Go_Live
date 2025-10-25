@@ -87,7 +87,7 @@
                         </div>
                         <div class="row g-4">
                             <div class="col mb-0">
-                                <label for="fakeSelect2Info" class="form-label">Stuffs</label>
+                                <label for="fakeSelect2Info" class="form-label">staffs</label>
                                 <div class="select2-info">
                                     <select id="fakeSelect2Info" class="select2 form-select" name="workers[]" multiple>
 

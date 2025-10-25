@@ -149,7 +149,7 @@ class HSController extends Controller
                 'fjob_hs_check_id' => $fjobcheck->id,
                 'hs_checklist_id' => $checklistId,
                 'hs_checklist_title' => $hschecklist->title,
-                'value' => $data['value'],
+                'value' => $data['status'],
                 'remarks' => $data['note'] ?? null,
             ]);
         }
@@ -162,6 +162,7 @@ class HSController extends Controller
         $jobs = Fjob::all();
         $checklists = HsChecklist::where('status', true)->get();
         $fjobcheck = FjobHsCheck::with('checklist')->findOrFail($id);
+
         return view('health_safety.jobchecklist_show', compact('fjobcheck', 'jobs', 'checklists'));
     }
 
