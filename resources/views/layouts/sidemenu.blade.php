@@ -506,8 +506,8 @@
                 </a>
             </li>
             <li
-                class="menu-item {{ request()->is('staff_trainings') || request()->is('staff_trainings/*') ? 'active open' : '' }}">
-                <a href="{{ url('staff_trainings') }}" class="menu-link menu-toggle">
+                class="menu-item {{ request()->is('certificates') || request()->is('certificates/*') ? 'active open' : '' }}">
+                <a href="#" class="menu-link menu-toggle">
                     <i class="menu-icon icon-base ti tabler-brand-databricks"></i>
                     <div data-i18n="staff Training">staff Trainings</div>
                 </a>
@@ -518,8 +518,8 @@
                             <div data-i18n="Training Matrix">Training Matrix</div>
                         </a>
                     </li>
-                    <li class="menu-item">
-                        <a href="#" class="menu-link">
+                    <li class="menu-item {{ request()->is('certificates') || request()->is('certificates/*') ? 'active' : '' }}">
+                        <a href="{{ url('certificates') }}" class="menu-link">
                             <div data-i18n="Certificates">Certificates</div>
                         </a>
                     </li>

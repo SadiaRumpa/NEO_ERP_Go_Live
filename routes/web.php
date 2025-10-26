@@ -31,6 +31,7 @@ use App\Http\Controllers\VehicleCategoryController;
 use App\Http\Controllers\VehicleCheckingController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\VehicleOverviewController;
+use App\Http\Controllers\CertificateController;
 
 Route::get('/', function () {
     return Redirect::to('/login');
@@ -286,4 +287,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('tasks', [StaffController::class, 'indexTasks'])->name('tasks.index');
     Route::get('tasks/show/{task_id}', [StaffController::class, 'showTasks'])->name('tasks.show');
     Route::put('tasks/update', [StaffController::class, 'updateTasks'])->name('tasks.update');
+
+    Route::get('certificates', [CertificateController::class, 'index'])->name('certificates.index');
+    Route::get('certificates/create', [CertificateController::class, 'create'])->name('certificates.create');
+    Route::post('certificates/store', [CertificateController::class, 'store'])->name('certificates.store');
+    Route::get('certificates/{id}', [CertificateController::class, 'show'])->name('certificates.show');
+    Route::get('certificates/{id}/edit', [CertificateController::class, 'edit'])->name('certificates.edit');
+    Route::put('certificates/{id}/update', [CertificateController::class, 'update'])->name('certificates.update');
+    Route::delete('certificates/{id}', [CertificateController::class, 'destroy'])->name('certificates.destroy');
 });
