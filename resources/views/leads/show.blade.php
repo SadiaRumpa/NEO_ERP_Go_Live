@@ -47,7 +47,7 @@
                     <div class="d-flex flex-column justify-content-center">
                         <span class="h5 mb-0">
                             LEAD #<span class="badge bg-label-secondary me-1 ms-2">{{ $lead->lead_name }}</span>
-                            @hasrole(['lead-manager', 'office-manager'])
+                            @hasrole(['lead-manager', 'office-manager', 'lead-job-manager'])
                                 @if ($lead->lead_status == 'inprogress')
                                     <a class="btn btn-label-info ms-2" href="{{ route('quotations.lead', $lead->id) }}">
                                         GENERATE QUOTATION
@@ -56,7 +56,7 @@
                             @endhasrole
                         </span>
                     </div>
-                    @hasrole(['lead-manager', 'office-manager'])
+                    @hasrole(['lead-manager', 'office-manager', 'lead-job-manager'])
                         <div class="d-flex align-content-center flex-wrap gap-4">
                             <!-- Alert message area -->
                             <div id="status-alert" style="display:none;" class="alert mt-2"></div>
@@ -218,7 +218,7 @@
                             <div class="card mb-6">
                                 <div class="card-header header-elements">
                                     <h6 class="mb-0 me-2">Office Notes</h6>
-                                    @hasrole(['lead-manager', 'office-manager'])
+                                    @hasrole(['lead-manager', 'office-manager', 'lead-job-manager'])
                                         @if ($lead->lead_status == 'inprogress')
                                             <div class="card-header-elements ms-auto">
                                                 <div class="btn-group">
@@ -298,7 +298,7 @@
                                     <h6 class="mb-0 me-2">Site Images</h6>
 
                                     <div class="card-header-elements ms-auto">
-                                        @hasrole(['lead-manager', 'office-manager'])
+                                        @hasrole(['lead-manager', 'office-manager', 'lead-job-manager'])
                                             <div class="btn-group">
                                                 @if ($lead->lead_status == 'inprogress')
                                                     <!-- Image Modal -->
@@ -319,7 +319,7 @@
                                                 @foreach ($lead->leadimages as $enim)
                                                     <div class="swiper-slide position-relative"
                                                         style="background-image: url({{ $enim->source == 's3' ? $enim->image_url : asset($enim->image_path) }})">
-                                                        @hasrole(['lead-manager', 'office-manager'])
+                                                        @hasrole(['lead-manager', 'office-manager', 'lead-job-manager'])
                                                             @if ($lead->lead_status == 'inprogress')
                                                                 <div class="position-absolute top-0 end-0 p-2">
                                                                     <button class="btn btn-sm btn-danger delete-image"
@@ -650,7 +650,7 @@
                                         <div class="card-header header-elements">
                                             <h6 class="mb-0 me-2">Site Location</h6>
                                             <div class="card-header-elements ms-auto">
-                                                @hasrole(['lead-manager', 'office-manager'])
+                                                @hasrole(['lead-manager', 'office-manager', 'lead-job-manager'])
                                                     <div class="btn-group">
                                                         @if ($lead->lead_status == 'inprogress')
                                                             <!-- Edit location -->

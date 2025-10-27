@@ -45,7 +45,7 @@
                             </span>
                         </div>
 
-                        @hasrole(['lead-manager', 'enquiry-manager', 'office-manager'])
+                        @hasrole(['lead-job-manager', 'enquiry-manager', 'office-manager'])
                             <div class="d-flex align-content-center flex-wrap gap-4">
                                 <div class="d-flex gap-4">
                                     @if ($enquiry->enquiry_status == 'new' || $enquiry->enquiry_status == 'inprogress')
