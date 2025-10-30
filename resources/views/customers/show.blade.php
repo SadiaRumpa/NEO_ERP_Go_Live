@@ -165,7 +165,58 @@
             $('#addNewAddress').on('hidden.bs.modal', function() {
                 $('#customeraddresstype').val(''); // optional: clear value
             });
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            $('#useraccessForm').on('submit', function(e) {
+                e.preventDefault();
 
+                let formData = new FormData(this);
+                let submitButton = $(this).find('button[type="submit"]');
+                submitButton.prop('disabled', true).text('Submitting...');
+
+                $.ajax({
+                    url: "{{ route('users.store') }}", // ✅ Your Laravel route to handle creation
+                    type: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    dataType: "json",
+                    success: function(response) {
+                        if (response.success) {
+                            // ✅ Success message
+                            toastr.success('Customer details updated successfully.');
+
+
+                            // Close modal and reset form
+                            $('#useraccess').modal('hide');
+                            $('#useraccessForm')[0].reset();
+
+                            // (Optional) Reload a table if you're using DataTables
+                            if ($('.datatables-ajax').length) {
+                                $('.datatables-ajax').DataTable().ajax.reload(null, false);
+                            }
+                            location.reload(); // This will reload the entire page
+                        } else {
+                            toastr.error(response.message || 'Something went wrong!');
+                        }
+                    },
+                    error: function(xhr) {
+                        let errors = xhr.responseJSON?.errors;
+                        let message = "An error occurred while creating the user.";
+
+                        if (errors) {
+                            message = Object.values(errors).flat().join("\n");
+                        }
+
+                        toastr.error(message);
+                    },
+                    complete: function() {
+                        submitButton.prop('disabled', false).text('Submit');
+                    }
+                });
+            });
         });
     </script>
 @endsection
@@ -231,10 +282,70 @@
                             <div class="d-flex align-items-center flex-column">
                                 <div class="customer-info text-center mb-6">
                                     <h4 class="mb-0">{{ $customer->company_name }}</h4>
-                                    <!-- <span>Customer ID #634759</span> -->
+                                    @if ($useraccess)
+                                        <span class="badge bg-label-success">Username: {{ $useraccess->email }}</span>
+                                        <span class="badge bg-label-success">Password: ******</span>
+                                    @endif
+                                    <a href="javascript:;" class="btn btn-xs btn-primary waves-effect waves-light"
+                                        data-bs-target="#useraccess" data-bs-toggle="modal">
+                                        <span class="icon-base ti tabler-edit icon-xs me-1"></span>User Access
+                                    </a>
+
                                 </div>
                             </div>
                         </div>
+                        <!-- User Access Modal -->
+                        <div class="modal fade" id="useraccess" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-lg modal-simple modal-edit-user">
+                                <div class="modal-content">
+                                    <div class="modal-body">
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                        <div class="text-center mb-6">
+                                            <h4 class="mb-2">User Access Information</h4>
+                                        </div>
+                                        <form id="useraccessForm" class="row g-6" onsubmit="return false">
+                                            @csrf
+                                            <div class="col-12 col-md-6">
+                                                <label class="form-label" for="fullname">Full Name</label>
+                                                <input type="text" id="fullname" name="name"
+                                                    class="form-control"
+                                                    value="{{ $customer->contact_firstname . ' ' . $customer->contact_lastname }}" readonly />
+                                            </div>
+
+                                            <div class="col-12 col-md-6">
+                                                <label class="form-label" for="useraccessEmail">Email</label>
+                                                <input type="text" id="useraccessEmail" name="email"
+                                                    class="form-control" placeholder="example@domain.com"
+                                                    value="{{ $customer->contact_email }}" readonly />
+                                            </div>
+
+                                            <div class="col-12 col-md-6">
+                                                <label class="form-label" for="useraccessPassword">Password</label>
+                                                <input type="text" id="useraccessPassword" name="password"
+                                                    class="form-control" placeholder="Enter Password" required />
+                                            </div>
+
+                                            <div class="col-12 col-md-6">
+                                                <label class="form-label" for="confirmPassword">Confirm Password</label>
+                                                <input type="text" id="confirmPassword" name="confirmPassword"
+                                                    class="form-control" placeholder="Enter Password" required />
+                                            </div>
+
+                                            <div class="col-12 text-center">
+                                                <input type="hidden" name="role" value="customer" />
+                                                <button type="submit" class="btn btn-primary me-3">Submit</button>
+                                                <button type="reset" class="btn btn-label-secondary"
+                                                    data-bs-dismiss="modal" aria-label="Close">
+                                                    Cancel
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--/ User Access Modal -->
 
                         <div class="card mb-6">
                             <div class="card-header header-elements pb-4 border-bottom text-capitalize mb-4">

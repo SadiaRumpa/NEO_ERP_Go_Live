@@ -23,7 +23,8 @@ class Lead extends Model
         'annual_maintenance',
         'installations',
         'repairs',
-        'testing'
+        'testing',
+        'assigned_to'
     ];
 
     public function getSlugOptions(): SlugOptions

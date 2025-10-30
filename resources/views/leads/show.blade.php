@@ -47,6 +47,7 @@
                     <div class="d-flex flex-column justify-content-center">
                         <span class="h5 mb-0">
                             LEAD #<span class="badge bg-label-secondary me-1 ms-2">{{ $lead->lead_name }}</span>
+
                             @hasrole(['lead-manager', 'office-manager', 'lead-job-manager'])
                                 @if ($lead->lead_status == 'inprogress')
                                     <a class="btn btn-label-info ms-2" href="{{ route('quotations.lead', $lead->id) }}">
@@ -222,7 +223,8 @@
                                         @if ($lead->lead_status == 'inprogress')
                                             <div class="card-header-elements ms-auto">
                                                 <div class="btn-group">
-                                                    <button type="button" class="btn btn-sm btn-warning waves-effect waves-light"
+                                                    <button type="button"
+                                                        class="btn btn-sm btn-warning waves-effect waves-light"
                                                         data-bs-toggle="modal" data-bs-target="#editdescriptionModal">
                                                         Update
                                                     </button>
@@ -302,7 +304,8 @@
                                             <div class="btn-group">
                                                 @if ($lead->lead_status == 'inprogress')
                                                     <!-- Image Modal -->
-                                                    <button type="button" class="btn btn-warning btn-sm waves-effect waves-light"
+                                                    <button type="button"
+                                                        class="btn btn-warning btn-sm waves-effect waves-light"
                                                         data-bs-toggle="modal" data-bs-target="#imageAddModal">
                                                         Add More
                                                     </button>
@@ -488,6 +491,45 @@
 
                         <!-- lead location column -->
                         <div class="col-12 col-lg-4">
+                            <!-- Assigned To -->
+                            <div class="row mb-6 gy-6">
+                                <div class="col-xl order-1 order-xl-0">
+                                    <div class="card">
+                                        <div class="card-header header-elements">
+                                            <h6 class="mb-0 me-2">Assigned To</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="mb-2">
+                                                @php
+                                                    $assignedUsers = json_decode($lead->assigned_to, true);
+                                                    $leadmen = App\Models\User::whereIn(
+                                                        'id',
+                                                        $assignedUsers ?? [],
+                                                    )->get();
+                                                @endphp
+
+                                                @if ($leadmen->count())
+                                                    @foreach ($leadmen as $leadman)
+                                                        <div class="d-flex align-items-center mb-3">
+                                                            <div>
+                                                                <h6 class="mb-0">{{ $leadman->name }}</h6>
+                                                                <span
+                                                                    class="text-body-secondary">{{ $leadman->email }}</span>
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
+                                                @else
+                                                    <div class="d-flex align-items-center mb-3">
+                                                        <span class="text-body-secondary">Not Assigned</span>
+                                                    </div>
+                                                @endif
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- Attachments -->
                             <div class="row mb-6 gy-6">
                                 <div class="col-xl order-2 order-xl-0">
@@ -521,7 +563,8 @@
                                                                     {{ $lead->completedquotation->created_at->format('d M Y') }}
                                                                 </small>
                                                             </div>
-                                                            <p class="mb-2">{{ $lead->completedquotation->remarks }}</p>
+                                                            <p class="mb-2">{{ $lead->completedquotation->remarks }}
+                                                            </p>
 
                                                             <div class="d-flex align-items-center mb-2">
                                                                 <a href="{{ route('quotations.download-pdf', $lead->completedquotation->id) }}"
@@ -546,7 +589,8 @@
                                                             <span class="timeline-point timeline-point-primary"></span>
                                                             <div class="timeline-event">
                                                                 <div class="timeline-header mb-3">
-                                                                    <h6 class="mb-0">{{ $enat->attachment_name }}</h6>
+                                                                    <h6 class="mb-0">{{ $enat->attachment_name }}
+                                                                    </h6>
                                                                     @if ($lead->lead_status == 'inprogress')
                                                                         <small class="text-body-secondary">
                                                                             <span
@@ -591,7 +635,8 @@
                                         action="{{ route('leads.attachments-upload') }}">
                                         @csrf
                                         <div class="modal-header">
-                                            <h5 class="modal-title" id="uploadAttachmentsModalTitle">Upload Attachments
+                                            <h5 class="modal-title" id="uploadAttachmentsModalTitle">Upload
+                                                Attachments
                                             </h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal"
                                                 aria-label="Close"></button>
@@ -643,7 +688,8 @@
                                 </div>
                             </div>
                             <!--/ Attachments -->
-
+                            
+                            <!-- Site Location -->
                             <div class="row mb-6 gy-6">
                                 <div class="col-xl">
                                     <div class="card mb-6">
@@ -682,7 +728,8 @@
                                                     </span>
                                                     <div class="timeline-event ps-1">
                                                         <div class="timeline-header">
-                                                            <small class="text-primary text-uppercase">Site Address</small>
+                                                            <small class="text-primary text-uppercase">Site
+                                                                Address</small>
                                                         </div>
                                                         <!-- <h6 class="my-50">Barry Schowalter</h6> -->
                                                         <p class="text-body mb-0">{{ $lead->leadaddress->address }},
@@ -757,6 +804,8 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- Customer Details -->
                             <div class="row mb-6 gy-6">
                                 <div class="col-xl">
                                     <div class="card h-100">
@@ -826,10 +875,12 @@
                                                                     </h6>
 
                                                                     <p class="text-body mb-0">
-                                                                        <span class="text-heading fw-medium">eMail: </span>
+                                                                        <span class="text-heading fw-medium">eMail:
+                                                                        </span>
                                                                         <span>{{ $lead->customer->contact_email ?? '-' }}</span>
                                                                         <br>
-                                                                        <span class="text-heading fw-medium">Phone: </span>
+                                                                        <span class="text-heading fw-medium">Phone:
+                                                                        </span>
                                                                         <span>{{ $lead->customer->contact_phone ?? '-' }}</span>
                                                                         <br>
                                                                         <span class="text-heading fw-medium">Mobile:
@@ -892,10 +943,12 @@
                                                                                 {{ $lead->customer->billingaddress->contact_lastname ?? 'N/A' }}</small>
                                                                         </div>
                                                                         <p class="text-body mb-0">
-                                                                            <span class="text-heading fw-medium">eMail: </span>
+                                                                            <span class="text-heading fw-medium">eMail:
+                                                                            </span>
                                                                             <span>{{ $lead->customer->billingaddress->contact_email ?? 'N/A' }}</span>
                                                                             <br>
-                                                                            <span class="text-heading fw-medium">Phone: </span>
+                                                                            <span class="text-heading fw-medium">Phone:
+                                                                            </span>
                                                                             <span>{{ $lead->customer->billingaddress->contact_phone ?? 'N/A' }}</span>
                                                                             <br>
                                                                             <span class="text-heading fw-medium">Mobile:
@@ -1035,7 +1088,8 @@
                                                             <input name="lead_priority" class="form-check-input"
                                                                 type="radio" value="low" id="lead-priority-low"
                                                                 @if ($lead->lead_priority == 'low') checked @endif />
-                                                            <label class="form-check-label" for="lead-priority-low"> Low
+                                                            <label class="form-check-label" for="lead-priority-low">
+                                                                Low
                                                             </label>
                                                         </div>
                                                         <div class="form-check form-check-inline">

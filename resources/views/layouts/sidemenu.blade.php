@@ -64,6 +64,12 @@
 
                 </ul>
             </li>
+            <li class="menu-item {{ request()->is('customers') || request()->is('customers/*') ? 'active' : '' }}">
+                <a href="{{ url('customers') }}" class="menu-link">
+                    <i class="menu-icon icon-base ti tabler-user-cog"></i>
+                    <div data-i18n="Customers">Customers</div>
+                </a>
+            </li>
         @endhasrole
         @hasrole('office-manager')
             <li
@@ -518,7 +524,8 @@
                             <div data-i18n="Training Matrix">Training Matrix</div>
                         </a>
                     </li>
-                    <li class="menu-item {{ request()->is('certificates') || request()->is('certificates/*') ? 'active' : '' }}">
+                    <li
+                        class="menu-item {{ request()->is('certificates') || request()->is('certificates/*') ? 'active' : '' }}">
                         <a href="{{ url('certificates') }}" class="menu-link">
                             <div data-i18n="Certificates">Certificates</div>
                         </a>

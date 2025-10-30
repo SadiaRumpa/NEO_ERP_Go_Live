@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Models\Customer;
 use App\Models\Enquiry;
+use App\Models\User;
 use Yajra\DataTables\Facades\DataTables;
 
 class CustomerController extends Controller
@@ -93,10 +94,11 @@ class CustomerController extends Controller
     public function show(string $id)
     {
         $customer = Customer::with(['billingaddress', 'siteaddress', 'findetails'])->findOrFail($id);
-        // return response()->json($customer);
+        $useraccess = User::where('email', $customer->contact_email)->first();
 
         return view('customers.show')->with([
-            'customer' => $customer
+            'customer' => $customer,
+            'useraccess' => $useraccess
         ]);
     }
 

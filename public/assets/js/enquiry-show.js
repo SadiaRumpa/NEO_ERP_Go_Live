@@ -170,42 +170,61 @@ $('form').on('submit', function () {
     $('#mailmessage_input').val(quill.root.innerHTML);
 });
 
-$(document).ready(function () {
-    $('.convert-to-lead').on('click', function () {
-        let enquiryId = $(this).data('id');
-        let status = $(this).data('status');
 
-        // Confirmation dialog
-        if (!confirm(`Are you sure you want to send it to Lead Manager?`)) {
-            return; // Stop if user cancels
-        }
+$(document).ready(function () {
+    let selectedEnquiryId = null;
+    let selectedStatus = null;
+
+    // When clicking "SEND to ESTIMATOR"
+    $('.convert-to-lead').on('click', function () {
+        selectedEnquiryId = $(this).data('id');
+        selectedStatus = $(this).data('status');
+
+        // Set hidden values inside modal
+        $('#modalEnquiryId').val(selectedEnquiryId);
+        $('#modalStatus').val(selectedStatus);
+
+        // Reset previous selections
+        $('#leadConversionForm')[0].reset();
+
+        // Show modal
+        $('#leadConversionModal').modal('show');
+    });
+
+    // Handle modal form submission
+    $('#leadConversionForm').on('submit', function (e) {
+        e.preventDefault();
+
+        let formData = $(this).serialize();
+        let submitButton = $(this).find('button[type="submit"]');
+        submitButton.prop('disabled', true).text('Processing...');
 
         $.ajax({
             url: '/enquiry-to-lead-conversion',
             type: 'POST',
-            data: {
-                _token: $('meta[name="csrf-token"]').attr('content'), // CSRF token
-                status: status,
-                enquiry_id: enquiryId
-            },
+            data: formData,
             success: function (response) {
-                toastr.success(response.message);
-
+                $('#leadConversionModal').modal('hide');
+                toastr.success(response.message || 'Enquiry sent successfully!');
                 setTimeout(() => {
                     location.reload();
-                }, 1500);
+                }, 1000);
             },
             error: function (xhr) {
                 let errorMsg = 'An error occurred.';
                 if (xhr.responseJSON && xhr.responseJSON.message) {
                     errorMsg = xhr.responseJSON.message;
                 }
-
-                toastr.danger(errorMsg);
+                toastr.error(errorMsg);
+            },
+            complete: function () {
+                submitButton.prop('disabled', false).text('Send to Estimator');
             }
         });
     });
 });
+
+
 
 $(document).on('click', '.update-enquiry-status', function (e) {
     e.preventDefault();

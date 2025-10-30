@@ -13,6 +13,7 @@ use App\Models\LeadAddress;
 use App\Models\LeadImage;
 use App\Models\LeadNote;
 use App\Models\MailTemplate;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Auth;
@@ -243,7 +244,7 @@ class EnquiryController extends Controller
                 'enquiry_priority' => $validated['enquiry_priority'] ?? 'low',
                 'enquiry_source' => $request->input('enquiry_source') ?? 'call',
             ]);
-            
+
             EnquiryAddress::create([
                 'enquiry_id' => $enquiry->id,
                 'contact_firstname' => $validated['contactPersonFirstName'] ?? $customer->contact_firstname,
@@ -313,7 +314,11 @@ class EnquiryController extends Controller
         }
         $mailtemplates = MailTemplate::where('status', 'active')->orderBy('id', 'desc')->get();
 
-        return view('enquiries.show', compact('enquiry', 'mailtemplates'));
+        $leadmanagers = User::whereHas('roles', function ($query) {
+            $query->whereIn('name', ['job-manager', 'lead-job-manager']);
+        })->get();
+
+        return view('enquiries.show', compact('enquiry', 'mailtemplates', 'leadmanagers'));
     }
 
     public function enqueryNotes(Request $request, $enquiry_id)
@@ -524,6 +529,7 @@ class EnquiryController extends Controller
 
     public function enquerytoLeadConversion(Request $request)
     {
+        // return $request->all();
         $validated = $request->validate([
             'enquiry_id' => 'required|exists:enquiries,id',
             'status' => 'required|string',
@@ -551,7 +557,8 @@ class EnquiryController extends Controller
             'annual_maintenance'  => $enquiry->annual_maintenance,
             'installations'       => $enquiry->installations,
             'repairs'             => $enquiry->repairs,
-            'testing'             => $enquiry->testing
+            'testing'             => $enquiry->testing,
+            'assigned_to' => json_encode($request->users),
         ]);
 
         LeadAddress::create([
@@ -587,6 +594,7 @@ class EnquiryController extends Controller
         }
         $enquiry->update(['enquiry_status' => $validated['status']]);
 
+        return $lead;
 
         return response()->json(['status' => 'success', 'message' => 'Enquiry converted to lead successfully.']);
     }

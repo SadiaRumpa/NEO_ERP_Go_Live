@@ -99,6 +99,54 @@
                                                 </ul>
                                             @endif
                                         </div>
+                                        <!-- Lead Conversion Modal -->
+                                        <div class="modal fade" id="leadConversionModal" tabindex="-1" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered modal-lg">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Select Estimator(s)</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                            aria-label="Close"></button>
+                                                    </div>
+
+                                                    <form id="leadConversionForm">
+                                                        @csrf
+                                                        <div class="modal-body">
+                                                            <p>Select one or more users to assign this enquiry:</p>
+                                                            <div class="row">
+                                                                @foreach ($leadmanagers as $user)
+                                                                    <div class="col-md-6 mb-2">
+                                                                        <div class="form-check">
+                                                                            <input class="form-check-input user-checkbox"
+                                                                                type="checkbox" name="users[]"
+                                                                                value="{{ $user->id }}"
+                                                                                id="user_{{ $user->id }}">
+                                                                            <label class="form-check-label"
+                                                                                for="user_{{ $user->id }}">
+                                                                                {{ $user->name }} ({{ $user->email }})
+                                                                            </label>
+                                                                        </div>
+                                                                    </div>
+                                                                @endforeach
+                                                            </div>
+
+                                                            <!-- Hidden fields -->
+                                                            <input type="hidden" name="enquiry_id" id="modalEnquiryId">
+                                                            <input type="hidden" name="status" id="modalStatus">
+                                                        </div>
+
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-label-secondary"
+                                                                data-bs-dismiss="modal">Cancel</button>
+                                                            <button type="submit" class="btn btn-primary">Send to
+                                                                Estimator</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!--/ Lead Conversion Modal -->
+
                                     @else
                                         <span
                                             class="badge @if ($enquiry->enquiry_status == 'converted_to_lead') bg-success @else bg-danger @endif bg-glow me-1 ms-2">
@@ -141,8 +189,8 @@
                                                             @endforeach
                                                         </select>
 
-                                                        <button class="btn btn-outline-primary waves-effect" type="button"
-                                                            onclick="selectMailTemplate()">
+                                                        <button class="btn btn-outline-primary waves-effect"
+                                                            type="button" onclick="selectMailTemplate()">
                                                             Select Mail
                                                         </button>
 
@@ -154,15 +202,19 @@
                                                     <div class="card">
                                                         <div class="card-body">
                                                             <div class="mb-4">
-                                                                <label for="sendtoemail" class="form-label">Send to</label>
-                                                                <input type="email" class="form-control" id="sendtoemail"
-                                                                    placeholder="name@example.com" name="sendtoemail"
+                                                                <label for="sendtoemail" class="form-label">Send
+                                                                    to</label>
+                                                                <input type="email" class="form-control"
+                                                                    id="sendtoemail" placeholder="name@example.com"
+                                                                    name="sendtoemail"
                                                                     value="{{ $enquiry->customer->contact_email }}">
                                                             </div>
                                                             <div class="mb-4">
-                                                                <label for="mailsubject" class="form-label">Subject</label>
-                                                                <input class="form-control" type="text" id="mailsubject"
-                                                                    aria-label="readonly input example" name="mailsubject"
+                                                                <label for="mailsubject"
+                                                                    class="form-label">Subject</label>
+                                                                <input class="form-control" type="text"
+                                                                    id="mailsubject" aria-label="readonly input example"
+                                                                    name="mailsubject"
                                                                     value="Enquiry {{ $enquiry->enquiry_name }} has been rejected">
                                                             </div>
                                                             <div class="form-control p-0">
