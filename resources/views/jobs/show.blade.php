@@ -67,7 +67,7 @@
                                     default => 'secondary',
                                 };
                             @endphp
-                            @hasrole(['job-manager', 'office-manager', 'accounts-manager'])
+                            @hasrole(['job-manager', 'office-manager', 'accounts-manager', 'lead-job-manager'])
                                 <button type="button" class="btn btn-dark btn-sm" data-bs-toggle="modal"
                                     data-bs-target="#modalCenter">
                                     <i class="icon-base ti tabler-edit"></i>
@@ -120,7 +120,7 @@
                         </div>
                     </div>
 
-                    @hasrole(['job-manager', 'office-manager'])
+                    @hasrole(['job-manager', 'office-manager', 'lead-job-manager'])
                         <div class="d-flex align-content-center flex-wrap gap-4">
                             <!-- Alert message area -->
                             <div id="status-alert" style="display:none;" class="alert mt-2"></div>
@@ -137,7 +137,7 @@
                                         {{ beautify_status($status) }}
                                     </button>
 
-                                    @hasrole(['job-manager', 'office-manager'])
+                                    @hasrole(['job-manager', 'office-manager', 'lead-job-manager'])
                                         <button type="button"
                                             class="btn btn-label-{{ $labelClass }} dropdown-toggle dropdown-toggle-split waves-effect"
                                             data-bs-toggle="dropdown" aria-expanded="false">
@@ -315,7 +315,7 @@
                         <div class="card mb-6">
                             <div class="card-header header-elements">
                                 <h6 class="mb-0 me-2">Job Information</h6>
-                                @hasrole(['job-manager', 'office-manager'])
+                                @hasrole(['job-manager', 'office-manager', 'lead-job-manager'])
                                     @if ($job->job_status == 'inprogress')
                                         <div class="card-header-elements ms-auto">
                                             <div class="btn-group">
@@ -394,7 +394,7 @@
                                 <h6 class="mb-0 me-2">Job Images</h6>
 
                                 <div class="card-header-elements ms-auto">
-                                    @hasrole(['job-manager', 'office-manager'])
+                                    @hasrole(['job-manager', 'office-manager', 'lead-job-manager'])
                                         <div class="btn-group">
                                             @if ($job->job_status == 'inprogress')
                                                 <!-- Image Modal -->
@@ -415,7 +415,7 @@
                                             @foreach ($job->jobimages as $enim)
                                                 <div class="swiper-slide position-relative"
                                                     style="background-image: url({{ $enim->source == 's3' ? $enim->image_url : asset($enim->image_path) }})">
-                                                    @hasrole(['job-manager', 'office-manager'])
+                                                    @hasrole(['job-manager', 'office-manager', 'lead-job-manager'])
                                                         @if ($job->job_status == 'inprogress')
                                                             <div class="position-absolute top-0 end-0 p-2">
                                                                 <button class="btn btn-sm btn-danger delete-image"
@@ -580,7 +580,7 @@
                     <!-- job location column -->
                     <div class="col-12 col-lg-4">
                         <!-- job Attributes -->
-                        @hasrole(['job-manager', 'office-manager'])
+                        @hasrole(['job-manager', 'office-manager', 'lead-job-manager'])
                             <div class="row mb-6 gy-6">
                                 <div class="col-xl order-2 order-xl-0">
                                     <div class="card mb-6">
@@ -784,7 +784,7 @@
                                         <h6 class="mb-0 me-2">Site Location</h6>
 
                                         <div class="card-header-elements ms-auto">
-                                            @hasrole(['job-manager', 'office-manager'])
+                                            @hasrole(['job-manager', 'office-manager','lead-job-manager'])
                                                 <div class="btn-group">
                                                     @if ($job->job_status == 'inprogress')
                                                         <!-- Edit location -->
