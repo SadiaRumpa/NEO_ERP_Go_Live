@@ -53,7 +53,7 @@
                                                 @else btn-primary @endif"
                                             data-bs-toggle="modal" data-bs-target="#scheduleUpdateModal"
                                             data-id="{{ $jobSchedule->id }}">
-                                            {{ $jobSchedule->job_name }} - {{ $jobSchedule->job_title }}
+                                            {{ $jobSchedule->job_name }} - {{ $jobSchedule->job_title }} {{ $jobSchedule->id }}
                                         </button>
                                     </div>
                                 @endforeach
@@ -173,7 +173,7 @@
         const modal = document.getElementById('scheduleUpdateModal');
         if (!modal) return;
 
-        // ✅ Initialize Flatpickr
+        // Initialize Flatpickr
         const flatpickrInput = modal.querySelector('#flatpickr-range2');
         if (flatpickrInput) {
             flatpickr(flatpickrInput, {
@@ -184,13 +184,13 @@
             });
         }
 
-        // ✅ Initialize Quill
+        // Initialize Quill
         const quillEditor = new Quill('#instructionu', {
             theme: 'snow',
             placeholder: 'Write your message...',
         });
 
-        // ✅ Initialize Select2 (deferred to on modal show)
+        // Initialize Select2 (deferred to on modal show)
         const workerSelect = $(modal).find('#upSelect2Info');
         if (workerSelect.length) {
             workerSelect.select2({
@@ -198,7 +198,7 @@
             });
         }
 
-        // 🎯 Show Event Handler
+        // Show Event Handler
         modal.addEventListener('show.bs.modal', function(event) {
             const button = event.relatedTarget;
             const jobScheduleId = button?.getAttribute('data-id');
@@ -218,6 +218,8 @@
                 fetch(`/scheduler/job-schedule/${jobScheduleId}`)
                     .then(response => response.json())
                     .then(data => {
+
+                       
                         const schedule = data.schedule;
                         const workers = data.workers;
                         const workerslist = data.workerslist;
@@ -227,7 +229,7 @@
                         const GOOGLE_MAPS_API_KEY =
                             "{{ config('services.google.maps_api_key') }}";
 
-                        // 📝 Set Fields
+                        // Set Fields
                         jobNameInput.value = schedule.job_name || '';
                         flatpickrInput.value =
                             `${schedule.start_date} to ${schedule.end_date}`;
@@ -236,7 +238,7 @@
                             '');
                         instructionInput.value = schedule.instructions || '';
 
-                        // 👥 Populate Workers
+                        // Populate Workers
                         const assignedWorkerIds = workers.map(w => w.id.toString());
                         workerSelectEl.innerHTML = '';
                         workerslist.forEach(worker => {
@@ -250,7 +252,7 @@
                         });
                         $(workerSelectEl).trigger('change');
 
-                        // 🔄 Populate Status Option
+                        // Populate Status Option
                         const statusOptions = ['assigned', 'inprogress', 'completed', 'cancelled'];
                         statusSelectEl.innerHTML = '';
                         statusOptions.forEach(status => {
@@ -263,10 +265,10 @@
                             statusSelectEl.appendChild(option);
                         });
 
-                        // 🆔 Set Schedule ID
+                        // Set Schedule ID
                         jobScheduleIdInput.value = schedule.id;
 
-                        // 📌 Job Details
+                        // Job Details
                         modal.querySelector('#jobDescription').innerHTML = job.job_description || '';
                         modal.querySelector('#companyName').textContent = jobCustomer
                             .company_name || '';
@@ -291,7 +293,7 @@
             }, 100);
         });
 
-        // 🔁 Reset Modal on Close
+        // Reset Modal on Close
         modal.addEventListener('hidden.bs.modal', function() {
             modal.querySelector('#jobname').value = '';
             flatpickrInput.value = '';
@@ -362,7 +364,6 @@
     }
     function removeAssignment(assignmentId) {
         if (!confirm('Are you sure you want to remove this assignment?')) return;
-
         fetch(`/scheduler/delete-schedule/${assignmentId}`, {
                 method: 'DELETE',
                 headers: {

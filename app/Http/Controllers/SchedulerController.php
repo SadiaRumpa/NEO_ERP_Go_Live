@@ -306,7 +306,6 @@ class SchedulerController extends Controller
     public function deleteSchedule(Request $request, $id)
     {
         $schedule = JobSchedule::find($id);
-
         if (!$schedule) {
             return response()->json(['error' => 'Schedule not found'], 404);
         }
