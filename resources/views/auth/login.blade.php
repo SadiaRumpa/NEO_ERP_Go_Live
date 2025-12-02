@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Create Business Info')
+@section('title', 'Login')
 @section('scripts')
     @parent
 @endsection

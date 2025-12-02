@@ -4,7 +4,7 @@
 
 'use strict';
 
-let assetsPath = "https://neoerp.test/assets/";
+let assetsPath = "URL/assets/";
 
 window.isRtl = window.Helpers.isRtl();
 window.isDarkStyle = window.Helpers.isDarkStyle();
