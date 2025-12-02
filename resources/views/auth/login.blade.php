@@ -1,5 +1,15 @@
 @extends('layouts.app')
 
+@section('title', 'Create Business Info')
+@section('scripts')
+    @parent
+@endsection
+
+@section('styles')
+    @parent
+
+@endsection
+
 @section('content')
 <div class="authentication-wrapper authentication-cover">
     <!-- Logo -->
@@ -24,7 +34,7 @@
         <!-- Login -->
         <div class="d-flex col-12 col-xl-4 align-items-center authentication-bg p-sm-12 p-6">
             <div class="w-px-400 mx-auto mt-12 pt-5">
-                <h4 class="mb-1">Welcome to NEOERP! 👋</h4>
+                <h4 class="mb-1">Welcome to {{ $appbrand->business_brand_app_name??'ERP' }}! 👋</h4>
                 <p class="mb-6">Please login to your account and start the adventure</p>
 
                 @if ($errors->any())

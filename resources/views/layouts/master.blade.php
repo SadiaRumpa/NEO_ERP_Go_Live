@@ -10,12 +10,12 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('title') | NEOERP</title>
+    <title>@yield('title') | {{ $appbrand->business_brand_app_name??'ERP' }}</title>
 
     <meta name="description" content="" />
 
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{{ asset('assets/img/favicon/favicon.ico') }}" />
+    <link rel="icon" type="image/x-icon" href="{{ $appbrand->business_favicon??asset('assets/img/favicon/favicon.ico') }}" />
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -78,11 +78,12 @@
                             <i class="icon-base ti tabler-menu-2 icon-md"></i>
                         </a>
                     </div>
-
+                    
                     <div class="navbar-nav-right d-flex align-items-center justify-content-end" id="navbar-collapse">
                         <!-- Search -->
                         <div class="navbar-nav align-items-center">
                             <div class="nav-item navbar-search-wrapper px-md-0 px-2 mb-0">
+                                <div style="font-weight: bold;">{{ $appbrand->business_name??'' }}</div>
                                 {{-- <a class="nav-item nav-link search-toggler d-flex align-items-center px-0" href="javascript:void(0);">
                                     <span class="d-inline-block text-body-secondary fw-normal" id="autocomplete"></span>
                                 </a>  --}}
@@ -253,12 +254,7 @@
                             <div
                                 class="footer-container d-flex align-items-center justify-content-between py-4 flex-md-row flex-column">
                                 <div class="text-body">
-                                    ©
-                                    <script>
-                                        document.write(new Date().getFullYear());
-                                    </script>
-                                    , made with ❤️ by <a href="https://neotericdigital.co.uk/" target="_blank"
-                                        class="footer-link">Neoteric Digital</a>
+                                    {!! isset($appbrand) && $appbrand->business_brand_credit_on_footer_enable==1?$appbrand->business_brand_credit_on_footer??'':'' !!}
                                 </div>
 
                             </div>

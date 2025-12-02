@@ -3,6 +3,7 @@
 use App\Http\Controllers\MailTemplateController;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\BusinessInfoController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
@@ -51,6 +52,12 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('users', UserController::class);
     Route::resource('mailtemplates', MailTemplateController::class);
     Route::get('/mail-template/{id}', [MailTemplateController::class, 'showmailtemplate'])->name('mailtemplate.showmail');
+
+    Route::resource('businessinfo', BusinessInfoController::class);
+    // Route::get('/businessinfo/edit/{id}','BusinessInfoController@edit');
+    // Route::get('/businessinfo/create','BusinessInfoController@create');
+    //Route::post('/businessinfo/updatefinancialdetails/{id}', [BusinessInfoController::class, 'updateFinancialDetails'])->name('businessinfo.updatefinancialdetails');
+    Route::post('/businessinfo/upload-brand-files/{id}',[BusinessInfoController::class, 'uploadBrandFiles'])->name('businessinfo.uploadbrandfiles');
 
     Route::resource('enquiries', EnquiryController::class);
     Route::get('enquiry/completed', [EnquiryController::class, 'showCompleted'])->name('enquiry.show.completed');
