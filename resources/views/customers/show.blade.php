@@ -68,8 +68,15 @@
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
                     success: function(response) {
-                        toastr.success('Address deleted successfully.');
-                        window.location.href = `/customers/${customerId}`; // Redirect to customers list
+                        let message = 'Address deleted successfully.';
+                        if (response.message) {
+                            message = response.message;
+                        }
+                        toastr.success(message);
+                        setTimeout(() => {
+                            window.location.href = `/customers/${customerId}`; // Redirect to customers list
+                        }, 1000);
+                        
                     },
                     error: function(xhr) {
                         let message = 'Delete failed.';
@@ -80,7 +87,8 @@
                     }
                 });
             }
-        };
+        }
+
         $(document).ready(function() {
             // Event listener to handle clicking on a suggestion (run this once on page load)
             $(document).on('click', '.suggestion-item', function(e) {
@@ -156,14 +164,79 @@
             $('#addNewAddress').on('show.bs.modal', function(event) {
                 const button = $(document.activeElement); // works with buttons clicked
                 const addressType = button.data('address-type'); // get data-address-type
+                const addressId = button.data('address-id'); // get data-address-type
 
                 if (addressType) {
                     $('#customeraddresstype').val(addressType);
                 }
+                else{
+                    $('#customeraddresstype').val('');
+                }
+
+                if(addressId){
+                    $('.address-title.mb-2').hide();
+                    $('.address-title.mb-3').show();
+                    $('#customeraddressid').val(addressId);
+                    $.ajax({
+                        url: `/customer/address-get/${addressId}`, // Update to your route
+                        type: 'GET',
+                        data: null,
+                        headers: {
+                            'X-CSRF-TOKEN': $('input[name="_token"]').val()
+                        },
+                        beforeSend: function() {
+                            // Optional: show loader or disable submit button
+                        },
+                        success: function(response) {
+                            if(response.id){
+                                $('#modalAddressFirstName').val(response.contact_firstname);
+                                $('#modalAddressLastName').val(response.contact_lastname);
+                                $('#modalAddressemail').val(response.contact_email);
+                                $('#modalAddressPhone').val(response.contact_phone);
+                                $('#modalAddressMobile').val(response.contact_mobile);
+                                $('#modalAddressPostcode').val(response.postcode);
+                                $('#modalAddressAddress').val(response.address);
+                                $('#modalAddressCounty').val(response.county);
+                                $('#modalAddressCountry').val(response.country);
+                            }
+                        },
+                        error: function(xhr) {
+                            // Handle errors
+                            let errors = xhr.responseJSON.errors;
+                            let message = 'Update failed.';
+
+                            if (errors) {
+                                message = Object.values(errors).flat().join('\n');
+                            }
+                            toastr.error(message);
+                            $('#addNewAddress').modal('hide');
+                        }
+                    });
+                }
+                else{
+                    $('#customeraddressid').val('');
+                    $('.address-title.mb-2').show();
+                    $('.address-title.mb-3').hide();
+                }
+
             });
 
             $('#addNewAddress').on('hidden.bs.modal', function() {
                 $('#customeraddresstype').val(''); // optional: clear value
+                $('#customeraddressid').val('');
+
+                $('#modalAddressFirstName').val('');
+                $('#modalAddressLastName').val('');
+                $('#modalAddressemail').val('');
+                $('#modalAddressPhone').val('');
+                $('#modalAddressMobile').val('');
+                $('#modalAddressPostcode').val('');
+                $('#modalAddressAddress').val('');
+                $('#modalAddressCounty').val('');
+                $('#modalAddressCountry').val('');
+
+                $('.address-title.mb-2').show();
+                $('.address-title.mb-3').hide();
             });
         });
     </script>
@@ -218,6 +291,32 @@
                 });
             });
         });
+    
+    
+        $(document).on('click', '.delete-customer', function() {
+            let customerId = $(this).data('id');
+            let url = `/customers/${customerId}`;
+
+            if (confirm("Are you sure you want to delete this customer?")) {
+                $.ajax({
+                    url: url,
+                    type: 'DELETE',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content') // Get CSRF token
+                    },
+                    success: function(response) {
+                        toastr.success(response.message);
+                        
+                        setTimeout(function() {
+                            window.location.href = '/customers';
+                        }, 1000); // 1000 milliseconds = 1 second
+                    },
+                    error: function(xhr) {
+                        toastr.error(xhr.responseJSON.message);
+                    }
+                });
+            }
+        });
     </script>
 @endsection
 
@@ -262,7 +361,7 @@
             <div class="mb-2 mb-sm-0">
                 <h4 class="mb-1">Customer Details</h4>
             </div>
-            <button type="button" class="btn btn-label-danger delete-customer">Delete Customer</button>
+            <button type="button" class="btn btn-label-danger delete-customer" data-id="{{ $customer->id }}">Delete Customer</button>
         </div>
 
         @if (session('success'))
@@ -328,12 +427,12 @@
 
                                             <div class="col-12 col-md-6">
                                                 <label class="form-label" for="confirmPassword">Confirm Password</label>
-                                                <input type="text" id="confirmPassword" name="confirmPassword"
+                                                <input type="text" id="confirmPassword" name="confirm-password"
                                                     class="form-control" placeholder="Enter Password" required />
                                             </div>
 
                                             <div class="col-12 text-center">
-                                                <input type="hidden" name="role" value="customer" />
+                                                <input type="hidden" name="roles" value="customer" />
                                                 <button type="submit" class="btn btn-primary me-3">Submit</button>
                                                 <button type="reset" class="btn btn-label-secondary"
                                                     data-bs-dismiss="modal" aria-label="Close">
@@ -486,7 +585,7 @@
                                                 {{ $customer->billingaddress->country }}
                                             </p>
                                             <a href="javascript:void(0);"
-                                                class="btn btn-outline-dark btn-sm waves-effect">UPDATE</a>
+                                                class="btn btn-outline-dark btn-sm waves-effect" data-bs-toggle="modal"  data-bs-target="#addNewAddress" data-address-type="billing" data-address-id="{{ $customer->billingaddress->id }}">UPDATE</a>
                                             <a href="javascript:void(0);"
                                                 onclick="deleteCustomerAddress({{ $customer->billingaddress->id }})"
                                                 class="btn btn-outline-danger btn-sm waves-effect">DELETE</a>
@@ -534,7 +633,7 @@
                                                     {{ $csaddress->country }}
                                                 </p>
                                                 <a href="javascript:void(0);"
-                                                    class="btn btn-outline-dark btn-sm waves-effect">UPDATE</a>
+                                                    class="btn btn-outline-dark btn-sm waves-effect" data-bs-toggle="modal"  data-bs-target="#addNewAddress" data-address-type="site" data-address-id="{{ $csaddress->id }}">UPDATE</a>
 
                                                 <a href="javascript:void(0);"
                                                     onclick="deleteCustomerAddress({{ $csaddress->id }})"
@@ -578,7 +677,7 @@
                             <div class="col-12 col-md-6">
                                 <label class="form-label" for="modalEditUserLastName">Last Name</label>
                                 <input type="text" id="modalEditUserLastName" name="contactPersonLastName"
-                                    class="form-control" placeholder="Doe" value="{{ $customer->contact_lastname }}" />
+                                    class="form-control" placeholder="Doe" value="{{ $customer->contact_lastname }}" required />
                             </div>
 
                             <div class="col-12 col-md-6">
@@ -683,10 +782,12 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         <div class="text-center mb-6">
                             <h4 class="address-title mb-2">Add New Address</h4>
+                            <h4 class="address-title mb-3" style="display: hide;">Edit Address</h4>
                         </div>
                         <form method="POST" class="row g-6"
                             action="{{ route('customer.storeaddress', $customer->id) }}">
                             @csrf
+                            <input type="hidden" name="customeraddressid" id="customeraddressid" />
                             <input type="hidden" name="type" id="customeraddresstype" />
 
                             <div class="col-12 form-control-validation col-md-6">

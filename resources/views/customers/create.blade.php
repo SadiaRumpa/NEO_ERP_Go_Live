@@ -16,6 +16,11 @@
         $(function() {
             $('.select2').select2();
         });
+        $('.discard-changes').click(function(e){
+            if (confirm("Are you sure you want to discard this customer data?")) {
+                window.location.href = '/customers';
+            }
+        });
     </script>
 @endsection
 
@@ -55,7 +60,7 @@
                     <div class="d-flex align-content-center flex-wrap gap-4">
                         <div class="d-flex gap-4">
                             <button type="submit" class="btn btn-label-success">Save</button>
-                            <button class="btn btn-label-secondary">Discard</button>
+                            <a class="btn btn-label-secondary discard-changes">Discard</a>
                         </div>
 
                     </div>
@@ -98,7 +103,7 @@
                                             <div class="col-sm-5">
                                                 <input type="text" class="form-control"
                                                     id="formtabs-contact-personlastname" placeholder="Last Name"
-                                                    name="contactPersonLastName" aria-label="Last Name" />
+                                                    name="contactPersonLastName" aria-label="Last Name" required />
                                             </div>
                                         </div>
                                     </div>

@@ -82,6 +82,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/customer/address-update/{id}', [CustomerController::class, 'updateCustomerAddress'])->name('customer.address-update');
     Route::post('/customer/address-delete/{id}', [CustomerController::class, 'deleteCustomerAddress'])->name('customer.address-delete');
     Route::post('/customer/updatefinancialdetails/{id}', [CustomerController::class, 'updateFinancialDetails'])->name('customer.updatefinancialdetails');
+    Route::get('customer/address-get/{id}', [CustomerController::class, 'getCustomerAddress'])->name('customer.address-get');
 
     Route::resource('leads', LeadController::class);
     Route::get('lead/completed', [LeadController::class, 'showCompleted'])->name('lead.show.completed');

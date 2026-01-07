@@ -53,13 +53,15 @@ class CustomerController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'companyName'        => 'required|string|max:255',
-            'contactPersonFirstName'  => 'required|string|max:255',
-            'contactPersonLastName'   => 'nullable|string|max:255',
-            'contactPhone'       => 'required|string|max:20',
+            'companyName'        => 'required|unique:customers,company_name|string|regex:/^[a-zA-Z0-9\s&.,\-]+$/|max:255',
+            'contactPersonFirstName'  => 'required|string|regex:/^[a-zA-Z\s\'\-]+$/|max:255',
+            'contactPersonLastName'   => 'nullable|string|regex:/^[a-zA-Z\s\'\-]+$/|max:255',
+            'contactPhone'       => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10',
             'contactEmail'       => 'required|email|max:255',
-            'contactMobile'      => 'nullable|string|max:20',
+            'contactMobile'      => 'nullable|regex:/^([0-9\s\-\+\(\)]*)$/|min:10',
         ]);
+
+        //regex:/^([0-9\s\-\+\(\)]*)$/|min:10
 
         DB::beginTransaction();
 
@@ -120,7 +122,7 @@ class CustomerController extends Controller
         // dd($request->all());
         $validated = $request->validate([
             'contactPersonFirstName'   => 'required|string|max:255',
-            'contactPersonLastName'   => 'nullable|string|max:255',
+            'contactPersonLastName'   => 'required|string|max:255',
             'contactPhone'        => 'required|string|max:20',
             'contactEmail'        => 'required|email|max:255',
         ]);
@@ -196,6 +198,7 @@ class CustomerController extends Controller
     {
         $request->validate([
             'contactPersonFirstName' => 'required|string|max:255',
+            'contactPersonLastName'   => 'required|string|max:255',
             'contactEmail' => 'required|email',
             'contactPhone' => 'required_without:contactMobile|max:20',
             'contactMobile' => 'required_without:contactPhone|max:20',
@@ -248,6 +251,15 @@ class CustomerController extends Controller
         }
     }
 
+    public function getCustomerAddress(Request $request, string $id)
+    {
+        $address = CustomerAddress::findOrFail($id);
+        if ($address) {
+            return response()->json($address);
+        }
+
+        return response()->json(['message' => 'Customer address not found.']);
+    }
     public function storeCustomerAddress(Request $request, string $id)
     {
         // return $request->all();
@@ -257,9 +269,23 @@ class CustomerController extends Controller
             'postcode' => 'required|string|max:20',
             'country' => 'required|string|max:255',
             'type' => 'required|string|in:billing,site',
+            'customeraddressid' => 'nullable|numeric',
         ]);
 
+        $customeraddressid = $validated['customeraddressid'];
+        
         $customerAddress = new CustomerAddress();
+        
+        if($customeraddressid){
+            //edit
+            $customerAddress = CustomerAddress::findOrFail($customeraddressid);
+            if ($customerAddress) {
+                //
+            }
+            else{
+                return redirect()->back()->with('error', 'Customer address not found.');
+            }
+        }
         $customerAddress->customer_id = $id;
         $customerAddress->contact_firstname = $request->input('contactPersonFirstName');
         $customerAddress->contact_lastname = $request->input('contactPersonLastName');
@@ -273,17 +299,23 @@ class CustomerController extends Controller
         $customerAddress->address_type = $validated['type'];
         $customerAddress->save();
 
+        if($customeraddressid){
+            return redirect()->back()->with('success', 'Customer address updated successfully.');
+        }
         return redirect()->back()->with('success', 'Customer address created successfully.');
     }
+    
 
     public function deleteCustomerAddress($id)
     {
         $address = CustomerAddress::findOrFail($id);
         if ($address) {
             $address->delete();
-            return redirect()->back()->with('success', 'Customer address deleted successfully.');
+            //return redirect()->back()->with('success', 'Customer address deleted successfully.'); //TODO this was very harmfull by previous dev, it was deleting Customer also
+            return response()->json(['message' => 'Customer address deleted successfully.']);
         }
-        return redirect()->back()->with('error', 'Customer address not found.');
+        //return redirect()->back()->with('error', 'Customer address not found.');
+        return response()->json(['message' => 'Customer address not found.']);
     }
 
 

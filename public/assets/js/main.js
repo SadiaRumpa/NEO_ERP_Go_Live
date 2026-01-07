@@ -163,7 +163,8 @@ document.addEventListener('DOMContentLoaded', function () {
   window.Helpers.switchImage(storedStyle);
 
   // Update light/dark image based on current style
-  window.Helpers.setTheme(window.Helpers.getPreferredTheme());
+  //window.Helpers.setTheme(window.Helpers.getPreferredTheme());
+  window.Helpers.setTheme(storedStyle); //TODO
 
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
     const storedTheme = window.Helpers.getStoredTheme();
