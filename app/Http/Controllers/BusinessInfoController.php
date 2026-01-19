@@ -388,7 +388,7 @@ class BusinessInfoController extends Controller
                     'brandFile' => 'mimes:jpg,jpeg,png|max:102400', //100MB
                 ]);
 
-                $disk = 'public'; // env('FILESYSTEM_DISK', 'local');
+                $disk = env('FILESYSTEM_DISK', 'local');
                 // The 'public' disk stores files in storage/app/public and can be publicly accessed via a symbolic link
                 $fileBrandFile = $request->file('brandFile');
                 $path = $fileBrandFile->store('brandlogos/' . $id, $disk); 
