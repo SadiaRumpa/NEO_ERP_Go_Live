@@ -61,6 +61,13 @@ class GlobalController extends Controller
             $addressPart = explode(',',$address);
             $firstPart = trim($addressPart[0]);
             if (!preg_match('/\d/', $firstPart)) {
+                //$companyName = $firstPart;
+            }
+            if (
+                preg_match('/[A-Za-z]/', $firstPart) &&
+                !preg_match('/\b\d+\b/', $firstPart) &&
+                !preg_match('/(Unit|Road|Street|Close|Avenue|Lane|Way)\b/i', $firstPart)
+            ) {
                 $companyName = $firstPart;
             }
             // if(count($addressPart)==4){
