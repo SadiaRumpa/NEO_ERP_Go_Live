@@ -145,7 +145,49 @@
                         // Handle success (e.g., close modal, show success message)
                         toastr.success('Customer details updated successfully.');
                         $('#editUser').modal('hide');
-                        location.reload(); // This will reload the entire page
+                        setTimeout(function(){
+                            location.reload(); // This will reload the entire page
+                        },1000);
+                        
+                    },
+                    error: function(xhr) {
+                        // Handle errors
+                        let errors = xhr.responseJSON.errors;
+                        let message = 'Update failed.';
+
+                        if (errors) {
+                            message = Object.values(errors).flat().join('\n');
+                        }
+                        toastr.error(message);
+                    }
+                });
+            });
+
+            // Handle form submission for editing user
+            $('#editFinForm').on('submit', function(e) {
+                e.preventDefault(); // Prevent default form submission
+
+                const form = $(this);
+                const formData = form.serialize();
+                const customerId = {{ $customer->id }}; // Pass server-side ID to JS
+
+                $.ajax({
+                    url: $(this).attr('action'), // Update to your route
+                    type: 'POST',
+                    data: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': $('input[name="_token"]').val()
+                    },
+                    beforeSend: function() {
+                        // Optional: show loader or disable submit button
+                    },
+                    success: function(response) {
+                        // Handle success (e.g., close modal, show success message)
+                        toastr.success('Customer details updated successfully.');
+                        $('#editFininfo').modal('hide');
+                        setTimeout(function(){
+                            location.reload(); // This will reload the entire page
+                        },1000);
                     },
                     error: function(xhr) {
                         // Handle errors
@@ -243,6 +285,12 @@
     <script>
         $(document).ready(function() {
             $('#useraccessForm').on('submit', function(e) {
+                let type = 'POST';
+                let url = '{{ route('users.store') }}';
+                @if ($useraccess)
+                    url = '{{ route('users.update', $useraccess->id) }}';
+                @endif
+
                 e.preventDefault();
 
                 let formData = new FormData(this);
@@ -250,8 +298,8 @@
                 submitButton.prop('disabled', true).text('Submitting...');
 
                 $.ajax({
-                    url: "{{ route('users.store') }}", // ✅ Your Laravel route to handle creation
-                    type: "POST",
+                    url: url, // ✅ Your Laravel route to handle creation
+                    type: type,
                     data: formData,
                     processData: false,
                     contentType: false,
@@ -259,7 +307,7 @@
                     success: function(response) {
                         if (response.success) {
                             // ✅ Success message
-                            toastr.success('Customer details updated successfully.');
+                            toastr.success(response.message || 'User access updated successfully.');
 
 
                             // Close modal and reset form
@@ -270,7 +318,10 @@
                             if ($('.datatables-ajax').length) {
                                 $('.datatables-ajax').DataTable().ajax.reload(null, false);
                             }
-                            location.reload(); // This will reload the entire page
+                            setTimeout(function(){
+                                location.reload(); // This will reload the entire page
+                            },1000);
+                            
                         } else {
                             toastr.error(response.message || 'Something went wrong!');
                         }
@@ -405,6 +456,9 @@
                                         </div>
                                         <form id="useraccessForm" class="row g-6" onsubmit="return false">
                                             @csrf
+                                            @if ($useraccess)
+                                            @method('PUT')
+                                            @endif
                                             <div class="col-12 col-md-6">
                                                 <label class="form-label" for="fullname">Full Name</label>
                                                 <input type="text" id="fullname" name="name"
@@ -502,19 +556,19 @@
                                         </li>
                                         <li class="mb-2">
                                             <span class="h6 me-1">Assets:</span>
-                                            <span>{{ formatPoundNumber($customer->findetails->assets ?? 0) }}</span>
+                                            <span>{{ formatPoundNumber($customer->findetails->assets ?? 0,2) }}</span>
                                         </li>
                                         <li class="mb-2">
                                             <span class="h6 me-1">Net Assets:</span>
-                                            <span>{{ formatPoundNumber($customer->findetails->net_assets ?? 0) }}</span>
+                                            <span>{{ formatPoundNumber($customer->findetails->net_assets ?? 0, 2) }}</span>
                                         </li>
                                         <li class="mb-2">
                                             <span class="h6 me-1">Liabilities:</span>
-                                            <span>{{ formatPoundNumber($customer->findetails->liabilities ?? 0) }}</span>
+                                            <span>{{ formatPoundNumber($customer->findetails->liabilities ?? 0, 2) }}</span>
                                         </li>
                                         <li class="mb-2">
                                             <span class="h6 me-1">Cash in Bank:</span>
-                                            <span>{{ formatPoundNumber($customer->findetails->cash_in_bank ?? 0) }}</span>
+                                            <span>{{ formatPoundNumber($customer->findetails->cash_in_bank ?? 0, 2) }}</span>
                                         </li>
                                     </ul>
                                 </div>
@@ -531,13 +585,15 @@
             <div class="col-xl-8 col-lg-8 col-md-8 order-0 order-md-1">
                 <!-- Customer Pills -->
                 <div class="nav-align-top">
-                    <ul class="nav nav-pills flex-column flex-md-row mb-6 row-gap-2 flex-wrap">
+                    <ul class="nav nav-pills nav-justified mb-6">
 
                         <li class="nav-item">
                             <button class="nav-link active" data-bs-toggle="modal" data-bs-target="#addNewAddress"
-                                data-address-type="billing">
+                                data-address-type="billing" @if (isset($customer->billingaddress->id) && $customer->billingaddress->id >= 0) style="background-color: darkgray;" disabled @endif>
                                 <i class="icon-base ti tabler-map-pin icon-sm me-1_5"></i> Add Billing Address
                             </button>
+                        </li>
+                        <li class="nav-item">
                             <button class="nav-link active" data-bs-toggle="modal" data-bs-target="#addNewAddress"
                                 data-address-type="site">
                                 <i class="icon-base ti tabler-map-pin icon-sm me-1_5"></i> Add Site Address
@@ -585,7 +641,7 @@
                                                 {{ $customer->billingaddress->country }}
                                             </p>
                                             <a href="javascript:void(0);"
-                                                class="btn btn-outline-dark btn-sm waves-effect" data-bs-toggle="modal"  data-bs-target="#addNewAddress" data-address-type="billing" data-address-id="{{ $customer->billingaddress->id }}">UPDATE</a>
+                                                class="btn btn-outline-dark btn-sm waves-effect" data-bs-toggle="modal"  data-bs-target="#addNewAddress" data-address-type="billing" data-address-id="{{ $customer->billingaddress->id }}">Edit</a>
                                             <a href="javascript:void(0);"
                                                 onclick="deleteCustomerAddress({{ $customer->billingaddress->id }})"
                                                 class="btn btn-outline-danger btn-sm waves-effect">DELETE</a>
@@ -633,7 +689,7 @@
                                                     {{ $csaddress->country }}
                                                 </p>
                                                 <a href="javascript:void(0);"
-                                                    class="btn btn-outline-dark btn-sm waves-effect" data-bs-toggle="modal"  data-bs-target="#addNewAddress" data-address-type="site" data-address-id="{{ $csaddress->id }}">UPDATE</a>
+                                                    class="btn btn-outline-dark btn-sm waves-effect" data-bs-toggle="modal"  data-bs-target="#addNewAddress" data-address-type="site" data-address-id="{{ $csaddress->id }}">Edit</a>
 
                                                 <a href="javascript:void(0);"
                                                     onclick="deleteCustomerAddress({{ $csaddress->id }})"
@@ -724,7 +780,7 @@
                         <div class="text-center mb-6">
                             <h4 class="mb-2">Edit Financial Information</h4>
                         </div>
-                        <form accept="application/json" method="POST" class="row g-6"
+                        <form id="editFinForm" method="POST" class="row g-6"
                             action="{{ route('customer.updatefinancialdetails', $customer->id) }}">
                             @csrf
                             <div class="col-12">

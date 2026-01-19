@@ -150,7 +150,7 @@ $(function() {
                 <div class="d-flex align-content-center flex-wrap gap-4">
                     <div class="d-flex gap-4">
                         <button type="submit" class="btn btn-label-success">UPDATE</button>
-                        <button class="btn btn-label-secondary">Discard</button>
+                        <!-- <button class="btn btn-label-secondary">Discard</button> -->
                     </div>
 
                 </div>
@@ -366,10 +366,11 @@ $(function() {
                                                     <label class="col-sm-3 col-form-label text-sm-end"
                                                         for="formtabs-contact-phone">Phone</label>
                                                     <div class="col-sm-9">
-                                                        <input type="text" id="formtabs-phone" name="businessPhone"
-                                                            class="form-control" placeholder="14169884411" maxlength="11"
-                                                            pattern="\d{11}" inputmode="numeric"
-                                                            oninput="this.value = this.value.replace(/\D/g, '').slice(0, 11);" value="{{ $businessinfo->business_phone }}"/>
+                                                        <input type="tel" id="formtabs-phone" name="businessPhone"
+                                                            class="form-control" placeholder="{{ simple_format_phone('') }}" maxlength="20"
+                                                            pattern="{{ simple_format_phone_pattern() }}" inputmode1="numeric"
+                                                            oninput1="this.value = this.value.replace(/\D/g, '').slice(0, 11);" value="{{ $businessinfo->business_phone }}"/>
+                                                            
                                                     </div>
                                                 </div>
                                             </div>

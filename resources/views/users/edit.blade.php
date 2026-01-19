@@ -1,6 +1,6 @@
 @extends('layouts.master')
 
-@section('title', 'Create User')
+@section('title', 'Edit User')
 
 @section('scripts')
 @parent
@@ -115,7 +115,7 @@
                         <div class="row justify-content-end">
                             <div class="col-sm-9">
                                 <button type="submit" class="btn btn-primary me-4">Update</button>
-                                <button type="reset" class="btn btn-label-secondary">Cancel</button>
+                                <!-- <button type="reset" class="btn btn-label-secondary">Cancel</button> -->
                             </div>
                         </div>
                     </div>

@@ -12,10 +12,16 @@
 
 <script type="text/javascript">
     $(function() {
+        let ajaxUrl = "{{ route('customers.index') }}";
+
+        @if (!empty($archived) && $archived === true)
+            ajaxUrl = "{{ route('customer.show.archived') }}";
+        @endif
+        
         var table = $('.datatables-ajax').DataTable({
             processing: true,
             serverSide: true,
-            ajax: "{{ route('customers.index') }}",
+            ajax: ajaxUrl,
 
             columns: [{
                     data: 'id',
@@ -98,7 +104,14 @@
                 New Customer
             </a>
             <div class="d-flex gap-4">
-                <a class="btn btn-label-warning">Archived</a>
+                @if (isset($archived))
+                <a href="{{ route('customers.index') }}" class="btn btn-label-primary"
+                        >Active Customers</a>
+                @else
+                <a href="{{ route('customer.show.archived') }}" class="btn btn-label-warning"
+                        @if (isset($archived) && $archived == true) disabled @endif>Archived</a>
+                <!-- <a class="btn btn-label-warning">Archived</a> -->
+                 @endif
             </div>
         </div>
     </div>

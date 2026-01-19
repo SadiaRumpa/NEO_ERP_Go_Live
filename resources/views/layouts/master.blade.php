@@ -178,7 +178,7 @@
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     <li>
-                                        <a class="dropdown-item mt-0" href="pages-account-settings-account.html">
+                                        <a class="dropdown-item mt-0" href="{{ route('users.myprofile') }}">
                                             <div class="d-flex align-items-center">
                                                 <div class="flex-shrink-0 me-2">
                                                     <div class="avatar avatar-online">
@@ -199,26 +199,26 @@
                                         <div class="dropdown-divider my-1 mx-n2"></div>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="#">
+                                        <a class="dropdown-item" href="{{ route('users.myprofile') }}">
                                             <i class="icon-base ti tabler-user me-3 icon-md"></i><span
                                                 class="align-middle">My Profile</span>
                                         </a>
                                     </li>
-                                    <li>
+                                    <!-- <li>
                                         <a class="dropdown-item" href="#">
                                             <i class="icon-base ti tabler-settings me-3 icon-md"></i><span
                                                 class="align-middle">Settings</span>
                                         </a>
-                                    </li>
+                                    </li> -->
                                     <li>
                                         <div class="dropdown-divider my-1 mx-n2"></div>
                                     </li>
-                                    <li>
+                                    <!-- <li>
                                         <a class="dropdown-item" href="#">
                                             <i class="icon-base ti tabler-question-mark me-3 icon-md"></i><span
                                                 class="align-middle">FAQ</span>
                                         </a>
-                                    </li>
+                                    </li> -->
                                     <li>
                                         <div class="d-grid px-2 pt-2 pb-1">
                                             <a class="btn btn-sm btn-danger d-flex" href="{{ route('logout') }}"

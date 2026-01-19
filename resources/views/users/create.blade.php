@@ -100,7 +100,7 @@
                         <div class="col-sm-9">
                             <select id="multicol-country" class="select2 form-select" data-allow-clear="true" name="roles[]">
                                 @foreach ($roles as $value => $label)
-                                <option value="{{ $value }}">
+                                <option value="{{ $value }}" {{ $value=='staff' ? 'selected' : '' }} >
                                     {{ $label }}
                                 </option>
                                 @endforeach
@@ -113,7 +113,7 @@
                         <div class="row justify-content-end">
                             <div class="col-sm-9">
                                 <button type="submit" class="btn btn-primary me-4">Submit</button>
-                                <button type="reset" class="btn btn-label-secondary">Cancel</button>
+                                <!-- <button type="reset" class="btn btn-label-secondary">Cancel</button> -->
                             </div>
                         </div>
                     </div>

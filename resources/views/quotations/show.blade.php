@@ -200,14 +200,14 @@
                             </div>
                             <div class="col-6 text-end">
                                 <p class="mb-6">
-                                    <img src="https://www.practicalroofing.co.uk/wp-content/uploads/media/xlogo-main.webp.pagespeed.ic.X6MBz-BBzW.webp"
-                                        alt="Practical Roofing" class="mb-4" width="100">
+                                    <img src="{{ $appbrand->business_logo??'' }}"
+                                        alt="{{ $appbrand->business_name??'Logo' }}" class="mb-4" style="max-width: 100px; max-height: 100px;" >
                                     <br>
-                                    Tel: 0800 924 7663
+                                    Tel: {{ $appbrand->business_phone??'' }}
                                     <br>
-                                    Email: info@practicalroofing.co.uk
+                                    Email: {{ $appbrand->business_email??'' }}
                                     <br>
-                                    Website: www.practicalroofing.co.uk
+                                    Website: {{ $appbrand->business_website??'' }}
                                 </p>
                             </div>
                         </div>

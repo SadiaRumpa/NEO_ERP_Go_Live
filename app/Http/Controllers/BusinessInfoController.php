@@ -285,6 +285,11 @@ class BusinessInfoController extends Controller
             
         ]);
 
+        //format 
+        if(!empty($validated['businessPhone'])){
+            $validated['businessPhone'] = simple_format_phone($validated['businessPhone']);
+        }
+
         $businessLogoPath = "";
         $businessLogoDarkPath =  "";
         $businessFaviconPath =  "";
@@ -294,7 +299,7 @@ class BusinessInfoController extends Controller
         $fileBusinessFavicon = $request->file('businessFavicon');
 
         // Store the file
-        $disk = 'public'; // env('FILESYSTEM_DISK', 'local');
+        $disk = env('FILESYSTEM_DISK', 'local');
         // The 'public' disk stores files in storage/app/public and can be publicly accessed via a symbolic link
         if(!empty($fileBusinessLogo)){
             $path = $fileBusinessLogo->store('businessinfo/' . $id, $disk); 
@@ -389,14 +394,13 @@ class BusinessInfoController extends Controller
                 if ($disk === 's3') {
                     Storage::disk('s3')->setVisibility($path, 'public');
                 }
-                echo 'added';
-                return \Redirect::back();
+                return redirect()->back()->with('success', 'File uploaded.');
             }
             else{
-                echo 'File is not valid.';
+                return redirect()->back()->with('error', 'File is not valid.');
             }
         }else{
-            echo 'File is not selected.';
+            return redirect()->back()->with('error', 'File is not selected.');
         }
     }
 

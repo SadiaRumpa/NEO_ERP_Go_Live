@@ -70,7 +70,8 @@
                                 <button class="btn btn-label-primary me-4">
                                     <span class="align-middle"> Back</span>
                                 </button>
-                                <button type="submit" class="btn btn-primary">Save draft</button>
+                                <input id="submittype" type="hidden" name="submittype" value="AJAX" /> 
+                                <button id="submitButton" type="submit" class="btn btn-primary">Save draft</button>
                             </div>
                         </div>
                         <div class="card-body pt-6">
@@ -91,7 +92,7 @@
                                                         data-placeholder="Select customer" name="customer_id">
                                                         <option value="">Select customer</option>
                                                         @foreach ($customers as $cust)
-                                                            <option value="{{ $cust->id }}">{{ $cust->company_name }}
+                                                            <option value="{{ $cust->id }}" {{ old('customer_id') == $cust->id ? 'selected' : '' }} >{{ $cust->company_name }}
                                                             </option>
                                                         @endforeach
                                                     </select>
@@ -143,7 +144,7 @@
                                                                             for="formtabs-user-company">Company</label>
                                                                         <input type="text" id="formtabs-user-company"
                                                                             class="form-control" placeholder="Company Name"
-                                                                            aria-label="jdoe1 ltd" name="companyName" />
+                                                                            aria-label="jdoe1 ltd" name="companyName" value="{{ old('companyName', '') }}" />
                                                                     </div>
                                                                 </div>
                                                                 <div class="col-md-12">
@@ -156,14 +157,14 @@
                                                                                 id="formtabs-contact-personfirstname"
                                                                                 placeholder="First Name"
                                                                                 name="contactPersonFirstName"
-                                                                                aria-label="First Name" />
+                                                                                aria-label="First Name" value="{{ old('contactPersonFirstName', '') }}" />
                                                                         </div>
                                                                         <div class="col-sm-6">
                                                                             <input type="text" class="form-control"
                                                                                 id="formtabs-contact-personlastname"
                                                                                 placeholder="Last Name"
                                                                                 name="contactPersonLastName"
-                                                                                aria-label="Last Name" />
+                                                                                aria-label="Last Name" value="{{ old('contactPersonLastName', '') }}"  />
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -177,7 +178,7 @@
                                                                             class="form-control"
                                                                             placeholder="john.doe@example.com"
                                                                             aria-label="john.doe@example.com"
-                                                                            name="contactEmail" />
+                                                                            name="contactEmail" value="{{ old('contactEmail', '') }}" />
                                                                     </div>
                                                                 </div>
                                                                 <div class="col-md-4">
@@ -189,7 +190,7 @@
                                                                             name="contactPhone" class="form-control"
                                                                             placeholder="14169884411" maxlength="11"
                                                                             pattern="\d{11}" inputmode="numeric"
-                                                                            oninput="this.value = this.value.replace(/\D/g, '').slice(0, 11);" />
+                                                                            oninput="this.value = this.value.replace(/\D/g, '').slice(0, 11);" value="{{ old('contactPhone', '') }}" />
                                                                     </div>
                                                                 </div>
                                                                 <div class="col-md-4">
@@ -201,7 +202,7 @@
                                                                             name="contactMobile" class="form-control"
                                                                             placeholder="14169884411" maxlength="11"
                                                                             pattern="\d{11}" inputmode="numeric"
-                                                                            oninput="this.value = this.value.replace(/\D/g, '').slice(0, 11);" />
+                                                                            oninput="this.value = this.value.replace(/\D/g, '').slice(0, 11);" value="{{ old('contactMobile', '') }}" />
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -232,7 +233,7 @@
                                                         class="enquiry-toolbar border-0 border-bottom"></div>
                                                     <div class="enquiry-editor border-0 pb-6" data-target="#enquiry_input"
                                                         data-toolbar="#enquirytoolbar"></div>
-                                                    <input type="hidden" name="enquiry" id="enquiry_input">
+                                                    <input type="hidden" name="enquiry" id="enquiry_input" value="{{ old('enquiry', '') }}" >
                                                 </div>
                                             </div>
                                         </div>
@@ -253,7 +254,7 @@
                                                         data-target="#enquiry_description_input"
                                                         data-toolbar="#enquirydescriptiontoolbar"></div>
                                                     <input type="hidden" name="enquirydescription"
-                                                        id="enquiry_description_input">
+                                                        id="enquiry_description_input" value="{{ old('enquirydescription', '') }}" >
                                                 </div>
                                             </div>
                                         </div>
@@ -306,7 +307,7 @@
                                                                     id="formtabs-enquiry-postcode" name="enquiry_postcode"
                                                                     placeholder="Check postcode"
                                                                     aria-label="Check postcode"
-                                                                    aria-describedby="button-addon2" required />
+                                                                    aria-describedby="button-addon2" required value="{{ old('enquiry_postcode', '') }}" />
                                                                 <button class="btn btn-outline-primary waves-effect"
                                                                     type="button" id="button-addon2"
                                                                     onclick="checkaddress()">Check</button>
@@ -326,20 +327,20 @@
                                                             <label class="form-label"
                                                                 for="formtabs-enquiry-address">Address</label>
                                                             <textarea class="form-control" id="formtabs-enquiry-address" name="enquiry_address" placeholder="30H Burdi Street"
-                                                                required></textarea>
+                                                                required>{{ old('enquiry_address', '') }}</textarea>
                                                         </div>
                                                         <div class="col-sm-6">
                                                             <label class="form-label"
                                                                 for="formtabs-enquiry-county">County</label>
                                                             <input class="form-control" id="formtabs-enquiry-county"
                                                                 name="enquiry_county" placeholder="Birmingham"
-                                                                aria-label="Birmingham" required />
+                                                                aria-label="Birmingham" required  value="{{ old('enquiry_county', '') }}" />
                                                         </div>
                                                         <div class="col-sm-6">
                                                             <label class="form-label"
                                                                 for="formtabs-enquiry-country">Country</label>
                                                             <input class="form-control" id="formtabs-enquiry-country"
-                                                                name="enquiry_country" value="United Kingdom" readonly />
+                                                                name="enquiry_country" value="United Kingdom" readonly  value="{{ old('enquiry_country', '') }}" />
                                                         </div>
 
                                                     </div>
@@ -367,21 +368,21 @@
                                                         <div class="form-check form-check-inline">
                                                             <input type="checkbox" name="roofing_info[]"
                                                                 id="roofing_info" value="repairs"
-                                                                class="form-check-input">
+                                                                class="form-check-input" @if (in_array('repairs', old('roofing_info',[]))) checked @endif>
                                                             <label class="form-check-label"
                                                                 for="roofing_info">Repairs</label>
                                                         </div>
                                                         <div class="form-check form-check-inline">
                                                             <input type="checkbox" name="roofing_info[]"
                                                                 id="roofing_overclad" value="overclad"
-                                                                class="form-check-input">
+                                                                class="form-check-input" @if (in_array('overclad', old('roofing_info',[]))) checked @endif>
                                                             <label class="form-check-label"
                                                                 for="roofing_overclad">Overclad</label>
                                                         </div>
                                                         <div class="form-check form-check-inline">
                                                             <input type="checkbox" name="roofing_info[]"
                                                                 id="roofing_info_large_works" value="large_works"
-                                                                class="form-check-input">
+                                                                class="form-check-input" @if (in_array('large_works', old('roofing_info',[]))) checked @endif>
                                                             <label class="form-check-label"
                                                                 for="roofing_info_large_works">Large Works</label>
                                                         </div>
@@ -394,7 +395,7 @@
                                                         <div class="form-check form-check-inline">
                                                             <input type="checkbox" name="annual_maintenance[]"
                                                                 id="annual_maintenance" value="maintenance"
-                                                                class="form-check-input">
+                                                                class="form-check-input" @if (in_array('maintenance', old('annual_maintenance',[]))) checked @endif>
                                                             <label class="form-check-label"
                                                                 for="annual_maintenance">Yes</label>
                                                         </div>
@@ -405,19 +406,19 @@
                                                         <label class="form-label d-block fw-bold">Safety</label>
                                                         <div class="form-check form-check-inline">
                                                             <input type="checkbox" name="safety[]" id="safety_install"
-                                                                value="install" class="form-check-input">
+                                                                value="install" class="form-check-input" @if (in_array('install', old('safety',[]))) checked @endif>
                                                             <label class="form-check-label"
                                                                 for="safety_install">Install</label>
                                                         </div>
                                                         <div class="form-check form-check-inline">
                                                             <input type="checkbox" name="safety[]" id="safety_repairs"
-                                                                value="repairs" class="form-check-input">
+                                                                value="repairs" class="form-check-input" @if (in_array('repairs', old('safety',[]))) checked @endif>
                                                             <label class="form-check-label"
                                                                 for="safety_repairs">Repairs</label>
                                                         </div>
                                                         <div class="form-check form-check-inline">
                                                             <input type="checkbox" name="safety[]" id="safety_testing"
-                                                                value="testing" class="form-check-input">
+                                                                value="testing" class="form-check-input" @if (in_array('testing', old('safety',[]))) checked @endif>
                                                             <label class="form-check-label"
                                                                 for="safety_testing">Testing</label>
                                                         </div>
@@ -429,20 +430,20 @@
                                                         <div class="form-check form-check-inline">
                                                             <input type="radio" name="enquiry_priority"
                                                                 id="priority_low" value="low" class="form-check-input"
-                                                                checked>
+                                                                 @if ( 'low' == old('enquiry_priority', 'low') ) checked @endif>
                                                             <label class="form-check-label" for="priority_low">Low</label>
                                                         </div>
                                                         <div class="form-check form-check-inline">
                                                             <input type="radio" name="enquiry_priority"
                                                                 id="priority_medium" value="medium"
-                                                                class="form-check-input">
+                                                                class="form-check-input" @if ( 'medium' == old('enquiry_priority','') ) checked @endif>
                                                             <label class="form-check-label"
                                                                 for="priority_medium">Medium</label>
                                                         </div>
                                                         <div class="form-check form-check-inline">
                                                             <input type="radio" name="enquiry_priority"
                                                                 id="priority_high" value="high"
-                                                                class="form-check-input">
+                                                                class="form-check-input" @if ( 'high' == old('enquiry_priority','') ) checked @endif>
                                                             <label class="form-check-label"
                                                                 for="priority_high">High</label>
                                                         </div>
@@ -453,7 +454,7 @@
                                                         <label class="form-label fw-bold"
                                                             for="enquiry_source">Source</label>
                                                         <textarea name="enquiry_source" id="enquiry_source" rows="2" class="form-control"
-                                                            placeholder="https://roofcoatingindustrial.co.uk/"></textarea>
+                                                            placeholder="{{ $appbrand->business_website??'' }}">{{ old('enquiry_source', '') }}</textarea>
                                                     </div>
                                                 </div>
 
@@ -483,7 +484,7 @@
                                                                     data-toolbar="#toolbar_2">
                                                                 </div>
                                                                 <input type="hidden" name="enquiryNote"
-                                                                    id="description_input_2">
+                                                                    id="description_input_2" value="{{ old('enquiryNote', '') }}">
                                                             </div>
                                                         </div>
                                                     </div>

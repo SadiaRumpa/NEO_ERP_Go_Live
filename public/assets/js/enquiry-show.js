@@ -256,26 +256,26 @@ $(document).on('click', '.update-enquiry-status', function (e) {
 });
 
 $(document).ready(function () {
-    $('.delete-image').click(function () {
-        const imageId = $(this).data('id');
-        const confirmation = confirm('Are you sure you want to delete this image?');
+    $('.delete-note').click(function () {
+        const noteId = $(this).data('id');
+        const confirmation = confirm('Are you sure you want to delete this note?');
         if (confirmation) {
             $.ajax({
-                url: `/enquiries/delete-image/${imageId}`,
+                url: `/enquiries/delete-note/${noteId}`,
                 method: 'DELETE',
                 data: {
-                    _token: '{{ csrf_token() }}'
+                    _token: document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 },
                 success: function (response) {
                     if (response.status === 'success') {
                         toastr.success(response.message);
                         window.location.reload(); // Reload the page to see the changes
                     } else {
-                        toastr.danger('Error: ' + response.message);
+                        toastr.error('Error: ' + response.message);
                     }
                 },
                 error: function (xhr) {
-                    toastr.danger('Something went wrong!');
+                    toastr.error('Something went wrong!');
                 }
             });
         }

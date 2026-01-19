@@ -47,12 +47,12 @@
                                 @endisset
                             </td>
                             <td width="50%" style="vertical-align: top; text-align: right;">
-                                <img src="https://www.practicalroofing.co.uk/wp-content/uploads/media/xlogo-main.webp.pagespeed.ic.X6MBz-BBzW.webp"
-                                    width="100" alt="Practical Roofing">
+                                <img src="{{ $appbrand->business_logo??'' }}"
+                                    style="max-width: 100px; max-height: 100px;" alt="{{ $appbrand->business_name??'Logo' }}">
                                 <br>
-                                Tel: 0800 924 7663 <br>
-                                Email: info@practicalroofing.co.uk <br>
-                                Website: www.practicalroofing.co.uk
+                                Tel: {{ $appbrand->business_phone??'' }} <br>
+                                Email: {{ $appbrand->business_email??'' }} <br>
+                                Website: {{ $appbrand->business_website??'' }}
                             </td>
                             
                         </tr>

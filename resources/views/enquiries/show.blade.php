@@ -14,7 +14,7 @@
     <script src="{{ asset('assets/vendor/libs/swiper/swiper.js') }}"></script>
     <!-- Page JS -->
     <script src="{{ asset('assets/js/ui-carousel.js') }}"></script>
-    <script src="{{ asset('assets/js/enquiry-show.js') }}"></script>
+    <script src="{{ asset('assets/js/enquiry-show.js?v='.filemtime(public_path('assets/js/enquiry-show.js'))) }}"></script>
 @endsection
 
 @section('styles')
@@ -27,12 +27,35 @@
     <link rel="stylesheet" href="{{ asset('assets/vendor/libs/tagify/tagify.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/vendor/libs/dropzone/dropzone.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/vendor/css/pages/ui-carousel.css') }}" />
+    <style type="text/css">
+        #swiper-gallery .gallery-thumbs .swiper-slide-thumb-active {
+            border: 1px solid rgba(0, 0, 0, 1) !important;
+        }
+    </style>
 @endsection
 
 @section('content')
     <!-- Content -->
     <div class="container-xxl flex-grow-1 container-p-y">
+
+    
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul class="mb-0">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <!-- Sticky Actions -->
+         @if (session('success'))
+            <div class="alert alert-success mt-2">{{ session('success') }}</div>
+        @endif
+        @if (session('error'))
+            <div class="alert alert-danger mt-2">{{ session('error') }}</div>
+        @endif
         <div class="row">
             <div class="col-12">
                 <div class="card">
@@ -169,8 +192,8 @@
                             <div class="modal-dialog" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header border-0">
-                                        <a class="text-body-secondary close-label" href="javascript:void(0);"
-                                            data-bs-dismiss="modal">Skip Intro</a>
+                                        <!-- <a class="text-body-secondary close-label" href="javascript:void(0);"
+                                            data-bs-dismiss="modal">Skip Intro</a> -->
                                         <button type="button" class="btn-close" data-bs-dismiss="modal"
                                             aria-label="Close"></button>
                                     </div>
@@ -268,7 +291,7 @@
                                                     <button type="button"
                                                         class="btn btn-warning waves-effect waves-light"
                                                         data-bs-toggle="modal" data-bs-target="#editdescriptionModal">
-                                                        Update
+                                                        Edit
                                                     </button>
 
                                                 </div>
@@ -289,9 +312,9 @@
                                             <div class="modal-dialog" role="document">
                                                 <div class="modal-content text-center">
                                                     <div class="modal-header border-0">
-                                                        <a class="text-body-secondary close-label"
+                                                        <!-- <a class="text-body-secondary close-label"
                                                             href="javascript:void(0);" data-bs-dismiss="modal">Skip
-                                                            Intro</a>
+                                                            Intro</a> -->
                                                         <button type="button" class="btn-close" data-bs-dismiss="modal"
                                                             aria-label="Close"></button>
                                                     </div>
@@ -370,7 +393,7 @@
                                                     <div class="swiper-wrapper">
                                                         @foreach ($enquiry->enquiryimages as $enim)
                                                             <div class="swiper-slide position-relative"
-                                                                style="background-image: url({{ $enim->source == 's3' ? $enim->image_url : asset($enim->image_path) }});">
+                                                                style="background-image: url({{ $enim->source == 's3' || $enim->source == 'public' ? $enim->image_url : Storage::url($enim->image_path) }});">
                                                                 @if ($enquiry->enquiry_status == 'inprogress')
                                                                     <div class="position-absolute top-0 end-0 p-2">
                                                                         <button class="btn btn-sm btn-danger delete-image"
@@ -388,20 +411,20 @@
                                                         @endforeach
                                                     </div>
                                                     <!-- Add Arrows -->
-                                                    <div class="swiper-button-next swiper-button-white"></div>
-                                                    <div class="swiper-button-prev swiper-button-white"></div>
+                                                    <div class="swiper-button-next swiper-button-white_notused"></div>
+                                                    <div class="swiper-button-prev swiper-button-white_notused"></div>
                                                 </div>
                                                 <div class="swiper gallery-thumbs">
                                                     <div class="swiper-wrapper">
                                                         @foreach ($enquiry->enquiryimages as $enim)
-                                                            @if ($enim->source == 's3')
+                                                            @if ($enim->source == 's3' || $enim->source == 'public')
                                                                 <div class="swiper-slide"
-                                                                    style="background-image: url({{ $enim->image_url }})">
+                                                                    style="background-image: url({{ $enim->image_url }}); border: 1px solid rgba(0, 0, 0, 0.4);">
                                                                     {{ $enim->image_caption }}
                                                                 </div>
                                                             @else
                                                                 <div class="swiper-slide"
-                                                                    style="background-image: url({{ asset('/') }}/{{ $enim->image_path }})">
+                                                                    style="background-image: url({{ Storage::url($enim->image_path) }}); border: 1px solid rgba(0, 0, 0, 0.4);">
                                                                     {{ $enim->image_caption }}
                                                                 </div>
                                                             @endif
@@ -417,13 +440,13 @@
                                             <div class="modal-dialog" role="document">
                                                 <div class="modal-content text-center">
                                                     <div class="modal-header border-0">
-                                                        <a class="text-body-secondary close-label"
+                                                        <!-- <a class="text-body-secondary close-label"
                                                             href="javascript:void(0);" data-bs-dismiss="modal">Skip
-                                                            Intro</a>
+                                                            Intro</a> -->
                                                         <button type="button" class="btn-close" data-bs-dismiss="modal"
                                                             aria-label="Close"></button>
                                                     </div>
-                                                    <form accept="application/json" method="POST"
+                                                    <form method="POST"
                                                         action="{{ route('enquiry.add-images') }}"
                                                         enctype="multipart/form-data">
                                                         @csrf
@@ -516,8 +539,8 @@
                                                             onclick="addNotes({{ $enquiry->id }})">
                                                             <i class="fa-solid fa-paper-plane fa-md"></i> Add Note
                                                         </button>
-                                                        <button type="reset"
-                                                            class="btn btn-label-secondary waves-effect">Cancel</button>
+                                                        <!-- <button type="reset"
+                                                            class="btn btn-label-secondary waves-effect">Cancel</button> -->
                                                     </div>
                                                 </form>
                                                 <div id="note-message" class="mt-2"></div>
@@ -547,7 +570,7 @@
                                                                 class="btn btn-warning waves-effect waves-light"
                                                                 data-bs-toggle="modal"
                                                                 data-bs-target="#editlocationModal">
-                                                                Update
+                                                                Edit
                                                             </button>
                                                             <!--/ Edit location -->
                                                         @endif
@@ -590,9 +613,9 @@
                                                     <div class="modal-dialog" role="document">
                                                         <div class="modal-content text-center">
                                                             <div class="modal-header border-0">
-                                                                <a class="text-body-secondary close-label"
+                                                                <!-- <a class="text-body-secondary close-label"
                                                                     href="javascript:void(0);"
-                                                                    data-bs-dismiss="modal">Skip Intro</a>
+                                                                    data-bs-dismiss="modal">Skip Intro</a> -->
                                                                 <button type="button" class="btn-close"
                                                                     data-bs-dismiss="modal" aria-label="Close"></button>
                                                             </div>
@@ -761,7 +784,7 @@
                                                                                         class="btn btn-warning btn-sm waves-effect waves-light"
                                                                                         data-bs-toggle="modal"
                                                                                         data-bs-target="#enquirydetailseditmodal">
-                                                                                        Update
+                                                                                        Edit
                                                                                     </button>
                                                                                 </small>
                                                                             @endif

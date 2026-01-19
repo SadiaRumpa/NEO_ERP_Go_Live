@@ -193,6 +193,11 @@ class EnquiryController extends Controller
             'enquiry_priority' => 'nullable|string|in:low,medium,high',
         ]);
 
+        //if validated then submit again
+        if ($request->ajax()) {
+            return response()->json(['success'=> 'success', 'redirect' => 'POST']);
+        }
+
         DB::beginTransaction();
 
         try {
@@ -326,7 +331,12 @@ class EnquiryController extends Controller
         $validated = $request->validate([
             'note'       => 'required|string',
         ]);
-
+        
+        $safeNote = Str::markdown($validated['note'], [
+            'html_input' => 'allow', // strip
+            'allow_unsafe_links' => false,
+        ]);
+        
         $checkEnquiry = Enquiry::find($enquiry_id);
         if (!$checkEnquiry) {
             return response()->json(['status' => 'error', 'message' => 'Enquiry not found.']);
@@ -335,7 +345,7 @@ class EnquiryController extends Controller
         $enquirynote = EnquiryNote::create([
             'enquiry_id'  => $enquiry_id,
             'note_by'     => Auth::id(),
-            'note'        => $validated['note'],
+            'note'        => $safeNote,
             'note_type'   => 'internal',
             'note_status' => 'active',
         ]);
@@ -366,6 +376,7 @@ class EnquiryController extends Controller
             'enquiry_id' => 'required|exists:enquiries,id',
             'enquiryphoto'      => 'required|image|mimes:jpg,jpeg,png|max:2048',
         ]);
+        
 
         $disk = env('FILESYSTEM_DISK', 'local');
 
@@ -391,7 +402,7 @@ class EnquiryController extends Controller
 
             return redirect()->back()->with([
                 'status' => 'success',
-                'message' => 'Enquiry image added successfully.'
+                'success' => 'Enquiry image added successfully.'
             ]);
         }
 

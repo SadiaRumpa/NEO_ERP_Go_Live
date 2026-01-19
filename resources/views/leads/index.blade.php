@@ -18,6 +18,8 @@
                 ajaxUrl = "{{ route('lead.show.completed') }}";
             @elseif (!empty($rejected) && $rejected === true)
                 ajaxUrl = "{{ route('lead.show.rejected') }}";
+            @elseif (!empty($inprogress) && $inprogress === true)
+                ajaxUrl = "{{ route('lead.show.inprogress') }}";
             @endif
 
             var table = $('.datatables-ajax').DataTable({
@@ -144,7 +146,9 @@
             </div>
             <div class="d-flex align-content-center flex-wrap gap-4">
                 <div class="d-flex gap-4">
-                    <a href="{{ route('lead.show.rejected') }}" class="btn btn-label-danger"
+                    <a href="{{ route('lead.show.inprogress') }}" class="btn btn-label-primary"
+                        @if (isset($inprogress) && $inprogress == true) disabled @endif>In-Progress</a>
+                        <a href="{{ route('lead.show.rejected') }}" class="btn btn-label-danger"
                         @if (isset($rejected) && $rejected == true) disabled @endif>Rejected</a>
                     <a href="{{ route('lead.show.completed') }}" class="btn btn-label-warning"
                         @if (isset($completed) && $completed == true) disabled @endif>Completed</a>

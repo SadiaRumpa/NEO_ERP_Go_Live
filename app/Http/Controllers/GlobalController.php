@@ -33,7 +33,17 @@ class GlobalController extends Controller
         $posttown = strtoupper($posttown);
 
         $check = lookup_places($posttown);
-        return response()->json(['address' => $check]);
+
+        $companyName = '';
+        $address = $_GET['a'];
+        if(!empty($address)){
+            $addressPart = explode(',',$address);
+            if(count($addressPart)==4){
+                $companyName = $addressPart[0];
+            }
+        }
+
+        return response()->json(['address' => $check, 'company_name' => $companyName ]);
     }
 
     public function storeQuery(Request $request)
@@ -135,16 +145,21 @@ class GlobalController extends Controller
                 Storage::disk('s3')->setVisibility($path, 'public');
                 $url = Storage::disk('s3')->url($path);
             } else {
-                $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                $destination = public_path('uploads/enqueries');
 
-                if (!file_exists($destination)) {
-                    mkdir($destination, 0755, true);
-                }
+                $path = $file->store('uploads/enqueries', $disk);
 
-                $file->move($destination, $filename);
-                $path = 'uploads/enqueries/' . $filename;
-                $url = asset($path);
+                // $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                // $destination = public_path('uploads/enqueries');
+
+                // if (!file_exists($destination)) {
+                //     mkdir($destination, 0755, true);
+                // }
+
+                // $file->move($destination, $filename);
+                // $path = 'uploads/enqueries/' . $filename;
+                // $url = asset($path);
+
+                $url = Storage::disk($disk)->url($path);
             }
 
             EnquiryImage::create([

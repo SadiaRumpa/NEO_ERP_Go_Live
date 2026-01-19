@@ -23,6 +23,22 @@ class CustomerController extends Controller
             $data = Customer::select('*');
 
             return Datatables::of($data)
+            ->filter(function ($query) {
+                if (request()->has('search') && request()->input('search.value') != '') {
+                    $searchValue = request()->input('search.value');
+                    $query->where('company_name', 'like', "%{$searchValue}%")
+                        ->orWhere('id', 'like', "%{$searchValue}%")
+                        ->orWhere('contact_firstname', 'like', "%{$searchValue}%")
+                        ->orWhere('contact_lastname', 'like', "%{$searchValue}%")
+                        ->orWhere('contact_phone', 'like', "%{$searchValue}%")
+                        ->orWhere('contact_mobile', 'like', "%{$searchValue}%")
+                        ->orWhere('contact_email', 'like', "%{$searchValue}%")
+                        ->orWhereRaw(
+                            "CONCAT(contact_firstname, ' ', contact_lastname) LIKE ?",
+                            ["%{$searchValue}%"]
+                        );
+                }
+            }, true)
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
                     $showUrl = route('customers.show', $row->id); // Edit Route
@@ -53,7 +69,7 @@ class CustomerController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'companyName'        => 'required|unique:customers,company_name|string|regex:/^[a-zA-Z0-9\s&.,\-]+$/|max:255',
+            'companyName'        => 'requiredstring|regex:/^[a-zA-Z0-9\s&.,\-]+$/|max:255', //|unique:customers,company_name|
             'contactPersonFirstName'  => 'required|string|regex:/^[a-zA-Z\s\'\-]+$/|max:255',
             'contactPersonLastName'   => 'nullable|string|regex:/^[a-zA-Z\s\'\-]+$/|max:255',
             'contactPhone'       => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10',
@@ -97,12 +113,53 @@ class CustomerController extends Controller
     {
         $customer = Customer::with(['billingaddress', 'siteaddress', 'findetails'])->findOrFail($id);
         $useraccess = User::where('email', $customer->contact_email)->first();
-
+        
         return view('customers.show')->with([
             'customer' => $customer,
             'useraccess' => $useraccess
         ]);
     }
+
+    public function showArchived(Request $request)
+    {
+        if ($request->ajax()) {
+            $data = Customer::select('*')
+            ->whereIn('status', ['inactive']);
+
+            return Datatables::of($data)
+            ->filter(function ($query) {
+                if (request()->has('search') && request()->input('search.value') != '') {
+                    $searchValue = request()->input('search.value');
+                    $query->where('company_name', 'like', "%{$searchValue}%")
+                        ->orWhere('id', 'like', "%{$searchValue}%")
+                        ->orWhere('contact_firstname', 'like', "%{$searchValue}%")
+                        ->orWhere('contact_lastname', 'like', "%{$searchValue}%")
+                        ->orWhere('contact_phone', 'like', "%{$searchValue}%")
+                        ->orWhere('contact_mobile', 'like', "%{$searchValue}%")
+                        ->orWhere('contact_email', 'like', "%{$searchValue}%")
+                        ->orWhereRaw(
+                            "CONCAT(contact_firstname, ' ', contact_lastname) LIKE ?",
+                            ["%{$searchValue}%"]
+                        );
+                }
+            }, true)
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+                    $showUrl = route('customers.show', $row->id); // Edit Route
+                    return '
+                    <a href="' . $showUrl . '" class="show btn btn-primary btn-sm">Show</a>
+                    <button class="delete btn btn-danger btn-sm" data-id="' . $row->id . '">Delete</button>
+                ';
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
+        return view('customers.index')->with([
+            'archived' => true,
+        ]);
+    }
+    
 
     /**
      * Show the form for editing the specified resource.
@@ -228,26 +285,31 @@ class CustomerController extends Controller
     {
         $validated = $request->validate([
             'registration_no' => 'nullable|string|max:255',
-            'asset_details_url' => 'required|string|max:255',
+            'assets' => 'nullable|numeric',
+            'netAssets' => 'nullable|numeric',
+            'liabilities' => 'nullable|numeric',
+            'cashInBank' => 'nullable|numeric',
         ]);
 
         try {
             $customer = Customer::findOrFail($id);
             if (!$customer) {
-                return redirect()->back()->with('error', 'Customer not found.');
+                return response()->json(['error'=> 'error', 'message' => 'Customer not found.'], 404);
             }
             CustomerDetails::updateOrCreate(
                 ['customer_id' => $id], // Match condition
                 [
                     'company_name' => $customer->company_name,
                     'registration_number' => $validated['registration_no'],
-                    'asset_details_url' => $validated['asset_details_url'],
+                    'assets' => $validated['assets'],
+                    'net_assets' => $validated['netAssets'],
+                    'liabilities' => $validated['liabilities'],
+                    'cash_in_bank' => $validated['cashInBank'],
                 ]
             );
-
-            return redirect()->back()->with('success', 'Customer financial details updated successfully.');
+            return response()->json(['success'=> 'success', 'message' => 'Customer financial details updated successfully.']);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', $e->getMessage());
+            return response()->json(['error'=> 'error', 'message' => $e->getMessage()], 404);
         }
     }
 

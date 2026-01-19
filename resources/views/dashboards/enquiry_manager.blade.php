@@ -172,9 +172,13 @@
                     <div class="card h-100">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h5 class="card-title m-0 me-2">Leads Under Review</h5>
-                            <button class="btn rounded-pill btn-primary waves-effect waves-light" type="button">
+                            <!-- <button class="btn rounded-pill btn-primary waves-effect waves-light" type="button">
                                 SEE ALL >>
-                            </button>
+                            </button> -->
+                            <a href="{{ route('lead.show.inprogress') }}"
+                                class="btn rounded-pill btn-primary waves-effect waves-light">
+                                SEE ALL >>
+                            </a>
                         </div>
                         <div class="table-responsive">
                             <table class="table table-borderless border-top">

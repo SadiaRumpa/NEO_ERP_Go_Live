@@ -52,6 +52,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('users', UserController::class);
     Route::resource('mailtemplates', MailTemplateController::class);
     Route::get('/mail-template/{id}', [MailTemplateController::class, 'showmailtemplate'])->name('mailtemplate.showmail');
+    Route::get('/myprofile', [UserController::class, 'myprofile'])->name('users.myprofile');
 
     Route::resource('businessinfo', BusinessInfoController::class);
     // Route::get('/businessinfo/edit/{id}','BusinessInfoController@edit');
@@ -83,10 +84,12 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/customer/address-delete/{id}', [CustomerController::class, 'deleteCustomerAddress'])->name('customer.address-delete');
     Route::post('/customer/updatefinancialdetails/{id}', [CustomerController::class, 'updateFinancialDetails'])->name('customer.updatefinancialdetails');
     Route::get('customer/address-get/{id}', [CustomerController::class, 'getCustomerAddress'])->name('customer.address-get');
+    Route::get('customer/archived', [CustomerController::class, 'showArchived'])->name('customer.show.archived');
 
     Route::resource('leads', LeadController::class);
     Route::get('lead/completed', [LeadController::class, 'showCompleted'])->name('lead.show.completed');
     Route::get('lead/rejected', [LeadController::class, 'showRejected'])->name('lead.show.rejected');
+    Route::get('lead/inprogress', [LeadController::class, 'showInprogress'])->name('lead.show.inprogress');
     Route::post('lead/updatedescription/{id}', [LeadController::class, 'updateLeadDetails'])->name('leads.updatedescription');
     Route::post('/leads/updateaddress/{id}', [LeadController::class, 'updateLeadAddress'])->name('leads.updateaddress');
     Route::post('/leads/updatestatus/{id}', [LeadController::class, 'updateLeadStatus'])->name('leads.updatestatus');
