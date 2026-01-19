@@ -59,9 +59,13 @@ class GlobalController extends Controller
         $address = $_GET['a'];
         if(!empty($address)){
             $addressPart = explode(',',$address);
-            if(count($addressPart)==4){
-                $companyName = $addressPart[0];
+            $firstPart = trim($addressPart[0]);
+            if (!preg_match('/\d/', $firstPart)) {
+                $companyName = $firstPart;
             }
+            // if(count($addressPart)==4){
+            //     $companyName = $addressPart[0];
+            // }
         }
 
         return response()->json(['address' => $check, 'company_name' => $companyName ]);
