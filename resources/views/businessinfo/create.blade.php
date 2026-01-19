@@ -229,13 +229,24 @@
                                     </div>
 
                                     <div class="col-md-6">
+                                            <div class="row">
+                                                <label class="col-sm-3 col-form-label text-sm-end"
+                                                    for="formtabs-country">Country</label>
+                                                <div class="col-sm-9">
+                                                    <input type="text" id="formtabs-country" class="form-control"
+                                                        placeholder="Country" aria-label="Country" name="businessCountry" value="{{ old('businessCountry', '') }}"/>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    <div class="col-md-6">
                                         <div class="row">
                                             <label class="col-sm-3 col-form-label text-sm-end"
                                                 for="formtabs-contact-phone">Phone</label>
                                             <div class="col-sm-9">
                                                 <input type="text" id="formtabs-phone" name="businessPhone"
-                                                    class="form-control" placeholder="14169884411" maxlength="11"
-                                                    pattern="\d{11}" inputmode="numeric"
+                                                    class="form-control" placeholder="{{ simple_format_phone('') }}" maxlength="20"
+                                                    pattern="{{ simple_format_phone_pattern() }}" inputmode="numeric"
                                                     oninput="this.value = this.value.replace(/\D/g, '').slice(0, 11);" value="{{ old('businessPhone') }}"/>
                                             </div>
                                         </div>

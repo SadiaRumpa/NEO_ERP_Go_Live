@@ -106,6 +106,11 @@ class BusinessInfoController extends Controller
             
         ]);
     
+        //format 
+        if(!empty($validated['businessPhone'])){
+            $validated['businessPhone'] = simple_format_phone($validated['businessPhone']);
+        }
+
         DB::beginTransaction();
 
         try {
@@ -144,7 +149,7 @@ class BusinessInfoController extends Controller
             $fileBusinessFavicon = $request->file('businessFavicon');
 
             // Store the file
-            $disk = 'public'; // env('FILESYSTEM_DISK', 'local');
+            $disk = env('FILESYSTEM_DISK', 'local');
             // The 'public' disk stores files in storage/app/public and can be publicly accessed via a symbolic link
             if(!empty($fileBusinessLogo)){
                 $path = $fileBusinessLogo->store('businessinfo/' . $id, $disk); 
