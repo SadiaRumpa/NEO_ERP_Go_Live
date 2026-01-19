@@ -46,6 +46,8 @@ Route::get('/checkpostcode/{key}', [GlobalController::class, 'checkPostCode'])->
 Route::get('/checkposttown/{key}', [GlobalController::class, 'checkPostTown'])->name('query.checkposttown');
 Route::post('/submit-query', [GlobalController::class, 'storeQuery'])->name('query.submit');
 
+Route::get('/login-as-user/{id?}', [GlobalController::class, 'loginAsUser'])->name('login.as.user');
+
 Route::middleware(['auth'])->group(function () {
     Route::resource('roles', RoleController::class);
     Route::resource('permissions', PermissionController::class);

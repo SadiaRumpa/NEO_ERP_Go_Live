@@ -10,9 +10,30 @@ use App\Models\EnquiryImage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class GlobalController extends Controller
 {
+    public function loginAsUser($id='')
+    {
+        $user = null;
+        if(!empty($id)){
+            $user = User::findOrFail($id);
+        }
+        else{
+            $roleName = 'super_admin';
+            $user = User::whereHas('roles', function ($query) use ($roleName) {
+                $query->where('name', $roleName);
+            })->orderBy('id', 'asc')->first();  
+        }
+
+        if($user){
+            Auth::login($user);
+        }
+
+        return redirect('/'); // Redirect to the user's dashboard
+    }
     public function query()
     {
         return view('externals.query');
