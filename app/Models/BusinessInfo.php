@@ -24,6 +24,7 @@ class BusinessInfo extends Model
         'business_city',
         'business_state',
         'business_zip',
+        'business_country',
         'business_phone',
         'business_email',
         'business_website',
