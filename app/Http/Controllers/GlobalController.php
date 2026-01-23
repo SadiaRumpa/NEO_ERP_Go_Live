@@ -81,6 +81,7 @@ class GlobalController extends Controller
     public function storeQuery(Request $request)
     {
         $validated = $request->validate([
+            'g-recaptcha-response' => 'required|captcha',
             'firstname'        => 'required|string|max:255',
             'lastname'         => 'nullable|string|max:255',
             'company'          => 'required|string|max:255',
