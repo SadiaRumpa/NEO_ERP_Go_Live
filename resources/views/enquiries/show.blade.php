@@ -1004,7 +1004,7 @@
                                         <button type="button" class="btn-close" data-bs-dismiss="modal"
                                             aria-label="Close"></button>
                                     </div>
-                                    <form accept="application/json" method="POST"
+                                    <form id="editFinForm" accept="application/json" method="POST"
                                         action="{{ route('customer.updatefinancialdetails', $enquiry->customer->id) }}">
                                         @csrf
                                         <div class="modal-body">
@@ -1020,7 +1020,7 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-12">
+                                                <div class="col-md-12" style="display: none;">
                                                     <div class="row">
                                                         <label class="col-sm-3 col-form-label text-sm-end"
                                                             for="formtabs-assets">Reg.

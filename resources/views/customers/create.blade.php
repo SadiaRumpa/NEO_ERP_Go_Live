@@ -113,9 +113,9 @@
                                                 for="formtabs-contact-phone">Contact Phone</label>
                                             <div class="col-sm-9">
                                                 <input type="text" id="formtabs-contact-phone" name="contactPhone"
-                                                    class="form-control" placeholder="14169884411" maxlength="11"
-                                                    pattern="\d{11}" inputmode="numeric"
-                                                    oninput="this.value = this.value.replace(/\D/g, '').slice(0, 11);"
+                                                    class="form-control" placeholder="{{ simple_format_phone('') }}" maxlength="20"
+                                                            pattern="{{ simple_format_phone_pattern() }}"  inputmode1="numeric"
+                                                    oninput1="this.value = this.value.replace(/\D/g, '').slice(0, 11);"
                                                     required />
                                             </div>
                                         </div>
@@ -126,9 +126,9 @@
                                                 for="formtabs-contact-phone">Contact Mobile</label>
                                             <div class="col-sm-9">
                                                 <input type="text" id="formtabs-contact-mobile" name="contactMobile"
-                                                    class="form-control" placeholder="14169884411" maxlength="11"
-                                                    pattern="\d{11}" inputmode="numeric"
-                                                    oninput="this.value = this.value.replace(/\D/g, '').slice(0, 11);"
+                                                    class="form-control" placeholder="{{ simple_format_phone('') }}" maxlength="20"
+                                                            pattern="{{ simple_format_phone_pattern() }}"  inputmode1="numeric"
+                                                    oninput1="this.value = this.value.replace(/\D/g, '').slice(0, 11);"
                                                     required />
                                             </div>
                                         </div>

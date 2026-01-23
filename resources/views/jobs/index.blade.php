@@ -22,7 +22,20 @@
             var table = $('.datatables-ajax').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: ajaxUrl,
+                ajax: {
+                    headers: {
+                        'X-CSRF-TOKEN': $('input[name="_token"]').val()
+                    },
+                    url: ajaxUrl,
+                    type: 'GET',
+                    data: function (d) {
+                        d['filter_jobtype'] = $('#filter_jobtype').val();
+                        d['filter_roofing'] = $('#filter_roofing').val();
+                        d['filter_annual_maintenance'] = $('#filter_annual_maintenance').val();
+                        d['filter_safety'] = $('#filter_safety').val();
+                        d['filter_priority'] = $('#filter_priority').val();
+                    }
+                },
 
                 columns: [{
                         data: 'DT_RowIndex',
@@ -33,6 +46,13 @@
                     {
                         data: 'job_type',
                         name: 'job_type',
+                        render: function(data, type, row) {
+                            let html = data;
+                            if (row.job_type_name) {
+                                html = row.job_type_name;
+                            }
+                            return html;
+                        }   
                     },
                     {
                         data: 'job_name',
@@ -124,6 +144,10 @@
                     },
                 ]
             });
+        
+            $('#btn_filter_job').click(function (e){
+                $('.datatables-ajax').DataTable().ajax.reload()
+            });                   
         });
     </script>
 @endsection
@@ -152,6 +176,76 @@
                 </div>
             </div>
         </div>
+
+        <div class="card p-2 mb-4">
+            <div class="row">
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label class="col-form-label" for="filter_jobtype">Job Type</label>
+                        <select id="filter_jobtype" class="form-select" name="filter_jobtype" >
+                            <option value="">All</option>
+                            @foreach ($jobtype as $type)
+                                <option value="{{ $type->slug }}"
+                                    >
+                                    {{ ucfirst(str_replace('_', ' ', $type->name)) }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label class="col-form-label" for="filter_roofing">Roofing</label>
+                        <select id="filter_roofing" class="form-select" name="filter_roofing" >
+                            <option value="">All</option>
+                            <option value="repairs">Repairs</option>
+                            <option value="overclad">Overclad</option>
+                            <option value="large_works">Large Works</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label class="col-form-label" for="filter_annual_maintenance">Annual Maintenance</label>
+                        <select id="filter_annual_maintenance" class="form-select" name="filter_annual_maintenance" >
+                            <option value="">All</option>
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label class="col-form-label" for="filter_safety">Safety</label>
+                        <select id="filter_safety" class="form-select" name="filter_safety" >
+                            <option value="">All</option>
+                            <option value="install">Install</option>
+                            <option value="repairs">Repairs</option>
+                            <option value="testing">Testing</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label class="col-form-label" for="filter_priority">Priority</label>
+                        <select id="filter_priority" class="form-select" name="filter_priority" >
+                            <option value="">All</option>
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-1"></div>
+                <div class="col-md-1">
+                    <div class="form-group">
+                        <label class="col-form-label" for="btn_filter_job">&nbsp;</label>
+                        <button id="btn_filter_job" class="btn btn-primary btn-sm1" style="width: 100%;">Filter</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <div class="card">
             <div class="card-datatable table-responsive p-2">
                 <table class="datatables-ajax table table-bordered">

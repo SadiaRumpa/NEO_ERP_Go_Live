@@ -44,7 +44,7 @@
                     orderable: false,
                     searchable: false,
                     render: function(data, type, row) {
-                        return '<i class="icon-base fas fa-envelope mb-2 mr-2"></i> ' + row.contact_email + '<br>' + '<i class="icon-base fas fa-phone mb-2 mr-2"></i> ' + row.contact_phone + '<br>' + '<i class="icon-base fas fa-mobile mb-2"></i> ' + row.contact_mobile;
+                        return '<i class="icon-base fas fa-envelope mb-2 mr-2"></i> ' + (row.contact_email?row.contact_email:'') + '<br>' + '<i class="icon-base fas fa-phone mb-2 mr-2"></i> ' + (row.contact_phone?row.contact_phone:'') + '<br>' + '<i class="icon-base fas fa-mobile mb-2"></i> ' + (row.contact_mobile?row.contact_mobile:'');
                     }
                 },
 

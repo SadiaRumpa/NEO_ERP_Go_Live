@@ -33,6 +33,7 @@ class LeadController extends Controller
 
             $data = DB::table('leads')
                 ->leftJoin('customers', 'leads.customer_id', '=', 'customers.id')
+                ->leftJoin('customer_addresses', 'customers.id', '=', 'customer_addresses.customer_id')
                 ->select(
                     'leads.id',
                     'leads.slug',
@@ -50,6 +51,27 @@ class LeadController extends Controller
                 ->orderByDesc('leads.created_at');
 
             return Datatables::of($data)
+            ->filter(function ($query) {
+                if (request()->has('search') && request()->input('search.value') != '') {
+                    $searchValue = request()->input('search.value');
+                    $query->where('lead_name', 'like', "%{$searchValue}%")
+                        ->orWhere('customers.company_name', 'like', "%{$searchValue}%")
+                        ->orWhere('lead_title', 'like', "%{$searchValue}%")
+                        ->orWhere('enquiry', 'like', "%{$searchValue}%")
+                        ->orWhere('lead_description', 'like', "%{$searchValue}%")
+                        ->orWhere('leads.id', 'like', "%{$searchValue}%")
+                        ->orWhere('customers.contact_firstname', 'like', "%{$searchValue}%")
+                        ->orWhere('customers.contact_lastname', 'like', "%{$searchValue}%")
+                        ->orWhere('customers.contact_phone', 'like', "%{$searchValue}%")
+                        ->orWhere('customers.contact_mobile', 'like', "%{$searchValue}%")
+                        ->orWhere('customers.contact_email', 'like', "%{$searchValue}%")
+                        ->orWhere('customer_addresses.postcode', 'like', "%{$searchValue}%")
+                        ->orWhereRaw(
+                            "CONCAT(customers.contact_firstname, ' ', customers.contact_lastname) LIKE ?",
+                            ["%{$searchValue}%"]
+                        );
+                }
+            }, true)
                 ->addIndexColumn()
                 ->addColumn('company_name', function ($row) {
                     return $row->company_name;

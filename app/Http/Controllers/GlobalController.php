@@ -66,7 +66,7 @@ class GlobalController extends Controller
             if (
                 preg_match('/[A-Za-z]/', $firstPart) &&
                 !preg_match('/\b\d+\b/', $firstPart) &&
-                !preg_match('/(Unit|Road|Street|Close|Avenue|Lane|Way)\b/i', $firstPart)
+                !preg_match('/(Unit|Road|Street|Close|Avenue|Lane|Way|Hall|House|Flat)\b/i', $firstPart)
             ) {
                 $companyName = $firstPart;
             }

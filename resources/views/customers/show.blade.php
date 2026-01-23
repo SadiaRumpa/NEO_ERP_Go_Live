@@ -183,7 +183,8 @@
                     },
                     success: function(response) {
                         // Handle success (e.g., close modal, show success message)
-                        toastr.success('Customer details updated successfully.');
+                        //toastr.success('Customer details updated successfully.');
+                        toastr.success(response.message);
                         $('#editFininfo').modal('hide');
                         setTimeout(function(){
                             location.reload(); // This will reload the entire page
@@ -745,17 +746,19 @@
                             <div class="col-12 col-md-6">
                                 <label class="form-label" for="modalEditPhoneNumber">Phone Number</label>
                                 <input type="text" id="modalEditPhoneNumber" name="contactPhone" class="form-control"
-                                    placeholder="14169884411" maxlength="11" pattern="\d{11}" inputmode="numeric"
+                                    placeholder="{{ simple_format_phone('') }}" maxlength="20"
+                                                            pattern="{{ simple_format_phone_pattern() }}"  inputmode1="numeric"
                                     value="{{ $customer->contact_phone }}"
-                                    oninput="this.value = this.value.replace(/\D/g, '').slice(0, 11);" />
+                                    oninput1="this.value = this.value.replace(/\D/g, '').slice(0, 11);" />
                             </div>
 
                             <div class="col-12 col-md-6">
                                 <label class="form-label" for="modalMobileNumber">Mobile Number</label>
                                 <input type="text" id="modalMobileNumber" name="contactMobile" class="form-control"
-                                    placeholder="14169884411" maxlength="11" pattern="\d{11}" inputmode="numeric"
+                                    placeholder="{{ simple_format_phone('') }}" maxlength="20"
+                                                            pattern="{{ simple_format_phone_pattern() }}"  inputmode1="numeric"
                                     value="{{ $customer->contact_mobile }}"
-                                    oninput="this.value = this.value.replace(/\D/g, '').slice(0, 11);" />
+                                    oninput1="this.value = this.value.replace(/\D/g, '').slice(0, 11);" />
                             </div>
 
                             <div class="col-12 text-center">

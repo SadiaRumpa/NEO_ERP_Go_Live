@@ -69,7 +69,7 @@ class CustomerController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'companyName'        => 'requiredstring|regex:/^[a-zA-Z0-9\s&.,\-]+$/|max:255', //|unique:customers,company_name|
+            'companyName'        => 'required|string|regex:/^[a-zA-Z0-9\s&.,\-]+$/|max:255', //|unique:customers,company_name|
             'contactPersonFirstName'  => 'required|string|regex:/^[a-zA-Z\s\'\-]+$/|max:255',
             'contactPersonLastName'   => 'nullable|string|regex:/^[a-zA-Z\s\'\-]+$/|max:255',
             'contactPhone'       => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10',
@@ -285,6 +285,7 @@ class CustomerController extends Controller
     {
         $validated = $request->validate([
             'registration_no' => 'nullable|string|max:255',
+            'asset_details_url' => 'nullable|string|max:255',
             'assets' => 'nullable|numeric',
             'netAssets' => 'nullable|numeric',
             'liabilities' => 'nullable|numeric',
@@ -296,16 +297,30 @@ class CustomerController extends Controller
             if (!$customer) {
                 return response()->json(['error'=> 'error', 'message' => 'Customer not found.'], 404);
             }
-            CustomerDetails::updateOrCreate(
-                ['customer_id' => $id], // Match condition
-                [
+
+            $data_array = [
                     'company_name' => $customer->company_name,
                     'registration_number' => $validated['registration_no'],
-                    'assets' => $validated['assets'],
-                    'net_assets' => $validated['netAssets'],
-                    'liabilities' => $validated['liabilities'],
-                    'cash_in_bank' => $validated['cashInBank'],
-                ]
+                ];
+            if(isset($validated['asset_details_url'])){
+                $data_array['asset_details_url'] = $validated['asset_details_url'];
+            }
+            if(isset($validated['assets'])){
+                $data_array['assets'] = $validated['assets'];
+            }
+            if(isset($validated['assets'])){
+                $data_array['net_assets'] = $validated['netAssets'];
+            }
+            if(isset($validated['liabilities'])){
+                $data_array['liabilities'] = $validated['liabilities'];
+            }
+            if(isset($validated['cashInBank'])){
+                $data_array['cash_in_bank'] = $validated['cashInBank'];
+            }
+
+            CustomerDetails::updateOrCreate(
+                ['customer_id' => $id], // Match condition
+                $data_array 
             );
             return response()->json(['success'=> 'success', 'message' => 'Customer financial details updated successfully.']);
         } catch (\Exception $e) {

@@ -16,54 +16,117 @@ use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class FjobController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function index(Request $request)
     {
+        
+
         if ($request->ajax()) {
 
-            $data = Fjob::with([
-                'customer:id,company_name,contact_firstname,contact_lastname,contact_email,contact_phone,contact_mobile',
-            ])
+            // $data = Fjob::with([
+            //     'customer:id,company_name,contact_firstname,contact_lastname,contact_email,contact_phone,contact_mobile',
+            // ])
+            $data = DB::table('fjobs')
+                ->leftJoin('job_types', 'fjobs.job_type', '=', 'job_types.slug')
+                ->leftJoin('customers', 'fjobs.customer_id', '=', 'customers.id')
+                ->leftJoin('customer_addresses', 'customers.id', '=', 'customer_addresses.customer_id')
                 ->select([
-                    'id',
+                    'fjobs.id',
                     'job_name',
                     'job_title',
-                    'slug',
+                    'fjobs.slug',
                     'job_description',
-                    'customer_id',
+                    'customers.company_name',
+                    'customers.contact_firstname',
+                    'customers.contact_lastname',
+                    'customers.contact_email',
+                    'customers.contact_phone',
+                    'customers.contact_mobile',
                     'job_type',
                     'job_status',
-                    'enquiry'
+                    'fjobs.enquiry',
+                    'job_types.name AS job_type_name'
                 ])
                 ->whereIn('job_status', ['draft', 'accepted', 'new', 'inprogress', 'on_hold'])
-                ->orderByDesc('created_at');
+                ->orderByDesc('fjobs.created_at');
+
+            
+            if (request()->has('filter_jobtype') && request()->input('filter_jobtype') != '') {
+                $filter_jobtype = request()->input('filter_jobtype');
+                $data->whereIn('job_type', [$filter_jobtype]);
+            }
+            if (request()->has('filter_roofing') && request()->input('filter_roofing') != '') {
+                $filter_roofing = request()->input('filter_roofing');
+                $data->whereIn('job_category', [$filter_roofing]);
+            }
+            if (request()->has('filter_annual_maintenance') && request()->input('filter_annual_maintenance') != '') {
+                $filter_annual_maintenance = request()->input('filter_annual_maintenance');
+                $data->where('annual_maintenance', '=', $filter_annual_maintenance == 'yes' );
+            }
+            if (request()->has('filter_safety') && request()->input('filter_safety') != '') {
+                $filter_safety = request()->input('filter_safety');
+                if($filter_safety=='install'){
+                    $data->where('installations', '=', true);
+                }
+                else if($filter_safety=='repairs'){
+                    $data->where('repairs', '=', true);
+                }
+                else if($filter_safety=='testing'){
+                    $data->where('testing', '=', true);
+                }
+                
+            }
+            if (request()->has('filter_priority') && request()->input('filter_priority') != '') {
+                $filter_priority = request()->input('filter_priority');
+                $data->whereIn('job_priority', [$filter_priority]);
+            }
 
             return DataTables::of($data)
+            ->filter(function ($query) {
+                if (request()->has('search') && request()->input('search.value') != '') {
+                    $searchValue = request()->input('search.value');
+                    $query->where(function($q) use ($searchValue) {
+                        $q->where('job_name', 'like', "%{$searchValue}%")
+                        ->orWhere('customers.company_name', 'like', "%{$searchValue}%")
+                        ->orWhere('job_title', 'like', "%{$searchValue}%")
+                        ->orWhere('fjobs.enquiry', 'like', "%{$searchValue}%")
+                        ->orWhere('job_description', 'like', "%{$searchValue}%")
+                        ->orWhere('fjobs.id', 'like', "%{$searchValue}%")
+                        ->orWhere('customers.contact_firstname', 'like', "%{$searchValue}%")
+                        ->orWhere('customers.contact_lastname', 'like', "%{$searchValue}%")
+                        ->orWhere('customers.contact_phone', 'like', "%{$searchValue}%")
+                        ->orWhere('customers.contact_mobile', 'like', "%{$searchValue}%")
+                        ->orWhere('customers.contact_email', 'like', "%{$searchValue}%")
+                        ->orWhere('customer_addresses.postcode', 'like', "%{$searchValue}%")
+                        ->orWhereRaw(
+                            "CONCAT(customers.contact_firstname, ' ', customers.contact_lastname) LIKE ?",
+                            ["%{$searchValue}%"]
+                        );
+                    });
+                }
+            }, false)
                 ->addIndexColumn()
                 ->addColumn('job_name', function ($row) {
                     return ($row->job_name ?? '') . ' - ' . ($row->job_title ?? '');
                 })
                 ->addColumn('company_name', function ($row) {
-                    return $row->customer->company_name ?? '-';
+                    return $row->company_name ?? '-';
                 })
                 ->addColumn('customer_name', function ($row) {
-                    return ($row->customer->contact_firstname ?? '') . ' ' . ($row->customer->contact_lastname ?? '');
+                    return $row->contact_firstname . ' ' . $row->contact_lastname;
                 })
                 ->addColumn('customer_email', function ($row) {
-                    return $row->customer->contact_email ?? '-';
+                    return $row->contact_email ?? '-';
                 })
                 ->addColumn('customer_phone', function ($row) {
-                    return $row->customer->contact_phone ?? '-';
+                    return $row->contact_phone ?? '-';
                 })
                 ->addColumn('customer_mobile', function ($row) {
-                    return $row->customer->contact_mobile ?? '-';
+                    return $row->contact_mobile ?? '-';
                 })
                 ->addColumn('enquiry', function ($row) {
                     return Str::limit(strip_tags($row->enquiry), 80); // use Illuminate\Support\Str
@@ -74,7 +137,10 @@ class FjobController extends Controller
                 ->rawColumns(['action'])
                 ->make(true);
         }
-        return view('jobs.index');
+
+        $jobtype = JobType::where('status', 'active')
+            ->orderBy('name', 'asc')->get();
+        return view('jobs.index', compact( 'jobtype'));
     }
 
     public function showCompletedJobs(Request $request)
@@ -128,9 +194,14 @@ class FjobController extends Controller
                 ->make(true);
         }
 
-        return view('jobs.index')->with([
+        $jobtype = JobType::where('status', 'active')
+            ->orderBy('name', 'asc')->get();
+        return view('jobs.index', compact( 'jobtype'))->with([
             'completed' => true,
         ]);
+        // return view('jobs.index')->with([
+        //     'completed' => true,
+        // ]);
     }
 
     public function showRejectedJobs(Request $request)
@@ -183,9 +254,14 @@ class FjobController extends Controller
                 ->rawColumns(['action'])
                 ->make(true);
         }
-        return view('jobs.index')->with([
+        $jobtype = JobType::where('status', 'active')
+            ->orderBy('name', 'asc')->get();
+        return view('jobs.index', compact( 'jobtype'))->with([
             'rejected' => true,
         ]);
+        // return view('jobs.index')->with([
+        //     'rejected' => true,
+        // ]);
     }
 
 
