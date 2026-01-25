@@ -48,6 +48,8 @@ class BusinessInfo extends Model
 
     public function getAllowedFileType($type='IMG', $remove_dot=false){
         $business_allowed_file_types = $this->business_allowed_file_types;
+        if(empty($business_allowed_file_types)) return '';
+        
         $result = [];
 
         $parts = preg_split('/\s+/', $business_allowed_file_types);
