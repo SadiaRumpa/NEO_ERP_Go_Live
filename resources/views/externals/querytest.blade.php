@@ -36,7 +36,7 @@
 
                         <div class="col-xs-12 col-md-6 " id="contact">
 
-                            <iframe src="http://neoerp.laravel.local:8080/query" width="100%" height="1050px" frameborder="0" scrolling="yes"></iframe>
+                            <iframe src="{{ URL::to('/') }}/query" width="100%" height="1050px" frameborder="0" scrolling="yes"></iframe>
 
                         </div>
 

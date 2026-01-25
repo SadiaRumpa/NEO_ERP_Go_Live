@@ -218,7 +218,7 @@
                                 <label for="lastname" class="form-label fw-bold">Last Name</label>
                                 <input id="lastname" type="text" class="form-control" name="lastname" placeholder="Doe" />
                             </div>
-                            <div class="col-md-6 col-6">
+                            <div class="col-md-12 col-12">
                                 <label for="company" class="form-label fw-bold required">Company</label>
                                 <input id="company" type="text" class="form-control" name="company" placeholder="ACME Inc."
                                     required />
@@ -228,15 +228,17 @@
                                 <input id="phone"  type="text" name="phone" class="form-control" placeholder="{{ simple_format_phone('') }}"
                                     maxlength="20" pattern1="\d{11}" inputmode="numeric"
                                     oninput1="this.value = this.value.replace(/\D/g, '').slice(0, 11);"  />
+
+                                    <div class="form-text">Phone or Mobile is required</div>
                             </div>
                             <div class="col-md-6 col-6">
                                 <label for="mobile"  class="form-label fw-bold">Mobile No</label>
                                 <input id="mobile" type="text" name="mobile" class="form-control" placeholder="{{ simple_format_phone('') }}"
                                     maxlength="20" pattern1="\d{11}" inputmode="numeric"
                                     oninput1="this.value = this.value.replace(/\D/g, '').slice(0, 11);"  />
-                                <div class="form-text">Phone or Mobile is required</div>
+                                
                             </div>
-                            <div class="col-md-6 col-6">
+                            <div class="col-md-12 col-12">
                                 <label for="email" class="form-label fw-bold required">Email</label>
                                 <input id="email" type="email" class="form-control" name="email" placeholder="example@email.com"
                                     required />
