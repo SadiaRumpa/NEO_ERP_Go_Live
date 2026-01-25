@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use Illuminate\Support\Facades\Session;
 
 class GlobalController extends Controller
 {
@@ -34,8 +35,15 @@ class GlobalController extends Controller
 
         return redirect('/'); // Redirect to the user's dashboard
     }
+    public function queryTest(){
+        return view('externals.querytest');
+    }
     public function query()
     {
+        if(isset($_GET['s'])){
+            session()->flash('success', 'Your query has been submitted successfully!');
+        }
+        
         return view('externals.query');
     }
 
@@ -56,8 +64,8 @@ class GlobalController extends Controller
         $check = lookup_places($posttown);
 
         $companyName = '';
-        $address = $_GET['a'];
-        if(!empty($address)){
+        if(isset($_GET['a'])){
+            $address = $_GET['a'];
             $addressPart = explode(',',$address);
             $firstPart = trim($addressPart[0]);
             if (!preg_match('/\d/', $firstPart)) {
@@ -80,6 +88,8 @@ class GlobalController extends Controller
 
     public function storeQuery(Request $request)
     {
+        Session::forget('captcha');
+
         $validated = $request->validate([
             'g-recaptcha-response' => 'required|captcha',
             'firstname'        => 'required|string|max:255',

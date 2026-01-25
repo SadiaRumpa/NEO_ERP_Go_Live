@@ -47,6 +47,7 @@ Route::get('/checkposttown/{key}', [GlobalController::class, 'checkPostTown'])->
 Route::post('/submit-query', [GlobalController::class, 'storeQuery'])->name('query.submit');
 
 Route::get('/login-as-user/{id?}', [GlobalController::class, 'loginAsUser'])->name('login.as.user');
+Route::get('/query-test', [GlobalController::class, 'queryTest'])->name('query.test');
 
 Route::middleware(['auth'])->group(function () {
     Route::resource('roles', RoleController::class);
