@@ -223,7 +223,7 @@ class HomeController extends Controller
             ->where('job_status', 'draft')->orderByDesc('created_at')->limit(5)->get();
 
         $ongoingjobs = Fjob::with(['jobaddress', 'customer'])
-            ->where('job_status', 'ongoing')->orderByDesc('created_at')->limit(5)->get();
+            ->where('job_status', 'inprogress')->orderByDesc('created_at')->limit(5)->get();
 
 
         return view('dashboards.accounts_manager')->with([

@@ -223,7 +223,7 @@
                                     <!-- Enquiry -->
                                     <div class="card mb-6">
                                         <div class="card-header">
-                                            <h5 class="card-tile mb-0">Customer Enquiry*</h5>
+                                            <h5 class="card-tile mb-0">Customer Enquiry</h5>
                                         </div>
                                         <div class="card-body">
                                             <!-- Description -->
@@ -297,7 +297,7 @@
                                         <div class="col-xl">
                                             <div class="card">
                                                 <div class="card-header d-flex justify-content-between align-items-center">
-                                                    <h5 class="mb-0">Enquiry Location*</h5>
+                                                    <h5 class="mb-0">Enquiry Location</h5>
                                                 </div>
                                                 <div class="card-body">
                                                     <div class="row g-6">

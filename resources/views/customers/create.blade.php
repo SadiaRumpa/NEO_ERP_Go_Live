@@ -87,7 +87,7 @@
                                             <div class="col-sm-10">
                                                 <input type="text" id="formtabs-user-company" class="form-control"
                                                     placeholder="Company Name" aria-label="jdoe1 ltd" name="companyName"
-                                                    required />
+                                                    required value="{{ old('companyName', '') }}" />
                                             </div>
                                         </div>
                                     </div>
@@ -98,12 +98,12 @@
                                             <div class="col-sm-5">
                                                 <input type="text" class="form-control"
                                                     id="formtabs-contact-personfirstname" placeholder="First Name"
-                                                    name="contactPersonFirstName" aria-label="First Name" required />
+                                                    name="contactPersonFirstName" aria-label="First Name" required value="{{ old('contactPersonFirstName', '') }}" />
                                             </div>
                                             <div class="col-sm-5">
                                                 <input type="text" class="form-control"
                                                     id="formtabs-contact-personlastname" placeholder="Last Name"
-                                                    name="contactPersonLastName" aria-label="Last Name" required />
+                                                    name="contactPersonLastName" aria-label="Last Name" required value="{{ old('contactPersonLastName', '') }}" />
                                             </div>
                                         </div>
                                     </div>
@@ -116,7 +116,7 @@
                                                     class="form-control" placeholder="{{ simple_format_phone('') }}" maxlength="20"
                                                             pattern="{{ simple_format_phone_pattern() }}"  inputmode1="numeric"
                                                     oninput1="this.value = this.value.replace(/\D/g, '').slice(0, 11);"
-                                                    required />
+                                                    required value="{{ old('contactPhone', '') }}" />
                                             </div>
                                         </div>
                                     </div>
@@ -129,7 +129,7 @@
                                                     class="form-control" placeholder="{{ simple_format_phone('') }}" maxlength="20"
                                                             pattern="{{ simple_format_phone_pattern() }}"  inputmode1="numeric"
                                                     oninput1="this.value = this.value.replace(/\D/g, '').slice(0, 11);"
-                                                    required />
+                                                    required value="{{ old('contactMobile', '') }}" />
                                             </div>
                                         </div>
                                     </div>
@@ -141,7 +141,7 @@
                                             <div class="col-sm-9">
                                                 <input type="email" id="formtabs-contact-email" class="form-control"
                                                     placeholder="john.doe@example.com" aria-label="john.doe@example.com"
-                                                    name="contactEmail" required />
+                                                    name="contactEmail" required value="{{ old('contactEmail', '') }}" />
 
                                             </div>
                                         </div>

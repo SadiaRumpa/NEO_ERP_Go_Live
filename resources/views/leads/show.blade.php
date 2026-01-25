@@ -15,7 +15,8 @@
     <script src="{{ asset('assets/vendor/libs/swiper/swiper.js') }}"></script>
     <!-- Page JS -->
     <script src="{{ asset('assets/js/ui-carousel.js') }}"></script>
-    <script src="{{ asset('assets/js/lead-show.js') }}"></script>
+    <!-- <script src="{{ asset('assets/js/lead-show.js') }}"></script> -->
+    <script src="{{ asset('assets/js/lead-show.js?v='.filemtime(public_path('assets/js/lead-show.js'))) }}"></script>
 @endsection
 
 @section('styles')
@@ -36,12 +37,23 @@
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="row">
             <div class="col-12">
-                @if (session('success'))
-                    <div class="alert alert-success mt-2">{{ session('success') }}</div>
-                @endif
-                @if (session('error'))
-                    <div class="alert alert-danger mt-2">{{ session('error') }}</div>
-                @endif
+                @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul class="mb-0">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        <!-- Sticky Actions -->
+         @if (session('success'))
+            <div class="alert alert-success mt-2">{{ session('success') }}</div>
+        @endif
+        @if (session('error'))
+            <div class="alert alert-danger mt-2">{{ session('error') }}</div>
+        @endif
                 <div
                     class="card-header bg-label-primary d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row p-4">
                     <div class="d-flex flex-column justify-content-center">
@@ -226,7 +238,7 @@
                                                     <button type="button"
                                                         class="btn btn-sm btn-warning waves-effect waves-light"
                                                         data-bs-toggle="modal" data-bs-target="#editdescriptionModal">
-                                                        Update
+                                                        Edit
                                                     </button>
                                                 </div>
                                             </div>
@@ -392,10 +404,10 @@
                                                                 <div class="col-sm-12 col-md-12 mb-4">
                                                                     <div class="mb-4">
                                                                         <label for="basic-default-upload-file"
-                                                                            class="form-label">Select Image</label>
+                                                                            class="form-label">Select Image ({{ $appbrand->getAllowedFileType('IMG') }})</label>
                                                                         <input type="file" class="form-control"
                                                                             id="basic-default-upload-file"
-                                                                            name="leadphoto" accept=".jpg, .jpeg, .png"
+                                                                            name="leadphoto" accept="{{ $appbrand->getAllowedFileType('IMG') }}"
                                                                             required />
                                                                         <input type="hidden" name="lead_id"
                                                                             value="{{ $lead->id }}">
@@ -474,7 +486,7 @@
                                                             <i class="fa-solid fa-paper-plane fa-md me-1"></i> Add Note
                                                         </button>
                                                         <button type="reset"
-                                                            class="btn btn-label-secondary waves-effect">Cancel</button>
+                                                            class="btn btn-label-secondary waves-effect" onclick="clearLeadNote()">Cancel</button>
                                                     </div>
                                                 </form>
                                                 <div id="note-message" class="mt-2"></div>
@@ -666,11 +678,11 @@
                                             <div class="row g-4">
                                                 <div class="col mb-0">
                                                     <label for="attachmentFiles" class="form-label">
-                                                        Upload Files (.doc, .pdf, .jpg, .png)
+                                                        Upload Files ({{ $appbrand->getAllowedFileType('DOC') }})
                                                     </label>
                                                     <input class="form-control" type="file" name="attachment"
-                                                        id="attachmentFiles" multiple
-                                                        accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                                                        id="attachmentFiles" required
+                                                        accept="{{ $appbrand->getAllowedFileType('DOC') }}">
                                                 </div>
                                             </div>
                                         </div>
@@ -703,7 +715,7 @@
                                                             <button type="button"
                                                                 class="btn btn-warning btn-sm waves-effect waves-light"
                                                                 data-bs-toggle="modal" data-bs-target="#editlocationModal">
-                                                                Update
+                                                                Edit
                                                             </button>
                                                             <!--/ Edit location -->
                                                         @endif
@@ -752,7 +764,7 @@
                                                             <button type="button" class="btn-close"
                                                                 data-bs-dismiss="modal" aria-label="Close"></button>
                                                         </div>
-                                                        <form accept="application/json" method="POST"
+                                                        <form id="editLocationForm" accept="application/json" method="POST"
                                                             action="{{ route('leads.updateaddress', $lead->id) }}">
                                                             @csrf
                                                             <div class="modal-body p-0">
@@ -917,7 +929,7 @@
                                                                                     class="btn btn-warning btn-sm waves-effect waves-light"
                                                                                     data-bs-toggle="modal"
                                                                                     data-bs-target="#leaddetailseditmodal">
-                                                                                    Update
+                                                                                    Edit
                                                                                 </button>
                                                                             </small>
                                                                         @endif

@@ -142,6 +142,13 @@ document.addEventListener('DOMContentLoaded', function (e) {
     //   e.preventDefault();
     // });
     formRepeater.repeater({
+      isFirstItemUndeletable:true,
+      defaultValues: {
+        'section_name':'',
+        'section_type':'textbox',
+        'is_required':'1',
+        'has_attachment':'0'
+      },
       show: function () {
         var fromControl = $(this).find('.form-control, .form-select');
         var formLabel = $(this).find('.form-label');

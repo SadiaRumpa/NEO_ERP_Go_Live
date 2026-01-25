@@ -54,7 +54,9 @@ function updatejobDetails(jobId) {
         .then(data => {
             if (data.status === 'success') {
                 toastr.success(data.message);
-                location.reload();
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
             } else {
                 toastr.error('Error: ' + data.message);
             }
@@ -65,10 +67,13 @@ function updatejobDetails(jobId) {
         });
 }
 
-const quilln = new Quill('#jobnotes', {
-    theme: 'snow',
-    placeholder: 'Write note here...',
-});
+let quilln = null;
+if ($('#jobnotes').length) {
+    quilln = new Quill('#jobnotes', {
+        theme: 'snow',
+        placeholder: 'Write note here...',
+    });
+}
 
 function addNotes(jobId) {
     const htmlContent = quilln.root.innerHTML.trim();
@@ -99,7 +104,9 @@ function addNotes(jobId) {
                 $('#note-message').html('<div class="alert alert-success">' + response.message +
                     '</div>');
                 toastr.success('Note added successfully');
-                window.location.reload(); // Reload the page to see the new note
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
             } else {
                 toastr.danger('Error: ' + response.message);
                 $('#note-message').html('<div class="alert alert-danger">' + response.message +
@@ -116,10 +123,18 @@ function addNotes(jobId) {
         }
     });
 }
-const quillm = new Quill('#mailmessage', {
-    theme: 'snow',
-    placeholder: 'Write your message...',
-});
+function clearJobNote(){
+    quilln.setText('');
+
+}
+
+let quillm=null;
+if ($('#mailmessage').length) {
+    quillm = new Quill('#mailmessage', {
+        theme: 'snow',
+        placeholder: 'Write your message...',
+    });
+}
 
 function selectMailTemplate() {
     const templateId = document.getElementById('mailTemplateSelect').value;
@@ -198,6 +213,87 @@ $(document).ready(function () {
             });
         }
     });
+
+    // Handle form submission for editing user
+    $('#editFinForm').on('submit', function(e) {
+        e.preventDefault(); // Prevent default form submission
+
+        const form = $(this);
+        const formData = form.serialize();
+        //const customerId = {{ $customer->id }}; // Pass server-side ID to JS
+
+        $.ajax({
+            url: $(this).attr('action'), // Update to your route
+            type: 'POST',
+            data: formData,
+            headers: {
+                'X-CSRF-TOKEN': $('input[name="_token"]').val()
+            },
+            beforeSend: function() {
+                // Optional: show loader or disable submit button
+            },
+            success: function(response) {
+                // Handle success (e.g., close modal, show success message)
+                //toastr.success('Customer details updated successfully.');
+                toastr.success(response.message);
+                $('#editFininfo').modal('hide');
+                setTimeout(function(){
+                    location.reload(); // This will reload the entire page
+                },1000);
+            },
+            error: function(xhr) {
+                // Handle errors
+                let errors = xhr.responseJSON.errors;
+                let message = 'Update failed.';
+
+                if (errors) {
+                    message = Object.values(errors).flat().join('\n');
+                }
+                toastr.error(message);
+            }
+        });
+    });
+
+    // Handle form submission for editing user
+    $('#editLocationForm').on('submit', function(e) {
+        e.preventDefault(); // Prevent default form submission
+
+        const form = $(this);
+        const formData = form.serialize();
+        //const customerId = {{ $customer->id }}; // Pass server-side ID to JS
+
+        $.ajax({
+            url: $(this).attr('action'), // Update to your route
+            type: 'POST',
+            data: formData,
+            headers: {
+                'X-CSRF-TOKEN': $('input[name="_token"]').val()
+            },
+            beforeSend: function() {
+                // Optional: show loader or disable submit button
+            },
+            success: function(response) {
+                // Handle success (e.g., close modal, show success message)
+                //toastr.success('Customer details updated successfully.');
+                toastr.success(response.message);
+                $('#editLocationForm').modal('hide');
+                setTimeout(function(){
+                    location.reload(); // This will reload the entire page
+                },1000);
+            },
+            error: function(xhr) {
+                // Handle errors
+                let errors = xhr.responseJSON.errors;
+                let message = 'Update failed.';
+
+                if (errors) {
+                    message = Object.values(errors).flat().join('\n');
+                }
+                toastr.error(message);
+            }
+        });
+    });
+    
 });
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -219,7 +315,11 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(data => {
                 if (data.status === 'success') {
                     toastr.success(data.message);
-                    window.location.reload(); // Reload the page to see the new image
+                    
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                    
                 } else {
                     toastr.error(data.message || 'Upload failed');
                 }

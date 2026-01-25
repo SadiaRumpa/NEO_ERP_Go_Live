@@ -9,4 +9,11 @@ use Illuminate\Routing\Controller as BaseController;
 class Controller extends BaseController
 {
     use AuthorizesRequests, ValidatesRequests;
+    
+    public $mimetypes = '';
+
+    public function __construct(){
+        $appbrand = view()->shared('appbrand');
+        $this->mimetypes = $appbrand->getAllowedFileType('IMG', true);
+    }
 }

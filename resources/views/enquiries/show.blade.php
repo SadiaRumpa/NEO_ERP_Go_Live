@@ -872,7 +872,7 @@
                                                     <small class="text-body-secondary float-end">
                                                         @if ($enquiry->enquiry_status == 'inprogress')
                                                             <button type="submit"
-                                                                class="btn btn-warning btn-sm waves-effect waves-light">
+                                                                class="btn btn-primary btn-sm waves-effect waves-light">
                                                                 Update
                                                             </button>
                                                         @endif
@@ -984,7 +984,7 @@
                                                     <div class="col-12 mb-6">
                                                         <label class="form-label" for="collapsible-source">Source</label>
                                                         <textarea name="enquiry_source" class="form-control" id="collapsible-source" rows="2"
-                                                            placeholder="https://roofcoatingindustrial.co.uk/">{{ $enquiry->enquiry_source }}</textarea>
+                                                            placeholder="{{ $appbrand->business_website }}">{{ $enquiry->enquiry_source }}</textarea>
                                                     </div>
                                                 </div>
                                             </form>

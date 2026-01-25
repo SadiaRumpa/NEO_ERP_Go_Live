@@ -119,6 +119,9 @@
                             </tr>
                         </thead>
                         <tbody>
+                            @if (count($draftjobs)<1)
+                                <tr><td colspan="5">0 job found</td></tr>
+                            @endif
                             @foreach ($draftjobs as $nld)
                             <tr>
                                 <td class="pt-5">

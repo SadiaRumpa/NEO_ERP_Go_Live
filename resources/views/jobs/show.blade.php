@@ -15,7 +15,7 @@
     <script src="{{ asset('assets/vendor/libs/swiper/swiper.js') }}"></script>
     <!-- Page JS -->
     <script src="{{ asset('assets/js/ui-carousel.js') }}"></script>
-    <script src="{{ asset('assets/js/job-show.js') }}"></script>
+    <script src="{{ asset('assets/js/job-show.js?v='.filemtime(public_path('assets/js/job-show.js'))) }}"></script>
 @endsection
 
 @section('styles')
@@ -29,6 +29,11 @@
     <link rel="stylesheet" href="{{ asset('assets/vendor/libs/dropzone/dropzone.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/vendor/libs/swiper/swiper.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/vendor/css/pages/ui-carousel.css') }}" />
+    <style type="text/css">
+        #swiper-gallery .gallery-thumbs .swiper-slide-thumb-active {
+            border: 1px solid rgba(0, 0, 0, 1) !important;
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -154,12 +159,14 @@
                                                     </a>
                                                 @endif
                                             </li>
+                                            @if ($job->job_status != 'inprogress')
                                             <li>
                                                 <a class="dropdown-item" href="#"
                                                     onclick="updateJobStatus({{ $job->id }}, 'inprogress')">
                                                     IN PROGRESS
                                                 </a>
                                             </li>
+                                            @endif
                                             <li>
                                                 <a class="dropdown-item waves-effect waves-light" data-bs-toggle="modal"
                                                     data-bs-target="#rejectjobModal">
@@ -321,7 +328,7 @@
                                             <div class="btn-group">
                                                 <button type="button" class="btn btn-warning waves-effect waves-light"
                                                     data-bs-toggle="modal" data-bs-target="#editdescriptionModal">
-                                                    Update
+                                                    Edit
                                                 </button>
                                             </div>
                                         </div>
@@ -414,7 +421,7 @@
                                         <div class="swiper-wrapper">
                                             @foreach ($job->jobimages as $enim)
                                                 <div class="swiper-slide position-relative"
-                                                    style="background-image: url({{ $enim->source == 's3' ? $enim->image_url : asset($enim->image_path) }})">
+                                                    style="background-image: url({{ $enim->source == 's3' || $enim->source == 'public' ? $enim->image_url : asset($enim->image_path) }})">
                                                     @hasrole(['job-manager', 'office-manager', 'lead-job-manager'])
                                                         @if ($job->job_status == 'inprogress')
                                                             <div class="position-absolute top-0 end-0 p-2">
@@ -433,20 +440,20 @@
                                             @endforeach
                                         </div>
                                         <!-- Add Arrows -->
-                                        <div class="swiper-button-next swiper-button-white"></div>
-                                        <div class="swiper-button-prev swiper-button-white"></div>
+                                        <div class="swiper-button-next swiper-button-white_notused"></div>
+                                        <div class="swiper-button-prev swiper-button-white_notused"></div>
                                     </div>
                                     <div class="swiper gallery-thumbs">
                                         <div class="swiper-wrapper">
                                             @foreach ($job->jobimages as $enim)
-                                                @if ($enim->source == 's3')
+                                                @if ($enim->source == 's3' || $enim->source == 'public')
                                                     <div class="swiper-slide"
-                                                        style="background-image: url({{ $enim->image_url }})">
+                                                        style="background-image: url({{ $enim->image_url }}); border: 1px solid rgba(0, 0, 0, 0.4);">
                                                         {{ $enim->image_caption }}
                                                     </div>
                                                 @else
                                                     <div class="swiper-slide"
-                                                        style="background-image: url({{ asset('/') }}/{{ $enim->image_path }})">
+                                                        style="background-image: url({{ asset('/') }}/{{ $enim->image_path }}); border: 1px solid rgba(0, 0, 0, 0.4);">
                                                         {{ $enim->image_caption }}
                                                     </div>
                                                 @endif
@@ -483,10 +490,10 @@
                                                             <div class="col-sm-12 col-md-12 mb-4">
                                                                 <div class="mb-4">
                                                                     <label for="basic-default-upload-file"
-                                                                        class="form-label">Select Image</label>
+                                                                        class="form-label">Select Image ({{ $appbrand->getAllowedFileType('IMG') }})</label>
                                                                     <input type="file" class="form-control"
                                                                         id="basic-default-upload-file" name="jobphoto"
-                                                                        accept=".jpg, .jpeg, .png" required />
+                                                                        accept="{{ $appbrand->getAllowedFileType('IMG') }}" required />
                                                                     <input type="hidden" name="job_id"
                                                                         value="{{ $job->id }}">
                                                                 </div>
@@ -563,7 +570,7 @@
                                                         <i class="fa-solid fa-paper-plane fa-md me-1"></i> Add Note
                                                     </button>
                                                     <button type="reset"
-                                                        class="btn btn-label-secondary waves-effect">Cancel</button>
+                                                        class="btn btn-label-secondary waves-effect" onclick="clearJobNote()">Cancel</button>
                                                 </div>
                                             </form>
                                             <div id="note-message" class="mt-2"></div>
@@ -585,7 +592,7 @@
                                 <div class="col-xl order-2 order-xl-0">
                                     <div class="card mb-6">
                                         <div class="card-header header-elements">
-                                            <h5 class="mb-0 me-2">Attribuetes</h5>
+                                            <h5 class="mb-0 me-2">Attributes</h5>
 
                                             <div class="card-header-elements ms-auto">
                                                 <a href="{{ url('job-add-attributes') }}/{{ $job->id }}"
@@ -838,7 +845,7 @@
                                                         <button type="button" class="btn-close" data-bs-dismiss="modal"
                                                             aria-label="Close"></button>
                                                     </div>
-                                                    <form accept="application/json" method="POST"
+                                                    <form id="editLocationForm" accept="application/json" method="POST"
                                                         action="{{ route('job.updateaddress', $job->id) }}">
                                                         @csrf
                                                         <div class="modal-body p-0">
@@ -992,7 +999,7 @@
                                                                                 class="btn btn-primary btn-sm waves-effect waves-light"
                                                                                 data-bs-toggle="modal"
                                                                                 data-bs-target="#jobdetailseditmodal">
-                                                                                Update
+                                                                                Edit
                                                                             </button>
                                                                         </small>
                                                                     @endif
@@ -1077,7 +1084,7 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"
                                     aria-label="Close"></button>
                             </div>
-                            <form accept="application/json" method="POST"
+                            <form id="editFinForm" accept="application/json" method="POST"
                                 action="{{ route('customer.updatefinancialdetails', $job->customer->id) }}">
                                 @csrf
                                 <div class="modal-body">
@@ -1092,7 +1099,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-md-12">
+                                        <div class="col-md-12" style="display:none;">
                                             <div class="row">
                                                 <label class="col-sm-3 col-form-label text-sm-end"
                                                     for="formtabs-assets">Reg.

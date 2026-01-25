@@ -28,6 +28,46 @@
                 });
             });
         });
+
+    $(function() {
+        // Handle form submission for editing user
+        $('#jobprogress').on('submit', function(e) {
+            e.preventDefault(); // Prevent default form submission
+
+            const form = $(this);
+            const formData = form.serialize();
+
+            $.ajax({
+                url: $(this).attr('action'), // Update to your route
+                type: 'POST',
+                data: formData,
+                headers: {
+                    'X-CSRF-TOKEN': $('input[name="_token"]').val()
+                },
+                beforeSend: function() {
+                    // Optional: show loader or disable submit button
+                },
+                success: function(response) {
+                    toastr.success(response.message);
+                    $('#jobprogress').modal('hide');
+                    setTimeout(function(){
+                        //window.location.reload(); // This will reload the entire page
+                        window.location.href = response.redirect;
+                    },1000);
+                },
+                error: function(xhr) {
+                    // Handle errors
+                    let errors = xhr.responseJSON.errors;
+                    let message = 'Update failed.';
+
+                    if (errors) {
+                        message = Object.values(errors).flat().join('\n');
+                    }
+                    toastr.error(message);
+                }
+            });
+        });
+    });
     </script>
 @endsection
 
@@ -100,6 +140,9 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                @if (count($jobprogress->tasks )<1)
+                                <tr><td colspan="{{ count($months)+6 }}">No task found</td></tr>                                
+                                @endif
                                 @foreach ($jobprogress->tasks as $task)
                                     <tr>
                                         <td>

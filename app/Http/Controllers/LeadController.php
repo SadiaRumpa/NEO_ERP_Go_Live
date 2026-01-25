@@ -15,6 +15,7 @@ use App\Models\LeadNote;
 use App\Models\MailTemplate;
 use Illuminate\Contracts\Queue\Job;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Concerns\ToArray;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
@@ -367,18 +368,18 @@ class LeadController extends Controller
     {
         $lead = Lead::find($id);
         if (!$lead) {
-            return response()->json(['error' => 'Lead not found.'], 404);
+            return response()->json(['message' => 'Lead not found.'], 404);
         }
 
         $lead->leadaddress()->update([
-            'address_line1' => $request->address_line1,
-            'address_line2' => $request->address_line2,
-            'city' => $request->city,
-            'postcode' => $request->postcode,
-            'country' => $request->country,
+            'address' => $request->lead_address,
+            //'address_line2' => $request->address_line2,
+            //'city' => $request->city,
+            'postcode' => $request->lead_postcode,
+            'county' => $request->lead_county,
         ]);
 
-        return response()->json(['success' => 'Lead address updated successfully.']);
+        return response()->json(['message' => 'Lead address updated successfully.']);
     }
 
     public function uploadLeadAttachments(Request $request)
@@ -387,7 +388,7 @@ class LeadController extends Controller
             'leadid' => 'required|exists:leads,id',
             'attachment_type' => 'required|string',
             'title' => 'required|string|max:255',
-            'attachment' => 'file|mimes:pdf,jpg,jpeg,png,doc,docx|max:10024',
+            'attachment' => 'required|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:10024',
         ]);
 
         $disk = env('FILESYSTEM_DISK', 'local');
@@ -561,5 +562,29 @@ class LeadController extends Controller
         $lead->save();
 
         return response()->json(['status' => 'success', 'message' => 'Lead converted to job successfully.']);
+    }
+
+    public function updateLeadOtherOptions(Request $request, $id)
+    {
+        $lead = Lead::find($id);
+        if (!$lead) {
+            return back()->with([
+                'error' => 'Lead not found.'
+            ]);
+        }
+    
+        $lead->update([
+            'lead_category'     => $request->input('lead_info') ? implode(',', $request->input('lead_info')) : null,
+            'annual_maintenance'  => $request->input('annual_maintenance') ?? false,
+            'installations'       => in_array('install', $request->input('safety_type', [])),
+            'repairs'             => in_array('repairs', $request->input('safety_type', [])),
+            'testing'             => in_array('testing', $request->input('safety_type', [])),
+            'lead_priority' => $request->lead_priority ?? 'low',
+            'lead_source' => $request->lead_source ?? 'call',
+        ]);
+
+        return back()->with([
+            'success' => 'Lead options updated successfully.'
+        ]);
     }
 }

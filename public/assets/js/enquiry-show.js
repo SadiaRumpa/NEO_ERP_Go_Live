@@ -73,10 +73,13 @@ function updateEnquiryDetails(enquiryId) {
         });
 }
 
-const quilln = new Quill('#enquirynotes', {
-    theme: 'snow',
-    placeholder: 'Write note here...',
-});
+let quilln = null;
+if ($('#jobnotes').length) {
+    quilln = new Quill('#enquirynotes', {
+        theme: 'snow',
+        placeholder: 'Write note here...',
+    });
+}
 
 
 function addNotes(enquiryId) {
@@ -141,11 +144,13 @@ function deleteEnquiryImage(imageId) {
     }
 }
 
-
-const quillm = new Quill('#mailmessage', {
-    theme: 'snow',
-    placeholder: 'Write your message...',
-});
+let quillm = null;
+if ($('#mailmessage').length) {
+    quillm = new Quill('#mailmessage', {
+        theme: 'snow',
+        placeholder: 'Write your message...',
+    });
+}
 
 function selectMailTemplate() {
     const templateId = document.getElementById('mailTemplateSelect').value;

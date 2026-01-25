@@ -50,10 +50,10 @@ class FjobProgressController extends Controller
     {
         // dd($request->all());
 
-        $request->validate([
+        $validated = $request->validate([
             'fjob_id' => 'required|exists:fjobs,id',
-            'startdate' => 'required|date',
-            'enddate' => 'required|date'
+            'startdate' => 'required|date|before_or_equal:enddate',
+            'enddate' => 'required|date|after_or_equal:startdate'
         ]);
 
         $fjob = Fjob::findOrFail($request->fjob_id);
@@ -69,6 +69,10 @@ class FjobProgressController extends Controller
         $fjobprogress->progress_percent = 0;
         $fjobprogress->status = 'not_started';
         $fjobprogress->save();
+
+        if ($request->ajax()) {
+            return response()->json(['message'=> 'Job progress saved successfully.', 'redirect' => route('job-overviews.show', $fjobprogress->id) ]);
+        }
 
         return redirect()->route('job-overviews.show', $fjobprogress->id)->with('success', 'Job progress saved successfully.');
     }
@@ -92,7 +96,7 @@ class FjobProgressController extends Controller
         // Validate basic fields
         $request->validate([
             'tasktitle'   => 'required|string|max:255',
-            'startfrom'   => 'required|date',
+            'startfrom'   => 'required|date|before_or_equal:endsat',
             'endsat'      => 'required|date|after_or_equal:startfrom',
             'assignto'    => 'required|exists:users,id',
             'notes'       => 'nullable|string|max:500',
@@ -120,10 +124,15 @@ class FjobProgressController extends Controller
             'start_date'  => $request->startfrom,
             'end_date'     => $request->endsat,
             'assigned_to' => $request->assignto,
-            'notes'       => $request->notes,
+            'description'       => $request->notes,
             'duration'    => $duration, // store duration
             'status' => 'in_progress'
         ]);
+
+        if ($request->ajax()) {
+            return response()->json(['message'=> 'Task created successfully.', 'redirect' => route('job-overviews.show', $jobprogress->id) ]);
+        }
+
         return redirect()->route('job-overviews.show', $jobprogress->id)
             ->with('success', 'Task created successfully!');
     }

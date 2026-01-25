@@ -39,7 +39,7 @@
 
             updateStatus(quotationId, status);
 
-            $('#acceptModal').modal('hide');
+            //$('#acceptModal').modal('hide');
         });
 
         // ✅ Common AJAX call
@@ -59,7 +59,15 @@
                     location.reload();
                 },
                 error: function(xhr) {
-                    toastr.error('Something went wrong');
+                    //toastr.error('Something went wrong');
+                    // Handle errors
+                    let errors = xhr.responseJSON.errors;
+                    let message = 'Something went wrong';
+
+                    if (errors) {
+                        message = Object.values(errors).flat().join('\n');
+                    }
+                    toastr.error(message);
                 }
             });
         }
@@ -160,7 +168,7 @@
                             <div class="row g-4">
                                 <div class="col mb-4">
                                     <label for="remarks" class="form-label">Remarks</label>
-                                    <input type="text" id="remarks" class="form-control" name="remarks" />
+                                    <input type="text" id="remarks" class="form-control" name="remarks" required />
                                 </div>
                             </div>
                         </div>

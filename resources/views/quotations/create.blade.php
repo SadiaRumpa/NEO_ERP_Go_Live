@@ -197,7 +197,7 @@
                                     <label for="html5-date-input" class="form-label">Valid Until</label>
                                     <div class="col-md-10">
                                         <input class="form-control" type="date" id="html5-date-input"
-                                            name="quotation_date" required />
+                                            name="quotation_date" min="{{ date('Y-m-d') }}" required />
                                     </div>
                                 </div>
                                 <div class="col-md-4 mb-6">
@@ -251,7 +251,7 @@
                             <input type="hidden" name="job_type_id" value="{{ $quotationTemplate->job_type_id }}">
 
                             <div class="pt-6">
-                                <button type="submit" class="btn btn-primary me-4">Update</button>
+                                <button type="submit" class="btn btn-primary me-4">Submit</button>
                                 <button type="reset" class="btn btn-label-secondary">Cancel</button>
                             </div>
                         </form>

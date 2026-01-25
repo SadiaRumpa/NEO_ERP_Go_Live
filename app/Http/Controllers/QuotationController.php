@@ -241,11 +241,11 @@ class QuotationController extends Controller
             $quotation->delete();
             DB::commit();
 
-            return response()->json(['success' => 'Quotation deleted successfully.']);
+            return response()->json(['message' => 'Quotation deleted successfully.']);
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return response()->json(['error' => 'Failed to delete quotation. ' . $e->getMessage()], 500);
+            return response()->json(['message' => 'Failed to delete quotation. ' . $e->getMessage()], 500);
         }
     }
 
@@ -253,7 +253,7 @@ class QuotationController extends Controller
     {
         $request->validate([
             'status' => 'required|string|in:accepted,rejected,pending',
-            'remarks' => 'nullable|string|max:255',
+            'remarks' => 'required_if:status,accepted|nullable|string|max:255',
         ]);
 
         $quotation = Quotation::find($id);

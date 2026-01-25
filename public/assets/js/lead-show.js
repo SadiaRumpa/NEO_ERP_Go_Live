@@ -115,6 +115,12 @@ function addNotes(leadId) {
         }
     });
 }
+
+function clearLeadNote(){
+    quilln.setText('');
+
+}
+
 const quillm = new Quill('#mailmessage', {
     theme: 'snow',
     placeholder: 'Write your message...',
@@ -178,7 +184,7 @@ $(document).ready(function () {
                 url: `/leads/delete-attachment/${attachmentId}`,
                 method: 'DELETE',
                 data: {
-                    _token: '{{ csrf_token() }}'
+                    _token: document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 },
                 success: function (response) {
                     if (response.status === 'success') {
@@ -279,7 +285,7 @@ $(document).ready(function () {
 
                 setTimeout(() => {
                     location.reload();
-                }, 1500);
+                }, 1000);
             },
             error: function (xhr) {
                 let errorMsg = 'An error occurred.';
@@ -291,6 +297,47 @@ $(document).ready(function () {
             }
         });
     });
+
+    // Handle form submission for editing user
+    $('#editLocationForm').on('submit', function(e) {
+        e.preventDefault(); // Prevent default form submission
+
+        const form = $(this);
+        const formData = form.serialize();
+        //const customerId = {{ $customer->id }}; // Pass server-side ID to JS
+
+        $.ajax({
+            url: $(this).attr('action'), // Update to your route
+            type: 'POST',
+            data: formData,
+            headers: {
+                'X-CSRF-TOKEN': $('input[name="_token"]').val()
+            },
+            beforeSend: function() {
+                // Optional: show loader or disable submit button
+            },
+            success: function(response) {
+                // Handle success (e.g., close modal, show success message)
+                //toastr.success('Customer details updated successfully.');
+                toastr.success(response.message);
+                $('#editLocationForm').modal('hide');
+                setTimeout(function(){
+                    location.reload(); // This will reload the entire page
+                },1000);
+            },
+            error: function(xhr) {
+                // Handle errors
+                let errors = xhr.responseJSON.errors;
+                let message = 'Update failed.';
+
+                if (errors) {
+                    message = Object.values(errors).flat().join('\n');
+                }
+                toastr.error(message);
+            }
+        });
+    });
+
 });
 
 function updateLeadStatus(leadId, status) {

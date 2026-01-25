@@ -796,27 +796,27 @@
                             <div class="col-12 col-md-6">
                                 <label class="form-label" for="modalEditAssets">Assets</label>
                                 <input type="text" id="modalEditAssets" name="assets" class="form-control"
-                                    placeholder="0.00" value="{{ $customer->findetails->assets ?? 0 }}" />
+                                    placeholder="0.00" value="{{ $customer->findetails->assets ?? 0 }}" min="0" required />
                             </div>
 
                             <div class="col-12 col-md-6">
                                 <label class="form-label" for="modalEditnetAssets">Net Assets</label>
                                 <input type="text" id="modalEditnetAssets" name="netAssets" class="form-control"
-                                    placeholder="0.00" value="{{ $customer->findetails->net_assets ?? 0 }}" />
+                                    placeholder="0.00" value="{{ $customer->findetails->net_assets ?? 0 }}" min="0" required />
                             </div>
 
                             <div class="col-12 col-md-6">
                                 <label class="form-label" for="modalEditLiabilities">Liabilities</label>
                                 <input type="number" min="0" id="modalEditLiabilities" name="liabilities"
                                     class="form-control" placeholder="0.00"
-                                    value="{{ $customer->findetails->liabilities ?? 0 }}" />
+                                    value="{{ $customer->findetails->liabilities ?? 0 }}" min="0" required />
                             </div>
 
                             <div class="col-12 col-md-6">
                                 <label class="form-label" for="modalEditCashinBank">Cash in Bank</label>
                                 <input type="number" min="0" id="modalEditCashinBank" name="cashInBank"
                                     class="form-control" placeholder="0.00"
-                                    value="{{ $customer->findetails->cash_in_bank ?? 0 }}" />
+                                    value="{{ $customer->findetails->cash_in_bank ?? 0 }}" min="0" required />
                             </div>
 
                             <div class="col-12 text-center">

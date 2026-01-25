@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Maatwebsite\Excel\Concerns\ToArray;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -43,5 +44,29 @@ class BusinessInfo extends Model
         return SlugOptions::create()
             ->generateSlugsFrom('business_name')
             ->saveSlugsTo('business_slug');
+    }
+
+    public function getAllowedFileType($type='IMG', $remove_dot=false){
+        $business_allowed_file_types = $this->business_allowed_file_types;
+        $result = [];
+
+        $parts = preg_split('/\s+/', $business_allowed_file_types);
+
+        foreach ($parts as $part) {
+            [$key, $values] = explode(':', $part, 2);
+            $result[$key] = array_filter(explode(',', $values));
+        }
+        $types = $result[$type];
+        
+        $typestring = '';
+        if($types){
+            if($remove_dot){
+                $types = array_map(function($item) {
+                    return trim($item, "."); // Trims '!' and '*'
+                }, $types);
+            }
+            $typestring = implode(',', $types);
+        }
+        return $typestring;
     }
 }

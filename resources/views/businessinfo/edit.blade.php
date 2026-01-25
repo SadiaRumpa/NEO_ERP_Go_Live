@@ -289,8 +289,7 @@ $(function() {
                                                     <label class="col-sm-3 col-form-label text-sm-end"
                                                         for="formtabs-allowedfiletypes">Allowed File Types</label>
                                                     <div class="col-sm-9">
-                                                        <input type="text" id="formtabs-allowedFiletypes" class="form-control"
-                                                            placeholder="Allowed File Types" aria-label="Allowed File Types" name="allowedFiletypes"  value="{{ $businessinfo->business_allowed_file_types }}"/>
+                                                        <textarea name ="allowedFiletypes" id="formtabs-allowedFiletypes" rows="3" class="form-control" placeholder="Allowed File Types">{{$businessinfo->business_allowed_file_types }}</textarea>
                                                     </div>
                                                 </div>
                                             </div>

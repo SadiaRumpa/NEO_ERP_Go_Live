@@ -110,6 +110,9 @@ class BusinessInfoController extends Controller
         if(!empty($validated['businessPhone'])){
             $validated['businessPhone'] = simple_format_phone($validated['businessPhone']);
         }
+        if(empty($validated['allowedFiletypes'])){
+            $validated['allowedFiletypes'] = 'IMG:.jpg,.jpeg,.png DOC:.pdf,.jpg,.jpeg,.png,.doc,.docx';
+        }
 
         DB::beginTransaction();
 
@@ -329,6 +332,10 @@ class BusinessInfoController extends Controller
                 Storage::disk('s3')->setVisibility($path, 'public');
             }
             $businessFaviconPath = Storage::disk($disk)->url($path);
+        }
+
+        if(empty($validated['allowedFiletypes'])){
+            $validated['allowedFiletypes'] = 'IMG:.jpg,.jpeg,.png DOC:.pdf,.jpg,.jpeg,.png,.doc,.docx';
         }
 
         // Update 

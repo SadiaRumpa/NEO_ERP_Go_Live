@@ -7,7 +7,7 @@
 <script src="{{asset('assets/vendor/libs/cleave-zen/cleave-zen.js')}}"></script>
 <script src="{{asset('assets/vendor/libs/jquery-repeater/jquery-repeater.js')}}"></script>
 
-<script src="{{asset('assets/js/forms-extras.js')}}"></script>
+<script src="{{ asset('assets/js/forms-extras.js?v='.filemtime(public_path('assets/js/forms-extras.js'))) }}"></script>
 <!-- Page JS -->
 <script>
 </script>
@@ -80,12 +80,12 @@
                                         <label class="form-label" for="form-repeater-1-4">Has Attachment?</label>
                                         <select id="form-repeater-1-4" class="form-select" name="has_attachment" required>
                                             <option value="1">Yes</option>
-                                            <option value="0">No</option>
+                                            <option value="0" selected>No</option>
                                         </select>
                                     </div>
 
                                     <div class="mb-6 col-lg-12 col-xl-2 col-12 d-flex align-items-center mb-0">
-                                        <button class="btn btn-label-danger mt-xl-6" data-repeater-delete>
+                                        <button type="button" class="btn btn-label-danger mt-xl-6" data-repeater-delete>
                                             <i class="icon-base ti tabler-x me-1"></i>
                                             <span class="align-middle">Delete</span>
                                         </button>

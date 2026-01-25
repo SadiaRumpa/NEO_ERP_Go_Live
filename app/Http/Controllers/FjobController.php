@@ -11,6 +11,7 @@ use App\Models\JobAttribute;
 use App\Models\JobAttributeDetail;
 use App\Models\JobType;
 use App\Models\MailTemplate;
+use App\Models\FjobImage;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Storage;
@@ -475,6 +476,9 @@ class FjobController extends Controller
 
     public function storeJobAddAttributes(Request $request, $fjobId)
     {
+        //clear all attributes value first
+        FjobAttribute::where('fjob_id', $fjobId)->delete();
+    
         $attributes = $request->input('attributes', []);
 
         foreach ($attributes as $jobAttributeId => $attributeData) {
@@ -526,5 +530,115 @@ class FjobController extends Controller
         }
 
         return redirect()->route('job.show', $fjobId)->with('success', 'Job attributes saved successfully.');
+    }
+
+    public function addJobImages(Request $request)
+    {
+        $validated = $request->validate([
+            'job_id' => 'required|exists:enquiries,id',
+            'jobphoto'      => 'required|image|mimes:'.$this->mimetypes.'|max:2048',
+        ]);
+        
+
+        $disk = env('FILESYSTEM_DISK', 'local');
+
+        if ($request->hasFile('jobphoto')) {
+            $file = $request->file('jobphoto');
+            $path = $file->store('uploads/jobs', $disk);
+
+            if (!$path) {
+                return response()->json(['status' => 'error', 'message' => 'Failed to store image.']);
+            }
+
+            if ($disk === 's3') {
+                Storage::disk('s3')->setVisibility($path, 'public');
+            }
+
+            FjobImage::create([
+                'fjob_id'  => $validated['job_id'],
+                'image_path'  => $path,
+                'image_name'  => $file->getClientOriginalName(),
+                'image_url'   => Storage::disk($disk)->url($path),
+                'source'      => $disk
+            ]);
+
+            return response()->json(['status' => 'success', 'message' => 'Job image added successfully.']);
+        }
+
+        return response()->json(['status' => 'error', 'message' => 'Failed to add enquiry image.']);
+    }
+
+    public function destroyJobImage($id)
+    {
+        $image = FjobImage::find($id);
+
+        if (!$image) {
+            return response()->json(['status' => 'error', 'message' => 'Image not found.']);
+        }
+
+        // Optional: delete from storage if needed
+        if ($image->source !== 's3' && Storage::disk('public')->exists($image->image_path)) {
+            Storage::disk('public')->delete($image->image_path);
+        }
+
+        $image->delete();
+
+        return response()->json(['status' => 'success', 'message' => 'Image deleted successfully.']);
+    }
+
+    public function updateJobDetails(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'job_id' => 'required|exists:enquiries,id',
+            'jobdescription' => 'required|string',
+        ]);
+
+        $job = Fjob::find($id);
+        if (!$job) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Job not found.'
+            ]);
+        }
+
+        $job->update([
+            'job_description' => $validated['jobdescription'],
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Job details updated successfully.'
+        ]);
+    }
+
+    public function deleteJobNotes($noteid)
+    {
+        $note = FjobNote::findOrFail($noteid);
+
+        if (!$note) {
+            return response()->json(['status' => 'error', 'message' => 'Note not found.']);
+        }
+
+        $note->delete();
+
+        return response()->json(['status' => 'success', 'message' => 'Note deleted successfully.']);
+    }
+
+    public function updateJobAddress(Request $request, $id)
+    {
+        $job = Fjob::find($id);
+        if (!$job) {
+            return response()->json(['message' => 'Job not found.'], 404);
+        }
+
+        $job->jobaddress()->update([
+            'address' => $request->job_address,
+            //'address_line2' => $request->address_line2,
+            //'city' => $request->city,
+            'postcode' => $request->job_postcode,
+            'county' => $request->job_county,
+        ]);
+
+        return response()->json(['message' => 'Job address updated successfully.']);
     }
 }

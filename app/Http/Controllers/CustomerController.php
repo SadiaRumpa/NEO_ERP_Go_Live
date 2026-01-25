@@ -74,7 +74,7 @@ class CustomerController extends Controller
             'contactPersonLastName'   => 'nullable|string|regex:/^[a-zA-Z\s\'\-]+$/|max:255',
             'contactPhone'       => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10',
             'contactEmail'       => 'required|email|max:255',
-            'contactMobile'      => 'nullable|regex:/^([0-9\s\-\+\(\)]*)$/|min:10',
+            'contactMobile'      => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10',
         ]);
 
         //regex:/^([0-9\s\-\+\(\)]*)$/|min:10
@@ -302,19 +302,19 @@ class CustomerController extends Controller
                     'company_name' => $customer->company_name,
                     'registration_number' => $validated['registration_no'],
                 ];
-            if(isset($validated['asset_details_url'])){
+            if(array_key_exists('asset_details_url', $validated)){
                 $data_array['asset_details_url'] = $validated['asset_details_url'];
             }
-            if(isset($validated['assets'])){
+            if(array_key_exists('assets', $validated)){
                 $data_array['assets'] = $validated['assets'];
             }
-            if(isset($validated['assets'])){
+            if(array_key_exists('netAssets', $validated)){
                 $data_array['net_assets'] = $validated['netAssets'];
             }
-            if(isset($validated['liabilities'])){
+            if(array_key_exists('liabilities', $validated)){
                 $data_array['liabilities'] = $validated['liabilities'];
             }
-            if(isset($validated['cashInBank'])){
+            if(array_key_exists('cashInBank', $validated)){
                 $data_array['cash_in_bank'] = $validated['cashInBank'];
             }
 
