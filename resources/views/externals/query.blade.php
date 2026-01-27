@@ -267,8 +267,8 @@
                                 <input type="hidden" id="posttown" value="" />
                             </div>
                             <div class="col-12">
-                                <label for="address" class="form-label fw-bold required">Address</label>
-                                <textarea id="address" id="basic-default-address" class="form-control" name="address" rows="2" required></textarea>
+                                <label for="basic-default-address" class="form-label fw-bold required">Address</label>
+                                <textarea id="basic-default-address" class="form-control" name="address" rows="2" required></textarea>
                             </div>
                             <div class="col-md-6 col-6">
                                 <label for="basic-default-county" class="form-label fw-bold ">County</label>
