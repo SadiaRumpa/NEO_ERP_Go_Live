@@ -112,7 +112,7 @@
                     grecaptcha.reset();
                     clearImagePreview();
 
-                    toastr.success("Your query has been submitted successfully!");
+                    toastr.success("Your query has been submitted successfully!", '', { "positionClass": "toast-top-left" });
                     setTimeout(() => {
                         //window.location.reload();
                         

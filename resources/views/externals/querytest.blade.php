@@ -30,7 +30,7 @@
 
                         <div class="col-xs-12 col-md-6 " id="contact">
 
-                            <iframe src="https://jems.live/office/system/StdEnquiry.asp?es=http://www.practicalroofing.co.uk&amp;wid=Industrial-Roofing" width="100%" height="1050px" frameborder="0" scrolling="no"></iframe>
+                            <iframe src="https://jems.live/office/system/StdEnquiry.asp?es=http://www.practicalroofing.co.uk&amp;wid=Industrial-Roofing" width="100%" height="1500px" frameborder="0" scrolling="no"></iframe>
 
                         </div>
 
