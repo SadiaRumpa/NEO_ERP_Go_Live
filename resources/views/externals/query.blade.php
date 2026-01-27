@@ -249,9 +249,9 @@
                                 <textarea id="jobdescription" class="form-control" placeholder="Hi, My roof needs some care." name="jobdescription" rows="3" required></textarea>
                             </div>
                             <div class="col-12">
-                                <label for="postcode" class="form-label" for="basic-default-postcode required">Postcode</label>
+                                <label class="form-label" for="basic-default-postcode required">Postcode</label>
                                 <div class="input-group">
-                                    <input id="postcode" type="text" class="form-control" id="basic-default-postcode" name="postcode"
+                                    <input type="text" class="form-control" id="basic-default-postcode" name="postcode"
                                         placeholder="WR11 7EJ" aria-label="WR11 7EJ" aria-describedby="button-addon2"
                                         oninput="this.value = this.value.toUpperCase()" required />
                                     <button class="btn btn-outline-primary" type="button" id="button-addon2"
@@ -271,14 +271,14 @@
                                 <textarea id="address" id="basic-default-address" class="form-control" name="address" rows="2" required></textarea>
                             </div>
                             <div class="col-md-6 col-6">
-                                <label for="basic-default-county" class="form-label fw-bold required">County</label>
+                                <label for="basic-default-county" class="form-label fw-bold ">County</label>
                                 <input type="text" id="basic-default-county" name="county" class="form-control"
-                                    placeholder="Worcestershire" required />
+                                    placeholder="Worcestershire"  />
                             </div>
                             <div class="col-md-6 col-6">
-                                <label for="basic-default-country" class="form-label fw-bold required">Country</label>
+                                <label for="basic-default-country" class="form-label fw-bold ">Country</label>
                                 <input type="text" id="basic-default-country" name="country" class="form-control"
-                                    placeholder="England" required />
+                                    placeholder="England"  />
                             </div>
                             <div class="col-md-12">
                                 <label for="photo1" class="form-label fw-bold required">Photo 1</label>
