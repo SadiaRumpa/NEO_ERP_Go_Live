@@ -54,7 +54,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('permissions', PermissionController::class);
     Route::resource('users', UserController::class);
     Route::resource('mailtemplates', MailTemplateController::class);
-    Route::get('/mail-template/{id}', [MailTemplateController::class, 'showmailtemplate'])->name('mailtemplate.showmail');
+    Route::get('/mail-template/{id}/{rel_type?}/{rel_id?}', [MailTemplateController::class, 'showmailtemplate'])->name('mailtemplate.showmail');
     Route::get('/myprofile', [UserController::class, 'myprofile'])->name('users.myprofile');
 
     Route::resource('businessinfo', BusinessInfoController::class);
@@ -64,6 +64,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/businessinfo/upload-brand-files/{id}',[BusinessInfoController::class, 'uploadBrandFiles'])->name('businessinfo.uploadbrandfiles');
 
     Route::resource('enquiries', EnquiryController::class);
+    Route::get('enquiry/inprogress', [EnquiryController::class, 'showInprogress'])->name('enquiry.show.inprogress');
     Route::get('enquiry/completed', [EnquiryController::class, 'showCompleted'])->name('enquiry.show.completed');
     Route::get('enquiry/rejected', [EnquiryController::class, 'showRejected'])->name('enquiry.show.rejected');
     Route::post('/enquiry/updatedescription/{id}', [EnquiryController::class, 'updateEnquiryDetails'])->name('enquiry.updatedescription');
@@ -92,6 +93,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('leads', LeadController::class);
     Route::get('lead/completed', [LeadController::class, 'showCompleted'])->name('lead.show.completed');
     Route::get('lead/rejected', [LeadController::class, 'showRejected'])->name('lead.show.rejected');
+    Route::get('lead/archived', [LeadController::class, 'showArchived'])->name('lead.show.archived');
     Route::get('lead/inprogress', [LeadController::class, 'showInprogress'])->name('lead.show.inprogress');
     Route::post('lead/updatedescription/{id}', [LeadController::class, 'updateLeadDetails'])->name('leads.updatedescription');
     Route::post('/leads/updateaddress/{id}', [LeadController::class, 'updateLeadAddress'])->name('leads.updateaddress');

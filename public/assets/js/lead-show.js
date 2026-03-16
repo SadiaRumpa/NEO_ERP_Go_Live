@@ -65,17 +65,25 @@ function updateleadDetails(leadId) {
         });
 }
 
-const quilln = new Quill('#leadnotes', {
-    theme: 'snow',
-    placeholder: 'Write note here...',
-});
+try {
+    const quilln = new Quill('#leadnotes', {
+        theme: 'snow',
+        placeholder: 'Write note here...',
+    });
+} catch (error) {
+  // Handle error
+} finally {
+  // Code that always runs (e.g., cleanup)
+  console.log("Cleanup complete.");
+}
+
 
 function addNotes(leadId) {
     const htmlContent = quilln.root.innerHTML.trim();
     const textContent = quilln.getText().trim();
 
     if (textContent === '') {
-        toastr.danger('Note is required.');
+        toastr.error('Note is required.');
         return;
     }
 
@@ -100,7 +108,7 @@ function addNotes(leadId) {
                 toastr.success('Note added successfully');
                 window.location.reload(); // Reload the page to see the new note
             } else {
-                toastr.danger('Error: ' + response.message);
+                toastr.error('Error: ' + response.message);
                 $('#note-message').html('<div class="alert alert-danger">' + response.message +
                     '</div>');
             }
@@ -110,7 +118,7 @@ function addNotes(leadId) {
             if (xhr.responseJSON && xhr.responseJSON.errors) {
                 message = Object.values(xhr.responseJSON.errors).flat().join('<br>');
             }
-            toastr.danger(message);
+            toastr.error(message);
             $('#note-message').html('<div class="alert alert-danger">' + message + '</div>');
         }
     });
@@ -121,32 +129,17 @@ function clearLeadNote(){
 
 }
 
-const quillm = new Quill('#mailmessage', {
-    theme: 'snow',
-    placeholder: 'Write your message...',
-});
-
-function selectMailTemplate() {
-    const templateId = document.getElementById('mailTemplateSelect').value;
-    if (!templateId) return;
-
-    $.ajax({
-        url: `/mail-template/${templateId}`,
-        method: 'GET',
-        success: function (res) {
-            quillm.root.innerHTML = res.message;
-        },
-        error: function () {
-            console.error('Failed to load mail template.');
-            quillm.root.innerHTML = '';
-            toastr.error('Failed to load mail template.');
-        }
+let quillml = null;
+if ($('#rejectmessage').length) {
+    quillml = new Quill('#rejectmessage', {
+        theme: 'snow',
+        placeholder: 'Write your message...',
     });
 }
 
 // On form submit
 $('form').on('submit', function () {
-    $('#mailmessage_input').val(quillm.root.innerHTML);
+    $('#rejectmessage_input').val(quillml.root.innerHTML);
 });
 
 $(document).ready(function () {
@@ -293,7 +286,7 @@ $(document).ready(function () {
                     errorMsg = xhr.responseJSON.message;
                 }
 
-                toastr.danger(errorMsg);
+                toastr.error(errorMsg);
             }
         });
     });
@@ -341,6 +334,18 @@ $(document).ready(function () {
 });
 
 function updateLeadStatus(leadId, status) {
+    const htmlContent = quillml.root.innerHTML.trim();
+    const textContent = quillml.getText().trim();
+
+    let lead_status_message = '';
+    if(status == 'rejected'){
+        if (textContent === '') {
+            toastr.error('Message is required.');
+            return;
+        }
+        lead_status_message = htmlContent;
+    }
+
     if (!confirm(`Are you sure you want to change the status to "${status}"?`)) {
         return; // Stop if user cancels
     }
@@ -350,14 +355,27 @@ function updateLeadStatus(leadId, status) {
         type: 'POST',
         data: {
             lead_status: status,
+            lead_status_message: lead_status_message,
             _token: $('meta[name="csrf-token"]').attr('content') // CSRF token
         },
         success: function (response) {
-            toastr.success('Status updated successfully');
-            location.reload();
+            if (response.status === 'success') {
+                toastr.success(`Status updated successfully to "${status}"`);
+                
+                setTimeout(function(){
+                    //window.location.reload(); 
+                    window.location.href = `/leads`;
+                }, 1000);
+            } else {
+                toastr.error('Error: ' + response.message);
+            }
         },
         error: function (xhr) {
-            toastr.error('Something went wrong');
+            let error_message = "Something went wrong.";
+            if (xhr.responseJSON && xhr.responseJSON.errors) {
+                error_message = Object.values(xhr.responseJSON.errors).flat().join('<br>');
+            }
+            toastr.error(error_message);
         }
     });
 }

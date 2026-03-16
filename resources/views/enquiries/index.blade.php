@@ -16,6 +16,8 @@
 
         @if(!empty($completed) && $completed === true)
         ajaxUrl = "{{ route('enquiry.show.completed') }}";
+        @elseif(!empty($inprogress) && $inprogress === true)
+        ajaxUrl = "{{ route('enquiry.show.inprogress') }}";
         @elseif(!empty($rejected) && $rejected === true)
         ajaxUrl = "{{ route('enquiry.show.rejected') }}";
         @endif
@@ -130,6 +132,8 @@
             </a>
             @endhasanyrole
             <div class="d-flex gap-4">
+                <a href="{{ route('enquiry.show.inprogress') }}" class="btn btn-label-primary"
+                        @if (isset($inprogress) && $inprogress == true) disabled @endif>In-Progress</a>
                 <a href="{{ route('enquiry.show.rejected') }}" class="btn btn-label-danger" @if(isset($rejected) && $rejected==true) disabled @endif>Rejected</a>
                 <a href="{{ route('enquiry.show.completed') }}" class="btn btn-label-dark" @if(isset($completed) && $completed==true) disabled @endif>Completed</a>
             </div>

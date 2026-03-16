@@ -21,6 +21,11 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Exception;
+
+use Mail;
+
+use App\Mail\EnquiryRejectNotify;
 
 class EnquiryController extends Controller
 {
@@ -47,7 +52,7 @@ class EnquiryController extends Controller
                     'enquiries.enquiry_source',
                     'enquiries.created_at'
                 ])
-                ->whereIn('enquiry_status', ['new', 'inprogress', 'on_hold'])
+                ->whereIn('enquiry_status', ['new', 'on_hold'])
                 ->orderByDesc('enquiries.created_at');
 
             return Datatables::of($data)
@@ -71,7 +76,7 @@ class EnquiryController extends Controller
                     return Str::limit(strip_tags($row->enquiry), 50); // use Illuminate\Support\Str
                 })
                 ->addColumn('action', function ($row) {
-                    $btn = '<a href="enquiries/' . $row->slug . '" class="edit btn btn-primary btn-sm">Details</a>';
+                    $btn = '<a href="/enquiries/' . $row->slug . '" class="edit btn btn-primary btn-sm">Details</a>';
                     return $btn;
                 })
                 ->rawColumns(['action'])
@@ -80,6 +85,46 @@ class EnquiryController extends Controller
         }
 
         return view('enquiries.index');
+    }
+
+    public function showInprogress(Request $request)
+    {
+        if ($request->ajax()) {
+
+            $data = Enquiry::with(['customer', 'enquiryaddress'])
+                ->select('*')
+                ->where('enquiry_status', 'inprogress')
+                ->orderByDesc('created_at');
+
+            return Datatables::of($data)
+                ->addIndexColumn()
+                ->addColumn('company_name', function ($row) {
+                    return $row->customer->company_name;
+                })
+                ->addColumn('customer_name', function ($row) {
+                    return $row->customer->contact_firstname . ' ' . $row->customer->contact_lastname;
+                })
+                ->addColumn('customer_email', function ($row) {
+                    return $row->customer->contact_email;
+                })
+                ->addColumn('customer_phone', function ($row) {
+                    return $row->customer->contact_phone;
+                })
+                ->addColumn('customer_mobile', function ($row) {
+                    return $row->customer->contact_mobile;
+                })
+                ->addColumn('action', function ($row) {
+                    $btn = '<a href="/enquiries/' . $row->slug . '" class="edit btn btn-primary btn-sm">Details</a>';
+                    return $btn;
+                })
+                ->rawColumns(['action'])
+                ->addIndexColumn()
+                ->make(true);
+        }
+
+        return view('enquiries.index')->with([
+            'inprogress' => true,
+        ]);
     }
 
     public function showCompleted(Request $request)
@@ -109,7 +154,7 @@ class EnquiryController extends Controller
                     return $row->customer->contact_mobile;
                 })
                 ->addColumn('action', function ($row) {
-                    $btn = '<a href="enquiries/' . $row->slug . '" class="edit btn btn-primary btn-sm">Details</a>';
+                    $btn = '<a href="/enquiries/' . $row->slug . '" class="edit btn btn-primary btn-sm">Details</a>';
                     return $btn;
                 })
                 ->rawColumns(['action'])
@@ -149,7 +194,7 @@ class EnquiryController extends Controller
                     return $row->customer->contact_mobile;
                 })
                 ->addColumn('action', function ($row) {
-                    $btn = '<a href="enquiries/' . $row->slug . '" class="edit btn btn-primary btn-sm">Details</a>';
+                    $btn = '<a href="/enquiries/' . $row->slug . '" class="edit btn btn-primary btn-sm">Details</a>';
                     return $btn;
                 })
                 ->rawColumns(['action'])
@@ -531,8 +576,17 @@ class EnquiryController extends Controller
             'status' => 'required|string',
         ]);
         $enquiry = Enquiry::find($id);
-        if ($enquiry) {
+        if ($enquiry) {    
             $enquiry->update(['enquiry_status' => $validated['status']]);
+            //update lead status to archived
+            $lead = Lead::where('enquiry_id', '=', $enquiry->id)->firstOrFail(); 
+            if($lead){
+                $lead->update(['lead_status' => 'archived']);
+            }
+            if($validated['status']=='rejected'){
+                $this->emailNotify($request);
+                return response()->json(['status' => 'success', 'message' => 'Enquiry status set to reject successfully.']);
+            }
             return redirect()->back()->with('success', 'Enquiry updated successfully.');
         }
         return redirect()->back()->with('error', 'Enquiry not found.');
@@ -608,5 +662,26 @@ class EnquiryController extends Controller
         return $lead;
 
         return response()->json(['status' => 'success', 'message' => 'Enquiry converted to lead successfully.']);
+    }
+
+    public function emailNotify(Request $request){
+        $validated = $request->validate([
+            'sendtoemail' => 'string',
+            'mailsubject' => 'string',
+            'mailmessage' => 'string',
+        ]);
+        
+        $destination = 'msu.shahidullah@gmail.com';// $validated['sendtoemail'];
+        $subject = $validated['mailsubject'];
+        $message = $validated['mailmessage'];
+        
+        try{
+            Mail::to($destination)->queue(new EnquiryRejectNotify($subject, $message));
+            //queue
+            //Mail::to($destination)->queue(new EnquiryRejectNotify($subject, $message));
+        }
+        catch(Exception $e){
+            
+        }
     }
 }

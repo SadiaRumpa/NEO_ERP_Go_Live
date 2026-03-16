@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Enquiry;
 use App\Models\Fjob;
 use App\Models\FjobAddress;
 use App\Models\FjobAttachment;
@@ -13,6 +14,7 @@ use App\Models\LeadAttachment;
 use App\Models\LeadImage;
 use App\Models\LeadNote;
 use App\Models\MailTemplate;
+use Exception;
 use Illuminate\Contracts\Queue\Job;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Concerns\ToArray;
@@ -20,6 +22,10 @@ use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+
+use Mail;
+
+use App\Mail\EnquiryRejectNotify;
 
 class LeadController extends Controller
 {
@@ -147,7 +153,7 @@ class LeadController extends Controller
 
             $data = Lead::with(['customer', 'leadaddress'])
                 ->select('*')
-                ->whereIn('lead_status', ['rejected', 'archived'])
+                ->whereIn('lead_status', ['rejected'])
                 ->orderByDesc('created_at');
 
             return Datatables::of($data)
@@ -181,6 +187,45 @@ class LeadController extends Controller
         ]);
     }
 
+    public function showArchived(Request $request)
+    {
+        if ($request->ajax()) {
+
+            $data = Lead::with(['customer', 'leadaddress'])
+                ->select('*')
+                ->whereIn('lead_status', ['archived'])
+                ->orderByDesc('created_at');
+
+            return Datatables::of($data)
+                ->addIndexColumn()
+                ->addColumn('company_name', function ($row) {
+                    return $row->customer->company_name;
+                })
+                ->addColumn('customer_name', function ($row) {
+                    return $row->customer->contact_firstname . ' ' . $row->customer->contact_lastname;
+                })
+                ->addColumn('customer_email', function ($row) {
+                    return $row->customer->contact_email;
+                })
+                ->addColumn('customer_phone', function ($row) {
+                    return $row->customer->contact_phone;
+                })
+                ->addColumn('customer_mobile', function ($row) {
+                    return $row->customer->contact_mobile;
+                })
+                ->addColumn('action', function ($row) {
+                    $btn = '<a href="/leads/' . $row->slug . '" class="edit btn btn-primary btn-sm">Details</a>';
+                    return $btn;
+                })
+                ->rawColumns(['action'])
+                ->addIndexColumn()
+                ->make(true);
+        }
+
+        return view('leads.index')->with([
+            'archived' => true,
+        ]);
+    }
     public function showInprogress(Request $request)
     {
         if ($request->ajax()) {
@@ -232,7 +277,7 @@ class LeadController extends Controller
             'leadnotes',
             'leadnotes.user',
             'leadattachments',
-            'completedquotation'
+            'completedquotation',
         ])
             ->where('slug', $key)->first();
         // dd($lead);
@@ -241,8 +286,10 @@ class LeadController extends Controller
         }
         $mailtemplates = MailTemplate::where('status', 'active')
             ->orderBy('id', 'desc')->get();
+    
+        $enquiry = Enquiry::where('id', $lead->enquiry_id)->first();
 
-        return view('leads.show', compact('lead', 'mailtemplates'));
+        return view('leads.show', compact('lead', 'mailtemplates', 'enquiry'));
     }
 
     public function addLeadImages(Request $request)
@@ -450,11 +497,26 @@ class LeadController extends Controller
             return response()->json(['error' => 'Lead not found.'], 404);
         }
 
-        $lead->update([
+        $lead_attribute = [
             'lead_status' => $request->lead_status,
-        ]);
+        ];
 
-        return response()->json(['success' => 'Lead status updated successfully.']);
+        if(!empty($request->lead_status_message)){
+            $lead_attribute['lead_close_reason'] = $request->lead_status_message . '<br>' . $lead->lead_close_reason;
+        }
+
+        $updateSuccess = $lead->update($lead_attribute);
+
+        if ($updateSuccess) {
+            if($request->lead_status=='rejected'){
+                return response()->json(['status' => 'success', 'message' => 'Reject successfully.']);
+            }
+
+            return response()->json(['status' => 'success', 'message' => 'Lead status updated successfully.']);
+        }
+        else{
+            return response()->json(['status' => 'error', 'message' => 'Failed to reject.']);
+        }
     }
 
     public function leadtoJobConversion(Request $request)

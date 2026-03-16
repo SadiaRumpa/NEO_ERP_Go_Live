@@ -20,6 +20,7 @@ class Lead extends Model
         'lead_category',
         'lead_priority',
         'lead_status',
+        'lead_close_reason',
         'annual_maintenance',
         'installations',
         'repairs',

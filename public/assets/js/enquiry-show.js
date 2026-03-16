@@ -144,31 +144,31 @@ function deleteEnquiryImage(imageId) {
     }
 }
 
-let quillm = null;
-if ($('#mailmessage').length) {
-    quillm = new Quill('#mailmessage', {
-        theme: 'snow',
-        placeholder: 'Write your message...',
-    });
-}
+// let quillm = null;
+// if ($('#mailmessage').length) {
+//     quillm = new Quill('#mailmessage', {
+//         theme: 'snow',
+//         placeholder: 'Write your message...',
+//     });
+// }
 
-function selectMailTemplate() {
-    const templateId = document.getElementById('mailTemplateSelect').value;
-    if (!templateId) return;
+// function selectMailTemplate() {
+//     const templateId = document.getElementById('mailTemplateSelect').value;
+//     if (!templateId) return;
 
-    $.ajax({
-        url: `/mail-template/${templateId}`,
-        method: 'GET',
-        success: function (res) {
-            quillm.root.innerHTML = res.message;
-        },
-        error: function () {
-            console.error('Failed to load mail template.');
-            toastr.danger('Failed to load mail template.');
-            quillm.root.innerHTML = '';
-        }
-    });
-}
+//     $.ajax({
+//         url: `/mail-template/${templateId}`,
+//         method: 'GET',
+//         success: function (res) {
+//             quillm.root.innerHTML = res.message;
+//         },
+//         error: function () {
+//             console.error('Failed to load mail template.');
+//             toastr.danger('Failed to load mail template.');
+//             quillm.root.innerHTML = '';
+//         }
+//     });
+// }
 
 // On form submit
 $('form').on('submit', function () {

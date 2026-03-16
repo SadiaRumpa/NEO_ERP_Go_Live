@@ -54,6 +54,11 @@
         @if (session('error'))
             <div class="alert alert-danger mt-2">{{ session('error') }}</div>
         @endif
+
+        @php
+            $status = $lead->lead_status;
+        @endphp
+        
                 <div
                     class="card-header bg-label-primary d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row p-4">
                     <div class="d-flex flex-column justify-content-center">
@@ -82,7 +87,8 @@
                                             'new' => 'primary',
                                             'inprogress' => 'warning',
                                             'converted_to_job' => 'success',
-                                            'rejected', 'archived' => 'danger',
+                                            'rejected' =>  'danger', 
+                                            'archived' => 'secondary',
                                             default => 'secondary',
                                         };
                                     @endphp
@@ -106,7 +112,7 @@
                                                         Progress</a>
                                                 </li>
                                             @endif
-                                            `
+                                            
                                             @if ($lead->lead_status == 'inprogress')
                                                 <li>
                                                     <a type="button" class="dropdown-item waves-effect waves-light"
@@ -130,66 +136,76 @@
                                 </div>
                             </div>
                         </div>
+                    
+                    @elsehasrole(['enquiry-manager'])
+
+                        <div class="d-flex align-content-center flex-wrap gap-4">
+                            <!-- Alert message area -->
+                            <div id="status-alert" style="display:none;" class="alert mt-2"></div>
+                            <div class="d-flex gap-4">
+
+                                <div class="btn-group">
+                                    @php
+                                        $labelClass = match ($status) {
+                                            'new' => 'primary',
+                                            'inprogress' => 'warning',
+                                            'converted_to_job' => 'success',
+                                            'rejected', 'archived' => 'danger',
+                                            default => 'secondary',
+                                        };
+                                    @endphp
+
+                                    <button type="button" class="btn btn-label-{{ $labelClass }} waves-effect">
+                                        {{ beautify_status($status) }}
+                                    </button>
+
+                                    @if (in_array($status, ['rejected']))
+                                        <button type="button"
+                                            class="btn btn-label-{{ $labelClass }} dropdown-toggle dropdown-toggle-split waves-effect"
+                                            data-bs-toggle="dropdown" aria-expanded="false">
+                                            <span class="visually-hidden">Toggle Dropdown</span>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li>
+                                                <a type="button" class="dropdown-item waves-effect waves-light"
+                                                    data-bs-toggle="modal" data-bs-target="#rejectEnquiryModal">
+                                                    REJECT ENQUIRY
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+
                     @else
-                        <span
-                            class="badge badge @if ($lead->lead_status == 'converted_to_job') bg-success @else bg-danger @endif bg-glow me-1 ms-2">{{ beautify_status($lead->lead_status) }}</span>
+                        <span class="badge badge @if ($lead->lead_status == 'converted_to_job') bg-success @else bg-danger @endif bg-glow me-1 ms-2">{{ beautify_status($lead->lead_status) }}</span>
 
                     @endhasrole
                 </div>
                 <div class="card-body pt-2">
-                    <!-- Reject mail Modal -->
+
+                    @if (!in_array($status, ['archived', 'rejected']))
+                    <!-- Reject lead Modal -->
                     <div class="modal-onboarding modal fade animate__animated" id="rejectleadModal" tabindex="-1">
                         <div class="modal-dialog" role="document">
                             <div class="modal-content">
                                 <div class="modal-header border-0">
-                                    <a class="text-body-secondary close-label" href="javascript:void(0);"
-                                        data-bs-dismiss="modal">Skip Intro</a>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"
                                         aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body p-0">
                                     <div class="onboarding-content mb-0">
                                         <strong class="onboarding-title text-body">Reject lead</strong>
-                                        <div class="row">
-                                            <div class="col-sm-12 col-md-12 mb-4">
-                                                <div class="input-group">
-                                                    <select class="form-select" id="mailTemplateSelect"
-                                                        aria-label="Choose mail template">
-                                                        <option selected disabled>Choose mail template</option>
-                                                        @foreach ($mailtemplates as $mt)
-                                                            <option value="{{ $mt->id }}">{{ $mt->name }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-
-                                                    <button class="btn btn-outline-primary waves-effect" type="button"
-                                                        onclick="selectMailTemplate()">
-                                                        Select Mail
-                                                    </button>
-
-                                                </div>
-                                            </div>
-                                        </div>
+                                        
                                         <div class="row mb-4">
                                             <div class="col-md-12">
                                                 <div class="card">
                                                     <div class="card-body">
-                                                        <div class="mb-4">
-                                                            <label for="sendtoemail" class="form-label">Send to</label>
-                                                            <input type="email" class="form-control" id="sendtoemail"
-                                                                placeholder="name@example.com" name="sendtoemail"
-                                                                value="{{ $lead->customer->contact_email }}">
-                                                        </div>
-                                                        <div class="mb-4">
-                                                            <label for="mailsubject" class="form-label">Subject</label>
-                                                            <input class="form-control" type="text" id="mailsubject"
-                                                                aria-label="readonly input example" name="mailsubject"
-                                                                value="lead {{ $lead->lead_name }} has been rejected">
-                                                        </div>
                                                         <div class="form-control p-0">
-                                                            <div class="border-0 pb-6" id="mailmessage"></div>
+                                                            <div class="border-0 pb-6" id="rejectmessage"></div>
                                                         </div>
-                                                        <input type="hidden" id="mailmessage_input" name="mailmessage">
+                                                        <input type="hidden" id="rejectmessage_input" name="rejectmessage">
                                                     </div>
                                                 </div>
                                             </div>
@@ -201,12 +217,16 @@
                                     <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">
                                         Close
                                     </button>
-                                    <button type="button" class="btn btn-primary">Submit</button>
+                                    <button type="button" class="btn btn-primary" onclick="return updateLeadStatus('{{ $lead->id }}', 'rejected')">Submit</button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <!--/ Reject mail Modal -->
+
+                    <!--/ Reject lead Modal -->
+                    @else
+                    @include('enquiries.reject')
+                    @endif
 
                     <div class="row mb-6 gy-6">
                         <!-- lead column-->
@@ -503,6 +523,26 @@
 
                         <!-- lead location column -->
                         <div class="col-12 col-lg-4">
+
+                            <!-- Rejected Lead -->
+                            @if (in_array($status, ['archived', 'rejected']))
+                            <div class="row mb-6 gy-6">
+                                <div class="col-xl order-1 order-xl-0">
+                                    <div class="card">
+                                        <div class="card-header header-elements">
+                                            <h6 class="mb-0 me-2">Rejected Notes</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="mb-2">
+                                                {!! $lead->lead_close_reason !!}
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @endif
+
                             <!-- Assigned To -->
                             <div class="row mb-6 gy-6">
                                 <div class="col-xl order-1 order-xl-0">

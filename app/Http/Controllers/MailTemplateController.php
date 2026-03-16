@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Enquiry;
 use App\Models\MailTemplate;
 use Illuminate\Http\Request;
 
@@ -62,12 +63,24 @@ class MailTemplateController extends Controller
     }
 
 
-    public function showmailtemplate($id)
+    public function showmailtemplate($id, $rel_type='', $rel_id = 0)
     {
         $template = MailTemplate::findOrFail($id);
 
+        $template = $template->body;
+        if($rel_type=='enquiry'){
+            $variables = [];
+            $enquiry = Enquiry::find($rel_id);
+            if($enquiry){
+                $variables['{t}'] = ''; //TODO title not in use
+                $variables['{fn}'] = $enquiry->customer->contact_firstname;
+                $variables['{ln}'] = $enquiry->customer->contact_lastname;
+            }
+        }
+        $replacedContent = str_replace(array_keys($variables), array_values($variables), $template);
+
         return response()->json([
-            'message' => $template->body, // adjust according to your DB field
+            'message' => $replacedContent, // adjust according to your DB field
         ]);
     }
 
