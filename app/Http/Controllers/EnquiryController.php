@@ -579,7 +579,7 @@ class EnquiryController extends Controller
         if ($enquiry) {    
             $enquiry->update(['enquiry_status' => $validated['status']]);
             //update lead status to archived
-            $lead = Lead::where('enquiry_id', '=', $enquiry->id)->firstOrFail(); 
+            $lead = Lead::where('enquiry_id', '=', $enquiry->id)->first(); 
             if($lead){
                 $lead->update(['lead_status' => 'archived']);
             }
@@ -671,14 +671,12 @@ class EnquiryController extends Controller
             'mailmessage' => 'string',
         ]);
         
-        $destination = 'msu.shahidullah@gmail.com';// $validated['sendtoemail'];
+        $destination = $validated['sendtoemail'];
         $subject = $validated['mailsubject'];
         $message = $validated['mailmessage'];
         
         try{
             Mail::to($destination)->queue(new EnquiryRejectNotify($subject, $message));
-            //queue
-            //Mail::to($destination)->queue(new EnquiryRejectNotify($subject, $message));
         }
         catch(Exception $e){
             
