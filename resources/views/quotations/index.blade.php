@@ -17,7 +17,7 @@
                 processing: true,
                 serverSide: true,
                 ajax: "{{ route('quotations.lead', $leadid) }}",
-
+                order: [[4, 'desc']],
                 columns: [{
                         data: 'DT_RowIndex',
                         name: 'DT_RowIndex',
@@ -28,17 +28,29 @@
                     {
                         data: 'quotation_version',
                         name: 'quotation_version',
+                        orderable: false,
+                        searchable: true
                     },
                     {
                         data: 'job_type_id',
                         name: 'job_type_id',
                         render: function(data, type, row) {
                             return row.job_type.name;
-                        }
+                        },
+                        orderable: false,
+                        searchable: true
                     },
                     {
                         data: 'status',
                         name: 'status',
+                        orderable: false,
+                        searchable: true
+                    },
+                    {
+                        data: 'quotation_date',
+                        name: 'quotation_date',
+                        orderable: false,
+                        searchable: true
                     },
                     {
                         data: 'action',
@@ -175,6 +187,7 @@
                             <th>QUOTATION VERSION</th>
                             <th width="20%">JOB TYPE</th>
                             <th>STATUS</th>
+                            <th>DATE</th>
                             <th>ACTION</th>
                         </tr>
                     </thead>

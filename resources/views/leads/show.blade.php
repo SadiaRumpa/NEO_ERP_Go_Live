@@ -17,6 +17,145 @@
     <script src="{{ asset('assets/js/ui-carousel.js') }}"></script>
     <!-- <script src="{{ asset('assets/js/lead-show.js') }}"></script> -->
     <script src="{{ asset('assets/js/lead-show.js?v='.filemtime(public_path('assets/js/lead-show.js'))) }}"></script>
+
+
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="{{ asset('assets/vendor/libs/moment/moment.js') }}"></script>
+    <script src="{{ asset('assets/vendor/libs/flatpickr/flatpickr.js') }}"></script>
+
+    <script type="text/javascript">
+        $(function() {
+            var table = $('.datatables-ajax').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: "{{ route('quotations.lead', $lead->id) }}",
+                order: [[4, 'desc']],
+                columns: [{
+                        data: 'DT_RowIndex',
+                        name: 'DT_RowIndex',
+                        orderable: false,
+                        searchable: false
+                    },
+
+                    {
+                        data: 'quotation_version',
+                        name: 'quotation_version',
+                        orderable: false,
+                        searchable: true
+                    },
+                    {
+                        data: 'job_type_id',
+                        name: 'job_type_id',
+                        render: function(data, type, row) {
+                            return row.job_type.name;
+                        },
+                        orderable: false,
+                        searchable: true
+                    },
+                    {
+                        data: 'status',
+                        name: 'status',
+                        orderable: false,
+                        searchable: true
+                    },
+                    {
+                        data: 'quotation_date',
+                        name: 'quotation_date',
+                        orderable: false,
+                        searchable: true
+                    },
+                    {
+                        data: 'action',
+                        name: 'action',
+                        orderable: false,
+                        searchable: false
+                    },
+                ]
+            });
+        });
+    </script>
+
+    <script>
+        $('#quotationTemplateForm').on('submit', function(e) {
+            e.preventDefault();
+
+            var leadId = $('input[name="lead_id"]').val();
+            var templateId = $('#templateSelect').val();
+
+            if (templateId === 'Select..' || !templateId) {
+                alert('Please select a template.');
+                return;
+            }
+
+            // Construct the route dynamically
+            var url = '/quotation/create/' + leadId + '/' + templateId;
+            //window.location.href = url;
+
+            $('#quotationCreateModal').modal('show');
+
+            // Make the AJAX request to fetch data
+            $.ajax({
+                url: url, // The URL of your server-side script
+                type: 'GET', // or 'POST', depending on your backend
+                data: {  }, // Pass the ID as a parameter
+                dataType: 'html', // Expect HTML content as the response
+
+                beforeSend: function() {
+                    // Optional: Show a loading spinner or message before the call
+                    $('#quotationCreateModal .modal-body').html('<div class="spinner">Loading...</div>');
+                },
+
+                success: function(response) {
+                    // On success, inject the returned HTML into the modal body
+                    $('#quotationCreateModal .modal-body').html(response);
+                    
+                    // Then, open the modal
+                    //$('#myModal').modal('show'); 
+                },
+
+                error: function(xhr, status, error) {
+                    // Handle any errors
+                    //console.error("Error: " + error);
+                    $('#quotationCreateModal .modal-body').html('<p class="text-danger">Failed to load data.</p>');
+                    
+                }
+            });
+            
+        });
+
+        $('#quotationCreateModal').on('shown.bs.modal', function (e) {
+            // Code to run when the modal is fully shown
+            //alert('The modal is fully displayed!');
+            // Example: Focus on an input field inside the modal
+            //$(this).find('#myInput').focus();
+        });
+    </script>
+
+    <script>
+        $(document).on('click', '.delete', function() {
+            var id = $(this).data('id');
+
+            if (confirm('Are you sure you want to delete this item?')) {
+                $.ajax({
+                    url: '/quotation/destroy/' + id,
+                    type: 'POST',
+                    data: {
+                        _method: 'DELETE',
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        toastr.success(response.message);
+                        $('.datatables-ajax').DataTable().ajax.reload(); // Reload table
+                    },
+                    error: function(xhr) {
+                        toastr.error(xhr.responseJSON.message || 'An error occurred.');
+                    }
+                });
+            }
+        });
+    </script>
+
 @endsection
 
 @section('styles')
@@ -30,6 +169,10 @@
     <link rel="stylesheet" href="{{ asset('assets/vendor/libs/dropzone/dropzone.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/vendor/libs/swiper/swiper.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/vendor/css/pages/ui-carousel.css') }}" />
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="{{ asset('assets/vendor/libs/flatpickr/flatpickr.css') }}" />
+
 @endsection
 
 @section('content')
@@ -67,9 +210,13 @@
 
                             @hasrole(['lead-manager', 'office-manager', 'lead-job-manager'])
                                 @if ($lead->lead_status == 'inprogress')
-                                    <a class="btn btn-label-info ms-2" href="{{ route('quotations.lead', $lead->id) }}">
+                                    @if( isset($viewwith) && $viewwith == 'quotations')
+                                        <!--  -->
+                                    @else
+                                        <a class="btn btn-label-info ms-2" href="{{ route('lead.show.quotations', ['id' => $lead->slug, 'viewwith' => 'quotations']) }}">
                                         GENERATE QUOTATION
-                                    </a>
+                                        </a>
+                                    @endif
                                 @endif
                             @endhasrole
                         </span>
@@ -79,6 +226,14 @@
                             <!-- Alert message area -->
                             <div id="status-alert" style="display:none;" class="alert mt-2"></div>
                             <div class="d-flex gap-4">
+
+                                @if ($lead->lead_status == 'inprogress')
+                                    @if( isset($viewwith) && $viewwith == 'quotations')
+                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#quotationModal">
+                                        Create New Quotation
+                                        </button>
+                                    @endif
+                                @endif
 
                                 <div class="btn-group">
                                     @php
@@ -96,6 +251,9 @@
                                     <button type="button" class="btn btn-label-{{ $labelClass }} waves-effect">
                                         {{ beautify_status($status) }}
                                     </button>
+                                    @if( isset($viewwith) && $viewwith == 'quotations')
+                                    <!--  -->
+                                    @else
 
                                     @if (!in_array($status, ['converted_to_job', 'rejected']))
                                         <button type="button"
@@ -132,6 +290,8 @@
                                                 @endif
                                             </li>
                                         </ul>
+                                    @endif
+
                                     @endif
                                 </div>
                             </div>
@@ -228,9 +388,18 @@
                     @include('enquiries.reject')
                     @endif
 
+                    @php
+                    $viewwith_quotation_column_class = 'd-none';
+                    $viewwith_lead_column_class = 'col-12 col-lg-8';
+                    if( isset($viewwith) && $viewwith == 'quotations'){
+                        $viewwith_quotation_column_class = 'col-12 col-lg-8';
+                        $viewwith_lead_column_class = 'col-12 col-lg-4';
+                    }
+                    @endphp
+
                     <div class="row mb-6 gy-6">
                         <!-- lead column-->
-                        <div class="col-12 col-lg-8">
+                        <div class="{{ $viewwith_lead_column_class }}">
                             <!-- Enquiry Information -->
                             <div class="card mb-6">
                                 <div class="card-header header-elements">
@@ -520,7 +689,19 @@
                             <!-- lead Notes -->
                         </div>
                         <!-- lead column -->
-
+                         @hasrole(['lead-manager', 'office-manager', 'lead-job-manager'])
+                            @if ($lead->lead_status == 'inprogress')
+                                @if( isset($viewwith) && $viewwith == 'quotations')
+                                <div class="{{ $viewwith_quotation_column_class }}">
+                                    @include('leads.quotations', [
+                                    'leaddata' => $lead,
+                                    'customerdata' => $customerdata,
+                                    'leadid' => $lead->id,
+                                    'quotationTemplates' => $quotationTemplates])
+                                </div>
+                                @endif
+                            @endif
+                        @endhasrole
                         <!-- lead location column -->
                         <div class="col-12 col-lg-4">
 
@@ -1171,6 +1352,7 @@
 
                         </div>
                     </div>
+                    
                     <!-- Customar Financial Modal -->
                     <div class="modal fade" id="leaddetailseditmodal" tabindex="-1" aria-hidden="true">
                         <div class="modal-dialog" role="document">
@@ -1235,6 +1417,73 @@
             </div>
         </div>
     </div>
+
+    @if( isset($viewwith) && $viewwith == 'quotations' )
+    <div class="modal fade" id="quotationModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="quotationModalTitle">Quotation Templates</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <form id="quotationTemplateForm">
+                    <input type="hidden" name="lead_id" value="{{ $lead->id }}">
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col mb-4">
+                                <label for="templateSelect" class="form-label">Select Template</label>
+                                <select class="form-select" id="templateSelect" aria-label="Select Template"
+                                    name="template_id">
+                                    <option selected>Select..</option>
+                                    @foreach ($quotationTemplates as $template)
+                                        <option value="{{ $template->id }}">
+                                            {{ $template->job_type_name }} -
+                                            {{ $template->template_slug }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">
+                            Close
+                        </button>
+                        <button type="submit" class="btn btn-success">Go</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+
+    <div class="modal fade" id="quotationCreateModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered1 modal-dialog-scrollable modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="quotationCreateModalTitle">
+                        <span class="h4">Create Quotation #
+                                        <a href="{{ route('leads.show', $lead->slug) }}">
+                                            <span
+                                                class="badge bg-label-success me-1 ms-2">{{ $lead->lead_name }}</span>
+                                        </a>
+                                    </span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="quotationFormSubmit">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+    
     <!-- / Content -->
 
 @endsection

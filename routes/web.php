@@ -111,6 +111,11 @@ Route::middleware(['auth'])->group(function () {
     Route::post('leads/attachments-upload', [LeadController::class, 'uploadLeadAttachments'])->name('leads.attachments-upload');
     Route::delete('leads/delete-attachment/{id}', [LeadController::class, 'destroyLeadAttachment'])->name('leads.destroy-attachment');
 
+    //Route::get('leads/{id}/quotations', [LeadController::class, 'show'])->name('lead.show.quotations');
+    Route::get('leads/{id}/{viewwith?}', [LeadController::class, 'show'])
+    ->where('viewwith', 'quotations')
+    ->name('lead.show.quotations');
+
     Route::resource('jobtypes', JobTypeController::class);
 
     Route::resource('quotationtemplates', QuotationTemplateController::class);

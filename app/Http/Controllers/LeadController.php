@@ -22,6 +22,8 @@ use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Models\Customer;
+use App\Models\QuotationTemplate;
 
 use Mail;
 
@@ -266,7 +268,7 @@ class LeadController extends Controller
         ]);
     }
 
-    public function show($key)
+    public function show($key, $viewwith=null)
     {
         $lead = Lead::with([
             'customer',
@@ -288,6 +290,16 @@ class LeadController extends Controller
             ->orderBy('id', 'desc')->get();
     
         $enquiry = Enquiry::where('id', $lead->enquiry_id)->first();
+
+        if($viewwith=='quotations'){
+            $customerdata = Customer::with(['billingaddress'])
+            ->where('id', $lead->customer_id)->first();
+
+            $quotationTemplates = QuotationTemplate::where('status', 1)
+            ->orderBy('template_name', 'asc')
+            ->get();
+            return view('leads.show', compact('lead', 'mailtemplates', 'enquiry','viewwith','customerdata','quotationTemplates'));
+        }
 
         return view('leads.show', compact('lead', 'mailtemplates', 'enquiry'));
     }

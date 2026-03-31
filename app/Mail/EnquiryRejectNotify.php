@@ -16,7 +16,7 @@ class EnquiryRejectNotify extends Mailable
     public $subject;
     public $message_html;
 
-    public $fn = 'Shhaid';
+    //public $fn = 'Shhaid';
 
     /**
      * Create a new message instance.

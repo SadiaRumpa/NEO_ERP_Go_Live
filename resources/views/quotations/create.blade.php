@@ -1,18 +1,4 @@
-@extends('layouts.master')
 
-@section('title', 'Create Quotation')
-
-@section('scripts')
-    @parent
-    <script src="{{ asset('assets/vendor/libs/quill/katex.js') }}"></script>
-    <script src="{{ asset('assets/vendor/libs/highlight/highlight.js') }}"></script>
-    <script src="{{ asset('assets/vendor/libs/quill/quill.js') }}"></script>
-    <script src="{{ asset('assets/vendor/libs/select2/select2.js') }}"></script>
-    <!-- Vendors JS -->
-    <script src="{{ asset('assets/vendor/libs/swiper/swiper.js') }}"></script>
-    <!-- Page JS -->
-    <script src="{{ asset('assets/js/ui-carousel.js') }}"></script>
-    <!-- Page JS -->
     <script>
         const fullToolbar = [
             [{
@@ -47,75 +33,109 @@
                     });
                 @endif
             @endforeach
-        });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('input[type="file"][id^="attachments-"]').forEach(input => {
-                input.addEventListener('change', function(event) {
-                    const sectionId = this.id.split('-')[1];
-                    const previewContainer = document.getElementById(`preview-${sectionId}`);
-                    previewContainer.innerHTML = ''; // Clear previous previews
 
-                    Array.from(this.files).forEach(file => {
-                        if (file.type.startsWith('image/')) {
-                            const reader = new FileReader();
-                            reader.onload = function(e) {
-                                const img = document.createElement('img');
-                                img.src = e.target.result;
-                                img.style.height = '80px';
-                                img.style.border = '1px solid #ccc';
-                                img.style.padding = '2px';
-                                img.style.borderRadius = '4px';
-                                previewContainer.appendChild(img);
-                            };
-                            reader.readAsDataURL(file);
-                        }
-                    });
-                });
+            $('input[type="file"][id^="attachments-"]').on('change', function(event){
+                loadFile(event);
             });
-        });
+
+            
+            $('#quotationFormSubmit').on('click', function(event){
+                $('#quotationForm').submit();
+            });
+                
+            // Bind to the form's submit event
+$('#quotationForm').on('submit', function(e) {
+
+    // Prevent the default form submission
+    e.preventDefault();
+
+    if (!this.checkValidity()) {
+        this.querySelector(".form-control:invalid").focus();
+        return;
+    }
+    
+    // Get the form and its data
+    var $form = $(this);
+    //var formData = $form.serialize();
+    var formData = new FormData(this);
+    var url = $form.attr('action');
+
+    // Perform the AJAX request
+    $.ajax({
+        type: 'POST',
+        url: url,
+        data: formData,
+        dataType: 'json', // Expecting a JSON response from the server
+        cache: false,
+        //contentType: 'multipart/form-data',
+        contentType: false,
+        processData: false,
+        headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+        success: function(response) {
+            if (response.success) {
+                //   // Close the modal on success (using Bootstrap 5 JS syntax)
+                //   var myModalEl = document.getElementById('myFormModal');
+                //   var modal = bootstrap.Modal.getInstance(myModalEl);
+                //   modal.hide();
+
+                // Optional: Show a success alert on the main page
+                alert('Form submitted successfully!');
+                // Optional: Update a part of your page, e.g., a table
+                // $('#myTable').load('myTable.php'); 
+
+                //setTimeout(function(){
+                    window.location.reload();
+                //}, 1000);
+
+            } else {
+                // Handle validation errors or other server-side failures
+                alert('Error: ' + response.message);
+                // You could also dynamically update specific fields with error messages
+            }
+        },
+        error: function(xhr, status, error) {
+            // Handle network errors
+            console.error("Sorry, there was a problem: " + error);
+            alert("An error occurred. Please try again.");
+        }
+    });
+});
+
+});
     </script>
-@endsection
 
-@section('styles')
-    @parent
-    <link rel="stylesheet" href="{{ asset('assets/vendor/libs/quill/typography.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/vendor/libs/quill/katex.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/vendor/libs/quill/editor.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/vendor/libs/select2/select2.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/vendor/libs/swiper/swiper.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/vendor/css/pages/ui-carousel.css') }}" />
-@endsection
-
-@section('content')
+    <script>
+    var loadFile = function(event) {
+        const sectionId = event.target.id.split('-')[1];
+        const previewContainer = document.getElementById(`preview-${sectionId}`);
+        previewContainer.innerHTML = ''; // Clear previous previews
+        var file = event.target.files[0];
+        if (file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.style.height = '80px';
+                img.style.border = '1px solid #ccc';
+                img.style.padding = '2px';
+                img.style.borderRadius = '4px';
+                previewContainer.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+    </script>
+    
     <!-- Content -->
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="row gy-6">
             <!-- Quotation Templates -->
             <div class="col-12">
-                <div class="card">
-                    <div class="card-header d-flex align-items-center justify-content-between">
-                        <div class="d-flex flex-column justify-content-center">
-                            <div class="d-flex align-items-center">
-                                <div class="mb-1">
-                                    <a href="{{ route('quotations.lead', $leaddata->id) }}"
-                                        class="btn btn-icon btn-label-secondary waves-effect btn-sm me-2">
-                                        <span class="icon-base ti tabler-corner-up-left-double icon-20px"></span>
-                                    </a>
-                                    <span class="h4">Create Quotation #
-                                        <a href="{{ route('leads.show', $leaddata->slug) }}">
-                                            <span
-                                                class="badge bg-label-success me-1 ms-2">{{ $leaddata->lead_name }}</span>
-                                        </a>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="card1">
+                    
 
                     <div class="card-body">
-                        <form action="{{ route('quotations.store') }}" method="POST" enctype="multipart/form-data">
+                        <form id="quotationForm" action="{{ route('quotations.store') }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <div class="features-icon-wrapper row gx-0 gy-6 g-sm-12">
 
@@ -234,7 +254,7 @@
                                                 <input type="file" class="form-control"
                                                     id="attachments-{{ $qts->id }}"
                                                     name="attachments[{{ $qts->section_slug }}][]" accept="image/*"
-                                                    multiple>
+                                                    multiple >
 
                                                 {{-- Preview container --}}
                                                 <div class="image-preview mt-2 d-flex flex-wrap gap-2"
@@ -250,10 +270,10 @@
                             <input type="hidden" name="quotation_template_id" value="{{ $quotationTemplate->id }}">
                             <input type="hidden" name="job_type_id" value="{{ $quotationTemplate->job_type_id }}">
 
-                            <div class="pt-6">
+                            <!-- <div class="pt-6">
                                 <button type="submit" class="btn btn-primary me-4">Submit</button>
                                 <button type="reset" class="btn btn-label-secondary">Cancel</button>
-                            </div>
+                            </div> -->
                         </form>
                     </div>
                 </div>
@@ -261,4 +281,3 @@
             <!-- /Quotation Templates -->
         </div>
     </div>
-@endsection

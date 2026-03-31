@@ -34,17 +34,22 @@ class QuotationController extends Controller
             ->get();
 
         if ($request->ajax()) {
-            $data = Quotation::select('*')->with(['jobType'])->where('lead_id', $leadid);
+            $data = Quotation::select('*')->with(['jobType'])->where('lead_id', $leadid)->orderByDesc('quotation_date');
 
             return Datatables::of($data)
                 ->addIndexColumn()
+                ->addColumn('quotation_date', function ($row) {
+                    return $row->quotation_date
+                        ? \Carbon\Carbon::parse($row->quotation_date)->format('Y-m-d')
+                        : '';
+                })
                 ->addColumn('action', function ($row) {
                     $showUrl = route('quotations.show', $row->id);
-                    $actions = '<a href="' . $showUrl . '" class="shoq btn btn-primary btn-sm">Show</a>';
+                    $actions = '<a href="' . $showUrl . '" class="shoq"><i style="padding: 10px;" class="icon-base ti tabler-eye btn btn-success"></i></a>';
 
                     if ($row->status !== 'accepted') {
-                        $actions .= ' <a href="' . route('quotations.edit', $row->id) . '" class="edit btn btn-warning btn-sm">Edit</a>';
-                        $actions .= ' <button class="delete btn btn-danger btn-sm" data-id="' . $row->id . '">Delete</button>';
+                        $actions .= ' <a href="' . route('quotations.edit', $row->id) . '" class="edit"><i style="padding: 10px;" class="icon-base ti tabler-edit btn btn-primary"></i></a>';
+                        $actions .= ' <a class="delete" data-id="' . $row->id . '"><i style="padding: 10px;" class="icon-base ti tabler-trash btn btn-danger"></i></a>';
                     }
 
                     return $actions;
@@ -167,11 +172,20 @@ class QuotationController extends Controller
             }
 
             DB::commit();
+            
+            if ($request->ajax()) {
+                return response()->json(['success'=>true, 'message' => 'Quotation created successfully.']);
+            }
 
             return redirect()->route('quotations.show', $quotation->id)
                 ->with('success', 'Quotation created successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
+
+            if ($request->ajax()) {
+                return response()->json(['error'=>true, 'message' => 'Failed to create quotation: ' . $e->getMessage()]);
+            }
+
             return back()->with('error', 'Failed to create quotation: ' . $e->getMessage());
         }
     }

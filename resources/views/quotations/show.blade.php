@@ -97,7 +97,7 @@
             class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-6 row-gap-2">
             <div class="d-flex flex-column justify-content-center">
                 <div class="mb-1">
-                    <a href="{{ route('quotations.lead', $quotation->lead->id) }}"
+                    <a href="{{ route('lead.show.quotations', ['id' => $quotation->lead->slug, 'viewwith' => 'quotations']) }}"
                         class="btn btn-icon btn-label-secondary waves-effect btn-sm me-2">
                         <span class="icon-base ti tabler-corner-up-left-double icon-20px"></span>
                     </a>
