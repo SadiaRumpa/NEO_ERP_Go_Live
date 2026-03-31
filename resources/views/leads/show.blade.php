@@ -103,7 +103,7 @@
 
                 beforeSend: function() {
                     // Optional: Show a loading spinner or message before the call
-                    $('#quotationCreateModal .modal-body').html('<div class="spinner">Loading...</div>');
+                    $('#quotationCreateModal .modal-body').html('<div class="spinner"></br></br></br>Loading...</br></br></br></br></div>');
                 },
 
                 success: function(response) {
@@ -1460,7 +1460,7 @@
     
 
     <div class="modal fade" id="quotationCreateModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered1 modal-dialog-scrollable modal-xl" role="document">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="quotationCreateModalTitle">
