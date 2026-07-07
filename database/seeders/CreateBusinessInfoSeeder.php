@@ -32,7 +32,14 @@ class CreateBusinessInfoSeeder extends Seeder
                                         document.write(new Date().getFullYear());
                                     </script>
                                     , made with ❤️ by <a href="https://neotericdigital.co.uk/" target="_blank" class="footer-link">Neoteric Digital</a>',
-            'business_status' => 'Active'
+            'business_status' => 'Active',
+            'business_short_name' => 'ND',
+            'business_allowed_file_types' => 'IMG:.jpg,.jpeg,.png DOC:.pdf,.jpg,.jpeg,.png,.doc,.docx',
+            'business_start_date' => date('Y-m-d'),
+            'business_phone' => '0123456789',
+            'business_email' => 'info@example.com',
+            'business_website' => 'example.com',
+
         ]);
     }
 }
