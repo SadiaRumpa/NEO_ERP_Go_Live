@@ -14,6 +14,6 @@ class Controller extends BaseController
 
     public function __construct(){
         $appbrand = view()->shared('appbrand');
-        $this->mimetypes = $appbrand->getAllowedFileType('IMG', true);
+        $this->mimetypes = $appbrand ? $appbrand->getAllowedFileType('IMG', true) : '';
     }
 }

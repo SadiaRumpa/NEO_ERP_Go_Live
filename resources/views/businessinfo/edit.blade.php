@@ -55,7 +55,7 @@
             document.execCommand('copy');
             toastr.info("<strong>Image src Copied!</strong><br><br>" + textToCopy);
         } catch (error) {
-            //console.error(error);
+            console.error(error);
         } finally {
             textArea.remove();
         }
