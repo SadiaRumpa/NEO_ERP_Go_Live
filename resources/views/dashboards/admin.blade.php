@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container-xxl flex-grow-1 container-p-y">
-    <div class="row g-6">
+    <div class="row g-6" style="display: none;">
         
         <!-- Earning Reports -->
         <div class="col-md-6">
