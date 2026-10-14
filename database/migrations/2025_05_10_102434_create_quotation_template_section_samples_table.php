@@ -13,7 +13,11 @@ return new class extends Migration
     {
         Schema::create('quotation_template_section_samples', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('quotation_template_section_id')->constrained('quotation_template_sections')->onDelete('cascade');
+            $table->unsignedBigInteger('quotation_template_section_id');
+            $table->foreign('quotation_template_section_id', 'fk_qtsec_smpl_qtsec_id')
+                ->references('id')
+                ->on('quotation_template_sections')
+                ->onDelete('cascade');
             $table->string('sample_type', 100)->comment("('text', 'image', 'video', 'file')")->default('text');
             $table->text('sample_source')->nullable();
             $table->timestamps();
