@@ -24,6 +24,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\Customer;
 use App\Models\QuotationTemplate;
+use App\Enums\LeadStatus;
+use App\Actions\Pipeline\ConvertLeadToJob;
 
 use Mail;
 
@@ -63,22 +65,24 @@ class LeadController extends Controller
             ->filter(function ($query) {
                 if (request()->has('search') && request()->input('search.value') != '') {
                     $searchValue = request()->input('search.value');
-                    $query->where('lead_name', 'like', "%{$searchValue}%")
-                        ->orWhere('customers.company_name', 'like', "%{$searchValue}%")
-                        ->orWhere('lead_title', 'like', "%{$searchValue}%")
-                        ->orWhere('enquiry', 'like', "%{$searchValue}%")
-                        ->orWhere('lead_description', 'like', "%{$searchValue}%")
-                        ->orWhere('leads.id', 'like', "%{$searchValue}%")
-                        ->orWhere('customers.contact_firstname', 'like', "%{$searchValue}%")
-                        ->orWhere('customers.contact_lastname', 'like', "%{$searchValue}%")
-                        ->orWhere('customers.contact_phone', 'like', "%{$searchValue}%")
-                        ->orWhere('customers.contact_mobile', 'like', "%{$searchValue}%")
-                        ->orWhere('customers.contact_email', 'like', "%{$searchValue}%")
-                        ->orWhere('customer_addresses.postcode', 'like', "%{$searchValue}%")
-                        ->orWhereRaw(
-                            "CONCAT(customers.contact_firstname, ' ', customers.contact_lastname) LIKE ?",
-                            ["%{$searchValue}%"]
-                        );
+                    $query->where(function ($sub) use ($searchValue) {
+                        $sub->where('lead_name', 'like', "%{$searchValue}%")
+                            ->orWhere('customers.company_name', 'like', "%{$searchValue}%")
+                            ->orWhere('lead_title', 'like', "%{$searchValue}%")
+                            ->orWhere('enquiry', 'like', "%{$searchValue}%")
+                            ->orWhere('lead_description', 'like', "%{$searchValue}%")
+                            ->orWhere('leads.id', 'like', "%{$searchValue}%")
+                            ->orWhere('customers.contact_firstname', 'like', "%{$searchValue}%")
+                            ->orWhere('customers.contact_lastname', 'like', "%{$searchValue}%")
+                            ->orWhere('customers.contact_phone', 'like', "%{$searchValue}%")
+                            ->orWhere('customers.contact_mobile', 'like', "%{$searchValue}%")
+                            ->orWhere('customers.contact_email', 'like', "%{$searchValue}%")
+                            ->orWhere('customer_addresses.postcode', 'like', "%{$searchValue}%")
+                            ->orWhereRaw(
+                                "CONCAT(customers.contact_firstname, ' ', customers.contact_lastname) LIKE ?",
+                                ["%{$searchValue}%"]
+                            );
+                    });
                 }
             }, true)
                 ->addIndexColumn()
@@ -496,138 +500,70 @@ class LeadController extends Controller
 
     public function updateLeadStatus(Request $request, $id)
     {
+        $allowedStatuses = implode(',', LeadStatus::values());
+        $request->validate([
+            'lead_status' => "required|string|in:$allowedStatuses",
+        ]);
+
         $lead = Lead::find($id);
         if (!$lead) {
             return response()->json(['error' => 'Lead not found.'], 404);
         }
 
+        $currentStatus = LeadStatus::tryFrom($lead->lead_status ?? 'new');
+        $targetStatus = LeadStatus::tryFrom($request->lead_status);
+
+        if (!$targetStatus) {
+            return response()->json(['status' => 'error', 'message' => 'Invalid lead status provided.'], 422);
+        }
+
+        if ($currentStatus && !$currentStatus->canTransitionTo($targetStatus)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => "Cannot transition lead from {$currentStatus->value} to {$targetStatus->value}."
+            ], 422);
+        }
+
         $lead_attribute = [
-            'lead_status' => $request->lead_status,
+            'lead_status' => $targetStatus->value,
         ];
 
-        if(!empty($request->lead_status_message)){
+        if (!empty($request->lead_status_message)) {
             $lead_attribute['lead_close_reason'] = $request->lead_status_message . '<br>' . $lead->lead_close_reason;
         }
 
         $updateSuccess = $lead->update($lead_attribute);
 
         if ($updateSuccess) {
-            if($request->lead_status=='rejected'){
+            if ($request->lead_status == 'rejected') {
                 return response()->json(['status' => 'success', 'message' => 'Reject successfully.']);
             }
 
             return response()->json(['status' => 'success', 'message' => 'Lead status updated successfully.']);
-        }
-        else{
-            return response()->json(['status' => 'error', 'message' => 'Failed to reject.']);
+        } else {
+            return response()->json(['status' => 'error', 'message' => 'Failed to update lead status.'], 500);
         }
     }
 
-    public function leadtoJobConversion(Request $request)
+    public function leadtoJobConversion(Request $request, ConvertLeadToJob $action)
     {
         $validated = $request->validate([
             'lead_id' => 'required|exists:leads,id',
-            'status' => 'required|string',
+            'status'  => 'nullable|string',
         ]);
 
-        $lead = Lead::with([
-            'leadaddress',
-            'leadimages',
-            'leadnotes',
-            'leadnotes.user',
-            'leadattachments',
-            'completedquotation'
-        ])
-            ->where('id', $validated['lead_id'])->first();
-
-        $fjob = Fjob::create([
-            'enquiry_id' => $lead->enquiry_id,
-            'enquiry' => $lead->enquiry,
-            'lead_id' => $validated['lead_id'],
-            'job_name' => $lead->lead_name,
-            'slug' => $lead->slug,
-            'job_title' => $lead->lead_title,
-            'job_description' => $lead->lead_description,
-            'customer_id' => $lead->customer_id,
-            'job_type' => $lead->lead_type,
-            'job_category' => $lead->lead_category,
-            'job_priority' => $lead->lead_priority,
-            'job_status' => 'draft'
-        ]);
-
-        $jobid = $fjob->id;
-
-        if ($lead->leadaddress) {
-            FjobAddress::create([
-                'fjob_id' => $jobid,
-                'contact_firstname' => $lead->leadaddress->contact_firstname,
-                'contact_lastname' => $lead->leadaddress->contact_lastname,
-                'contact_email' => $lead->leadaddress->contact_email,
-                'contact_phone' => $lead->leadaddress->contact_phone,
-                'contact_mobile' => $lead->leadaddress->contact_mobile,
-                'address' => $lead->leadaddress->address,
-                'county' => $lead->leadaddress->county,
-                'postcode' => $lead->leadaddress->postcode,
-                'country' => $lead->leadaddress->country,
-                'location' => $lead->leadaddress->location
+        try {
+            $job = $action->execute((int)$validated['lead_id']);
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Lead converted to job successfully.',
+                'job'     => $job
             ]);
+        } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], $e->getStatusCode());
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
-
-        if ($lead->leadimages) {
-            foreach ($lead->leadimages as $image) {
-                FjobImage::create([
-                    'fjob_id' => $jobid,
-                    'image_path' => $image->image_path,
-                    'image_name' => $image->image_name,
-                    'image_url' => $image->image_url,
-                    'source' => $image->source
-                ]);
-            }
-        }
-
-        if ($lead->leadnotes) {
-            foreach ($lead->leadnotes as $note) {
-                FjobNote::create([
-                    'fjob_id' => $jobid,
-                    'note_by' => $note->note_by,
-                    'note' => $note->note,
-                    'note_type' => $note->note_type,
-                    'note_status' => $note->note_status,
-                ]);
-            }
-        }
-
-        if ($lead->completedquotation) {
-            FjobQuotation::create([
-                'fjob_id' => $jobid,
-                'quotation_id' => $lead->completedquotation->id,
-                'quotation_number' => $lead->completedquotation->quotation_version,
-                'quotation_date' => $lead->completedquotation->quotation_date,
-                'valid_until' => $lead->completedquotation->valid_until,
-                'total_amount' => $lead->completedquotation->total_amount,
-                'status' => $lead->completedquotation->status,
-            ]);
-        }
-
-        if ($lead->leadattachments) {
-            foreach ($lead->leadattachments as $attachment) {
-                FjobAttachment::create([
-                    'fjob_id' => $jobid,
-                    'attachment_name' => $attachment->attachment_name,
-                    'description' => $attachment->description,
-                    'attachment_path' => $attachment->attachment_path,
-                    'attachment_url' => $attachment->attachment_url,
-                    'attachment_type' => $attachment->attachment_type,
-                    'source' => $attachment->source,
-                    'uploaded_by' => Auth::id(),
-                ]);
-            }
-        }
-
-        $lead->lead_status = $validated['status'];
-        $lead->save();
-
-        return response()->json(['status' => 'success', 'message' => 'Lead converted to job successfully.']);
     }
 
     public function updateLeadOtherOptions(Request $request, $id)

@@ -1,180 +1,217 @@
 @extends('layouts.master')
 
-@section('title', 'Dashboard')
+@section('title', 'Admin Dashboard')
 
 @section('content')
 <div class="container-xxl flex-grow-1 container-p-y">
-    <div class="row g-6" style="display: none;">
-        
-        <!-- Earning Reports -->
-        <div class="col-md-6">
+    <!-- KPI Row -->
+    <div class="row g-6 mb-6">
+        <div class="col-sm-6 col-xl-3">
             <div class="card h-100">
-                <div class="card-header pb-0 d-flex justify-content-between">
-                    <div class="card-title mb-0">
-                        <h5 class="mb-1">Earning Reports</h5>
-                        <p class="card-subtitle">Weekly Earnings Overview</p>
-                    </div>
-                    <div class="dropdown">
-                        <button
-                            class="btn btn-text-secondary rounded-pill text-body-secondary border-0 p-2 me-n1"
-                            type="button"
-                            id="earningReportsId"
-                            data-bs-toggle="dropdown"
-                            aria-haspopup="true"
-                            aria-expanded="false">
-                            <i class="icon-base ti tabler-dots-vertical icon-md text-body-secondary"></i>
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-end" aria-labelledby="earningReportsId">
-                            <a class="dropdown-item" href="javascript:void(0);">View More</a>
-                            <a class="dropdown-item" href="javascript:void(0);">Delete</a>
-                        </div>
-                    </div>
-                </div>
                 <div class="card-body">
-                    <div class="row align-items-center g-md-8">
-                        <div class="col-12 col-md-5 d-flex flex-column">
-                            <div class="d-flex gap-2 align-items-center mb-3 flex-wrap">
-                                <h2 class="mb-0">$0</h2>
-                                <div class="badge rounded bg-label-success">+0%</div>
+                    <div class="d-flex align-items-start justify-content-between">
+                        <div class="content-left">
+                            <span class="text-heading">Total Enquiries</span>
+                            <div class="d-flex align-items-center my-1">
+                                <h4 class="mb-0 me-2">{{ $totalEnquiries ?? 0 }}</h4>
+                                <span class="badge bg-label-info">{{ $newEnquiries ?? 0 }} New</span>
                             </div>
-                            <small class="text-body">You informed of this week compared to last week</small>
+                            <small class="text-muted">Weekly trend: {{ $enquiryTrend['trend'] ?? 'stable' }}</small>
                         </div>
-                        <div class="col-12 col-md-7 ps-xl-8">
-                            <div id="weeklyEarningReports"></div>
-                        </div>
-                    </div>
-                    <div class="border rounded p-5 mt-5">
-                        <div class="row gap-4 gap-sm-0">
-                            <div class="col-12 col-sm-4">
-                                <div class="d-flex gap-2 align-items-center">
-                                    <div class="badge rounded bg-label-primary p-1">
-                                        <i class="icon-base ti tabler-currency-dollar icon-18px"></i>
-                                    </div>
-                                    <h6 class="mb-0 fw-normal">Earnings</h6>
-                                </div>
-                                <h4 class="my-2">$0</h4>
-                                <div class="progress w-75" style="height: 4px">
-                                    <div
-                                        class="progress-bar"
-                                        role="progressbar"
-                                        style="width: 65%"
-                                        aria-valuenow="65"
-                                        aria-valuemin="0"
-                                        aria-valuemax="100"></div>
-                                </div>
-                            </div>
-                            <div class="col-12 col-sm-4">
-                                <div class="d-flex gap-2 align-items-center">
-                                    <div class="badge rounded bg-label-info p-1">
-                                        <i class="icon-base ti tabler-chart-pie-2 icon-18px"></i>
-                                    </div>
-                                    <h6 class="mb-0 fw-normal">Profit</h6>
-                                </div>
-                                <h4 class="my-2">$0</h4>
-                                <div class="progress w-75" style="height: 4px">
-                                    <div
-                                        class="progress-bar bg-info"
-                                        role="progressbar"
-                                        style="width: 50%"
-                                        aria-valuenow="50"
-                                        aria-valuemin="0"
-                                        aria-valuemax="100"></div>
-                                </div>
-                            </div>
-                            <div class="col-12 col-sm-4">
-                                <div class="d-flex gap-2 align-items-center">
-                                    <div class="badge rounded bg-label-danger p-1">
-                                        <i class="icon-base ti tabler-brand-paypal icon-18px"></i>
-                                    </div>
-                                    <h6 class="mb-0 fw-normal">Expense</h6>
-                                </div>
-                                <h4 class="my-2">$0</h4>
-                                <div class="progress w-75" style="height: 4px">
-                                    <div
-                                        class="progress-bar bg-danger"
-                                        role="progressbar"
-                                        style="width: 65%"
-                                        aria-valuenow="65"
-                                        aria-valuemin="0"
-                                        aria-valuemax="100"></div>
-                                </div>
-                            </div>
+                        <div class="avatar">
+                            <span class="avatar-initial rounded bg-label-primary">
+                                <i class="icon-base ti tabler-messages icon-26px"></i>
+                            </span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <!--/ Earning Reports -->
 
-        <!-- Support Tracker -->
-        <div class="col-12 col-md-6">
+        <div class="col-sm-6 col-xl-3">
             <div class="card h-100">
-                <div class="card-header d-flex justify-content-between">
-                    <div class="card-title mb-0">
-                        <h5 class="mb-1">Support Tracker</h5>
-                        <p class="card-subtitle">Last 7 Days</p>
-                    </div>
-                    <div class="dropdown">
-                        <button
-                            class="btn btn-text-secondary rounded-pill text-body-secondary border-0 p-2 me-n1"
-                            type="button"
-                            id="supportTrackerMenu"
-                            data-bs-toggle="dropdown"
-                            aria-haspopup="true"
-                            aria-expanded="false">
-                            <i class="icon-base ti tabler-dots-vertical icon-md text-body-secondary"></i>
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-end" aria-labelledby="supportTrackerMenu">
-                            <a class="dropdown-item" href="javascript:void(0);">View More</a>
-                            <a class="dropdown-item" href="javascript:void(0);">Delete</a>
+                <div class="card-body">
+                    <div class="d-flex align-items-start justify-content-between">
+                        <div class="content-left">
+                            <span class="text-heading">Pipeline Leads</span>
+                            <div class="d-flex align-items-center my-1">
+                                <h4 class="mb-0 me-2">{{ $totalLeads ?? 0 }}</h4>
+                                <span class="badge bg-label-warning">{{ $ongoingLeads ?? 0 }} In Progress</span>
+                            </div>
+                            <small class="text-muted">Weekly trend: {{ $leadTrend['trend'] ?? 'stable' }}</small>
                         </div>
-                    </div>
-                </div>
-                <div class="card-body row">
-                    <div class="col-12 col-sm-4">
-                        <div class="mt-lg-4 mt-lg-2 mb-lg-6 mb-2">
-                            <h2 class="mb-0">164</h2>
-                            <p class="mb-0">Total Tickets</p>
+                        <div class="avatar">
+                            <span class="avatar-initial rounded bg-label-warning">
+                                <i class="icon-base ti tabler-user-check icon-26px"></i>
+                            </span>
                         </div>
-                        <ul class="p-0 m-0">
-                            <li class="d-flex gap-4 align-items-center mb-lg-3 pb-1">
-                                <div class="badge rounded bg-label-primary p-1_5">
-                                    <i class="icon-base ti tabler-ticket icon-md"></i>
-                                </div>
-                                <div>
-                                    <h6 class="mb-0 text-nowrap">New Tickets</h6>
-                                    <small class="text-body-secondary">142</small>
-                                </div>
-                            </li>
-                            <li class="d-flex gap-4 align-items-center mb-lg-3 pb-1">
-                                <div class="badge rounded bg-label-info p-1_5">
-                                    <i class="icon-base ti tabler-circle-check icon-md"></i>
-                                </div>
-                                <div>
-                                    <h6 class="mb-0 text-nowrap">Open Tickets</h6>
-                                    <small class="text-body-secondary">28</small>
-                                </div>
-                            </li>
-                            <li class="d-flex gap-4 align-items-center pb-1">
-                                <div class="badge rounded bg-label-warning p-1_5">
-                                    <i class="icon-base ti tabler-clock icon-md"></i>
-                                </div>
-                                <div>
-                                    <h6 class="mb-0 text-nowrap">Response Time</h6>
-                                    <small class="text-body-secondary">1 Day</small>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="col-12 col-md-8">
-                        <div id="supportTracker"></div>
                     </div>
                 </div>
             </div>
         </div>
-        <!--/ Support Tracker -->
-        
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-start justify-content-between">
+                        <div class="content-left">
+                            <span class="text-heading">Active Jobs</span>
+                            <div class="d-flex align-items-center my-1">
+                                <h4 class="mb-0 me-2">{{ $activeJobs ?? 0 }}</h4>
+                                <span class="badge bg-label-success">{{ $completedJobs ?? 0 }} Done</span>
+                            </div>
+                            <small class="text-muted">Total: {{ $totalJobs ?? 0 }} jobs</small>
+                        </div>
+                        <div class="avatar">
+                            <span class="avatar-initial rounded bg-label-success">
+                                <i class="icon-base ti tabler-briefcase icon-26px"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-start justify-content-between">
+                        <div class="content-left">
+                            <span class="text-heading">Customers</span>
+                            <div class="d-flex align-items-center my-1">
+                                <h4 class="mb-0 me-2">{{ $totalCustomers ?? 0 }}</h4>
+                            </div>
+                            <small class="text-muted">Active client accounts</small>
+                        </div>
+                        <div class="avatar">
+                            <span class="avatar-initial rounded bg-label-info">
+                                <i class="icon-base ti tabler-users icon-26px"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inventory & Procurement Alerts -->
+    <div class="row g-6 mb-6">
+        <div class="col-md-6">
+            <div class="card h-100 border-start border-primary border-4">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="mb-1 text-primary">Pending Stock Requisitions</h6>
+                        <h3 class="mb-0">{{ $pendingRequisitions ?? 0 }}</h3>
+                        <small class="text-muted">Requisitions awaiting approval or issuing</small>
+                    </div>
+                    <a href="{{ route('stockitemrequisitions.index') }}" class="btn btn-primary btn-sm">View Requisitions</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card h-100 border-start border-danger border-4">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="mb-1 text-danger">Low Stock Item Variants</h6>
+                        <h3 class="mb-0">{{ $lowStockItems ?? 0 }}</h3>
+                        <small class="text-muted">Variants with quantity less than 10 units</small>
+                    </div>
+                    <a href="{{ route('stockitemsinventory.index') }}" class="btn btn-outline-danger btn-sm">Manage Inventory</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Tables -->
+    <div class="row g-6">
+        <!-- Recent Enquiries -->
+        <div class="col-12 col-xl-6">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Recent Enquiries</h5>
+                    <a href="{{ route('enquiries.index') }}" class="btn btn-sm btn-label-primary">View All</a>
+                </div>
+                <div class="table-responsive text-nowrap">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Customer</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($recentEnquiries ?? [] as $enquiry)
+                                <tr>
+                                    <td>
+                                        <a href="{{ route('enquiries.show', $enquiry->slug ?? $enquiry->id) }}" class="fw-medium text-body">
+                                            {{ Str::limit($enquiry->enquiry_name, 25) }}
+                                        </a>
+                                    </td>
+                                    <td>{{ $enquiry->customer->company_name ?? 'N/A' }}</td>
+                                    <td>
+                                        <span class="badge bg-label-{{ $enquiry->enquiry_status == 'new' ? 'info' : ($enquiry->enquiry_status == 'converted_to_lead' ? 'success' : 'secondary') }}">
+                                            {{ beautify_status($enquiry->enquiry_status) }}
+                                        </span>
+                                    </td>
+                                    <td>{{ $enquiry->created_at ? $enquiry->created_at->format('d/m/Y') : '' }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">No recent enquiries found.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Jobs -->
+        <div class="col-12 col-xl-6">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Active & Recent Jobs</h5>
+                    <a href="{{ route('job.index') }}" class="btn btn-sm btn-label-primary">View All</a>
+                </div>
+                <div class="table-responsive text-nowrap">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Job Title</th>
+                                <th>Customer</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($recentJobs ?? [] as $job)
+                                <tr>
+                                    <td>
+                                        <a href="{{ route('job.show', $job->slug ?? $job->id) }}" class="fw-medium text-body">
+                                            {{ Str::limit($job->job_title ?? $job->job_name, 25) }}
+                                        </a>
+                                    </td>
+                                    <td>{{ $job->customer->company_name ?? 'N/A' }}</td>
+                                    <td>
+                                        <span class="badge bg-label-{{ $job->job_status == 'inprogress' ? 'warning' : ($job->job_status == 'completed' ? 'success' : 'primary') }}">
+                                            {{ beautify_status($job->job_status) }}
+                                        </span>
+                                    </td>
+                                    <td>{{ $job->created_at ? $job->created_at->format('d/m/Y') : '' }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">No recent jobs found.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
-
 @endsection

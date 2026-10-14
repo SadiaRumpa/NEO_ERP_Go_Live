@@ -26,17 +26,19 @@ class CustomerController extends Controller
             ->filter(function ($query) {
                 if (request()->has('search') && request()->input('search.value') != '') {
                     $searchValue = request()->input('search.value');
-                    $query->where('company_name', 'like', "%{$searchValue}%")
-                        ->orWhere('id', 'like', "%{$searchValue}%")
-                        ->orWhere('contact_firstname', 'like', "%{$searchValue}%")
-                        ->orWhere('contact_lastname', 'like', "%{$searchValue}%")
-                        ->orWhere('contact_phone', 'like', "%{$searchValue}%")
-                        ->orWhere('contact_mobile', 'like', "%{$searchValue}%")
-                        ->orWhere('contact_email', 'like', "%{$searchValue}%")
-                        ->orWhereRaw(
-                            "CONCAT(contact_firstname, ' ', contact_lastname) LIKE ?",
-                            ["%{$searchValue}%"]
-                        );
+                    $query->where(function ($sub) use ($searchValue) {
+                        $sub->where('company_name', 'like', "%{$searchValue}%")
+                            ->orWhere('id', 'like', "%{$searchValue}%")
+                            ->orWhere('contact_firstname', 'like', "%{$searchValue}%")
+                            ->orWhere('contact_lastname', 'like', "%{$searchValue}%")
+                            ->orWhere('contact_phone', 'like', "%{$searchValue}%")
+                            ->orWhere('contact_mobile', 'like', "%{$searchValue}%")
+                            ->orWhere('contact_email', 'like', "%{$searchValue}%")
+                            ->orWhereRaw(
+                                "CONCAT(contact_firstname, ' ', contact_lastname) LIKE ?",
+                                ["%{$searchValue}%"]
+                            );
+                    });
                 }
             }, true)
                 ->addIndexColumn()
@@ -78,6 +80,16 @@ class CustomerController extends Controller
         ]);
 
         //regex:/^([0-9\s\-\+\(\)]*)$/|min:10
+
+        // De-duplication check
+        $duplicate = Customer::where('company_name', $validated['companyName'])
+            ->orWhere('contact_email', $validated['contactEmail'])
+            ->first();
+        if ($duplicate) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'A customer record with this company name or email already exists.');
+        }
 
         DB::beginTransaction();
 
@@ -130,17 +142,19 @@ class CustomerController extends Controller
             ->filter(function ($query) {
                 if (request()->has('search') && request()->input('search.value') != '') {
                     $searchValue = request()->input('search.value');
-                    $query->where('company_name', 'like', "%{$searchValue}%")
-                        ->orWhere('id', 'like', "%{$searchValue}%")
-                        ->orWhere('contact_firstname', 'like', "%{$searchValue}%")
-                        ->orWhere('contact_lastname', 'like', "%{$searchValue}%")
-                        ->orWhere('contact_phone', 'like', "%{$searchValue}%")
-                        ->orWhere('contact_mobile', 'like', "%{$searchValue}%")
-                        ->orWhere('contact_email', 'like', "%{$searchValue}%")
-                        ->orWhereRaw(
-                            "CONCAT(contact_firstname, ' ', contact_lastname) LIKE ?",
-                            ["%{$searchValue}%"]
-                        );
+                    $query->where(function ($sub) use ($searchValue) {
+                        $sub->where('company_name', 'like', "%{$searchValue}%")
+                            ->orWhere('id', 'like', "%{$searchValue}%")
+                            ->orWhere('contact_firstname', 'like', "%{$searchValue}%")
+                            ->orWhere('contact_lastname', 'like', "%{$searchValue}%")
+                            ->orWhere('contact_phone', 'like', "%{$searchValue}%")
+                            ->orWhere('contact_mobile', 'like', "%{$searchValue}%")
+                            ->orWhere('contact_email', 'like', "%{$searchValue}%")
+                            ->orWhereRaw(
+                                "CONCAT(contact_firstname, ' ', contact_lastname) LIKE ?",
+                                ["%{$searchValue}%"]
+                            );
+                    });
                 }
             }, true)
                 ->addIndexColumn()

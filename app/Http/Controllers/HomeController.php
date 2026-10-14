@@ -9,6 +9,7 @@ use App\Models\StockItemVariant;
 use App\Models\StockWarehouse;
 use App\Models\VehicleAssignDetail;
 use App\Models\VehicleDetail;
+use App\Services\DashboardMetrics;
 use Carbon\Carbon;
 
 class HomeController extends Controller
@@ -57,9 +58,10 @@ class HomeController extends Controller
         }
     }
 
-    public function adminDashboard()
+    public function adminDashboard(DashboardMetrics $metricsService)
     {
-        return view('dashboards.admin');
+        $metrics = $metricsService->getAdminMetrics();
+        return view('dashboards.admin', $metrics);
     }
     public function enquiryManagerDashboard()
     {
@@ -493,16 +495,16 @@ class HomeController extends Controller
         ]);
     }
 
-    public function staffDashboard()
+    public function staffDashboard(DashboardMetrics $metricsService)
     {
-        $activetasks = Fjob::where('job_status', 'inprogress')->get();
-        return view('dashboards.staffs')->with([
-            'activetasks' => $activetasks,
-        ]);
+        $userId = auth()->id() ?? 0;
+        $metrics = $metricsService->getStaffMetrics($userId);
+        return view('dashboards.staffs', $metrics);
     }
 
-    public function healthSafetyDashboard()
+    public function healthSafetyDashboard(DashboardMetrics $metricsService)
     {
-        return view('dashboards.health_safety_manager');
+        $metrics = $metricsService->getHealthSafetyMetrics();
+        return view('dashboards.health_safety_manager', $metrics);
     }
 }

@@ -10,6 +10,7 @@ use App\Models\QuotationSectionAttachment;
 use App\Models\QuotationSectionContent;
 use App\Models\QuotationTemplate;
 use App\Models\QuotationTemplateSection;
+use App\Enums\QuotationStatus;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\DB;
@@ -224,6 +225,14 @@ class QuotationController extends Controller
     public function update(Request $request, $id)
     {
         $quotation = Quotation::findOrFail($id);
+
+        if ($quotation->status === 'accepted') {
+            if ($request->ajax()) {
+                return response()->json(['status' => 'error', 'message' => 'Cannot modify an accepted quotation.'], 422);
+            }
+            return redirect()->back()->with('error', 'Cannot modify an accepted quotation.');
+        }
+
         if ($request->filled('total_amount')) {
             $quotation->total_amount = $request->input('total_amount');
         }
@@ -281,8 +290,9 @@ class QuotationController extends Controller
 
     public function updateQuotationStatus(Request $request, $id)
     {
+        $allowedStatuses = implode(',', QuotationStatus::values());
         $request->validate([
-            'status' => 'required|string|in:accepted,rejected,pending',
+            'status' => "required|string|in:$allowedStatuses",
             'remarks' => 'required_if:status,accepted|nullable|string|max:255',
         ]);
 
@@ -292,23 +302,36 @@ class QuotationController extends Controller
             return response()->json(['error' => 'Quotation not found.'], 404);
         }
 
+        $currentStatus = QuotationStatus::tryFrom($quotation->status ?? 'draft');
+        $targetStatus = QuotationStatus::tryFrom($request->status);
+
+        if (!$targetStatus) {
+            return response()->json(['error' => 'Invalid quotation status provided.'], 422);
+        }
+
+        if ($currentStatus && !$currentStatus->canTransitionTo($targetStatus)) {
+            return response()->json([
+                'error' => "Cannot transition quotation from {$currentStatus->value} to {$targetStatus->value}."
+            ], 422);
+        }
+
         $lead_id = $quotation->lead_id;
 
         if ($request->status === 'accepted') {
             // Cancel all other quotations under the same lead
             Quotation::where('lead_id', $lead_id)
                 ->where('id', '!=', $quotation->id)
-                ->update(['status' => 'cancelled']);
+                ->update(['status' => QuotationStatus::CANCELLED->value]);
 
             // Accept current quotation
             $quotation->update([
-                'status' => 'accepted',
+                'status' => QuotationStatus::ACCEPTED->value,
                 'remarks' => $request->remarks,
             ]);
         } else {
             // Just update the current quotation
             $quotation->update([
-                'status' => $request->status,
+                'status' => $targetStatus->value,
                 'remarks' => $request->remarks,
             ]);
         }
@@ -319,7 +342,17 @@ class QuotationController extends Controller
 
     public function reorderQuotationSections(Request $request)
     {
-        $order = $request->input('order');
+        $order = $request->input('order', []);
+        if (!empty($order)) {
+            $firstId = $order[0]['id'] ?? null;
+            if ($firstId) {
+                $section = QuotationSection::with('quotation')->find($firstId);
+                if ($section && $section->quotation && $section->quotation->status === 'accepted') {
+                    return response()->json(['status' => 'error', 'message' => 'Cannot modify sections on an accepted quotation.'], 422);
+                }
+            }
+        }
+
         foreach ($order as $item) {
             QuotationSection::where('id', $item['id'])->update(['order' => $item['position']]);
         }
@@ -334,7 +367,11 @@ class QuotationController extends Controller
             'has_attachments' => 'nullable|boolean',
         ]);
 
-        $section = QuotationSection::findOrFail($id);
+        $section = QuotationSection::with('quotation')->findOrFail($id);
+
+        if ($section->quotation && $section->quotation->status === 'accepted') {
+            return response()->json(['status' => 'error', 'message' => 'Cannot modify sections on an accepted quotation.'], 422);
+        }
 
         // Update section content
         $section->content()->updateOrCreate(
@@ -359,7 +396,11 @@ class QuotationController extends Controller
             'attachments.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:10248',
         ]);
 
-        $section = QuotationSection::findOrFail($id);
+        $section = QuotationSection::with('quotation')->findOrFail($id);
+
+        if ($section->quotation && $section->quotation->status === 'accepted') {
+            return response()->json(['status' => 'error', 'message' => 'Cannot modify attachments on an accepted quotation.'], 422);
+        }
 
         if (!$section->has_attachments) {
             return response()->json([
@@ -396,10 +437,10 @@ class QuotationController extends Controller
 
     public function destroyQuotationSectionsAttachments($id)
     {
-        $attachment = QuotationSectionAttachment::findOrFail($id);
+        $attachment = QuotationSectionAttachment::with('quotationSection.quotation')->findOrFail($id);
 
-        if (!$attachment) {
-            return response()->json(['status' => 'error', 'message' => 'Image not found.']);
+        if ($attachment->quotationSection && $attachment->quotationSection->quotation && $attachment->quotationSection->quotation->status === 'accepted') {
+            return response()->json(['status' => 'error', 'message' => 'Cannot delete attachments from an accepted quotation.'], 422);
         }
 
         if ($attachment->source !== 's3' && Storage::disk('public')->exists($attachment->image_path)) {

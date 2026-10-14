@@ -228,15 +228,42 @@ class SchedulerController extends Controller
             return response()->json(['error' => 'Duplicate job schedule already exists'], 409);
         }
 
+        // Double-booking conflict check
+        $conflicts = [];
+        if (!empty($workerIds)) {
+            $conflictingWorkers = JobScheduleWorker::with(['jobSchedule', 'user'])
+                ->whereIn('user_id', $workerIds)
+                ->where(function ($query) use ($startDate, $endDate) {
+                    $query->whereBetween('assigned_date', [$startDate, $endDate])
+                        ->orWhereBetween('completion_date', [$startDate, $endDate])
+                        ->orWhere(function ($q) use ($startDate, $endDate) {
+                            $q->where('assigned_date', '<=', $startDate)
+                                ->where('completion_date', '>=', $endDate);
+                        });
+                })
+                ->get();
+
+            foreach ($conflictingWorkers as $conflict) {
+                $conflicts[] = [
+                    'worker_id'   => $conflict->user_id,
+                    'worker_name' => $conflict->user->name ?? 'Unknown',
+                    'job_name'    => $conflict->jobSchedule->job_name ?? 'N/A',
+                    'start_date'  => $conflict->assigned_date,
+                    'end_date'    => $conflict->completion_date,
+                ];
+            }
+        }
+
         // ✅ Create job schedule
         $jobSchedule = JobSchedule::create([
-            'job_id'       => $validated['job_id'],
-            'job_name'     => Fjob::find($validated['job_id'])->job_name,
-            'job_title'     => Fjob::find($validated['job_id'])->job_title,
-            'start_date'   => $startDate,
-            'end_date'     => $endDate,
-            'instructions' => $validated['instructions'],
-            'status'       => 'assigned',
+            'job_id'         => $validated['job_id'],
+            'job_name'       => Fjob::find($validated['job_id'])->job_name,
+            'job_title'      => Fjob::find($validated['job_id'])->job_title,
+            'start_date'     => $startDate,
+            'end_date'       => $endDate,
+            'instructions'   => $validated['instructions'] ?? null,
+            'status'         => 'assigned',
+            'is_provisional' => $request->boolean('is_provisional', false),
         ]);
 
         // ✅ Assign workers
@@ -252,7 +279,10 @@ class SchedulerController extends Controller
 
         return response()->json([
             'message'      => 'Job schedule created successfully',
-            'job_schedule' => $jobSchedule
+            'job_schedule' => $jobSchedule,
+            'has_conflict' => !empty($conflicts),
+            'conflicts'    => $conflicts,
+            'warning'      => !empty($conflicts) ? 'One or more assigned workers have overlapping schedules.' : null,
         ], 201);
     }
 
@@ -507,5 +537,19 @@ class SchedulerController extends Controller
         $schedule->delete();
 
         return response()->json(['message' => 'Schedule deleted successfully']);
+    }
+
+    public function promoteProvisional($id)
+    {
+        $schedule = JobSchedule::findOrFail($id);
+        $schedule->update([
+            'is_provisional' => false,
+        ]);
+
+        return response()->json([
+            'status'   => 'success',
+            'message'  => 'Provisional schedule promoted to official job schedule successfully.',
+            'schedule' => $schedule,
+        ]);
     }
 }

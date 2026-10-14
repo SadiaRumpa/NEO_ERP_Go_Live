@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\StockItemVariant;
 use App\Models\StockItemVariantAttribute;
 use App\Models\StockUnit;
+use App\Enums\RequisitionStatus;
 use Illuminate\Support\Facades\Auth;
 
 class StockItemController extends Controller
@@ -529,27 +530,26 @@ class StockItemController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        $stockitemid = null;
+        $requisition = StockItemRequisition::findOrFail($request->stock_item_requisition_id);
+        if (in_array($requisition->status, ['issued', 'rejected', 'cancelled'])) {
+            return redirect()->back()->with('error', 'Cannot add items to an issued or closed requisition.');
+        }
 
+        $stockitemid = null;
         if ($request->filled('stock_item_id')) {
             $parts = explode('_', $request->stock_item_id);
-            $stockitemid = $parts[0]; // This will give you 3
+            $stockitemid = $parts[0];
         }
 
         StockItemRequisitionDetail::create([
             'stock_item_requisition_id' => $request->stock_item_requisition_id,
-            'stock_item_variant_id' => $stockitemid,
-            'quantity' => $request->quantity,
-            'unit' => $request->unit ?? 'pcs',
-            'notes' => $request->notes, // Default to pending if not provided
+            'stock_item_variant_id'     => $stockitemid,
+            'quantity'                  => $request->quantity,
+            'unit'                      => $request->unit ?? 'pcs',
+            'notes'                     => $request->notes,
         ]);
 
-        $stock = StockItemVariant::find($stockitemid);
-        if ($stock) {
-            $stock->quantity -= $request->quantity;
-            $stock->save();
-        }
-
+        // Note: Draft requisitions DO NOT decrement stock. Decrement only happens upon issue.
 
         return redirect()->route('stockitemrequisitions.show', $request->stock_item_requisition_id)
             ->with('success', 'Stock item requisition detail added successfully.');
@@ -557,21 +557,167 @@ class StockItemController extends Controller
 
     public function showRequisitionDetails($id)
     {
-        $requisition = StockItemRequisition::with(['details', 'details.stockitemvariant', 'fjob', 'stockWarehouse', 'requestedBy', 'approvedBy'])
-            ->findOrFail($id);
-        // return $requisition;
+        $requisition = StockItemRequisition::with([
+            'details',
+            'details.stockitemvariant',
+            'fjob',
+            'stockWarehouse',
+            'requestedBy',
+            'approvedBy',
+            'issuedBy',
+        ])->findOrFail($id);
+
         $stockitems = StockItemVariant::with('stockItem')
             ->where('warehouse_id', $requisition->stock_warehouse_id)
             ->get();
+
         return view('stockitemsrequisitions.show', compact('requisition', 'stockitems'));
     }
 
     public function destroyRequisitionDetails($id)
     {
-        $detail = StockItemRequisitionDetail::findOrFail($id);
-        $stockitemid = StockItem::where('id', $detail->stock_item_id)->first();
+        $detail = StockItemRequisitionDetail::with('stockItemRequisition')->findOrFail($id);
+
+        if ($detail->stockItemRequisition && $detail->stockItemRequisition->status === 'issued') {
+            return redirect()->back()->with('error', 'Cannot remove items from an already issued requisition.');
+        }
+
         $detail->delete();
 
         return redirect()->back()->with('success', 'Stock item requisition detail deleted successfully.');
+    }
+
+    public function approveRequisition(Request $request, $id)
+    {
+        $requisition = StockItemRequisition::findOrFail($id);
+
+        $currentStatus = RequisitionStatus::tryFrom($requisition->status ?? 'pending');
+        if ($currentStatus && !$currentStatus->canTransitionTo(RequisitionStatus::APPROVED)) {
+            $msg = "Cannot approve requisition from current status: {$requisition->status}.";
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => $msg], 422);
+            }
+            return redirect()->back()->with('error', $msg);
+        }
+
+        $requisition->update([
+            'status'      => RequisitionStatus::APPROVED->value,
+            'approved_by' => Auth::id(),
+            'approved_at' => now(),
+        ]);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['status' => 'success', 'message' => 'Requisition approved successfully.']);
+        }
+
+        return redirect()->back()->with('success', 'Requisition approved successfully.');
+    }
+
+    public function issueRequisition(Request $request, $id)
+    {
+        $requisition = StockItemRequisition::with('details')->findOrFail($id);
+
+        $currentStatus = RequisitionStatus::tryFrom($requisition->status ?? 'pending');
+        if ($currentStatus && !$currentStatus->canTransitionTo(RequisitionStatus::ISSUED)) {
+            $msg = "Requisition must be approved before issuing.";
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => $msg], 422);
+            }
+            return redirect()->back()->with('error', $msg);
+        }
+
+        if ($requisition->details->isEmpty()) {
+            $msg = "Cannot issue an empty requisition without line items.";
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => $msg], 422);
+            }
+            return redirect()->back()->with('error', $msg);
+        }
+
+        try {
+            DB::transaction(function () use ($requisition) {
+                foreach ($requisition->details as $detail) {
+                    $variant = StockItemVariant::where('id', $detail->stock_item_variant_id)
+                        ->lockForUpdate()
+                        ->first();
+
+                    if (!$variant) {
+                        abort(422, "Variant with ID {$detail->stock_item_variant_id} not found.");
+                    }
+
+                    // Negative stock guard
+                    if ($variant->quantity < $detail->quantity) {
+                        $name = $variant->name ?? $variant->sku ?? 'item';
+                        abort(422, "Insufficient stock for '{$name}'. Available: {$variant->quantity}, Requested: {$detail->quantity}.");
+                    }
+
+                    // Deduct inventory
+                    $variant->decrement('quantity', $detail->quantity);
+
+                    // Create ledger movement record
+                    StockItemMovement::create([
+                        'item_variant_id'     => $variant->id,
+                        'quantity'            => $detail->quantity,
+                        'unit'                => $detail->unit ?? 'pcs',
+                        'cost'                => $variant->avg_price ?? 0,
+                        'movement_type'       => 'out',
+                        'movement_date'       => now(),
+                        'user_id'             => Auth::id(),
+                        'reference'           => $requisition->requisition_number,
+                        'source_warehouse_id' => $requisition->stock_warehouse_id,
+                        'source'              => 'warehouse',
+                        'destination'         => 'job_' . $requisition->fjob_id,
+                        'status'              => 'completed',
+                        'reason'              => 'Requisition ' . $requisition->requisition_number . ' issued',
+                    ]);
+                }
+
+                $requisition->update([
+                    'status'    => RequisitionStatus::ISSUED->value,
+                    'issued_by' => Auth::id(),
+                    'issued_at' => now(),
+                ]);
+            });
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['status' => 'success', 'message' => 'Requisition issued and stock ledger updated successfully.']);
+            }
+
+            return redirect()->back()->with('success', 'Requisition issued and stock ledger updated successfully.');
+        } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => $e->getMessage()], $e->getStatusCode());
+            }
+            return redirect()->back()->with('error', $e->getMessage());
+        } catch (\Exception $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+            }
+            return redirect()->back()->with('error', 'Failed to issue requisition: ' . $e->getMessage());
+        }
+    }
+
+    public function rejectRequisition(Request $request, $id)
+    {
+        $requisition = StockItemRequisition::findOrFail($id);
+
+        $currentStatus = RequisitionStatus::tryFrom($requisition->status ?? 'pending');
+        if ($currentStatus && !$currentStatus->canTransitionTo(RequisitionStatus::REJECTED)) {
+            $msg = "Cannot reject an already issued or closed requisition.";
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => $msg], 422);
+            }
+            return redirect()->back()->with('error', $msg);
+        }
+
+        $requisition->update([
+            'status' => RequisitionStatus::REJECTED->value,
+        ]);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['status' => 'success', 'message' => 'Requisition rejected successfully.']);
+        }
+
+        return redirect()->back()->with('success', 'Requisition rejected.');
     }
 }

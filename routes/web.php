@@ -176,6 +176,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('scheduler/store-fake-job-schedule', [SchedulerController::class, 'storeFakeJobSchedule'])->name('scheduler.store-fake-job-schedule');
     Route::put('scheduler/update-fake-job-schedule/{id}', [SchedulerController::class, 'updateFakeJobSchedule'])->name('scheduler.update-fake-job-schedule');
     Route::delete('scheduler/delete-fake-schedule/{id}', [SchedulerController::class, 'deleteFakeSchedule'])->name('scheduler.delete-fake-schedule');
+    Route::post('scheduler/promote-provisional/{id}', [SchedulerController::class, 'promoteProvisional'])->name('scheduler.promote-provisional');
 
     Route::get('job-attributes', [JobAttributeController::class, 'index'])->name('job-attributes.index');
     Route::post('job-attributes/store', [JobAttributeController::class, 'storeJobAttribute'])->name('job-attributes.store');
@@ -222,6 +223,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('stockitemrequisitions/store-details', [StockItemController::class, 'storeRequisitionDetails'])->name('stockitemrequisitions.store-details');
     Route::get('stockitemrequisitions/{id}', [StockItemController::class, 'showRequisitionDetails'])->name('stockitemrequisitions.show');
     Route::delete('stockitemrequisitions/details/{id}', [StockItemController::class, 'destroyRequisitionDetails'])->name('stockitemrequisitions.destroy-details');
+    Route::post('stockitemrequisitions/{id}/approve', [StockItemController::class, 'approveRequisition'])->name('stockitemrequisitions.approve');
+    Route::post('stockitemrequisitions/{id}/issue', [StockItemController::class, 'issueRequisition'])->name('stockitemrequisitions.issue');
+    Route::post('stockitemrequisitions/{id}/reject', [StockItemController::class, 'rejectRequisition'])->name('stockitemrequisitions.reject');
 
     Route::get('vehiclecategories', [VehicleCategoryController::class, 'index'])->name('vehiclecategories.index');
     Route::post('vehiclecategories/store', [VehicleCategoryController::class, 'store'])->name('vehiclecategories.store');

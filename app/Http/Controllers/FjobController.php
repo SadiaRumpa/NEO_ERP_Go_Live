@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use App\Enums\JobStatus;
 
 class FjobController extends Controller
 {
@@ -386,13 +387,31 @@ class FjobController extends Controller
 
     public function updateJobStatus(Request $request, $id)
     {
+        $allowedStatuses = implode(',', JobStatus::values());
+        $request->validate([
+            'job_status' => "required|string|in:$allowedStatuses",
+        ]);
+
         $job = Fjob::find($id);
         if (!$job) {
             return response()->json(['error' => 'Job not found.'], 404);
         }
 
+        $currentStatus = JobStatus::tryFrom($job->job_status ?? 'draft');
+        $targetStatus = JobStatus::tryFrom($request->job_status);
+
+        if (!$targetStatus) {
+            return response()->json(['error' => 'Invalid job status provided.'], 422);
+        }
+
+        if ($currentStatus && !$currentStatus->canTransitionTo($targetStatus)) {
+            return response()->json([
+                'error' => "Cannot transition job from {$currentStatus->value} to {$targetStatus->value}."
+            ], 422);
+        }
+
         $job->update([
-            'job_status' => $request->job_status,
+            'job_status' => $targetStatus->value,
         ]);
 
         return response()->json(['success' => 'Job status updated successfully.']);

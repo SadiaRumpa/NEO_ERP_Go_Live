@@ -1,89 +1,128 @@
 @extends('layouts.master')
 
-@section('title', 'Dashboard')
+@section('title', 'Staff Dashboard')
 
 @section('content')
-    <!-- Content -->
-    <div class="container-xxl flex-grow-1 container-p-y">
-        <div class="row g-6">
-            <!-- Assigned Tasks -->
-            <div class="col-md-8 col-12">
-                <div class="card h-100">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="card-title m-0 me-2">Assigned Tasks</h5>
+<div class="container-xxl flex-grow-1 container-p-y">
+    <!-- Staff KPI Summary -->
+    <div class="row g-6 mb-6">
+        <div class="col-sm-4">
+            <div class="card h-100">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="text-heading">Assigned Schedules</span>
+                        <h3 class="my-1 text-primary">{{ $assignedCount ?? 0 }}</h3>
+                        <small class="text-muted">Jobs pending start</small>
                     </div>
-                    <div class="table-responsive">
-                        <table class="table table-borderless border-top">
-                            <thead class="border-bottom">
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Task</th>
-                                    <th>Status</th>
-                                    <th>Job</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td class="pt-5">
-                                        <div class="d-flex flex-column">
-                                            <small class="text-body text-nowrap">17 Mar 2022</small>
-                                        </div>
-                                    </td>
-                                    <td class="pt-5">
-                                        <div class="d-flex justify-content-start align-items-center">
-                                            <h6 class="mb-0">Create new project for client</h6>
-                                        </div>
-                                    </td>
-                                    <td class="pt-5"><span class="badge bg-label-success">Verified</span></td>
-                                    <td class="pt-5">
-                                        <p class="mb-0 text-heading">+$1,678</p>
-                                    </td>
-                                </tr>
-                               
-                                
-                            </tbody>
-                        </table>
+                    <div class="avatar">
+                        <span class="avatar-initial rounded bg-label-primary">
+                            <i class="icon-base ti tabler-calendar-event icon-26px"></i>
+                        </span>
                     </div>
                 </div>
             </div>
-            <!--/ Last Transaction -->
+        </div>
 
-            <!-- Activity Timeline -->
-            <div class="col-xxl-4 col-md-4 col-12">
-                <div class="card h-100">
-                    <div class="card-header d-flex justify-content-between">
-                        <h5 class="card-title m-0 me-2 pt-1 mb-2 d-flex align-items-center">
-                            <i class="icon-base ti tabler-list-details me-3"></i> Activity Timeline
-                        </h5>
+        <div class="col-sm-4">
+            <div class="card h-100">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="text-heading">In Progress</span>
+                        <h3 class="my-1 text-warning">{{ $inProgressCount ?? 0 }}</h3>
+                        <small class="text-muted">Currently active work</small>
                     </div>
-                    <div class="card-body pb-xxl-0">
-                        <ul class="timeline mb-0">
-                            <li class="timeline-item timeline-item-transparent">
-                                <span class="timeline-point timeline-point-primary"></span>
-                                <div class="timeline-event">
-                                    <div class="timeline-header mb-3">
-                                        <h6 class="mb-0">12 Invoices have been paid</h6>
-                                        <small class="text-body-secondary">12 min ago</small>
-                                    </div>
-                                    <p class="mb-2">Invoices have been paid to the company</p>
-                                    <div class="d-flex align-items-center mb-1">
-                                        <div class="badge bg-lighter rounded-3">
-                                            <img src="../../assets//img/icons/misc/pdf.png" alt="img" width="15"
-                                                class="me-2" />
-                                            <span class="h6 mb-0 text-body">invoices.pdf</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                            
-                            
-                        </ul>
+                    <div class="avatar">
+                        <span class="avatar-initial rounded bg-label-warning">
+                            <i class="icon-base ti tabler-clock-play icon-26px"></i>
+                        </span>
                     </div>
                 </div>
             </div>
-            <!--/ Activity Timeline -->
+        </div>
+
+        <div class="col-sm-4">
+            <div class="card h-100">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="text-heading">Completed Works</span>
+                        <h3 class="my-1 text-success">{{ $completedCount ?? 0 }}</h3>
+                        <small class="text-muted">Finished schedule tasks</small>
+                    </div>
+                    <div class="avatar">
+                        <span class="avatar-initial rounded bg-label-success">
+                            <i class="icon-base ti tabler-circle-check icon-26px"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    <!-- / Content -->
 
+    <!-- Assigned Tasks Table -->
+    <div class="row g-6">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title m-0">My Scheduled Job Assignments</h5>
+                    <a href="{{ route('scheduler.index') }}" class="btn btn-sm btn-primary">Open Calendar</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Schedule Dates</th>
+                                <th>Job Title</th>
+                                <th>Status</th>
+                                <th>Notes / Instructions</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($assignments ?? [] as $assignment)
+                                <tr>
+                                    <td>
+                                        <div class="d-flex flex-column">
+                                            <span class="fw-medium text-heading">
+                                                {{ $assignment->assigned_date ? \Carbon\Carbon::parse($assignment->assigned_date)->format('d M Y') : 'N/A' }}
+                                                @if($assignment->completion_date && $assignment->completion_date != $assignment->assigned_date)
+                                                    - {{ \Carbon\Carbon::parse($assignment->completion_date)->format('d M Y') }}
+                                                @endif
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="fw-medium text-heading">
+                                            {{ $assignment->jobSchedule->job_name ?? $assignment->jobSchedule->job_title ?? 'Scheduled Job' }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-label-{{ $assignment->status == 'completed' ? 'success' : ($assignment->status == 'inprogress' ? 'warning' : 'primary') }}">
+                                            {{ strtoupper($assignment->status ?? 'ASSIGNED') }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">
+                                            {{ Str::limit($assignment->notes ?? $assignment->jobSchedule->instructions ?? 'No notes provided', 50) }}
+                                        </small>
+                                    </td>
+                                    <td>
+                                        @if($assignment->jobSchedule && $assignment->jobSchedule->job_id)
+                                            <a href="{{ route('job.show', $assignment->jobSchedule->job->slug ?? $assignment->jobSchedule->job_id) }}" class="btn btn-sm btn-label-secondary">
+                                                View Job
+                                            </a>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-4">You have no active schedule assignments.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection

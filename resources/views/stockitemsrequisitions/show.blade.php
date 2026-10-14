@@ -68,8 +68,19 @@
                                     <strong>Requested By: </strong> {{ $requisition->requestedBy->name ?? 'N/A' }}
                                 </p>
                                 <p class="mb-2">
-                                    <strong>Approved By: </strong> {{ $requisition->approved_by ?? 'Not Approved' }}
+                                    <strong>Approved By: </strong> {{ $requisition->approvedBy->name ?? 'Not Approved' }}
+                                    @if ($requisition->approved_at)
+                                        <small class="text-muted">({{ $requisition->approved_at->format('d/m/Y H:i') }})</small>
+                                    @endif
                                 </p>
+                                @if ($requisition->issuedBy)
+                                    <p class="mb-2">
+                                        <strong>Issued By: </strong> {{ $requisition->issuedBy->name }}
+                                        @if ($requisition->issued_at)
+                                            <small class="text-muted">({{ $requisition->issued_at->format('d/m/Y H:i') }})</small>
+                                        @endif
+                                    </p>
+                                @endif
                             </div>
                             <div class="col-md-5 col-8 pe-0 ps-0 ps-md-2">
                                 <dl class="row mb-0 gx-4">
@@ -82,11 +93,19 @@
                                             value="{{ $requisition->requisition_number }}" />
                                     </dd>
                                     <dt class="col-sm-5 mb-1 d-md-flex align-items-center justify-content-end">
-                                        <span class="fw-normal">Date Issued:</span>
+                                        <span class="fw-normal">Status:</span>
+                                    </dt>
+                                    <dd class="col-sm-7">
+                                        <span class="badge @if($requisition->status == 'issued') bg-success @elseif($requisition->status == 'approved') bg-primary @elseif($requisition->status == 'rejected') bg-danger @else bg-warning @endif">
+                                            {{ strtoupper($requisition->status) }}
+                                        </span>
+                                    </dd>
+                                    <dt class="col-sm-5 mb-1 d-md-flex align-items-center justify-content-end">
+                                        <span class="fw-normal">Date:</span>
                                     </dt>
                                     <dd class="col-sm-7">
                                         <input type="text" class="form-control invoice-date" placeholder="MM/DD/YYYY"
-                                            value="{{ $requisition->requisition_date }}" />
+                                            value="{{ $requisition->requisition_date }}" disabled />
                                     </dd>
                                 </dl>
                             </div>
@@ -96,12 +115,14 @@
                     <div class="card-body pt-0 px-0">
                         <div class="d-flex justify-content-between align-items-center mb-6">
                             <h5 class="mb-0">Requisition Items</h5>
-                            <button class="btn btn-primary btn-md mb-4" data-bs-toggle="offcanvas"
-                                data-bs-target="#sendInvoiceOffcanvas">
-                                <span class="d-flex align-items-center justify-content-center text-nowrap">
-                                    <i class="icon-base ti tabler-plus icon-xs me-1_5"></i>Add Item
-                                </span>
-                            </button>
+                            @if (!in_array($requisition->status, ['issued', 'rejected', 'cancelled']))
+                                <button class="btn btn-primary btn-md mb-4" data-bs-toggle="offcanvas"
+                                    data-bs-target="#sendInvoiceOffcanvas">
+                                    <span class="d-flex align-items-center justify-content-center text-nowrap">
+                                        <i class="icon-base ti tabler-plus icon-xs me-1_5"></i>Add Item
+                                    </span>
+                                </button>
+                            @endif
                         </div>
                         <div class="table-responsive">
                             <table class="table table-hover">
@@ -115,18 +136,29 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($requisition->details as $detail)
+                                    @forelse ($requisition->details as $detail)
                                         <tr>
-                                            <td>{{ $detail->stockitemvariant->name }}</td>
+                                            <td>{{ $detail->stockitemvariant->name ?? 'N/A' }}</td>
                                             <td>{{ $detail->quantity }}</td>
-                                            <td>{{ $detail->stockitemvariant->unit }}</td>
+                                            <td>{{ $detail->unit ?? $detail->stockitemvariant?->unit ?? 'pcs' }}</td>
                                             <td>{{ $detail->notes }}</td>
                                             <td>
-                                                <a href="{{ route('stockitemrequisitions.show', $requisition->id) }}"
-                                                    class="btn btn-sm btn-primary">Delete</a>
+                                                @if (!in_array($requisition->status, ['issued', 'rejected']))
+                                                    <form action="{{ route('stockitemrequisitions.destroy-details', $detail->id) }}" method="POST" style="display:inline-block;">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Remove this item?')">Delete</button>
+                                                    </form>
+                                                @else
+                                                    <span class="text-muted">Locked</span>
+                                                @endif
                                             </td>
                                         </tr>
-                                    @endforeach
+                                    @empty
+                                        <tr>
+                                            <td colspan="5" class="text-center text-muted">No items added to this requisition yet.</td>
+                                        </tr>
+                                    @endforelse
                                 </tbody>
                             </table>
                         </div>
@@ -138,8 +170,7 @@
                             <div class="col-12">
                                 <div>
                                     <label for="note" class="text-heading mb-1 fw-medium">Note:</label>
-                                    <textarea class="form-control" rows="2" id="note" placeholder="Invoice note">
-                                    </textarea>
+                                    <textarea class="form-control" rows="2" id="note" placeholder="Invoice note" readonly>{{ $requisition->notes }}</textarea>
                                 </div>
                             </div>
                         </div>
@@ -152,8 +183,33 @@
             <div class="col-lg-3 col-12 invoice-actions">
                 <div class="card mb-6">
                     <div class="card-body">
-                        <a href="#" class="btn btn-label-secondary d-grid w-100 mb-4">Approve</a>
-                        <button type="button" class="btn btn-label-secondary d-grid w-100">Print</button>
+                        <div class="mb-4 text-center">
+                            <span class="badge @if($requisition->status == 'issued') bg-success @elseif($requisition->status == 'approved') bg-primary @elseif($requisition->status == 'rejected') bg-danger @else bg-warning @endif fs-6">
+                                Status: {{ strtoupper($requisition->status) }}
+                            </span>
+                        </div>
+
+                        @if(in_array($requisition->status, ['pending', 'draft']))
+                            <form action="{{ route('stockitemrequisitions.approve', $requisition->id) }}" method="POST" class="mb-3">
+                                @csrf
+                                <button type="submit" class="btn btn-success d-grid w-100">Approve Requisition</button>
+                            </form>
+                            <form action="{{ route('stockitemrequisitions.reject', $requisition->id) }}" method="POST" class="mb-3">
+                                @csrf
+                                <button type="submit" class="btn btn-outline-danger d-grid w-100" onclick="return confirm('Reject this requisition?')">Reject</button>
+                            </form>
+                        @elseif($requisition->status == 'approved')
+                            <form action="{{ route('stockitemrequisitions.issue', $requisition->id) }}" method="POST" class="mb-3">
+                                @csrf
+                                <button type="submit" class="btn btn-primary d-grid w-100" onclick="return confirm('Issue stock for this requisition? This will deduct variant quantities and record in stock movement ledger.')">Issue Requisition</button>
+                            </form>
+                            <form action="{{ route('stockitemrequisitions.reject', $requisition->id) }}" method="POST" class="mb-3">
+                                @csrf
+                                <button type="submit" class="btn btn-outline-danger d-grid w-100" onclick="return confirm('Reject this requisition?')">Reject</button>
+                            </form>
+                        @endif
+
+                        <button type="button" class="btn btn-label-secondary d-grid w-100" onclick="window.print()">Print</button>
                     </div>
                 </div>
             </div>

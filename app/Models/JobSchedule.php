@@ -14,6 +14,11 @@ class JobSchedule extends Model
         'end_date',
         'instructions',
         'status',
+        'is_provisional',
+    ];
+
+    protected $casts = [
+        'is_provisional' => 'boolean',
     ];
 
     public function job()

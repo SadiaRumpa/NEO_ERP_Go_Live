@@ -14,6 +14,8 @@ use App\Models\LeadImage;
 use App\Models\LeadNote;
 use App\Models\MailTemplate;
 use App\Models\User;
+use App\Enums\EnquiryStatus;
+use App\Actions\Pipeline\ConvertEnquiryToLead;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Auth;
@@ -564,94 +566,76 @@ class EnquiryController extends Controller
 
     public function updateEnquiryStatus(Request $request, $id)
     {
+        $allowedStatuses = implode(',', EnquiryStatus::values());
         $validated = $request->validate([
-            'status' => 'required|string',
+            'status' => "required|string|in:$allowedStatuses",
         ]);
+
         $enquiry = Enquiry::find($id);
-        if ($enquiry) {    
-            $enquiry->update(['enquiry_status' => $validated['status']]);
-            //update lead status to archived
-            $lead = Lead::where('enquiry_id', '=', $enquiry->id)->first(); 
-            if($lead){
-                $lead->update(['lead_status' => 'archived']);
+        if (!$enquiry) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => 'Enquiry not found.'], 404);
             }
-            if($validated['status']=='rejected'){
-                $this->emailNotify($request);
-                return response()->json(['status' => 'success', 'message' => 'Enquiry status set to reject successfully.']);
-            }
-            return redirect()->back()->with('success', 'Enquiry updated successfully.');
+            return redirect()->back()->with('error', 'Enquiry not found.');
         }
-        return redirect()->back()->with('error', 'Enquiry not found.');
+
+        $currentStatus = EnquiryStatus::tryFrom($enquiry->enquiry_status ?? 'new');
+        $targetStatus = EnquiryStatus::tryFrom($validated['status']);
+
+        if (!$targetStatus) {
+            return response()->json(['status' => 'error', 'message' => 'Invalid status provided.'], 422);
+        }
+
+        if ($currentStatus && !$currentStatus->canTransitionTo($targetStatus)) {
+            $msg = "Cannot transition enquiry from {$currentStatus->value} to {$targetStatus->value}.";
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => $msg], 422);
+            }
+            return redirect()->back()->with('error', $msg);
+        }
+
+        $enquiry->update(['enquiry_status' => $targetStatus->value]);
+
+        // update lead status to archived if enquiry is rejected/archived
+        $lead = Lead::where('enquiry_id', '=', $enquiry->id)->first();
+        if ($lead && in_array($targetStatus, [EnquiryStatus::REJECTED, EnquiryStatus::ARCHIVED])) {
+            $lead->update(['lead_status' => 'archived']);
+        }
+
+        if ($targetStatus === EnquiryStatus::REJECTED) {
+            $emailRes = $this->emailNotify($request, $enquiry->id);
+            if ($emailRes->getStatusCode() >= 400) {
+                return $emailRes;
+            }
+            return response()->json(['status' => 'success', 'message' => 'Enquiry status set to reject successfully.']);
+        }
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['status' => 'success', 'message' => 'Enquiry updated successfully.']);
+        }
+
+        return redirect()->back()->with('success', 'Enquiry updated successfully.');
     }
 
-    public function enquerytoLeadConversion(Request $request)
+    public function enquerytoLeadConversion(Request $request, ConvertEnquiryToLead $action)
     {
-        // return $request->all();
         $validated = $request->validate([
             'enquiry_id' => 'required|exists:enquiries,id',
-            'status' => 'required|string',
+            'status'     => 'nullable|string',
         ]);
 
-        $enquiry = Enquiry::find($validated['enquiry_id']);
-        if (!$enquiry) {
-            return response()->json(['status' => 'error', 'message' => 'Enquiry not found.']);
-        }
-
-        $enquiryaddress = EnquiryAddress::where('enquiry_id', $validated['enquiry_id'])->first();
-        $enquiryimages = EnquiryImage::where('enquiry_id', $validated['enquiry_id'])->get();
-        $enquirynotes = EnquiryNote::where('enquiry_id', $validated['enquiry_id'])->get();
-
-        $lead = Lead::create([
-            'enquiry_id' => $validated['enquiry_id'],
-            'enquiry' => $enquiry->enquiry,
-            'lead_name' => $enquiry->enquiry_name,
-            'lead_description' => $enquiry->enquiry_description,
-            'customer_id' => $enquiry->customer_id,
-            'lead_type' => $enquiry->enquiry_type,
-            'lead_category' => $enquiry->enquiry_category,
-            'lead_priority' => $enquiry->enquiry_priority,
-            'lead_status' => 'new',
-            'annual_maintenance'  => $enquiry->annual_maintenance,
-            'installations'       => $enquiry->installations,
-            'repairs'             => $enquiry->repairs,
-            'testing'             => $enquiry->testing,
-            'assigned_to' => json_encode($request->users),
-        ]);
-
-        LeadAddress::create([
-            'lead_id' => $lead->id,
-            'contact_firstname' => $enquiryaddress->contact_firstname,
-            'contact_lastname' => $enquiryaddress->contact_lastname,
-            'contact_phone' => $enquiryaddress->contact_phone,
-            'contact_mobile' => $enquiryaddress->contact_mobile,
-            'contact_email' => $enquiryaddress->contact_email,
-            'address' => $enquiryaddress->address,
-            'county' => $enquiryaddress->county,
-            'postcode' => $enquiryaddress->postcode,
-            'country' => $enquiryaddress->country,
-        ]);
-
-        foreach ($enquiryimages as $image) {
-            LeadImage::create([
-                'lead_id' => $lead->id,
-                'image_path' => $image->image_path,
-                'image_name' => $image->image_name,
-                'image_url' => $image->image_url,
-                'source' => $image->source
+        try {
+            $lead = $action->execute((int)$validated['enquiry_id'], $request->users ?? []);
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Enquiry converted to lead successfully.',
+                'lead'    => $lead
             ]);
+        } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], $e->getStatusCode());
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
-        foreach ($enquirynotes as $note) {
-            LeadNote::create([
-                'lead_id' => $lead->id,
-                'note_by' => $note->note_by,
-                'note' => $note->note,
-                'note_type' => $note->note_type,
-                'note_status' => $note->note_status,
-            ]);
-        }
-        $enquiry->update(['enquiry_status' => $validated['status']]);
-
-        return response()->json(['status' => 'success', 'message' => 'Enquiry converted to lead successfully.', 'lead' => $lead]);
     }
 
     public function edit($id)
@@ -677,22 +661,45 @@ class EnquiryController extends Controller
         return redirect()->route('enquiries.show', $enquiry->slug)->with('success', 'Enquiry updated successfully.');
     }
 
-    public function emailNotify(Request $request){
+    public function emailNotify(Request $request, ?int $enquiryId = null)
+    {
         $validated = $request->validate([
             'sendtoemail' => 'required|email',
             'mailsubject' => 'required|string|max:255',
             'mailmessage' => 'required|string',
+            'enquiry_id'  => 'nullable|exists:enquiries,id',
         ]);
-        
-        $destination = $validated['sendtoemail'];
-        $subject = $validated['mailsubject'];
+
+        $targetEnquiryId = $enquiryId ?? $request->input('enquiry_id');
+        $destination = trim($validated['sendtoemail']);
+
+        // Anti-open-relay guard: destination must match an email associated with this enquiry
+        if ($targetEnquiryId) {
+            $enquiry = Enquiry::with(['customer', 'enquiryaddress'])->find($targetEnquiryId);
+            if ($enquiry) {
+                $allowedEmails = array_filter([
+                    $enquiry->customer?->contact_email,
+                    $enquiry->enquiryaddress?->contact_email,
+                ]);
+
+                if (!empty($allowedEmails) && !in_array(strtolower($destination), array_map('strtolower', $allowedEmails))) {
+                    return response()->json([
+                        'status'  => 'error',
+                        'message' => 'Recipient email does not match any contact associated with this enquiry.'
+                    ], 422);
+                }
+            }
+        }
+
+        // Header injection sanitization
+        $subject = str_replace(["\r", "\n"], '', $validated['mailsubject']);
         $message = $validated['mailmessage'];
-        
-        try{
+
+        try {
             Mail::to($destination)->queue(new EnquiryRejectNotify($subject, $message));
             return response()->json(['status' => 'success', 'message' => 'Email notification sent successfully.']);
-        }
-        catch(Exception $e){
+        } catch (Exception $e) {
+            Log::error('Outbound mail error: ' . $e->getMessage());
             return response()->json(['status' => 'error', 'message' => 'Failed to send email notification.'], 500);
         }
     }

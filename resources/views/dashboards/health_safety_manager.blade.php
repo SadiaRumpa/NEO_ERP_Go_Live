@@ -1,104 +1,113 @@
 @extends('layouts.master')
 
-@section('title', 'Dashboard')
-
-@section('scripts')
-    @parent
-    <script src="{{ asset('assets/vendor/libs/flatpickr/flatpickr.js') }}"></script>
-    <script src="{{ asset('assets/vendor/libs/tagify/tagify.js') }}"></script>
-@endsection
-
-@section('styles')
-    @parent
-    <link rel="stylesheet" href="{{ asset('assets/vendor/libs/swiper/swiper.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/vendor/libs/flatpickr/flatpickr.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/vendor/fonts/flag-icons.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/vendor/css/pages/cards-advance.css') }}" />
-@endsection
+@section('title', 'Health & Safety Dashboard')
 
 @section('content')
-    <div class="container-xxl flex-grow-1 container-p-y">
-        <div class="row g-6">
-            <!-- Support Tracker -->
-            <div class="col-4 col-md-4">
-                <div class="card h-100">
-                    
-                    <div class="card-body row">
-                        <div class="col-12 col-sm-4">
-                            <div class="mt-lg-4 mt-lg-2 mb-lg-6 mb-2">
-                                <h2 class="mb-0"></h2>
-                            </div>
-                            <ul class="p-0 m-0">
-                                <li class="d-flex gap-4 align-items-center mb-lg-3 pb-1">
-                                    <div class="badge rounded bg-label-primary p-1_5">
-                                        <i class="icon-base ti tabler-checkup-list icon-md"></i>
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-0 text-nowrap">RAMS Compliance</h6>
-                                        <small class="text-body-secondary"></small>
-                                    </div>
-                                </li>
-                                <li class="d-flex gap-4 align-items-center mb-lg-3 pb-1">
-                                    <div class="badge rounded bg-label-info p-1_5">
-                                        <i class="icon-base ti tabler-brand-databricks icon-md"></i>
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-0 text-nowrap">Ongoing Trainings</h6>
-                                        <small class="text-body-secondary"></small>
-                                    </div>
-                                </li>
-                                <li class="d-flex gap-4 align-items-center mb-lg-3 pb-1">
-                                    <div class="badge rounded bg-label-warning p-1_5">
-                                        <i class="icon-base ti tabler-tool icon-md"></i>
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-0 text-nowrap">Available Tools</h6>
-                                        <small class="text-body-secondary"></small>
-                                    </div>
-                                </li>
-                                <li class="d-flex gap-4 align-items-center mb-lg-3 pb-1">
-                                    <div class="badge rounded bg-label-dark p-1_5">
-                                        <i class="icon-base ti tabler-shield-check icon-md"></i>
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-0 text-nowrap">Available PPE</h6>
-                                        <small class="text-body-secondary"></small>
-                                    </div>
-                                </li>
-                            </ul>
-                        </div>
+<div class="container-xxl flex-grow-1 container-p-y">
+    <div class="row g-6 mb-6">
+        <!-- Expiring Vehicle Compliance Card -->
+        <div class="col-sm-6 col-xl-4">
+            <div class="card h-100 border-start border-warning border-4">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="text-heading">Compliance Due (30 Days)</span>
+                        <h3 class="my-1 text-warning">{{ $expiringVehicles ?? 0 }}</h3>
+                        <small class="text-muted">MOT / Tax / Insurance expiring</small>
+                    </div>
+                    <div class="avatar">
+                        <span class="avatar-initial rounded bg-label-warning">
+                            <i class="icon-base ti tabler-truck icon-26px"></i>
+                        </span>
                     </div>
                 </div>
             </div>
-            <!--/ Support Tracker -->
+        </div>
 
-            <!-- Jobs Under Review -->
-            <div class="col-4 col-md-8">
-                <div class="card h-100">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="card-title m-0 me-2">SCHEDULER</h5>
-                        <button class="btn rounded-pill btn-warning waves-effect waves-light" type="button">
-                            SEE ALL >>
-                        </button>
+        <!-- Pending Tool Checkups -->
+        <div class="col-sm-6 col-xl-4">
+            <div class="card h-100 border-start border-danger border-4">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="text-heading">Tool Checkups Due</span>
+                        <h3 class="my-1 text-danger">{{ $toolCheckupsDue ?? 0 }}</h3>
+                        <small class="text-muted">Pending equipment inspections</small>
                     </div>
-                    <div class="table-responsive">
-                        <table class="table table-borderless border-top">
-                            <thead class="border-bottom">
-                                <tr>
-                                    <th>TYPE</th>
-                                    <th>NEXT DATE</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                
-                            </tbody>
-                        </table>
+                    <div class="avatar">
+                        <span class="avatar-initial rounded bg-label-danger">
+                            <i class="icon-base ti tabler-tool icon-26px"></i>
+                        </span>
                     </div>
                 </div>
             </div>
-            <!--/ Jobs Under Review -->
+        </div>
 
+        <!-- Ongoing Trainings -->
+        <div class="col-sm-6 col-xl-4">
+            <div class="card h-100 border-start border-success border-4">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="text-heading">Safety Trainings</span>
+                        <h3 class="my-1 text-success">{{ $trainingsCount ?? 0 }}</h3>
+                        <small class="text-muted">Active course certifications</small>
+                    </div>
+                    <div class="avatar">
+                        <span class="avatar-initial rounded bg-label-success">
+                            <i class="icon-base ti tabler-certificate icon-26px"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-@endsection-
+    <!-- Upcoming Job Schedules Table -->
+    <div class="row g-6">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title m-0">Upcoming Job Schedules for Safety Review</h5>
+                    <a href="{{ route('scheduler.index') }}" class="btn btn-sm btn-primary">Open Scheduler</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                                <th>Job Title</th>
+                                <th>Status</th>
+                                <th>Provisional?</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($upcomingSchedules ?? [] as $schedule)
+                                <tr>
+                                    <td>{{ \Carbon\Carbon::parse($schedule->start_date)->format('d M Y') }}</td>
+                                    <td>{{ $schedule->end_date ? \Carbon\Carbon::parse($schedule->end_date)->format('d M Y') : 'Single Day' }}</td>
+                                    <td>
+                                        <span class="fw-medium text-heading">{{ $schedule->job_name ?? $schedule->job_title ?? 'Job Schedule' }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-label-info">{{ strtoupper($schedule->status) }}</span>
+                                    </td>
+                                    <td>
+                                        @if($schedule->is_provisional)
+                                            <span class="badge bg-label-secondary">Provisional</span>
+                                        @else
+                                            <span class="badge bg-label-success">Official</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-4">No upcoming schedules found.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection

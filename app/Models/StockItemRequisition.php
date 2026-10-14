@@ -14,7 +14,15 @@ class StockItemRequisition extends Model
         'status',
         'requested_by',
         'approved_by',
+        'issued_by',
+        'approved_at',
+        'issued_at',
         'notes',
+    ];
+
+    protected $casts = [
+        'approved_at' => 'datetime',
+        'issued_at' => 'datetime',
     ];
 
     public function details(){
@@ -39,5 +47,10 @@ class StockItemRequisition extends Model
     public function approvedBy()
     {
         return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function issuedBy()
+    {
+        return $this->belongsTo(User::class, 'issued_by');
     }
 }
