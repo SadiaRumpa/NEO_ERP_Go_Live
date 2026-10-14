@@ -382,4 +382,22 @@ Route::middleware(['auth'])->group(function () {
 
     // Phase 4: Multi-Tenant Branch Switcher (FR-030)
     Route::post('tenants/switch', [TenantController::class, 'switch'])->name('tenants.switch');
+
+    // Milestone 1: Procurement & 3-Way Matching
+    Route::prefix('procurement')->name('procurement.')->group(function () {
+        // Suppliers Directory
+        Route::resource('suppliers', \App\Http\Controllers\Procurement\SupplierController::class)->except(['destroy', 'show']);
+
+        // Purchase Orders
+        Route::resource('purchase-orders', \App\Http\Controllers\Procurement\PurchaseOrderController::class)->except(['destroy']);
+        Route::post('purchase-orders/{purchaseOrder}/send', [\App\Http\Controllers\Procurement\PurchaseOrderController::class, 'send'])->name('purchase-orders.send');
+        Route::post('purchase-orders/{purchaseOrder}/cancel', [\App\Http\Controllers\Procurement\PurchaseOrderController::class, 'cancel'])->name('purchase-orders.cancel');
+
+        // Goods Received Notes (GRNs)
+        Route::resource('grns', \App\Http\Controllers\Procurement\GoodsReceivedNoteController::class)->only(['index', 'create', 'store', 'show']);
+
+        // Supplier Bills & 3-Way Match Audit
+        Route::resource('supplier-bills', \App\Http\Controllers\Procurement\SupplierBillController::class)->only(['index', 'create', 'store', 'show']);
+        Route::post('supplier-bills/{supplierBill}/override', [\App\Http\Controllers\Procurement\SupplierBillController::class, 'override'])->name('supplier-bills.override');
+    });
 });

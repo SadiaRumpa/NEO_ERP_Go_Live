@@ -640,5 +640,33 @@
                     <div data-i18n="Field Hub">Field Hub (PWA)</div>
                 </a>
             </li>
+            <li class="menu-item {{ request()->is('procurement*') ? 'open active' : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon icon-base ti tabler-truck-delivery"></i>
+                    <div data-i18n="Procurement">Procurement & 3-Way</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item {{ request()->is('procurement/suppliers*') ? 'active' : '' }}">
+                        <a href="{{ route('procurement.suppliers.index') }}" class="menu-link">
+                            <div data-i18n="Suppliers">Suppliers</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('procurement/purchase-orders*') ? 'active' : '' }}">
+                        <a href="{{ route('procurement.purchase-orders.index') }}" class="menu-link">
+                            <div data-i18n="Purchase Orders">Purchase Orders</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('procurement/grns*') ? 'active' : '' }}">
+                        <a href="{{ route('procurement.grns.index') }}" class="menu-link">
+                            <div data-i18n="Goods Received">Goods Received (GRN)</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('procurement/supplier-bills*') ? 'active' : '' }}">
+                        <a href="{{ route('procurement.supplier-bills.index') }}" class="menu-link">
+                            <div data-i18n="3-Way Matching">3-Way Match Bills</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
         @endhasrole
 </aside>
