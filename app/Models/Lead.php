@@ -2,14 +2,17 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToBusiness;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 class Lead extends Model
 {
-    use HasSlug;
+    use HasSlug, BelongsToBusiness;
+
     protected $fillable = [
+        'business_id',
         'enquiry_id',
         'enquiry',
         'lead_name',

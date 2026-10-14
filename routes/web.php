@@ -37,6 +37,9 @@ use App\Http\Controllers\QuotationPortalController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\JobPackController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\Field\FieldJobController;
+use App\Http\Controllers\TenantController;
 
 Route::get('/', function () {
     return Redirect::to('/login');
@@ -47,8 +50,18 @@ Auth::routes(['register' => false]);
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/query', [GlobalController::class, 'query'])->name('query');
 Route::get('/checkpostcode/{key}', [GlobalController::class, 'checkPostCode'])->name('query.checkpostcode');
-Route::get('/checkposttown/{key}', [GlobalController::class, 'checkPostTown'])->name('query.checkposttown');
 Route::post('/submit-query', [GlobalController::class, 'storeQuery'])->name('query.submit');
+
+// PWA Assets (FR-022)
+Route::get('manifest.json', function () {
+    return response()->json(json_decode(file_get_contents(public_path('manifest.json')), true));
+})->name('pwa.manifest');
+
+Route::get('sw.js', function () {
+    return response(file_get_contents(public_path('sw.js')), 200, [
+        'Content-Type' => 'application/javascript',
+    ]);
+})->name('pwa.sw');
 
 // Customer Quotation Acceptance Portal (Guarded by temporary signed URL verification)
 Route::prefix('portal')->middleware('signed')->group(function () {
@@ -348,4 +361,25 @@ Route::middleware(['auth'])->group(function () {
     Route::get('reports/stock-valuation', [ReportController::class, 'stockValuation'])->name('reports.stock-valuation');
     Route::get('reports/export/stock', [ReportController::class, 'exportStock'])->name('reports.export-stock');
     Route::get('reports/export/jobs', [ReportController::class, 'exportJobs'])->name('reports.export-jobs');
+
+    // Phase 4: Invoicing & Accounting Integration (FR-026)
+    Route::get('invoices', [InvoiceController::class, 'index'])->name('invoices.index');
+    Route::get('invoices/create', [InvoiceController::class, 'create'])->name('invoices.create');
+    Route::post('invoices', [InvoiceController::class, 'store'])->name('invoices.store');
+    Route::get('invoices/{id}', [InvoiceController::class, 'show'])->name('invoices.show');
+    Route::get('invoices/{id}/pdf', [InvoiceController::class, 'pdf'])->name('invoices.pdf');
+    Route::post('invoices/{id}/generate-from-job', [InvoiceController::class, 'generateFromJob'])->name('invoices.generate_from_job');
+    Route::post('invoices/{id}/record-payment', [InvoiceController::class, 'recordPayment'])->name('invoices.record_payment');
+    Route::post('invoices/{id}/sync', [InvoiceController::class, 'syncAccounting'])->name('invoices.sync');
+
+    // Phase 4: Field Engineer Mobile Operations & RAMS (FR-022)
+    Route::get('field/jobs', [FieldJobController::class, 'index'])->name('field.jobs.index');
+    Route::get('field/jobs/{id}', [FieldJobController::class, 'show'])->name('field.jobs.show');
+    Route::post('field/jobs/{id}/arrive', [FieldJobController::class, 'arrive'])->name('field.jobs.arrive');
+    Route::post('field/jobs/{id}/safety', [FieldJobController::class, 'submitSafetyChecklist'])->name('field.jobs.safety');
+    Route::post('field/jobs/{id}/photo', [FieldJobController::class, 'uploadPhoto'])->name('field.jobs.photo');
+    Route::post('field/jobs/{id}/complete', [FieldJobController::class, 'completeVisit'])->name('field.jobs.complete');
+
+    // Phase 4: Multi-Tenant Branch Switcher (FR-030)
+    Route::post('tenants/switch', [TenantController::class, 'switch'])->name('tenants.switch');
 });

@@ -2,11 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToBusiness;
 use Illuminate\Database\Eloquent\Model;
 
 class Quotation extends Model
 {
+    use BelongsToBusiness;
+
     protected $fillable = [
+        'business_id',
         'lead_id',
         'customer_id',
         'job_type_id',

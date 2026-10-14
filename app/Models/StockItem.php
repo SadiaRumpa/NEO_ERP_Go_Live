@@ -2,14 +2,17 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToBusiness;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 class StockItem extends Model
 {
-    use HasSlug;
+    use HasSlug, BelongsToBusiness;
+
     protected $fillable = [
+        'business_id',
         'name',
         'category_id',
         'description',

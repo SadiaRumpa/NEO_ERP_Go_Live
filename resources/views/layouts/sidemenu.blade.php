@@ -628,5 +628,17 @@
                     <div data-i18n="Notifications">Notifications</div>
                 </a>
             </li>
+            <li class="menu-item {{ request()->is('invoices') || request()->is('invoices/*') ? 'active' : '' }}">
+                <a href="{{ route('invoices.index') }}" class="menu-link">
+                    <i class="menu-icon icon-base ti tabler-receipt"></i>
+                    <div data-i18n="Invoices">Invoices & CIS</div>
+                </a>
+            </li>
+            <li class="menu-item {{ request()->is('field/*') ? 'active' : '' }}">
+                <a href="{{ route('field.jobs.index') }}" class="menu-link">
+                    <i class="menu-icon icon-base ti tabler-device-mobile"></i>
+                    <div data-i18n="Field Hub">Field Hub (PWA)</div>
+                </a>
+            </li>
         @endhasrole
 </aside>

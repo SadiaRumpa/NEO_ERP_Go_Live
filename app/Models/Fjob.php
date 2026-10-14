@@ -2,11 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToBusiness;
 use Illuminate\Database\Eloquent\Model;
 
 class Fjob extends Model
 {
+    use BelongsToBusiness;
+
     protected $fillable = [
+        'business_id',
         'enquiry_id',
         'enquiry',
         'lead_id',
@@ -94,5 +98,20 @@ class Fjob extends Model
     public function quotation()
     {
         return $this->hasOne(FjobQuotation::class, 'fjob_id');
+    }
+
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class, 'job_id');
+    }
+
+    public function siteVisits()
+    {
+        return $this->hasMany(JobSiteVisit::class, 'job_id');
+    }
+
+    public function sitePhotos()
+    {
+        return $this->hasMany(JobSitePhoto::class, 'job_id');
     }
 }

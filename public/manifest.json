@@ -1,0 +1,23 @@
+{
+  "name": "NeoERP Field Engineer Portal",
+  "short_name": "NeoField",
+  "description": "Mobile field operations, RAMS site safety, photo capture, and customer sign-off for NeoERP roofing contractors.",
+  "start_url": "/field/jobs",
+  "scope": "/field/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0f172a",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "/assets/img/icons/brands/slack.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/img/icons/brands/slack.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

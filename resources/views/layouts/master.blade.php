@@ -17,6 +17,13 @@
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{{ $appbrand->business_favicon??asset('assets/img/favicon/favicon.ico') }}" />
 
+    <!-- PWA Manifest & Mobile Configuration (FR-022) -->
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NeoField">
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -332,6 +339,18 @@
         <script src="{{ asset('assets/js/main.js') }}"></script>
     @show
 
+    <!-- PWA Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').then(function(reg) {
+                    console.log('NeoERP PWA ServiceWorker active:', reg.scope);
+                }).catch(function(err) {
+                    console.log('PWA ServiceWorker error:', err);
+                });
+            });
+        }
+    </script>
 </body>
 
 </html>

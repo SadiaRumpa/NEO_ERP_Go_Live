@@ -140,6 +140,15 @@
                                 <a class="btn btn-outline-primary waves-effect" href="{{ route('fjobs.job-pack.pdf', $job->id) }}" target="_blank">
                                     <i class="ti ti-file-text me-1"></i> Job Pack (PDF)
                                 </a>
+                                <form method="POST" action="{{ route('invoices.generate_from_job', $job->id) }}" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="btn btn-outline-success waves-effect">
+                                        <i class="ti ti-receipt me-1"></i> Generate Invoice
+                                    </button>
+                                </form>
+                                <a class="btn btn-outline-info waves-effect" href="{{ route('field.jobs.show', $job->id) }}">
+                                    <i class="ti ti-device-mobile me-1"></i> Field Hub
+                                </a>
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-label-{{ $labelClass }} waves-effect">
                                         {{ beautify_status($status) }}
