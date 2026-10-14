@@ -137,6 +137,9 @@
                                         SCHEDULER
                                     </a>
                                 @endif
+                                <a class="btn btn-outline-primary waves-effect" href="{{ route('fjobs.job-pack.pdf', $job->id) }}" target="_blank">
+                                    <i class="ti ti-file-text me-1"></i> Job Pack (PDF)
+                                </a>
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-label-{{ $labelClass }} waves-effect">
                                         {{ beautify_status($status) }}

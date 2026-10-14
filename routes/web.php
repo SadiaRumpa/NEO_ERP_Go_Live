@@ -33,6 +33,10 @@ use App\Http\Controllers\VehicleCheckingController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\VehicleOverviewController;
 use App\Http\Controllers\CertificateController;
+use App\Http\Controllers\QuotationPortalController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\JobPackController;
+use App\Http\Controllers\ReportController;
 
 Route::get('/', function () {
     return Redirect::to('/login');
@@ -45,6 +49,15 @@ Route::get('/query', [GlobalController::class, 'query'])->name('query');
 Route::get('/checkpostcode/{key}', [GlobalController::class, 'checkPostCode'])->name('query.checkpostcode');
 Route::get('/checkposttown/{key}', [GlobalController::class, 'checkPostTown'])->name('query.checkposttown');
 Route::post('/submit-query', [GlobalController::class, 'storeQuery'])->name('query.submit');
+
+// Customer Quotation Acceptance Portal (Guarded by temporary signed URL verification)
+Route::prefix('portal')->middleware('signed')->group(function () {
+    Route::get('quotations/{quotation}', [QuotationPortalController::class, 'show'])->name('portal.quotations.show');
+    Route::post('quotations/{quotation}', [QuotationPortalController::class, 'handlePost'])->name('portal.quotations.post');
+    Route::post('quotations/{quotation}/accept', [QuotationPortalController::class, 'accept'])->name('portal.quotations.accept');
+    Route::post('quotations/{quotation}/reject', [QuotationPortalController::class, 'reject'])->name('portal.quotations.reject');
+});
+
 
 Route::middleware(['auth'])->group(function () {
     Route::resource('roles', RoleController::class);
@@ -318,4 +331,21 @@ Route::middleware(['auth'])->group(function () {
     Route::get('certificates/{id}/edit', [CertificateController::class, 'edit'])->name('certificates.edit');
     Route::put('certificates/{id}/update', [CertificateController::class, 'update'])->name('certificates.update');
     Route::delete('certificates/{id}', [CertificateController::class, 'destroy'])->name('certificates.destroy');
+
+    // Quotation Portal Signed URL Generation
+    Route::post('quotations/{id}/portal-link', [QuotationPortalController::class, 'generatePortalLink'])->name('quotations.portal-link');
+
+    // In-App Notifications
+    Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.mark-all-read');
+
+    // Job Pack PDF Generation
+    Route::get('fjobs/{id}/job-pack/pdf', [JobPackController::class, 'downloadPdf'])->name('fjobs.job-pack.pdf');
+
+    // Reporting Engine & CSV Exports
+    Route::get('reports/conversion-velocity', [ReportController::class, 'conversionVelocity'])->name('reports.conversion-velocity');
+    Route::get('reports/stock-valuation', [ReportController::class, 'stockValuation'])->name('reports.stock-valuation');
+    Route::get('reports/export/stock', [ReportController::class, 'exportStock'])->name('reports.export-stock');
+    Route::get('reports/export/jobs', [ReportController::class, 'exportJobs'])->name('reports.export-jobs');
 });

@@ -20,6 +20,11 @@ class JobScheduleWorker extends Model
         return $this->belongsTo(JobSchedule::class);
     }
 
+    public function schedule()
+    {
+        return $this->belongsTo(JobSchedule::class, 'job_schedule_id');
+    }
+
     public function worker() // if you want to reference the user
     {
         return $this->belongsTo(User::class, 'user_id');

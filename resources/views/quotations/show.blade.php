@@ -71,6 +71,21 @@
                 }
             });
         }
+
+        $(document).on('click', '#btnCopyPortalLink', function(e) {
+            e.preventDefault();
+            let quoteId = $(this).data('id');
+            $.post(`/quotations/${quoteId}/portal-link`, {
+                _token: $('meta[name="csrf-token"]').attr('content')
+            }, function(res) {
+                if (res.portal_url) {
+                    navigator.clipboard.writeText(res.portal_url);
+                    toastr.success('Customer portal signed link copied to clipboard!');
+                }
+            }).fail(function() {
+                toastr.error('Failed to generate customer portal link.');
+            });
+        });
     </script>
 
 
@@ -153,7 +168,18 @@
                             <span class="icon-base ti tabler-download icon-18px"></span>
                         </a>
                     </span>
+                    <button type="button" class="btn btn-outline-primary waves-effect waves-light btn-md ms-2" id="btnCopyPortalLink" data-id="{{ $quotation->id }}">
+                        <i class="icon-base ti tabler-link icon-18px me-1"></i> Customer Portal Link
+                    </button>
                 </div>
+                @if($quotation->status === 'accepted' && $quotation->signed_at)
+                    <div class="alert alert-success d-flex align-items-center mt-3" role="alert">
+                        <span class="badge badge-center rounded-pill bg-success text-white me-2"><i class="ti ti-check"></i></span>
+                        <div>
+                            <strong>Digitally Signed & Accepted</strong> &bull; Signed by <strong>{{ $quotation->signer_name }}</strong> on {{ \Carbon\Carbon::parse($quotation->signed_at)->format('d M Y H:i:s') }} UTC (IP: {{ $quotation->signer_ip ?? 'Recorded' }})
+                        </div>
+                    </div>
+                @endif
             </div>
 
             <!-- Modal -->

@@ -65,4 +65,34 @@ class Fjob extends Model
     {
         return $this->hasOne(JobType::class, 'slug', 'job_type');
     }
+
+    public function addresses()
+    {
+        return $this->hasMany(FjobAddress::class, 'fjob_id');
+    }
+
+    public function schedules()
+    {
+        return $this->hasMany(JobSchedule::class, 'job_id');
+    }
+
+    public function lead()
+    {
+        return $this->belongsTo(Lead::class, 'lead_id');
+    }
+
+    public function notes()
+    {
+        return $this->hasMany(FjobNote::class, 'fjob_id');
+    }
+
+    public function images()
+    {
+        return $this->hasMany(FjobImage::class, 'fjob_id');
+    }
+
+    public function quotation()
+    {
+        return $this->hasOne(FjobQuotation::class, 'fjob_id');
+    }
 }

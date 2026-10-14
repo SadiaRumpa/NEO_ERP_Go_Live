@@ -17,7 +17,13 @@ class Quotation extends Model
         'total_amount',
         'remarks',
         'valid_until',
-        'status'
+        'status',
+        'signed_at',
+        'signer_name',
+        'signer_signature',
+        'signer_ip',
+        'signer_user_agent',
+        'rejection_reason',
     ];
 
     public function lead()

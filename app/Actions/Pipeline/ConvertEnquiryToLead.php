@@ -19,12 +19,14 @@ class ConvertEnquiryToLead
     /**
      * Converts an Enquiry into a Lead within an idempotent transaction.
      *
-     * @param int $enquiryId
+     * @param int|Enquiry $enquiry
      * @param array $assignedUsers
      * @return Lead
      */
-    public function execute(int $enquiryId, array $assignedUsers = []): Lead
+    public function execute(int|Enquiry $enquiry, array $assignedUsers = []): Lead
     {
+        $enquiryId = $enquiry instanceof Enquiry ? $enquiry->id : $enquiry;
+
         return DB::transaction(function () use ($enquiryId, $assignedUsers) {
             $enquiry = Enquiry::lockForUpdate()->findOrFail($enquiryId);
 

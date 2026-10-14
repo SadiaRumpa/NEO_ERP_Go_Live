@@ -128,23 +128,30 @@
                             <!-- / Style Switcher-->
 
                             <!-- Notification -->
+                            @php
+                                $currentUser = auth()->user();
+                                $unreadCount = $currentUser ? $currentUser->unreadNotifications()->count() : 0;
+                                $recentNotifications = $currentUser ? $currentUser->notifications()->latest()->take(5)->get() : collect();
+                            @endphp
                             <li class="nav-item dropdown-notifications navbar-dropdown dropdown me-3 me-xl-2">
                                 <a class="nav-link dropdown-toggle hide-arrow btn btn-icon btn-text-secondary rounded-pill"
                                     href="javascript:void(0);" data-bs-toggle="dropdown" data-bs-auto-close="outside"
                                     aria-expanded="false">
                                     <span class="position-relative">
                                         <i class="icon-base ti tabler-bell icon-22px text-heading"></i>
-                                        <span
-                                            class="badge rounded-pill bg-danger badge-dot badge-notifications border"></span>
+                                        @if($unreadCount > 0)
+                                            <span class="badge rounded-pill bg-danger badge-dot badge-notifications border"></span>
+                                        @endif
                                     </span>
                                 </a>
-                                <ul class="dropdown-menu dropdown-menu-end p-0">
+                                <ul class="dropdown-menu dropdown-menu-end p-0" style="min-width: 320px;">
                                     <li class="dropdown-menu-header border-bottom">
                                         <div class="dropdown-header d-flex align-items-center py-3">
-                                            <h6 class="mb-0 me-auto">Notification</h6>
+                                            <h6 class="mb-0 me-auto">Notifications</h6>
                                             <div class="d-flex align-items-center h6 mb-0">
-                                                <span class="badge bg-label-primary me-2">0</span>
-                                                <a href="javascript:void(0)"
+                                                <span class="badge bg-label-primary me-2">{{ $unreadCount }} New</span>
+                                                <a href="{{ route('notifications.mark-all-read') }}"
+                                                    onclick="event.preventDefault(); fetch(this.href, {method: 'POST', headers: {'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json'}}).then(() => window.location.reload());"
                                                     class="dropdown-notifications-all p-2 btn btn-icon"
                                                     data-bs-toggle="tooltip" data-bs-placement="top"
                                                     title="Mark all as read"><i
@@ -154,11 +161,38 @@
                                     </li>
                                     <li class="dropdown-notifications-list scrollable-container">
                                         <ul class="list-group list-group-flush">
+                                            @forelse($recentNotifications as $notif)
+                                                <li class="list-group-item list-group-item-action dropdown-notifications-item {{ $notif->read_at ? 'opacity-75' : '' }}">
+                                                    <div class="d-flex">
+                                                        <div class="flex-shrink-0 me-3">
+                                                            <div class="avatar">
+                                                                <span class="avatar-initial rounded-circle bg-label-primary">
+                                                                    <i class="icon-base ti tabler-bell"></i>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex-grow-1">
+                                                            <h6 class="small mb-1">{{ $notif->data['title'] ?? 'Notification' }}</h6>
+                                                            <small class="mb-1 d-block text-body">{{ Str::limit($notif->data['message'] ?? '', 50) }}</small>
+                                                            <small class="text-muted">{{ $notif->created_at->diffForHumans() }}</small>
+                                                        </div>
+                                                        @if(!empty($notif->data['action_url']))
+                                                            <div class="flex-shrink-0 dropdown-notifications-actions">
+                                                                <a href="{{ $notif->data['action_url'] }}" class="dropdown-notifications-read"><span class="badge badge-dot"></span></a>
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                </li>
+                                            @empty
+                                                <li class="list-group-item text-center py-3 text-muted">
+                                                    <small>No unread notifications</small>
+                                                </li>
+                                            @endforelse
                                         </ul>
                                     </li>
                                     <li class="border-top">
-                                        <div class="d-grid p-4">
-                                            <a class="btn btn-primary btn-sm d-flex" href="javascript:void(0);">
+                                        <div class="d-grid p-3">
+                                            <a class="btn btn-primary btn-sm d-flex justify-content-center" href="{{ route('notifications.index') }}">
                                                 <small class="align-middle">View all notifications</small>
                                             </a>
                                         </div>

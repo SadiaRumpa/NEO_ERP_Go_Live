@@ -1,0 +1,332 @@
+openapi: 3.0.3
+info:
+  title: NeoERP REST API
+  description: >
+    Production-ready REST API for NeoERP roofing field-service management.
+    Guarded by Laravel Sanctum Bearer tokens.
+  version: 1.0.0
+servers:
+  - url: /api/v1
+    description: Current Environment API v1
+
+paths:
+  /auth/token:
+    post:
+      summary: Issue Bearer Token
+      description: Authenticate user credentials and return a personal access token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: admin@neoerp.local
+                password:
+                  type: string
+                  format: password
+                  example: secret123
+                device_name:
+                  type: string
+                  example: mobile-app
+      responses:
+        '200':
+          description: Token issued successfully.
+        '401':
+          description: Invalid email or password.
+
+  /auth/me:
+    get:
+      summary: Get Authenticated User Profile
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User profile with roles and permissions.
+
+  /auth/revoke:
+    post:
+      summary: Revoke Current Bearer Token
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Token revoked successfully.
+
+  /customers:
+    get:
+      summary: List Customers
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: is_active
+          in: query
+          schema:
+            type: boolean
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            default: 15
+      responses:
+        '200':
+          description: Paginated customer list.
+    post:
+      summary: Create Customer
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [company_name, contact_name, contact_email]
+              properties:
+                company_name:
+                  type: string
+                contact_name:
+                  type: string
+                contact_email:
+                  type: string
+                  format: email
+                contact_phone:
+                  type: string
+      responses:
+        '201':
+          description: Customer created.
+        '409':
+          description: Duplicate customer detected.
+
+  /customers/{id}:
+    get:
+      summary: Get Customer Details
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Customer details.
+        '404':
+          description: Customer not found.
+    patch:
+      summary: Update Customer
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Customer updated.
+
+  /enquiries:
+    get:
+      summary: List Enquiries
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [new, inprogress, converted_to_lead, rejected, archived]
+        - name: customer_id
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Paginated list of enquiries.
+    post:
+      summary: Create Enquiry
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [customer_id, enquiry]
+              properties:
+                customer_id:
+                  type: integer
+                enquiry:
+                  type: string
+                annual_maintenance:
+                  type: boolean
+                installations:
+                  type: boolean
+                repairs:
+                  type: boolean
+                testing:
+                  type: boolean
+      responses:
+        '201':
+          description: Enquiry created.
+
+  /enquiries/{id}/status:
+    patch:
+      summary: Update Enquiry Status
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  type: string
+                  enum: [new, inprogress, converted_to_lead, rejected, archived]
+      responses:
+        '200':
+          description: Status updated.
+        '422':
+          description: Illegal status transition.
+
+  /enquiries/{id}/convert-to-lead:
+    post:
+      summary: Convert Enquiry to Lead
+      description: Transactional idempotent conversion copying child addresses, notes, and roofing flags.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '201':
+          description: Lead created.
+        '409':
+          description: Enquiry has already been converted to lead.
+
+  /leads:
+    get:
+      summary: List Leads
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Paginated list of leads.
+    post:
+      summary: Create Lead
+      security:
+        - BearerAuth: []
+      responses:
+        '201':
+          description: Lead created.
+
+  /leads/{id}/convert-to-job:
+    post:
+      summary: Convert Lead to Job
+      description: Transactional idempotent conversion copying quotation, worker assignments, notes, and roofing flags.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '201':
+          description: Job created.
+        '409':
+          description: Lead has already been converted to job.
+
+  /jobs:
+    get:
+      summary: List Jobs
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Paginated list of jobs.
+    post:
+      summary: Create Job
+      security:
+        - BearerAuth: []
+      responses:
+        '201':
+          description: Job created.
+
+  /schedules:
+    get:
+      summary: List Schedules
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: start_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: is_provisional
+          in: query
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Paginated list of schedules.
+    post:
+      summary: Create Schedule
+      description: Creates schedule with double-booking worker conflict detection.
+      security:
+        - BearerAuth: []
+      responses:
+        '201':
+          description: Schedule created.
+
+  /stock-items:
+    get:
+      summary: List Stock Items
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: low_stock
+          in: query
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Paginated list of stock items.
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Sanctum Token

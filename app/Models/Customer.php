@@ -19,6 +19,11 @@ class Customer extends Model
         'status',
     ];
 
+    public function getContactNameAttribute(): string
+    {
+        return trim("{$this->contact_firstname} {$this->contact_lastname}");
+    }
+
     public function getSlugOptions() : SlugOptions
     {
         return SlugOptions::create()

@@ -601,8 +601,32 @@
                             <div data-i18n="Users">Business Info</div>
                         </a>
                     </li>
-
                 </ul>
+            </li>
+
+            <li class="menu-item {{ request()->is('reports/*') ? 'open active' : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon icon-base ti tabler-chart-pie"></i>
+                    <div data-i18n="Reports">Reports & Analytics</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item {{ request()->is('reports/conversion-velocity') ? 'active' : '' }}">
+                        <a href="{{ route('reports.conversion-velocity') }}" class="menu-link">
+                            <div data-i18n="Conversion Velocity">Conversion Velocity</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('reports/stock-valuation') ? 'active' : '' }}">
+                        <a href="{{ route('reports.stock-valuation') }}" class="menu-link">
+                            <div data-i18n="Stock Valuation">Stock Valuation</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="menu-item {{ request()->is('notifications') ? 'active' : '' }}">
+                <a href="{{ route('notifications.index') }}" class="menu-link">
+                    <i class="menu-icon icon-base ti tabler-bell"></i>
+                    <div data-i18n="Notifications">Notifications</div>
+                </a>
             </li>
         @endhasrole
 </aside>
