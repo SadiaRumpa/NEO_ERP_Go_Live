@@ -310,17 +310,13 @@ class EnquiryController extends Controller
 
 
             if ($request->hasFile('attachments')) {
-                $disk = env('FILESYSTEM_DISK', 'local');
+                $disk = config('filesystems.default', 'local');
 
                 foreach ($request->file('attachments') as $file) {
                     $path = $file->store('uploads/enqueries', $disk);
 
                     if (!$path) {
                         throw new \Exception("Failed to store file: " . $file->getClientOriginalName());
-                    }
-
-                    if ($disk === 's3') {
-                        Storage::disk('s3')->setVisibility($path, 'public');
                     }
 
                     EnquiryImage::create([
@@ -423,7 +419,7 @@ class EnquiryController extends Controller
         ]);
         
 
-        $disk = env('FILESYSTEM_DISK', 'local');
+        $disk = config('filesystems.default', 'local');
 
         if ($request->hasFile('enquiryphoto')) {
             $file = $request->file('enquiryphoto');
@@ -431,10 +427,6 @@ class EnquiryController extends Controller
 
             if (!$path) {
                 return response()->json(['status' => 'error', 'message' => 'Failed to store image.']);
-            }
-
-            if ($disk === 's3') {
-                Storage::disk('s3')->setVisibility($path, 'public');
             }
 
             EnquiryImage::create([
@@ -659,16 +651,37 @@ class EnquiryController extends Controller
         }
         $enquiry->update(['enquiry_status' => $validated['status']]);
 
-        return $lead;
+        return response()->json(['status' => 'success', 'message' => 'Enquiry converted to lead successfully.', 'lead' => $lead]);
+    }
 
-        return response()->json(['status' => 'success', 'message' => 'Enquiry converted to lead successfully.']);
+    public function edit($id)
+    {
+        $enquiry = Enquiry::findOrFail($id);
+        return redirect()->route('enquiries.show', $enquiry->slug);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $enquiry = Enquiry::findOrFail($id);
+        if ($request->filled('enquirydescription')) {
+            $enquiry->enquiry_description = $request->input('enquirydescription');
+        }
+        if ($request->filled('enquiry')) {
+            $enquiry->enquiry = $request->input('enquiry');
+        }
+        $enquiry->save();
+
+        if ($request->ajax()) {
+            return response()->json(['status' => 'success', 'message' => 'Enquiry updated successfully.']);
+        }
+        return redirect()->route('enquiries.show', $enquiry->slug)->with('success', 'Enquiry updated successfully.');
     }
 
     public function emailNotify(Request $request){
         $validated = $request->validate([
-            'sendtoemail' => 'string',
-            'mailsubject' => 'string',
-            'mailmessage' => 'string',
+            'sendtoemail' => 'required|email',
+            'mailsubject' => 'required|string|max:255',
+            'mailmessage' => 'required|string',
         ]);
         
         $destination = $validated['sendtoemail'];
@@ -677,9 +690,10 @@ class EnquiryController extends Controller
         
         try{
             Mail::to($destination)->queue(new EnquiryRejectNotify($subject, $message));
+            return response()->json(['status' => 'success', 'message' => 'Email notification sent successfully.']);
         }
         catch(Exception $e){
-            
+            return response()->json(['status' => 'error', 'message' => 'Failed to send email notification.'], 500);
         }
     }
 }

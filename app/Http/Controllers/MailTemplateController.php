@@ -67,20 +67,33 @@ class MailTemplateController extends Controller
     {
         $template = MailTemplate::findOrFail($id);
 
-        $template = $template->body;
-        if($rel_type=='enquiry'){
-            $variables = [];
-            $enquiry = Enquiry::find($rel_id);
-            if($enquiry){
-                $variables['{t}'] = ''; //TODO title not in use
-                $variables['{fn}'] = $enquiry->customer->contact_firstname;
-                $variables['{ln}'] = $enquiry->customer->contact_lastname;
+        $body = $template->body;
+        $variables = ['{t}' => '', '{fn}' => '', '{ln}' => ''];
+
+        if ($rel_type == 'enquiry' && $rel_id) {
+            $enquiry = Enquiry::with('customer')->find($rel_id);
+            if ($enquiry && $enquiry->customer) {
+                $variables['{fn}'] = $enquiry->customer->contact_firstname ?? '';
+                $variables['{ln}'] = $enquiry->customer->contact_lastname ?? '';
+            }
+        } elseif ($rel_type == 'lead' && $rel_id) {
+            $lead = \App\Models\Lead::with('customer')->find($rel_id);
+            if ($lead && $lead->customer) {
+                $variables['{fn}'] = $lead->customer->contact_firstname ?? '';
+                $variables['{ln}'] = $lead->customer->contact_lastname ?? '';
+            }
+        } elseif (($rel_type == 'job' || $rel_type == 'fjob') && $rel_id) {
+            $job = \App\Models\Fjob::with('customer')->find($rel_id);
+            if ($job && $job->customer) {
+                $variables['{fn}'] = $job->customer->contact_firstname ?? '';
+                $variables['{ln}'] = $job->customer->contact_lastname ?? '';
             }
         }
-        $replacedContent = str_replace(array_keys($variables), array_values($variables), $template);
+
+        $replacedContent = str_replace(array_keys($variables), array_values($variables), $body);
 
         return response()->json([
-            'message' => $replacedContent, // adjust according to your DB field
+            'message' => $replacedContent,
         ]);
     }
 

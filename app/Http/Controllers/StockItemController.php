@@ -67,6 +67,43 @@ class StockItemController extends Controller
             ->with('success', 'Stock item created successfully.');
     }
 
+    public function updateItem(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'category_id' => 'required|exists:stock_categories,id',
+            'description' => 'nullable|string',
+        ]);
+
+        $stockItem = StockItem::findOrFail($id);
+        $stockItem->update([
+            'name' => $request->name,
+            'category_id' => $request->category_id,
+            'description' => $request->description,
+            'is_active' => $request->has('is_active') ? (bool)$request->is_active : $stockItem->is_active,
+        ]);
+
+        if ($request->ajax()) {
+            return response()->json(['status' => true, 'message' => 'Stock item updated successfully.']);
+        }
+
+        return redirect()->route('stockitems.show', $stockItem->id)
+            ->with('success', 'Stock item updated successfully.');
+    }
+
+    public function destroyItem($id)
+    {
+        $stockItem = StockItem::findOrFail($id);
+        $stockItem->delete();
+
+        if (request()->ajax()) {
+            return response()->json(['status' => true, 'message' => 'Stock item deleted successfully.']);
+        }
+
+        return redirect()->route('stockitems.index')
+            ->with('success', 'Stock item deleted successfully.');
+    }
+
     public function showItem($id)
     {
         $stockitem = StockItem::with(['category', 'attributes', 'attributes.attribute', 'variants'])->findOrFail($id);

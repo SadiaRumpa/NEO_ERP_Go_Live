@@ -132,11 +132,12 @@ class HsToolController extends Controller
 
         $hstoolcheck = HsToolCheckup::find($id);
 
+        $checkupDate = $request->filled('hs_check_date') ? \Carbon\Carbon::parse($request->input('hs_check_date')) : now();
         $hstoolcheck->checkup_name = $request->input('hs_check_title');
-        $hstoolcheck->checkup_date = $request->input('hs_check_date') ?? now();
+        $hstoolcheck->checkup_date = $checkupDate;
         $hstoolcheck->performed_by = auth()->user()->id;
         $hstoolcheck->remarks = $request->input('notes') ?? null;
-        $hstoolcheck->next_checkup_date = $request->input('hs_check_date') ?? now()->addMonth();
+        $hstoolcheck->next_checkup_date = $request->filled('next_checkup_date') ? \Carbon\Carbon::parse($request->input('next_checkup_date')) : $checkupDate->copy()->addMonth();
         $hstoolcheck->save();
 
         // Update or create checklist details
@@ -157,6 +158,38 @@ class HsToolController extends Controller
 
 
         // Redirect back with a success message
-        return redirect()->route('hs-tools.showcheck', $hstoolcheck->hs_tool_id, $hstoolcheck->id)->with('success', 'HS Tool checkup created successfully.');
+        return redirect()->route('hs-tools.showcheck', ['id' => $hstoolcheck->hs_tool_id, 'checkup_id' => $hstoolcheck->id])->with('success', 'HS Tool checkup updated successfully.');
+    }
+
+    public function updateHsTools(Request $request, $id)
+    {
+        $request->validate([
+            'toolName' => 'required|string|max:255',
+            'toolDetails' => 'nullable|string',
+        ]);
+
+        $hsTool = HsTool::findOrFail($id);
+        $hsTool->tool_name = $request->input('toolName');
+        $hsTool->description = $request->input('toolDetails');
+        if ($request->has('status')) {
+            $hsTool->status = $request->input('status');
+        }
+        $hsTool->save();
+
+        if ($request->ajax()) {
+            return response()->json(['success' => 'success', 'message' => 'HS Tool updated successfully.']);
+        }
+        return redirect()->route('hs-tools.show', $hsTool->id)->with('success', 'HS Tool updated successfully.');
+    }
+
+    public function destroyHsTools($id)
+    {
+        $hsTool = HsTool::findOrFail($id);
+        $hsTool->delete();
+
+        if (request()->ajax()) {
+            return response()->json(['success' => 'success', 'message' => 'HS Tool deleted successfully.']);
+        }
+        return redirect()->route('hs-tools.index')->with('success', 'HS Tool deleted successfully.');
     }
 }

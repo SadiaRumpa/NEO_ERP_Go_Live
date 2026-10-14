@@ -19,11 +19,8 @@ class RoleController extends Controller
      */
     function __construct()
     {
-        // $this->middleware('permission:role-list|role-create|role-edit|role-delete', ['only' => ['index', 'store']]);
-        // $this->middleware('permission:role-create', ['only' => ['create', 'store']]);
-        // $this->middleware('permission:role-edit', ['only' => ['edit', 'update']]);
-        // $this->middleware('permission:role-delete', ['only' => ['destroy']]);
         $this->middleware('auth');
+        $this->middleware('role_or_permission:super_admin');
     }
 
     /**
@@ -122,7 +119,10 @@ class RoleController extends Controller
             'permission' => 'required',
         ]);
 
-        $role = Role::find($id);
+        $role = Role::findOrFail($id);
+        if ($role->name === 'super_admin' && $request->input('name') !== 'super_admin') {
+            return redirect()->route('roles.index')->with('error', 'Cannot rename super_admin role');
+        }
         $role->name = $request->input('name');
         $role->save();
 
@@ -130,7 +130,7 @@ class RoleController extends Controller
             function ($value) {
                 return (int)$value;
             },
-            $request->input('permission')
+            $request->input('permission', [])
         );
 
         $role->syncPermissions($permissionsID);
@@ -146,7 +146,11 @@ class RoleController extends Controller
      */
     public function destroy($id): RedirectResponse
     {
-        DB::table("roles")->where('id', $id)->delete();
+        $role = Role::findOrFail($id);
+        if ($role->name === 'super_admin') {
+            return redirect()->route('roles.index')->with('error', 'Cannot delete super_admin role');
+        }
+        $role->delete();
         return redirect()->route('roles.index')
             ->with('success', 'Role deleted successfully');
     }

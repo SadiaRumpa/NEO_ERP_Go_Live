@@ -1,0 +1,102 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: neoerp_app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+    environment:
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_DATABASE=neoerp
+      - DB_USERNAME=neoerp_user
+      - DB_PASSWORD=neoerp_secret
+      - REDIS_HOST=redis
+    depends_on:
+      - db
+      - redis
+    networks:
+      - neoerp_network
+
+  web:
+    image: nginx:alpine
+    container_name: neoerp_web
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+    networks:
+      - neoerp_network
+
+  db:
+    image: mysql:8.0
+    container_name: neoerp_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: neoerp
+      MYSQL_USER: neoerp_user
+      MYSQL_PASSWORD: neoerp_secret
+      MYSQL_ROOT_PASSWORD: neoerp_root_secret
+    ports:
+      - "3306:3306"
+    volumes:
+      - neoerp_db_data:/var/lib/mysql
+    networks:
+      - neoerp_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: neoerp_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - neoerp_redis_data:/data
+    networks:
+      - neoerp_network
+
+  queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: neoerp_queue
+    restart: unless-stopped
+    command: php artisan queue:work --sleep=3 --tries=3
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      - app
+      - redis
+      - db
+    networks:
+      - neoerp_network
+
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: neoerp_scheduler
+    restart: unless-stopped
+    command: php artisan schedule:work
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      - app
+      - db
+    networks:
+      - neoerp_network
+
+networks:
+  neoerp_network:
+    driver: bridge
+
+volumes:
+  neoerp_db_data:
+  neoerp_redis_data:

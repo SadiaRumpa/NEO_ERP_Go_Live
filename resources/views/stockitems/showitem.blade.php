@@ -68,7 +68,7 @@
                                 <label class="mb-1">Description (Optional)</label>
                                 <div class="form-control p-0">
                                     <div class="comment-editor border-0 pb-6" id="item-desc">
-                                        {!! $stockitem->description !!}
+                                        {{ $stockitem->description }}
                                     </div>
                                     <input type="hidden" name="item_desc" id="item-desc-hidden">
                                 </div>

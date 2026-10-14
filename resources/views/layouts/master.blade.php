@@ -254,7 +254,7 @@
                             <div
                                 class="footer-container d-flex align-items-center justify-content-between py-4 flex-md-row flex-column">
                                 <div class="text-body">
-                                    {!! isset($appbrand) && $appbrand->business_brand_credit_on_footer_enable==1?$appbrand->business_brand_credit_on_footer??'':'' !!}
+                                    {!! strip_tags(isset($appbrand) && $appbrand->business_brand_credit_on_footer_enable==1 ? ($appbrand->business_brand_credit_on_footer ?? '') : '', '<a><span><strong><em><b><i>') !!}
                                 </div>
 
                             </div>

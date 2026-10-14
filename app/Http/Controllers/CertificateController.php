@@ -71,4 +71,21 @@ class CertificateController extends Controller
 
         return redirect()->route('certificates.edit', $certificate->id)->with('success', 'Certificate updated successfully.');
     }
+
+    public function show($id)
+    {
+        $certificate = CourseCertificate::findOrFail($id);
+        return view('certificates.edit', compact('certificate'));
+    }
+
+    public function destroy($id)
+    {
+        $certificate = CourseCertificate::findOrFail($id);
+        $certificate->delete();
+
+        if (request()->ajax()) {
+            return response()->json(['success' => 'success', 'message' => 'Certificate deleted successfully.']);
+        }
+        return redirect()->route('certificates.index')->with('success', 'Certificate deleted successfully.');
+    }
 }

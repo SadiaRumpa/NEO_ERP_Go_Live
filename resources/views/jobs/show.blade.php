@@ -311,7 +311,7 @@
                                 <!-- Description -->
                                 <div class="mb-6">
                                     <div class="form-control p-2">
-                                        {!! $job->enquiry !!}
+                                        {{ $job->enquiry }}
                                     </div>
                                 </div>
 
@@ -339,7 +339,7 @@
                                 <!-- Description -->
                                 <div class="mb-6">
                                     <div class="form-control p-2">
-                                        {!! $job->job_description !!}
+                                        {{ $job->job_description }}
                                     </div>
                                 </div>
 
@@ -371,7 +371,7 @@
                                                                     <div class="form-control p-0">
                                                                         <div class="border-0 pb-6"
                                                                             id="job-description-edit">
-                                                                            {!! $job->job_description !!}
+                                                                            {{ $job->job_description }}
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -543,7 +543,7 @@
                                                                 </small>
                                                             @endif
                                                         </div>
-                                                        <p class="mb-2">{!! $enot->note !!}</p>
+                                                        <p class="mb-2">{{ $enot->note }}</p>
                                                     </div>
                                                 </li>
                                             @endforeach

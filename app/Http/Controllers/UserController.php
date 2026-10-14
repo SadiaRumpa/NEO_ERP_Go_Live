@@ -16,6 +16,12 @@ use Illuminate\Http\JsonResponse;
 
 class UserController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+        $this->middleware('role_or_permission:super_admin')->except(['myprofile', 'updateProfile']);
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -32,7 +38,7 @@ class UserController extends Controller
             Role::create(['name' => 'staff']);
         }
         try{
-            $role = Role::findByName(name: 'customer');
+            $role = Role::findByName('customer');
         }
         catch(Exception $e){
             Role::create(['name' => 'customer']);
@@ -71,11 +77,11 @@ class UserController extends Controller
             'roles' => 'required'
         ]);
 
-        $input = $request->all();
+        $input = $request->only(['name', 'email', 'password']);
         $input['password'] = Hash::make($input['password']);
 
         $user = User::create($input);
-        $user->assignRole($request->input('roles'));
+        $user->syncRoles($request->input('roles'));
 
         if ($request->ajax()) {
             return response()->json(['success'=> 'success', 'message' => 'User created successfully']);
@@ -93,7 +99,7 @@ class UserController extends Controller
      */
     public function show($id): View
     {
-        $user = User::find($id);
+        $user = User::findOrFail($id);
 
         return view('users.show', compact('user'));
     }
@@ -106,7 +112,7 @@ class UserController extends Controller
      */
     public function edit($id): View
     {
-        $user = User::find($id);
+        $user = User::findOrFail($id);
         $roles = Role::pluck('name', 'name')->all();
         $userRole = $user->roles->pluck('name', 'name')->all();
         if(empty($userRole)){
@@ -117,11 +123,42 @@ class UserController extends Controller
 
     public function myprofile(){
         $userId = auth()->id();
-        $user = User::find($userId);
+        $user = User::findOrFail($userId);
         $roles = Role::pluck('name', 'name')->all();
         $userRole = $user->roles->pluck('name', 'name')->all();
 
         return view('users.profile', compact('user', 'roles', 'userRole'));
+    }
+
+    public function updateProfile(Request $request): RedirectResponse
+    {
+        $user = auth()->user();
+        if (!$user) {
+            abort(401);
+        }
+
+        $rules = [
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+        ];
+
+        if ($request->filled('password')) {
+            $rules['current_password'] = 'required|current_password';
+            $rules['password'] = 'required|min:8|same:confirm-password';
+        }
+
+        $request->validate($rules);
+
+        $user->name = $request->input('name');
+        $user->email = $request->input('email');
+
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->input('password'));
+        }
+
+        $user->save();
+
+        return redirect()->route('users.myprofile')->with('success', 'Profile updated successfully');
     }
 
     /**
@@ -134,25 +171,23 @@ class UserController extends Controller
     public function update(Request $request, $id): JsonResponse|RedirectResponse
     {
         $this->validate($request, [
-            'name' => 'required',
+            'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id,
-            'password' => 'required|same:confirm-password',
-            'roles' => 'nullable'
+            'password' => 'nullable|same:confirm-password',
+            'roles' => 'nullable|array'
         ]);
 
-        $input = $request->all();
-        if (!empty($input['password'])) {
-            $input['password'] = Hash::make($input['password']);
-        } else {
-            $input = Arr::except($input, array('password'));
+        $user = User::findOrFail($id);
+        $input = $request->only(['name', 'email']);
+
+        if ($request->filled('password')) {
+            $input['password'] = Hash::make($request->input('password'));
         }
 
-        $user = User::find($id);
         $user->update($input);
         
-        if(!empty($input['roles'])){
-            DB::table('model_has_roles')->where('model_id', $id)->delete();
-            $user->assignRole($request->input('roles'));
+        if ($request->has('roles')) {
+            $user->syncRoles($request->input('roles', []));
         }
 
         if ($request->ajax()) {
@@ -170,7 +205,19 @@ class UserController extends Controller
      */
     public function destroy($id): RedirectResponse
     {
-        User::find($id)->delete();
+        if ((int)$id === (int)auth()->id()) {
+            return redirect()->route('users.index')->with('error', 'You cannot delete your own account');
+        }
+
+        $user = User::findOrFail($id);
+        if ($user->hasRole('super_admin')) {
+            $superAdminCount = User::role('super_admin')->count();
+            if ($superAdminCount <= 1) {
+                return redirect()->route('users.index')->with('error', 'Cannot delete the last super_admin account');
+            }
+        }
+
+        $user->delete();
         return redirect()->route('users.index')
             ->with('success', 'User deleted successfully');
     }

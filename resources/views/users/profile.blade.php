@@ -36,7 +36,7 @@
                     </ul>
                 </div>
                 @endif
-                <form class="card-body" method="POST" action="{{ route('users.update', $user->id) }}">
+                <form class="card-body" method="POST" action="{{ route('users.profile.update') }}">
                     @csrf
                     @method('PUT')
                     <div class="row mb-6">
@@ -63,7 +63,23 @@
                         </div>
                     </div>
                     <div class="row form-password-toggle mb-6">
-                        <label class="col-sm-3 col-form-label" for="multicol-password">Password</label>
+                        <label class="col-sm-3 col-form-label" for="multicol-current-password">Current Password</label>
+                        <div class="col-sm-9">
+                            <div class="input-group input-group-merge">
+                                <input
+                                    type="password"
+                                    id="multicol-current-password"
+                                    class="form-control"
+                                    name="current_password"
+                                    placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
+                                    aria-describedby="multicol-current-password2" />
+                                <span class="input-group-text cursor-pointer" id="multicol-current-password2"><i class="icon-base ti tabler-eye-off"></i></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row form-password-toggle mb-6">
+                        <label class="col-sm-3 col-form-label" for="multicol-password">New Password (leave blank to keep)</label>
                         <div class="col-sm-9">
                             <div class="input-group input-group-merge">
                                 <input
@@ -79,7 +95,7 @@
                     </div>
 
                     <div class="row form-password-toggle mb-6">
-                        <label class="col-sm-3 col-form-label" for="multicol-confirm-password">Confirm Password</label>
+                        <label class="col-sm-3 col-form-label" for="multicol-confirm-password">Confirm New Password</label>
                         <div class="col-sm-9">
                             <div class="input-group input-group-merge">
                                 <input
@@ -93,20 +109,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- <div class="row mb-6">
-                        <label class="col-sm-3 col-form-label" for="multicol-roles">Roles</label>
-                        <div class="col-sm-9">
-                            <select id="multicol-roles" class="select2 form-select" data-allow-clear="true" name="roles[]">
-                                @foreach ($roles as $value => $label)
-                                <option value="{{ $value }}" {{ isset($userRole[$value]) ? 'selected' : ''}}>
-                                    {{ $label }}
-                                </option>
-                                @endforeach
-
-                            </select>
-                        </div>
-                    </div> -->
 
                     <div class="pt-6">
                         <div class="row justify-content-end">

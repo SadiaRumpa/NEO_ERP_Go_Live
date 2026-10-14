@@ -409,7 +409,7 @@
                                     <!-- Description -->
                                     <div class="mb-6">
                                         <div class="form-control p-2">
-                                            {!! $lead->enquiry !!}
+                                            {{ $lead->enquiry }}
                                         </div>
                                     </div>
 
@@ -438,7 +438,7 @@
                                     <!-- Description -->
                                     <div class="mb-6">
                                         <div class="form-control p-2">
-                                            {!! $lead->lead_description !!}
+                                            {{ $lead->lead_description }}
                                         </div>
                                     </div>
 
@@ -471,7 +471,7 @@
 
                                                                             <div class="border-0 pb-6"
                                                                                 id="lead-description-edit">
-                                                                                {!! $lead->lead_description !!}
+                                                                                {{ $lead->lead_description }}
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -647,7 +647,7 @@
                                                                     </small>
                                                                 @endif
                                                             </div>
-                                                            <p class="mb-2">{!! $enot->note !!}</p>
+                                                            <p class="mb-2">{{ $enot->note }}</p>
                                                         </div>
                                                     </li>
                                                 @endforeach
@@ -664,8 +664,8 @@
 
                                                         <div class="form-control p-0">
                                                             <div class="lead-toolbar border-0 border-bottom">
-                                                            </div>
-                                                            <div class="border-0 pb-6" id="leadnotes"></div>
+                                                             </div>
+                                                             <div class="border-0 pb-6" id="leadnotes"></div>
                                                         </div>
                                                     </div>
                                                     <div class="d-flex justify-content-end">
@@ -715,7 +715,7 @@
                                         </div>
                                         <div class="card-body">
                                             <div class="mb-2">
-                                                {!! $lead->lead_close_reason !!}
+                                                {{ $lead->lead_close_reason }}
                                             </div>
 
                                         </div>

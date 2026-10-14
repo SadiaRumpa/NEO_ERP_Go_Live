@@ -184,6 +184,26 @@ class FjobProgressController extends Controller
         return redirect()->back()->with('success', 'updated successfully');
     }
 
+    public function destroyTask($task_id)
+    {
+        $task = FjobProgressTask::findOrFail($task_id);
+        $jobProgress = $task->fjobProgress;
+        $task->delete();
+
+        if ($jobProgress) {
+            $totalTasks = $jobProgress->tasks()->count();
+            $completedTasks = $jobProgress->tasks()->where('status', 'completed')->count();
+            $progressPercent = $totalTasks > 0 ? round(($completedTasks / $totalTasks) * 100) : 0;
+            $jobProgress->progress_percent = $progressPercent;
+            $jobProgress->save();
+        }
+
+        if (request()->ajax()) {
+            return response()->json(['success' => 'success', 'message' => 'Task deleted successfully']);
+        }
+        return redirect()->back()->with('success', 'Task deleted successfully');
+    }
+
     public function exportGantt($id)
     {
         $jobprogress = FjobProgress::with('tasks.resource')->findOrFail($id);

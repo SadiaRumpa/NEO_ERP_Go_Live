@@ -233,7 +233,7 @@
 
             <div class="card-body calendar-wrapper">
                 <div id="fake-calendar-table">
-                    @include('partials.fake_worker_calender_table', [
+                    @include('partials.fake_worker_calendar_table', [
                         'datesByMonthFake' => $datesByMonthFake,
                         'fakeworkers' => $fakeworkers,
                         'assignmentsFake' => $assignmentsFake,

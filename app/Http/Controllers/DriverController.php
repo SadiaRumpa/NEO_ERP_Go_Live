@@ -69,18 +69,18 @@ class DriverController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
             'license_no' => 'required|unique:driver_details,license_no',
             'license_issue_date' => 'nullable|date',
             'license_expiry' => 'nullable|date',
             'license_category' => 'nullable|string|max:10',
-            'digital_tacho_card' => 'boolean',
-            'dbs_check_passed' => 'boolean',
-            'medical_check_passed' => 'boolean',
+            'digital_tacho_card' => 'nullable|boolean',
+            'dbs_check_passed' => 'nullable|boolean',
+            'medical_check_passed' => 'nullable|boolean',
         ]);
 
-        DriverDetail::create($request->all());
+        DriverDetail::create($validated);
 
         return redirect()->route('drivers.index')->with('success', 'Driver details created successfully.');
     }
@@ -88,26 +88,68 @@ class DriverController extends Controller
     public function show($id)
     {
         $driver = DriverDetail::with(['user'])->findOrFail($id);
-        if (!$driver) {
-            return redirect()->route('drivers.index')->withErrors(['error' => 'Driver not found.']);
-        }
         $vehicledetails = VehicleAssignDetail::with(['vehicle'])
             ->where('user_id', $driver->id)
             ->orderBy('assigned_date', 'desc')
             ->get();
-        // dd($vehicledetails);
+
         return view('driverdetails.show', compact('driver', 'vehicledetails'));
+    }
+
+    public function edit($id)
+    {
+        $driver = DriverDetail::findOrFail($id);
+        $users = User::role('staff')->orderBy('name', 'asc')->get();
+        return view('driverdetails.edit', compact('driver', 'users'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $driver = DriverDetail::findOrFail($id);
+        $validated = $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'license_no' => 'required|unique:driver_details,license_no,' . $id,
+            'license_issue_date' => 'nullable|date',
+            'license_expiry' => 'nullable|date',
+            'license_category' => 'nullable|string|max:10',
+            'digital_tacho_card' => 'nullable|boolean',
+            'dbs_check_passed' => 'nullable|boolean',
+            'medical_check_passed' => 'nullable|boolean',
+        ]);
+
+        $driver->update($validated);
+
+        if ($request->ajax()) {
+            return response()->json(['success' => 'success', 'message' => 'Driver details updated successfully.']);
+        }
+
+        return redirect()->route('drivers.show', $driver->id)->with('success', 'Driver details updated successfully.');
+    }
+
+    public function destroy($id)
+    {
+        $driver = DriverDetail::findOrFail($id);
+        $driver->delete();
+
+        if (request()->ajax()) {
+            return response()->json(['success' => 'success', 'message' => 'Driver deleted successfully.']);
+        }
+
+        return redirect()->route('drivers.index')->with('success', 'Driver deleted successfully.');
     }
 
     public function assignVehicle(Request $request)
     {
-
         $request->validate([
-            'user_id' => 'required|exists:users,id',
+            'user_id' => 'required',
             'vehicle_id' => 'required|exists:vehicle_details,id',
             'assigned_date' => 'required|date',
             'unassigned_date' => 'nullable|date',
         ]);
+
+        // Support either driver_details.id or user_id
+        $driver = DriverDetail::find($request->user_id);
+        $driverId = $driver ? $driver->id : $request->user_id;
 
         // Check if the vehicle is already assigned
         $existingAssignment = VehicleAssignDetail::where('vehicle_id', $request->vehicle_id)
@@ -118,10 +160,10 @@ class DriverController extends Controller
             return redirect()->back()->withErrors(['vehicle_id' => 'This vehicle is already assigned.']);
         }
 
-        DB::transaction(function () use ($request) {
+        DB::transaction(function () use ($request, $driverId) {
             $vehicleAssignDetail = new VehicleAssignDetail();
             $vehicleAssignDetail->vehicle_id = $request->vehicle_id;
-            $vehicleAssignDetail->user_id = $request->user_id;
+            $vehicleAssignDetail->user_id = $driverId;
             $vehicleAssignDetail->assigned_date = $request->assigned_date;
             $vehicleAssignDetail->unassigned_date = $request->unassigned_date;
             $vehicleAssignDetail->status = 'active';
@@ -157,6 +199,5 @@ class DriverController extends Controller
         });
 
         return response()->json(['message' => 'Vehicle successfully unassigned.']);
-        // return redirect()->route('drivers.index')->with('success', 'Vehicle unassigned successfully.');
     }
 }

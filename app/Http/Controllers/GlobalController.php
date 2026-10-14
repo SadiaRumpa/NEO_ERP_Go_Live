@@ -16,28 +16,6 @@ use Illuminate\Support\Facades\Session;
 
 class GlobalController extends Controller
 {
-    public function loginAsUser($id='')
-    {
-        $user = null;
-        if(!empty($id)){
-            $user = User::findOrFail($id);
-        }
-        else{
-            $roleName = 'super_admin';
-            $user = User::whereHas('roles', function ($query) use ($roleName) {
-                $query->where('name', $roleName);
-            })->orderBy('id', 'asc')->first();  
-        }
-
-        if($user){
-            Auth::login($user);
-        }
-
-        return redirect('/'); // Redirect to the user's dashboard
-    }
-    public function queryTest(){
-        return view('externals.querytest');
-    }
     public function query()
     {
         if(isset($_GET['s'])){
@@ -175,7 +153,7 @@ class GlobalController extends Controller
     }
     protected function uploadImages(Request $request, $enquiryid)
     {
-        $disk = env('FILESYSTEM_DISK', 'local');
+        $disk = config('filesystems.default', 'local');
 
         foreach (['photo1', 'photo2', 'photo3'] as $photoField) {
             if (!$request->hasFile($photoField)) continue;
@@ -185,7 +163,6 @@ class GlobalController extends Controller
 
             if ($disk === 's3') {
                 $path = $file->store('uploads', 's3');
-                Storage::disk('s3')->setVisibility($path, 'public');
                 $url = Storage::disk('s3')->url($path);
             } else {
 

@@ -18,7 +18,8 @@ class PermissionController extends Controller
      */
     function __construct()
     {
-        $this->middleware('role_or_permission:super_admin', ['only' => ['index', 'create', 'store']]);
+        $this->middleware('auth');
+        $this->middleware('role_or_permission:super_admin');
     }
 
     /**

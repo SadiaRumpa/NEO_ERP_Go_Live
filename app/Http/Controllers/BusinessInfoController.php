@@ -152,28 +152,17 @@ class BusinessInfoController extends Controller
             $fileBusinessFavicon = $request->file('businessFavicon');
 
             // Store the file
-            $disk = env('FILESYSTEM_DISK', 'local');
-            // The 'public' disk stores files in storage/app/public and can be publicly accessed via a symbolic link
+            $disk = config('filesystems.default', 'local');
             if(!empty($fileBusinessLogo)){
                 $path = $fileBusinessLogo->store('businessinfo/' . $id, $disk); 
-                
-                if ($disk === 's3') {
-                    Storage::disk('s3')->setVisibility($path, 'public');
-                }
                 $businessLogoPath = Storage::disk($disk)->url($path);
             }
             if(!empty($fileBusinessLogoDark)){
                 $path = $fileBusinessLogoDark->store('businessinfo/' . $id, $disk); 
-                if ($disk === 's3') {
-                    Storage::disk('s3')->setVisibility($path, 'public');
-                }
                 $businessLogoDarkPath = Storage::disk($disk)->url($path);
             }
             if(!empty($fileBusinessFavicon)){
                 $path = $fileBusinessFavicon->store('businessinfo/' . $id, $disk); 
-                if ($disk === 's3') {
-                    Storage::disk('s3')->setVisibility($path, 'public');
-                }
                 $businessFaviconPath = Storage::disk($disk)->url($path);
             }
             
@@ -309,28 +298,17 @@ class BusinessInfoController extends Controller
         $fileBusinessFavicon = $request->file('businessFavicon');
 
         // Store the file
-        $disk = env('FILESYSTEM_DISK', 'local');
-        // The 'public' disk stores files in storage/app/public and can be publicly accessed via a symbolic link
+        $disk = config('filesystems.default', 'local');
         if(!empty($fileBusinessLogo)){
             $path = $fileBusinessLogo->store('businessinfo/' . $id, $disk); 
-            
-            if ($disk === 's3') {
-                Storage::disk('s3')->setVisibility($path, 'public');
-            }
             $businessLogoPath = Storage::disk($disk)->url($path);
         }
         if(!empty($fileBusinessLogoDark)){
             $path = $fileBusinessLogoDark->store('businessinfo/' . $id, $disk); 
-            if ($disk === 's3') {
-                Storage::disk('s3')->setVisibility($path, 'public');
-            }
             $businessLogoDarkPath = Storage::disk($disk)->url($path);
         }
         if(!empty($fileBusinessFavicon)){
             $path = $fileBusinessFavicon->store('businessinfo/' . $id, $disk); 
-            if ($disk === 's3') {
-                Storage::disk('s3')->setVisibility($path, 'public');
-            }
             $businessFaviconPath = Storage::disk($disk)->url($path);
         }
 
@@ -400,14 +378,10 @@ class BusinessInfoController extends Controller
                     'brandFile' => 'mimes:jpg,jpeg,png|max:102400', //100MB
                 ]);
 
-                $disk = env('FILESYSTEM_DISK', 'local');
-                // The 'public' disk stores files in storage/app/public and can be publicly accessed via a symbolic link
+                $disk = config('filesystems.default', 'local');
                 $fileBrandFile = $request->file('brandFile');
                 $path = $fileBrandFile->store('brandlogos/' . $id, $disk); 
                 
-                if ($disk === 's3') {
-                    Storage::disk('s3')->setVisibility($path, 'public');
-                }
                 return redirect()->back()->with('success', 'File uploaded.');
             }
             else{

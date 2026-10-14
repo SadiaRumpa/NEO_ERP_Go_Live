@@ -149,15 +149,11 @@ class QuotationController extends Controller
 
                     foreach ($request->file("attachments.$slug") as $file) {
 
-                        $disk = env('FILESYSTEM_DISK', 'local');
+                        $disk = config('filesystems.default', 'local');
                         $path = $file->store('uploads/quotations', $disk);
 
                         if (!$path) {
                             return response()->json(['status' => 'error', 'message' => 'Failed to store image.']);
-                        }
-
-                        if ($disk === 's3') {
-                            Storage::disk('s3')->setVisibility($path, 'public');
                         }
 
                         QuotationSectionAttachment::create([
@@ -223,6 +219,26 @@ class QuotationController extends Controller
         return view('quotations.edit')->with([
             'quotation' => $quotation,
         ]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $quotation = Quotation::findOrFail($id);
+        if ($request->filled('total_amount')) {
+            $quotation->total_amount = $request->input('total_amount');
+        }
+        if ($request->filled('quotation_date')) {
+            $quotation->quotation_date = $request->input('quotation_date');
+        }
+        if ($request->filled('valid_until')) {
+            $quotation->valid_until = $request->input('valid_until');
+        }
+        $quotation->save();
+
+        if ($request->ajax()) {
+            return response()->json(['status' => 'success', 'message' => 'Quotation updated successfully.']);
+        }
+        return redirect()->route('quotations.show', $id)->with('success', 'Quotation updated successfully.');
     }
 
     public function downloadQuotationPdf($quotationId)
@@ -352,7 +368,7 @@ class QuotationController extends Controller
             ], 400);
         }
 
-        $disk = env('FILESYSTEM_DISK', 'local'); // 'local' or 's3'
+        $disk = config('filesystems.default', 'local'); // 'local' or 's3'
 
         foreach ($request->file('attachments', []) as $file) {
             $path = $file->store('uploads/quotations', $disk);
@@ -362,11 +378,6 @@ class QuotationController extends Controller
                     'status' => 'error',
                     'message' => 'Failed to store image.'
                 ]);
-            }
-
-            // Make public if stored in S3
-            if ($disk === 's3') {
-                Storage::disk('s3')->setVisibility($path, 'public');
             }
 
             $section->attachments()->create([

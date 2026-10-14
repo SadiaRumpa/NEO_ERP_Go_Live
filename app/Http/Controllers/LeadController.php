@@ -311,7 +311,7 @@ class LeadController extends Controller
             'leadphoto'      => 'required|image|mimes:jpg,jpeg,png|max:10024',
         ]);
 
-        $disk = env('FILESYSTEM_DISK', 'local');
+        $disk = config('filesystems.default', 'local');
 
         if ($request->hasFile('leadphoto')) {
             $file = $request->file('leadphoto');
@@ -319,10 +319,6 @@ class LeadController extends Controller
 
             if (!$path) {
                 return response()->json(['status' => 'error', 'message' => 'Failed to store image.']);
-            }
-
-            if ($disk === 's3') {
-                Storage::disk('s3')->setVisibility($path, 'public');
             }
 
             LeadImage::create([
@@ -450,7 +446,7 @@ class LeadController extends Controller
             'attachment' => 'required|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:10024',
         ]);
 
-        $disk = env('FILESYSTEM_DISK', 'local');
+        $disk = config('filesystems.default', 'local');
 
         if ($request->hasFile('attachment')) {
             $file = $request->file('attachment');
@@ -458,10 +454,6 @@ class LeadController extends Controller
 
             if (!$path) {
                 return response()->json(['status' => 'error', 'message' => 'Failed to store image.']);
-            }
-
-            if ($disk === 's3') {
-                Storage::disk('s3')->setVisibility($path, 'public');
             }
 
             LeadAttachment::create([
@@ -660,5 +652,49 @@ class LeadController extends Controller
         return back()->with([
             'success' => 'Lead options updated successfully.'
         ]);
+    }
+
+    public function create()
+    {
+        return redirect()->route('enquiries.index')->with('info', 'Leads are created by converting an enquiry.');
+    }
+
+    public function store(Request $request)
+    {
+        return redirect()->route('leads.index');
+    }
+
+    public function edit($id)
+    {
+        $lead = Lead::findOrFail($id);
+        return redirect()->route('leads.show', $lead->id);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $lead = Lead::findOrFail($id);
+        if ($request->filled('leaddescription')) {
+            $lead->lead_description = $request->input('leaddescription');
+        }
+        if ($request->filled('lead_priority')) {
+            $lead->lead_priority = $request->input('lead_priority');
+        }
+        $lead->save();
+
+        if ($request->ajax()) {
+            return response()->json(['status' => 'success', 'message' => 'Lead updated successfully.']);
+        }
+        return redirect()->route('leads.show', $lead->id)->with('success', 'Lead updated successfully.');
+    }
+
+    public function destroy($id)
+    {
+        $lead = Lead::findOrFail($id);
+        $lead->delete();
+
+        if (request()->ajax()) {
+            return response()->json(['status' => 'success', 'message' => 'Lead deleted successfully.']);
+        }
+        return redirect()->route('leads.index')->with('success', 'Lead deleted successfully.');
     }
 }

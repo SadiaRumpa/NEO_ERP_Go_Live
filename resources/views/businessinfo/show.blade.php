@@ -389,7 +389,7 @@
                                     <ul class="list-unstyled mb-6">
                                         <li class="mb-2">
                                             <span class="h6 me-1">Brand Logo On Top:</span>
-                                            <span>{!! $businessinfo->business_brand_logo_on_top_left ?? ''  !!}</span>
+                                            <span>{!! strip_tags($businessinfo->business_brand_logo_on_top_left ?? '', '<span><svg><path><img><b><strong>') !!}</span>
                                         </li>
                                         <li class="mb-2">
                                             <span class="h6 me-1">Brand Credit On Footer Enable?:</span>
@@ -397,7 +397,7 @@
                                         </li>
                                         <li class="mb-2">
                                             <span class="h6 me-1">Brand Credit On Footer:</span>
-                                            <span>{!! $businessinfo->business_brand_credit_on_footer ?? ''  !!}</span>
+                                            <span>{!! strip_tags($businessinfo->business_brand_credit_on_footer ?? '', '<a><span><strong><em><b><i>') !!}</span>
                                         </li>
                                     </ul>
                                 </div>

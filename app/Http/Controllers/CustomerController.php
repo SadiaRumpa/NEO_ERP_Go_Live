@@ -181,6 +181,7 @@ class CustomerController extends Controller
             'contactPersonFirstName'   => 'required|string|max:255',
             'contactPersonLastName'   => 'required|string|max:255',
             'contactPhone'        => 'required|string|max:20',
+            'contactMobile'       => 'nullable|string|max:20',
             'contactEmail'        => 'required|email|max:255',
         ]);
 
@@ -190,11 +191,11 @@ class CustomerController extends Controller
             'contact_firstname'   => $validated['contactPersonFirstName'],
             'contact_lastname' => $validated['contactPersonLastName'],
             'contact_phone'     => $validated['contactPhone'],
-            'contact_mobile'       => $validated['contactMobile'],
+            'contact_mobile'       => $validated['contactMobile'] ?? '',
             'contact_email'  => $validated['contactEmail'],
         ]);
 
-        // Update addresses
+        // Update addresses if provided
         $this->updateCustomerAddress($request, $id, 'billing');
         $this->updateCustomerAddress($request, $id, 'site');
 
@@ -204,6 +205,47 @@ class CustomerController extends Controller
         }
 
         return redirect()->back()->with('success', 'Customer updated successfully.');
+    }
+
+    public function updateCustomerAddress(Request $request, string $id, ?string $type = null)
+    {
+        $addressType = $type ?? $request->input('type', 'billing');
+        $address = CustomerAddress::where('customer_id', $id)
+            ->where('address_type', $addressType)
+            ->first();
+
+        if (!$address && !$request->filled('address')) {
+            if ($request->ajax()) {
+                return response()->json(['message' => 'No address data provided']);
+            }
+            return redirect()->back();
+        }
+
+        if (!$address) {
+            $address = new CustomerAddress();
+            $address->customer_id = $id;
+            $address->address_type = $addressType;
+        }
+
+        if ($request->filled('address')) {
+            $address->address = $request->input('address', $address->address ?? '');
+        }
+        if ($request->filled('county')) {
+            $address->county = $request->input('county', $address->county ?? '');
+        }
+        if ($request->filled('postcode')) {
+            $address->postcode = $request->input('postcode', $address->postcode ?? '');
+        }
+        if ($request->filled('country')) {
+            $address->country = $request->input('country', $address->country ?? 'UK');
+        }
+
+        $address->save();
+
+        if ($request->ajax()) {
+            return response()->json(['success' => 'success', 'message' => 'Customer address updated successfully.']);
+        }
+        return redirect()->back()->with('success', 'Customer address updated successfully.');
     }
 
     /**

@@ -151,7 +151,7 @@ $(document).ready(function () {
                 url: `/lead/delete-note/${noteId}`,
                 method: 'DELETE',
                 data: {
-                    _token: '{{ csrf_token() }}'
+                    _token: $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function (response) {
                     if (response.status === 'success') {

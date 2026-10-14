@@ -125,13 +125,13 @@ class QuotationTemplateController extends Controller
 
     public function edit($id)
     {
-        return view('quotationtemplate.edit', compact('id'));
+        return redirect()->route('quotationtemplates.show', $id);
     }
 
     public function update(Request $request, $id)
     {
         // Update the quotation template
-        return redirect()->route('quotationtemplate.index')->with('success', 'Quotation template updated successfully.');
+        return redirect()->route('quotationtemplates.index')->with('success', 'Quotation template updated successfully.');
     }
 
     public function destroy($id)

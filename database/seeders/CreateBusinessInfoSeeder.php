@@ -12,8 +12,9 @@ class CreateBusinessInfoSeeder extends Seeder
      */
     public function run(): void
     {
-        $businessinfo = BusinessInfo::create([
-            'business_name' => 'Neoteric Digital',
+        $businessinfo = BusinessInfo::firstOrCreate(
+            ['business_name' => 'Neoteric Digital'],
+            [
             'business_brand_app_name' => 'NEOERP',
             'business_brand_logo_on_top_left' => '<span class="app-brand-logo demo">
                 <span class="text-primary">
@@ -27,11 +28,7 @@ class CreateBusinessInfoSeeder extends Seeder
             </span>
             <span class="app-brand-text demo menu-text fw-bold ms-3">NEOERP</span>',
             'business_brand_credit_on_footer_enable' => '1',
-            'business_brand_credit_on_footer' => '©
-                                    <script>
-                                        document.write(new Date().getFullYear());
-                                    </script>
-                                    , made with ❤️ by <a href="https://neotericdigital.co.uk/" target="_blank" class="footer-link">Neoteric Digital</a>',
+            'business_brand_credit_on_footer' => '&copy; ' . date('Y') . ', made with &#10084;&#65039; by <a href="https://neotericdigital.co.uk/" target="_blank" class="footer-link">Neoteric Digital</a>',
             'business_status' => 'Active',
             'business_short_name' => 'ND',
             'business_allowed_file_types' => 'IMG:.jpg,.jpeg,.png DOC:.pdf,.jpg,.jpeg,.png,.doc,.docx',

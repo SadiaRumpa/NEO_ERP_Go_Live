@@ -28,6 +28,11 @@ class AuthServiceProvider extends ServiceProvider
         Gate::before(function (User $user, string $ability): bool|null {
             return $user->hasRole('super_admin') ? true : null;
         });
+
+        // Gate Log Viewer to super_admin only
+        Gate::define('viewLogViewer', function (?User $user = null): bool {
+            return $user !== null && $user->hasRole('super_admin');
+        });
     }
 
     public function register(): void

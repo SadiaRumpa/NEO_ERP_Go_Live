@@ -15,13 +15,18 @@ class CreateAdminUserSeeder extends Seeder
      */
     public function run(): void
     {
-        $user = User::create([
-            'name' => 'Super Admin',
-            'email' => 'sa@gmail.com',
-            'password' => bcrypt('123456')
-        ]);
+        $adminEmail = env('INITIAL_ADMIN_EMAIL', 'admin@neoerp.local');
+        $adminPassword = env('INITIAL_ADMIN_PASSWORD', 'NeoErp!Admin2026#Secure');
 
-        $role = Role::create(['name' => 'super_admin']);
+        $user = User::firstOrCreate(
+            ['email' => $adminEmail],
+            [
+                'name' => 'Super Admin',
+                'password' => bcrypt($adminPassword)
+            ]
+        );
+
+        $role = Role::firstOrCreate(['name' => 'super_admin']);
 
         $permissions = Permission::pluck('id', 'id')->all();
 

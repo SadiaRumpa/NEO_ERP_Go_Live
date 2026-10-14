@@ -307,7 +307,7 @@ class FjobController extends Controller
             'attachment' => 'file|mimes:pdf,jpg,jpeg,png,doc,docx|max:10024',
         ]);
 
-        $disk = env('FILESYSTEM_DISK', 'local');
+        $disk = config('filesystems.default', 'local');
 
         if ($request->hasFile('attachment')) {
             $file = $request->file('attachment');
@@ -315,10 +315,6 @@ class FjobController extends Controller
 
             if (!$path) {
                 return response()->json(['status' => 'error', 'message' => 'Failed to store image.']);
-            }
-
-            if ($disk === 's3') {
-                Storage::disk('s3')->setVisibility($path, 'public');
             }
 
             FjobAttachment::create([
@@ -358,6 +354,34 @@ class FjobController extends Controller
         $attachment->delete();
 
         return response()->json(['status' => 'success', 'message' => 'Attachment deleted successfully.']);
+    }
+
+    public function destroyJobAttachment($id)
+    {
+        return $this->destroyLeadAttachment($id);
+    }
+
+    public function updateJobOtherOptions(Request $request, $id)
+    {
+        $job = Fjob::find($id);
+        if (!$job) {
+            return back()->with([
+                'error' => 'Job not found.'
+            ]);
+        }
+    
+        $job->update([
+            'job_category'     => $request->input('job_info') ? implode(',', $request->input('job_info')) : null,
+            'annual_maintenance'  => $request->input('annual_maintenance') ?? false,
+            'installations'       => in_array('install', $request->input('safety_type', [])),
+            'repairs'             => in_array('repairs', $request->input('safety_type', [])),
+            'testing'             => in_array('testing', $request->input('safety_type', [])),
+            'job_priority' => $request->job_priority ?? 'low',
+        ]);
+
+        return back()->with([
+            'success' => 'Job options updated successfully.'
+        ]);
     }
 
     public function updateJobStatus(Request $request, $id)
@@ -535,12 +559,12 @@ class FjobController extends Controller
     public function addJobImages(Request $request)
     {
         $validated = $request->validate([
-            'job_id' => 'required|exists:enquiries,id',
+            'job_id' => 'required|exists:fjobs,id',
             'jobphoto'      => 'required|image|mimes:'.$this->mimetypes.'|max:2048',
         ]);
         
 
-        $disk = env('FILESYSTEM_DISK', 'local');
+        $disk = config('filesystems.default', 'local');
 
         if ($request->hasFile('jobphoto')) {
             $file = $request->file('jobphoto');
@@ -548,10 +572,6 @@ class FjobController extends Controller
 
             if (!$path) {
                 return response()->json(['status' => 'error', 'message' => 'Failed to store image.']);
-            }
-
-            if ($disk === 's3') {
-                Storage::disk('s3')->setVisibility($path, 'public');
             }
 
             FjobImage::create([

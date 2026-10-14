@@ -201,7 +201,7 @@
                                         <!-- enquiry -->
                                         <div class="mb-6">
                                             <div class="form-control p-2">
-                                                {!! $enquiry->enquiry !!}
+                                                {{ $enquiry->enquiry }}
                                             </div>
                                         </div>
                                     </div>
@@ -228,7 +228,7 @@
                                         <!-- Description -->
                                         <div class="mb-6">
                                             <div class="form-control p-2">
-                                                {!! $enquiry->enquiry_description !!}
+                                                {{ $enquiry->enquiry_description }}
                                             </div>
                                         </div>
 
@@ -265,7 +265,7 @@
                                                                                 </div>
                                                                                 <div class="border-0 pb-6"
                                                                                     id="enquiry-description-edit">
-                                                                                    {!! $enquiry->enquiry_description !!}
+                                                                                    {{ $enquiry->enquiry_description }}
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -440,7 +440,7 @@
                                                                         </span>
                                                                     </small>
                                                                 </div>
-                                                                <p class="mb-2">{!! $enot->note !!}</p>
+                                                                <p class="mb-2">{{ $enot->note }}</p>
                                                             </div>
                                                         </li>
                                                     @endforeach

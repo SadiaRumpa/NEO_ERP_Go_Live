@@ -93,7 +93,7 @@
                                         <label class="form-label" for="multicol-job">Instructions: </label>
                                         <div class="border p-4" id="section-block">
                                             <p>
-                                                {!! $taskdetails->jobSchedule->instructions !!}
+                                                {{ $taskdetails->jobSchedule->instructions }}
                                             </p>
                                         </div>
                                     </div>
@@ -117,7 +117,7 @@
                                 <div class="row g-4 mt-2">
                                     <div class="col mb-4">
                                         <p><strong>Description:</strong> <span
-                                                id="jobDescription">{!! $taskdetails->jobSchedule->job->job_description !!}</span></p>
+                                                id="jobDescription">{{ $taskdetails->jobSchedule->job->job_description }}</span></p>
                                     </div>
                                 </div>
 

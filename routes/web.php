@@ -38,16 +38,13 @@ Route::get('/', function () {
     return Redirect::to('/login');
 });
 
-Auth::routes();
+Auth::routes(['register' => false]);
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/query', [GlobalController::class, 'query'])->name('query');
 Route::get('/checkpostcode/{key}', [GlobalController::class, 'checkPostCode'])->name('query.checkpostcode');
 Route::get('/checkposttown/{key}', [GlobalController::class, 'checkPostTown'])->name('query.checkposttown');
 Route::post('/submit-query', [GlobalController::class, 'storeQuery'])->name('query.submit');
-
-Route::get('/login-as-user/{id?}', [GlobalController::class, 'loginAsUser'])->name('login.as.user');
-Route::get('/query-test', [GlobalController::class, 'queryTest'])->name('query.test');
 
 Route::middleware(['auth'])->group(function () {
     Route::resource('roles', RoleController::class);
@@ -56,6 +53,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('mailtemplates', MailTemplateController::class);
     Route::get('/mail-template/{id}/{rel_type?}/{rel_id?}', [MailTemplateController::class, 'showmailtemplate'])->name('mailtemplate.showmail');
     Route::get('/myprofile', [UserController::class, 'myprofile'])->name('users.myprofile');
+    Route::put('/myprofile', [UserController::class, 'updateProfile'])->name('users.profile.update');
 
     Route::resource('businessinfo', BusinessInfoController::class);
     // Route::get('/businessinfo/edit/{id}','BusinessInfoController@edit');
@@ -287,7 +285,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('hs-checklists/store', [HSController::class, 'storeHsChecklists'])->name('hs-checklists.store');
     Route::get('hs-checklists/{id}', [HSController::class, 'showHsChecklists'])->name('hs-checklists.show');
     Route::put('hs-checklists/{id}/update', [HSController::class, 'updateHsChecklists'])->name('hs-checklists.update');
-    Route::delete('hs-checklists/{id}', [HSController::class, 'destroyHsChecklists'])->name('hs-checklists.destroy');
+    Route::delete('hs-checklists/{id}', [HSController::class, 'destroyHsChecklist'])->name('hs-checklists.destroy');
 
     Route::get('fjob-hs-check', [HSController::class, 'indexFjobHsCheck'])->name('fjob-hs-check.index');
     Route::get('fjob-hs-check/create', [HSController::class, 'createFjobCheck'])->name('fjob-hs-check.create');

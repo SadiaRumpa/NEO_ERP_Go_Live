@@ -1,7 +1,7 @@
 <aside id="layout-menu" class="layout-menu menu-vertical menu">
     <div class="app-brand demo">
         <a href="{{ url('/') }}" class="app-brand-link">
-            {!! $appbrand->business_brand_logo_on_top_left??'ERP'  !!}
+            {!! strip_tags($appbrand->business_brand_logo_on_top_left ?? 'ERP', '<span><svg><path><img><b><strong>') !!}
         </a>
 
         <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto">
