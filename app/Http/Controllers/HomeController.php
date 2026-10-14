@@ -29,10 +29,12 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function index()
+    public function index(?DashboardMetrics $metricsService = null)
     {
+        $metricsService = $metricsService ?? app(DashboardMetrics::class);
+
         if (auth()->user()->hasRole('super_admin|admin')) {
-            return $this->adminDashboard();
+            return $this->adminDashboard($metricsService);
         } elseif (auth()->user()->hasRole('enquiry-manager')) {
             return $this->enquiryManagerDashboard();
         } elseif (auth()->user()->hasRole('lead-manager')) {
@@ -46,20 +48,21 @@ class HomeController extends Controller
         } elseif (auth()->user()->hasRole('fleet-manager')) {
             return $this->fleetManagerDashboard();
         } elseif (auth()->user()->hasRole('health-safety-manager')) {
-            return $this->healthSafetyDashboard();
+            return $this->healthSafetyDashboard($metricsService);
         } elseif (auth()->user()->hasRole('office-manager')) {
             return $this->officerManagerDashboard();
         } elseif (auth()->user()->hasRole('lead-job-manager')) {
             return $this->leadJobManagerDashboard();
         } elseif (auth()->user()->hasRole('staff')) {
-            return $this->staffDashboard();
+            return $this->staffDashboard($metricsService);
         } else {
             abort(403, 'CAN NOT ACCESS TO ROLE');
         }
     }
 
-    public function adminDashboard(DashboardMetrics $metricsService)
+    public function adminDashboard(?DashboardMetrics $metricsService = null)
     {
+        $metricsService = $metricsService ?? app(DashboardMetrics::class);
         $metrics = $metricsService->getAdminMetrics();
         return view('dashboards.admin', $metrics);
     }
@@ -495,15 +498,17 @@ class HomeController extends Controller
         ]);
     }
 
-    public function staffDashboard(DashboardMetrics $metricsService)
+    public function staffDashboard(?DashboardMetrics $metricsService = null)
     {
+        $metricsService = $metricsService ?? app(DashboardMetrics::class);
         $userId = auth()->id() ?? 0;
         $metrics = $metricsService->getStaffMetrics($userId);
         return view('dashboards.staffs', $metrics);
     }
 
-    public function healthSafetyDashboard(DashboardMetrics $metricsService)
+    public function healthSafetyDashboard(?DashboardMetrics $metricsService = null)
     {
+        $metricsService = $metricsService ?? app(DashboardMetrics::class);
         $metrics = $metricsService->getHealthSafetyMetrics();
         return view('dashboards.health_safety_manager', $metrics);
     }
