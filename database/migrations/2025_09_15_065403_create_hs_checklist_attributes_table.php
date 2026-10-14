@@ -16,7 +16,7 @@ return new class extends Migration
             $table->integer('hs_checklist_id');
             $table->string('title');
             $table->tinyText('short_details')->nullable();
-            $table->boolean('status')->default('true');
+            $table->boolean('status')->default(true);
             $table->timestamps();
         });
     }
