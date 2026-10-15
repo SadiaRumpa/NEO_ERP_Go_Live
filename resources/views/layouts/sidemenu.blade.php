@@ -709,5 +709,28 @@
                     </li>
                 </ul>
             </li>
+            <li class="menu-item {{ request()->is('plant-hires*') ? 'open active' : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon icon-base ti tabler-crane"></i>
+                    <div data-i18n="Plant Hire">Plant & Equipment</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item {{ request()->is('plant-hires') || (request()->is('plant-hires/*') && !request()->is('plant-hires/alerts*') && !request()->is('plant-hires/create*')) ? 'active' : '' }}">
+                        <a href="{{ route('plant-hires.index') }}" class="menu-link">
+                            <div data-i18n="Hire Register">Hire Register</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('plant-hires/create') ? 'active' : '' }}">
+                        <a href="{{ route('plant-hires.create') }}" class="menu-link">
+                            <div data-i18n="Book Plant">Book Plant Hire</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('plant-hires/alerts*') ? 'active' : '' }}">
+                        <a href="{{ route('plant-hires.alerts') }}" class="menu-link">
+                            <div data-i18n="Off-Hire Alerts">Off-Hire Alerts</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
         @endhasrole
 </aside>

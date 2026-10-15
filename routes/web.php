@@ -415,4 +415,11 @@ Route::middleware(['auth'])->group(function () {
         Route::post('certificates/{certificate}/mark-paid', [\App\Http\Controllers\Labor\SubcontractorCertificateController::class, 'markPaid'])->name('certificates.mark-paid');
     });
     Route::resource('subcontractors', \App\Http\Controllers\Labor\SubcontractorController::class)->except(['destroy']);
+
+    // Milestone 3: Plant & Equipment Hire Register
+    Route::prefix('plant-hires')->name('plant-hires.')->group(function () {
+        Route::get('alerts', [\App\Http\Controllers\Plant\PlantHireController::class, 'alerts'])->name('alerts');
+        Route::post('{plantHire}/off-hire', [\App\Http\Controllers\Plant\PlantHireController::class, 'offHire'])->name('off-hire');
+    });
+    Route::resource('plant-hires', \App\Http\Controllers\Plant\PlantHireController::class);
 });
