@@ -589,13 +589,13 @@
                     <ul class="nav nav-pills nav-justified mb-6">
 
                         <li class="nav-item">
-                            <button class="nav-link active" data-bs-toggle="modal" data-bs-target="#addNewAddress"
+                            <button class="nav-link" data-bs-toggle="modal" data-bs-target="#addNewAddress"
                                 data-address-type="billing" @if (isset($customer->billingaddress->id) && $customer->billingaddress->id >= 0) style="background-color: darkgray;" disabled @endif>
                                 <i class="icon-base ti tabler-map-pin icon-sm me-1_5"></i> Add Billing Address
                             </button>
                         </li>
                         <li class="nav-item">
-                            <button class="nav-link active" data-bs-toggle="modal" data-bs-target="#addNewAddress"
+                            <button class="nav-link" data-bs-toggle="modal" data-bs-target="#addNewAddress"
                                 data-address-type="site">
                                 <i class="icon-base ti tabler-map-pin icon-sm me-1_5"></i> Add Site Address
                             </button>

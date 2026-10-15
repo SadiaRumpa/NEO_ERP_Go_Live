@@ -473,7 +473,7 @@
                 $jobtypes = DB::table('job_types')->get();
             @endphp
             <li
-                class="menu-item {{ request()->is('fjob-hs-check') || request()->is('fjob-hs-check/*') ? 'active open' : '' }}">
+                class="menu-item {{ request()->is('fjob-hs-check') || request()->is('fjob-hs-check/*') ? 'open' : '' }}">
                 <a href="{{ url('fjob-hs-check') }}" class="menu-link menu-toggle">
                     <i class="menu-icon icon-base ti tabler-checkup-list"></i>
                     <div data-i18n="Job H&S Check">RAMS (Jobs)</div>
@@ -495,7 +495,7 @@
                 </a>
             </li>
             <li
-                class="menu-item {{ request()->is('certificates') || request()->is('certificates/*') ? 'active open' : '' }}">
+                class="menu-item {{ request()->is('certificates') || request()->is('certificates/*') ? 'open' : '' }}">
                 <a href="#" class="menu-link menu-toggle">
                     <i class="menu-icon icon-base ti tabler-brand-databricks"></i>
                     <div data-i18n="staff Training">staff Trainings</div>
@@ -541,7 +541,7 @@
                 </a>
             </li>
             <li
-                class="menu-item {{ request()->is('fjob-hs-check') || request()->is('fjob-hs-check/*') ? 'active open' : '' }}">
+                class="menu-item {{ request()->is('fjob-hs-check') || request()->is('fjob-hs-check/*') ? 'open' : '' }}">
                 <a href="{{ url('fjob-hs-check') }}" class="menu-link menu-toggle">
                     <i class="menu-icon icon-base ti tabler-checkup-list"></i>
                     <div data-i18n="Job H&S Check">RAMS (Jobs)</div>
@@ -567,7 +567,7 @@
                 </a>
             </li>
             <li
-                class="menu-item {{ request()->is('staff_trainings') || request()->is('staff_trainings/*') ? 'active open' : '' }}">
+                class="menu-item {{ request()->is('staff_trainings') || request()->is('staff_trainings/*') ? 'open' : '' }}">
                 <a href="{{ url('staff_trainings') }}" class="menu-link menu-toggle">
                     <i class="menu-icon icon-base ti tabler-brand-databricks"></i>
                     <div data-i18n="staff Training">staff Trainings</div>
@@ -604,7 +604,7 @@
                 </ul>
             </li>
 
-            <li class="menu-item {{ request()->is('reports/*') ? 'open active' : '' }}">
+            <li class="menu-item {{ request()->is('reports/*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon icon-base ti tabler-chart-pie"></i>
                     <div data-i18n="Reports">Reports & Analytics</div>
@@ -641,7 +641,7 @@
                 </a>
             </li>
             <li class="menu-header"><span class="menu-header-text">Commercial & WIP Costing</span></li>
-            <li class="menu-item {{ request()->is('procurement*') ? 'open active' : '' }}">
+            <li class="menu-item {{ request()->is('procurement*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon icon-base ti tabler-truck-delivery"></i>
                     <div data-i18n="Procurement">Procurement & 3-Way</div>
@@ -669,7 +669,7 @@
                     </li>
                 </ul>
             </li>
-            <li class="menu-item {{ request()->is('labor*') ? 'open active' : '' }}">
+            <li class="menu-item {{ request()->is('labor*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon icon-base ti tabler-clock"></i>
                     <div data-i18n="Labor">Labor & Timesheets</div>
@@ -687,7 +687,7 @@
                     </li>
                 </ul>
             </li>
-            <li class="menu-item {{ request()->is('subcontractor*') ? 'open active' : '' }}">
+            <li class="menu-item {{ request()->is('subcontractor*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon icon-base ti tabler-hard-hat"></i>
                     <div data-i18n="Subcontractors">Subcontractor CIS</div>
@@ -710,7 +710,7 @@
                     </li>
                 </ul>
             </li>
-            <li class="menu-item {{ request()->is('plant-hires*') ? 'open active' : '' }}">
+            <li class="menu-item {{ request()->is('plant-hires*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon icon-base ti tabler-crane"></i>
                     <div data-i18n="Plant Hire">Plant & Equipment</div>
@@ -733,7 +733,7 @@
                     </li>
                 </ul>
             </li>
-            <li class="menu-item {{ request()->is('commercial*') ? 'open active' : '' }}">
+            <li class="menu-item {{ request()->is('commercial*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon icon-base ti tabler-certificate"></i>
                     <div data-i18n="Commercial Contracting">Commercial Contracts</div>
