@@ -668,5 +668,46 @@
                     </li>
                 </ul>
             </li>
+            <li class="menu-item {{ request()->is('labor*') ? 'open active' : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon icon-base ti tabler-clock"></i>
+                    <div data-i18n="Labor">Labor & Timesheets</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item {{ request()->is('labor/timesheets*') ? 'active' : '' }}">
+                        <a href="{{ route('labor.timesheets.index') }}" class="menu-link">
+                            <div data-i18n="Timesheets">Timesheets</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('labor/rate-cards*') ? 'active' : '' }}">
+                        <a href="{{ route('labor.rate-cards.index') }}" class="menu-link">
+                            <div data-i18n="Rate Cards">Rate Cards</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="menu-item {{ request()->is('subcontractor*') ? 'open active' : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon icon-base ti tabler-hard-hat"></i>
+                    <div data-i18n="Subcontractors">Subcontractor CIS</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item {{ request()->is('subcontractors') || (request()->is('subcontractors/*') && !request()->is('subcontractors/certificates*') && !request()->is('subcontractors/cis-monthly-return*')) ? 'active' : '' }}">
+                        <a href="{{ route('subcontractors.index') }}" class="menu-link">
+                            <div data-i18n="Subcontractors">Subcontractors</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('subcontractors/certificates*') ? 'active' : '' }}">
+                        <a href="{{ route('subcontractors.certificates.index') }}" class="menu-link">
+                            <div data-i18n="Payment Certificates">Payment Certs</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('subcontractors/cis-monthly-return*') ? 'active' : '' }}">
+                        <a href="{{ route('subcontractors.cis-monthly-return') }}" class="menu-link">
+                            <div data-i18n="HMRC CIS300 Return">HMRC CIS300</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
         @endhasrole
 </aside>

@@ -400,4 +400,19 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('supplier-bills', \App\Http\Controllers\Procurement\SupplierBillController::class)->only(['index', 'create', 'store', 'show']);
         Route::post('supplier-bills/{supplierBill}/override', [\App\Http\Controllers\Procurement\SupplierBillController::class, 'override'])->name('supplier-bills.override');
     });
+
+    // Milestone 2: Labor Timesheets & Subcontractor CIS
+    Route::prefix('labor')->name('labor.')->group(function () {
+        Route::resource('rate-cards', \App\Http\Controllers\Labor\LaborRateCardController::class)->except(['destroy', 'show']);
+        Route::resource('timesheets', \App\Http\Controllers\Labor\TimesheetController::class)->except(['destroy', 'edit', 'update']);
+        Route::post('timesheets/{timesheet}/approve', [\App\Http\Controllers\Labor\TimesheetController::class, 'approve'])->name('timesheets.approve');
+        Route::post('timesheets/{timesheet}/reject', [\App\Http\Controllers\Labor\TimesheetController::class, 'reject'])->name('timesheets.reject');
+    });
+
+    Route::prefix('subcontractors')->name('subcontractors.')->group(function () {
+        Route::get('cis-monthly-return', [\App\Http\Controllers\Labor\SubcontractorCertificateController::class, 'cisMonthlyReturn'])->name('cis-monthly-return');
+        Route::resource('certificates', \App\Http\Controllers\Labor\SubcontractorCertificateController::class)->except(['destroy', 'edit', 'update']);
+        Route::post('certificates/{certificate}/mark-paid', [\App\Http\Controllers\Labor\SubcontractorCertificateController::class, 'markPaid'])->name('certificates.mark-paid');
+    });
+    Route::resource('subcontractors', \App\Http\Controllers\Labor\SubcontractorController::class)->except(['destroy']);
 });
