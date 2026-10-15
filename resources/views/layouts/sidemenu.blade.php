@@ -753,6 +753,11 @@
                             <div data-i18n="Retentions">Retention Ledger</div>
                         </a>
                     </li>
+                    <li class="menu-item {{ request()->is('commercial/wip*') ? 'active' : '' }}">
+                        <a href="{{ route('commercial.wip.portfolio') }}" class="menu-link">
+                            <div data-i18n="WIP Job Costing">Live WIP Job Costing</div>
+                        </a>
+                    </li>
                 </ul>
             </li>
         @endhasrole

@@ -436,5 +436,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('retentions', [\App\Http\Controllers\Commercial\RetentionController::class, 'index'])->name('retentions.index');
         Route::post('retentions/{retention}/release-pc', [\App\Http\Controllers\Commercial\RetentionController::class, 'releasePc'])->name('retentions.release-pc');
         Route::post('retentions/{retention}/release-defects', [\App\Http\Controllers\Commercial\RetentionController::class, 'releaseDefects'])->name('retentions.release-defects');
+
+        // Milestone 5: Live Job Costing & WIP Financial Engine
+        Route::prefix('wip')->name('wip.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Commercial\JobCostingController::class, 'portfolio'])->name('portfolio');
+            Route::get('job/{job}', [\App\Http\Controllers\Commercial\JobCostingController::class, 'show'])->name('job');
+        });
     });
 });

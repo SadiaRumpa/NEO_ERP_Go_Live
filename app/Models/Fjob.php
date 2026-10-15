@@ -114,4 +114,39 @@ class Fjob extends Model
     {
         return $this->hasMany(JobSitePhoto::class, 'job_id');
     }
+
+    public function purchaseOrders()
+    {
+        return $this->hasMany(PurchaseOrder::class, 'job_id');
+    }
+
+    public function laborTimesheets()
+    {
+        return $this->hasMany(LaborTimesheet::class, 'job_id');
+    }
+
+    public function subcontractorCertificates()
+    {
+        return $this->hasMany(SubcontractorPaymentCertificate::class, 'job_id');
+    }
+
+    public function plantHires()
+    {
+        return $this->hasMany(PlantHire::class, 'job_id');
+    }
+
+    public function variations()
+    {
+        return $this->hasMany(JobVariation::class, 'job_id');
+    }
+
+    public function valuations()
+    {
+        return $this->hasMany(JobValuation::class, 'job_id');
+    }
+
+    public function retentions()
+    {
+        return $this->hasMany(JobRetention::class, 'job_id');
+    }
 }
