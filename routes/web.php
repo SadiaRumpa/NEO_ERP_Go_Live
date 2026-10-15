@@ -422,4 +422,19 @@ Route::middleware(['auth'])->group(function () {
         Route::post('{plantHire}/off-hire', [\App\Http\Controllers\Plant\PlantHireController::class, 'offHire'])->name('off-hire');
     });
     Route::resource('plant-hires', \App\Http\Controllers\Plant\PlantHireController::class);
+
+    // Milestone 4: Commercial Variations, Retentions & Valuations
+    Route::prefix('commercial')->name('commercial.')->group(function () {
+        Route::post('variations/{variation}/approve', [\App\Http\Controllers\Commercial\VariationController::class, 'approve'])->name('variations.approve');
+        Route::post('variations/{variation}/reject', [\App\Http\Controllers\Commercial\VariationController::class, 'reject'])->name('variations.reject');
+        Route::resource('variations', \App\Http\Controllers\Commercial\VariationController::class)->except(['destroy', 'edit', 'update']);
+
+        Route::post('valuations/{valuation}/certify', [\App\Http\Controllers\Commercial\ValuationController::class, 'certify'])->name('valuations.certify');
+        Route::post('valuations/{valuation}/mark-paid', [\App\Http\Controllers\Commercial\ValuationController::class, 'markPaid'])->name('valuations.mark-paid');
+        Route::resource('valuations', \App\Http\Controllers\Commercial\ValuationController::class)->except(['destroy', 'edit', 'update']);
+
+        Route::get('retentions', [\App\Http\Controllers\Commercial\RetentionController::class, 'index'])->name('retentions.index');
+        Route::post('retentions/{retention}/release-pc', [\App\Http\Controllers\Commercial\RetentionController::class, 'releasePc'])->name('retentions.release-pc');
+        Route::post('retentions/{retention}/release-defects', [\App\Http\Controllers\Commercial\RetentionController::class, 'releaseDefects'])->name('retentions.release-defects');
+    });
 });

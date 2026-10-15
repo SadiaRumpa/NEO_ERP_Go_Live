@@ -732,5 +732,28 @@
                     </li>
                 </ul>
             </li>
+            <li class="menu-item {{ request()->is('commercial*') ? 'open active' : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon icon-base ti tabler-certificate"></i>
+                    <div data-i18n="Commercial Contracting">Commercial Contracts</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item {{ request()->is('commercial/variations*') ? 'active' : '' }}">
+                        <a href="{{ route('commercial.variations.index') }}" class="menu-link">
+                            <div data-i18n="Variations">Variations (Change Orders)</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('commercial/valuations*') ? 'active' : '' }}">
+                        <a href="{{ route('commercial.valuations.index') }}" class="menu-link">
+                            <div data-i18n="Valuations">Payment Applications</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('commercial/retentions*') ? 'active' : '' }}">
+                        <a href="{{ route('commercial.retentions.index') }}" class="menu-link">
+                            <div data-i18n="Retentions">Retention Ledger</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
         @endhasrole
 </aside>
