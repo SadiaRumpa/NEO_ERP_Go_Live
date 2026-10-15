@@ -13,7 +13,7 @@ class StockUnitSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('stock_units')->insert([
+        DB::table('stock_units')->insertOrIgnore([
             ['name' => 'Pcs', 'slug' => 'pcs'],
             ['name' => 'Kg', 'slug' => 'kg'],
             ['name' => 'Ltr', 'slug' => 'ltr'],

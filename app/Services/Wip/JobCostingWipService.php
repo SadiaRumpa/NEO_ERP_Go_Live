@@ -34,9 +34,13 @@ class JobCostingWipService
 
         // Original Quoted Sum (from quotation or job default)
         $originalContract = 0.00;
-        if (method_exists($job, 'quotations')) {
-            $quote = $job->quotations()->where('status', 'accepted')->first();
-            $originalContract = $quote ? (float)$quote->total : 0.00;
+        if (method_exists($job, 'quotation') && $job->quotation) {
+            $originalContract = (float)($job->quotation->total_amount ?? 0);
+        } elseif (method_exists($job, 'jobquotations') && $job->jobquotations) {
+            $originalContract = (float)($job->jobquotations->total_amount ?? 0);
+        } elseif (method_exists($job, 'quotations')) {
+            $quote = $job->quotations()->whereIn('status', ['accepted', 'approved', 'active'])->first();
+            $originalContract = $quote ? (float)($quote->total ?? $quote->total_amount ?? 0) : 0.00;
         }
 
         $revisedContractSum = round($originalContract + $approvedVariations, 2);
