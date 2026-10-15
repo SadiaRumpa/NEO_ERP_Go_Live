@@ -1,15 +1,13 @@
 /* ==========================================================================
-   NeoERP Professional Construction ERP Design System
-   Theme: Executive Dark Palette | Typography: Roboto & Roboto Mono
-   Benchmarked against Procore, Autodesk Construction Cloud, Linear & Stripe
+   NeoERP Dual-Theme Professional Construction ERP Design System
+   Themes: Light (Pure White Architecture) & Dark (Executive Dark Slate)
+   Typography: Standard Roboto & Roboto Mono
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
-   1. DESIGN TOKENS & ROOT CSS VARIABLES
+   1. GLOBAL SHARED TOKENS (Both Light & Dark)
    -------------------------------------------------------------------------- */
-:root,
-[data-bs-theme="dark"],
-[data-bs-theme="light"] {
+:root {
     /* Standard Typography System: Roboto */
     --bs-body-font-family: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     --bs-font-sans-serif: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -31,45 +29,164 @@
     --neo-weight-semibold: 600;
     --neo-weight-bold: 700;
 
-    /* Executive Dark Color Palette */
-    --neo-dark-bg: #0b0f19;              /* Primary canvas background */
-    --neo-dark-surface: #121826;         /* Elevated card surface */
-    --neo-dark-surface-elevated: #182236;/* Hover state, active rows, modals */
-    --neo-dark-surface-subtle: #0d1322;  /* Table headers, inner wells, sidebar */
-    --neo-dark-border: #1e293d;          /* Card & table structural borders */
-    --neo-dark-border-subtle: #172033;   /* Dividers, secondary borders */
-    --neo-dark-border-hover: #2d3d5b;    /* Border on focus/hover */
-
-    /* High-Contrast Readable Text Hierarchy */
-    --neo-text-primary: #f8fafc;         /* High-contrast crisp white/slate */
-    --neo-text-heading: #ffffff;         /* Pure white for headings and KPI values */
-    --neo-text-secondary: #94a3b8;       /* Comfortable soft muted slate */
-    --neo-text-muted: #64748b;           /* Tertiary hints, timestamps */
-
-    /* Vibrant Accents on Dark Surfaces */
-    --neo-primary: #3b82f6;
-    --neo-primary-hover: #2563eb;
+    /* Core Brand Accents */
+    --neo-primary: #2563eb;
+    --neo-primary-hover: #1d4ed8;
     --neo-success: #10b981;
     --neo-warning: #f59e0b;
     --neo-danger: #ef4444;
     --neo-info: #06b6d4;
+}
+
+/* --------------------------------------------------------------------------
+   2. LIGHT MODE TOKENS (Pure White Background & Balanced Professional UI)
+   Active when [data-bs-theme="light"], .light-style, or by default
+   -------------------------------------------------------------------------- */
+:root,
+[data-bs-theme="light"] {
+    /* Canvas & Surface Colors - Pure White Foundation */
+    --neo-bg: #ffffff;                    /* Pure white canvas background */
+    --neo-surface: #ffffff;               /* Pure white card & container surface */
+    --neo-surface-elevated: #f8fafc;      /* Subtle slate-50 hover & active row */
+    --neo-surface-subtle: #f8fafc;        /* Table headers, inner wells, subtle inputs */
+    --neo-border: #e2e8f0;                /* Slate 200 structural borders */
+    --neo-border-subtle: #f1f5f9;         /* Slate 100 dividers */
+    --neo-border-hover: #cbd5e1;          /* Slate 300 hover state */
+
+    /* High-Contrast Readable Text Hierarchy */
+    --neo-text-primary: #0f172a;          /* Slate 900 crisp, deep readable text */
+    --neo-text-heading: #0f172a;          /* Slate 900 bold headings */
+    --neo-text-secondary: #475569;        /* Slate 600 comfortable subtext */
+    --neo-text-muted: #64748b;            /* Slate 500 captions & footnotes */
+
+    /* Soft Enterprise Shadows */
+    --neo-card-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.06), 0 1px 2px -1px rgba(15, 23, 42, 0.04);
+    --neo-card-shadow-hover: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
+    --neo-dropdown-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.12), 0 8px 10px -6px rgba(15, 23, 42, 0.08);
+
+    /* Bootstrap 5 Native Overrides */
+    --bs-body-bg: #ffffff;
+    --bs-body-color: #0f172a;
+    --bs-heading-color: #0f172a;
+    --bs-border-color: #e2e8f0;
+    --bs-card-bg: #ffffff;
+    --bs-card-border-color: #e2e8f0;
+
+    /* Light Mode Status Badge Palettes */
+    --badge-primary-bg: #eff6ff;
+    --badge-primary-text: #1d4ed8;
+    --badge-primary-border: #bfdbfe;
+
+    --badge-success-bg: #ecfdf5;
+    --badge-success-text: #047857;
+    --badge-success-border: #a7f3d0;
+
+    --badge-warning-bg: #fffbeb;
+    --badge-warning-text: #b45309;
+    --badge-warning-border: #fde68a;
+
+    --badge-danger-bg: #fef2f2;
+    --badge-danger-text: #b91c1c;
+    --badge-danger-border: #fecaca;
+
+    --badge-info-bg: #ecfeff;
+    --badge-info-text: #0e7490;
+    --badge-info-border: #a5f3fc;
+
+    --badge-secondary-bg: #f1f5f9;
+    --badge-secondary-text: #475569;
+    --badge-secondary-border: #cbd5e1;
+
+    /* Inputs in Light Mode */
+    --neo-input-bg: #ffffff;
+    --neo-input-border: #cbd5e1;
+    --neo-input-text: #0f172a;
+    --neo-input-placeholder: #94a3b8;
+    --neo-input-focus-border: #2563eb;
+    --neo-input-focus-shadow: rgba(37, 99, 235, 0.15);
+
+    /* Progress & Scrollbars */
+    --neo-track-bg: #f1f5f9;
+    --neo-scrollbar-track: #ffffff;
+    --neo-scrollbar-thumb: #cbd5e1;
+    --neo-scrollbar-thumb-hover: #94a3b8;
+}
+
+/* --------------------------------------------------------------------------
+   3. DARK MODE TOKENS ([data-bs-theme="dark"])
+   Preserves the exact approved executive dark slate palette
+   -------------------------------------------------------------------------- */
+[data-bs-theme="dark"] {
+    /* Canvas & Surface Colors */
+    --neo-bg: #0b0f19;                    /* Deep obsidian canvas background */
+    --neo-surface: #121826;               /* Elevated dark charcoal card */
+    --neo-surface-elevated: #182236;      /* Hover state, active rows, modals */
+    --neo-surface-subtle: #0d1322;        /* Table headers, inner wells, sidebar */
+    --neo-border: #1e293d;                /* Structural dark slate borders */
+    --neo-border-subtle: #172033;         /* Dark dividers */
+    --neo-border-hover: #2d3d5b;          /* Border on hover */
+
+    /* High-Contrast Readable Text Hierarchy */
+    --neo-text-primary: #f8fafc;          /* High-contrast crisp white/slate */
+    --neo-text-heading: #ffffff;          /* Pure white for headings and KPI values */
+    --neo-text-secondary: #94a3b8;        /* Comfortable soft muted slate */
+    --neo-text-muted: #64748b;            /* Tertiary hints, timestamps */
 
     /* Shadows for Dark Mode Elevation */
     --neo-card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
     --neo-card-shadow-hover: 0 12px 20px -3px rgba(0, 0, 0, 0.55), 0 4px 6px -4px rgba(0, 0, 0, 0.35);
     --neo-dropdown-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.65), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
 
-    /* Bootstrap 5 Theme Overrides */
-    --bs-body-bg: var(--neo-dark-bg);
-    --bs-body-color: var(--neo-text-primary);
-    --bs-heading-color: var(--neo-text-heading);
-    --bs-border-color: var(--neo-dark-border);
-    --bs-card-bg: var(--neo-dark-surface);
-    --bs-card-border-color: var(--neo-dark-border);
+    /* Bootstrap 5 Native Overrides */
+    --bs-body-bg: #0b0f19;
+    --bs-body-color: #f8fafc;
+    --bs-heading-color: #ffffff;
+    --bs-border-color: #1e293d;
+    --bs-card-bg: #121826;
+    --bs-card-border-color: #1e293d;
+
+    /* Dark Mode Status Badge Palettes */
+    --badge-primary-bg: rgba(59, 130, 246, 0.15);
+    --badge-primary-text: #60a5fa;
+    --badge-primary-border: rgba(59, 130, 246, 0.3);
+
+    --badge-success-bg: rgba(16, 185, 129, 0.15);
+    --badge-success-text: #34d399;
+    --badge-success-border: rgba(16, 185, 129, 0.3);
+
+    --badge-warning-bg: rgba(245, 158, 11, 0.15);
+    --badge-warning-text: #fbbf24;
+    --badge-warning-border: rgba(245, 158, 11, 0.3);
+
+    --badge-danger-bg: rgba(239, 68, 68, 0.15);
+    --badge-danger-text: #f87171;
+    --badge-danger-border: rgba(239, 68, 68, 0.3);
+
+    --badge-info-bg: rgba(6, 182, 212, 0.15);
+    --badge-info-text: #38bdf8;
+    --badge-info-border: rgba(6, 182, 212, 0.3);
+
+    --badge-secondary-bg: rgba(100, 116, 139, 0.18);
+    --badge-secondary-text: #cbd5e1;
+    --badge-secondary-border: rgba(100, 116, 139, 0.3);
+
+    /* Inputs in Dark Mode */
+    --neo-input-bg: #0e1422;
+    --neo-input-border: #222f46;
+    --neo-input-text: #f8fafc;
+    --neo-input-placeholder: #64748b;
+    --neo-input-focus-border: #3b82f6;
+    --neo-input-focus-shadow: rgba(59, 130, 246, 0.25);
+
+    /* Progress & Scrollbars */
+    --neo-track-bg: #1e293b;
+    --neo-scrollbar-track: #0b0f19;
+    --neo-scrollbar-thumb: #23304a;
+    --neo-scrollbar-thumb-hover: #334366;
 }
 
 /* --------------------------------------------------------------------------
-   2. GLOBAL BODY & LAYOUT WRAPPERS
+   4. GLOBAL BODY & LAYOUT WRAPPERS
    -------------------------------------------------------------------------- */
 body {
     font-family: var(--neo-font-sans) !important;
@@ -77,7 +194,7 @@ body {
     font-weight: var(--neo-weight-normal);
     line-height: 1.55;
     color: var(--neo-text-primary) !important;
-    background-color: var(--neo-dark-bg) !important;
+    background-color: var(--neo-bg) !important;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -86,7 +203,7 @@ body {
 .layout-container,
 .layout-page,
 .content-wrapper {
-    background-color: var(--neo-dark-bg) !important;
+    background-color: var(--neo-bg) !important;
 }
 
 /* Standard Heading Weights & Sizes */
@@ -101,7 +218,7 @@ p, span, li, label, input, select, textarea {
     font-family: var(--neo-font-sans);
 }
 
-/* Financial Figures, Quantities & Numbers Alignment */
+/* Financial Figures, Quantities & Numbers Tabular Alignment */
 .tabular-nums, .text-end, .financial-num {
     font-family: var(--neo-font-mono);
     font-variant-numeric: tabular-nums;
@@ -109,17 +226,17 @@ p, span, li, label, input, select, textarea {
 }
 
 /* --------------------------------------------------------------------------
-   3. SIDEBAR NAVIGATION (#layout-menu)
+   5. SIDEBAR NAVIGATION (#layout-menu)
    -------------------------------------------------------------------------- */
 .layout-menu,
 #layout-menu {
-    background-color: var(--neo-dark-surface-subtle) !important;
-    border-right: 1px solid var(--neo-dark-border) !important;
-    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.3) !important;
+    background-color: var(--neo-surface) !important;
+    border-right: 1px solid var(--neo-border) !important;
+    box-shadow: 1px 0 3px rgba(0, 0, 0, 0.05) !important;
 }
 
 .layout-menu .app-brand {
-    border-bottom: 1px solid var(--neo-dark-border);
+    border-bottom: 1px solid var(--neo-border);
     padding: 1rem 1.25rem;
 }
 
@@ -147,7 +264,7 @@ p, span, li, label, input, select, textarea {
 }
 
 .layout-menu .menu-item .menu-link:hover {
-    background-color: var(--neo-dark-surface-elevated) !important;
+    background-color: var(--neo-surface-elevated) !important;
     color: var(--neo-text-primary) !important;
 }
 
@@ -155,7 +272,7 @@ p, span, li, label, input, select, textarea {
     background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
     color: #ffffff !important;
     font-weight: var(--neo-weight-semibold) !important;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35) !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.28) !important;
 }
 
 .layout-menu .menu-item.active > .menu-link i,
@@ -178,16 +295,16 @@ p, span, li, label, input, select, textarea {
 }
 
 /* --------------------------------------------------------------------------
-   4. NAVBAR HEADER (#layout-navbar)
+   6. NAVBAR HEADER (#layout-navbar)
    -------------------------------------------------------------------------- */
 .layout-navbar,
 #layout-navbar {
-    background-color: rgba(13, 19, 34, 0.85) !important;
+    background-color: var(--neo-surface) !important;
     backdrop-filter: blur(12px) !important;
     -webkit-backdrop-filter: blur(12px) !important;
-    border: 1px solid var(--neo-dark-border) !important;
+    border: 1px solid var(--neo-border) !important;
     border-radius: 0.75rem !important;
-    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.45) !important;
+    box-shadow: var(--neo-card-shadow) !important;
     color: var(--neo-text-primary) !important;
 }
 
@@ -201,11 +318,11 @@ p, span, li, label, input, select, textarea {
 }
 
 /* --------------------------------------------------------------------------
-   5. EXECUTIVE DARK CARDS & CONTAINERS
+   7. CARDS & CONTAINERS
    -------------------------------------------------------------------------- */
 .card {
-    background-color: var(--neo-dark-surface) !important;
-    border: 1px solid var(--neo-dark-border) !important;
+    background-color: var(--neo-surface) !important;
+    border: 1px solid var(--neo-border) !important;
     border-radius: 0.75rem !important;
     box-shadow: var(--neo-card-shadow) !important;
     color: var(--neo-text-primary) !important;
@@ -214,12 +331,12 @@ p, span, li, label, input, select, textarea {
 
 .card-hoverable:hover,
 .card:hover {
-    border-color: var(--neo-dark-border-hover) !important;
+    border-color: var(--neo-border-hover) !important;
 }
 
 .card-header {
     background-color: transparent !important;
-    border-bottom: 1px solid var(--neo-dark-border) !important;
+    border-bottom: 1px solid var(--neo-border) !important;
     padding: 1.1rem 1.4rem !important;
 }
 
@@ -237,16 +354,16 @@ p, span, li, label, input, select, textarea {
 
 .card-footer {
     background-color: transparent !important;
-    border-top: 1px solid var(--neo-dark-border) !important;
+    border-top: 1px solid var(--neo-border) !important;
     padding: 1rem 1.4rem !important;
 }
 
 /* --------------------------------------------------------------------------
-   6. KPI & METRIC SUMMARY WIDGETS (.neo-kpi-card)
+   8. KPI & METRIC SUMMARY WIDGETS (.neo-kpi-card)
    -------------------------------------------------------------------------- */
 .neo-kpi-card {
-    background-color: var(--neo-dark-surface) !important;
-    border: 1px solid var(--neo-dark-border) !important;
+    background-color: var(--neo-surface) !important;
+    border: 1px solid var(--neo-border) !important;
     border-radius: 0.75rem !important;
     position: relative;
     overflow: hidden;
@@ -257,7 +374,7 @@ p, span, li, label, input, select, textarea {
 
 .neo-kpi-card:hover {
     transform: translateY(-2px);
-    border-color: var(--neo-dark-border-hover) !important;
+    border-color: var(--neo-border-hover) !important;
     box-shadow: var(--neo-card-shadow-hover) !important;
 }
 
@@ -268,7 +385,7 @@ p, span, li, label, input, select, textarea {
     left: 0;
     right: 0;
     height: 3px;
-    background: var(--neo-dark-border);
+    background: var(--neo-border);
 }
 
 .neo-kpi-card.kpi-primary::before { background: var(--neo-primary); }
@@ -280,7 +397,7 @@ p, span, li, label, input, select, textarea {
 .neo-kpi-card .kpi-subtitle {
     font-size: var(--neo-font-xs);
     text-transform: uppercase;
-    font-weight: var(--neo-weight-medium);
+    font-weight: var(--neo-weight-semibold);
     letter-spacing: 0.06em;
     color: var(--neo-text-secondary);
     margin-bottom: 0.4rem;
@@ -303,7 +420,7 @@ p, span, li, label, input, select, textarea {
 }
 
 /* --------------------------------------------------------------------------
-   7. INDUSTRY-STANDARD DATA TABLES
+   9. INDUSTRY-STANDARD DATA TABLES
    -------------------------------------------------------------------------- */
 .table-responsive {
     border-radius: 0 0 0.75rem 0.75rem;
@@ -311,30 +428,30 @@ p, span, li, label, input, select, textarea {
 
 .table {
     margin-bottom: 0;
-    background-color: var(--neo-dark-surface) !important;
+    background-color: var(--neo-surface) !important;
     color: var(--neo-text-primary) !important;
-    border-color: var(--neo-dark-border) !important;
+    border-color: var(--neo-border) !important;
 }
 
 .table thead th {
-    background-color: var(--neo-dark-surface-subtle) !important;
+    background-color: var(--neo-surface-subtle) !important;
     color: var(--neo-text-secondary) !important;
     font-size: var(--neo-font-xs) !important;
-    font-weight: var(--neo-weight-medium) !important;
+    font-weight: var(--neo-weight-semibold) !important;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     padding: 0.85rem 1.15rem !important;
     border-top: none !important;
-    border-bottom: 1px solid var(--neo-dark-border) !important;
+    border-bottom: 1px solid var(--neo-border) !important;
     white-space: nowrap;
 }
 
 .table tbody td {
     padding: 0.85rem 1.15rem !important;
     vertical-align: middle !important;
-    border-bottom: 1px solid var(--neo-dark-border) !important;
+    border-bottom: 1px solid var(--neo-border) !important;
     font-size: 0.875rem !important;
-    color: #e2e8f0 !important;
+    color: var(--neo-text-primary) !important;
     background-color: transparent !important;
 }
 
@@ -344,16 +461,12 @@ p, span, li, label, input, select, textarea {
 
 .table tbody tr:hover,
 .table-hover > tbody > tr:hover > * {
-    background-color: var(--neo-dark-surface-elevated) !important;
-    color: #ffffff !important;
-}
-
-.table-striped > tbody > tr:nth-of-type(odd) > * {
-    background-color: rgba(255, 255, 255, 0.015) !important;
+    background-color: var(--neo-surface-elevated) !important;
+    color: var(--neo-text-heading) !important;
 }
 
 /* --------------------------------------------------------------------------
-   8. HIGH-CONTRAST STATUS BADGES (DARK-TINTED PILLS)
+   10. STATUS BADGES & PILLS
    -------------------------------------------------------------------------- */
 .badge {
     font-family: var(--neo-font-sans);
@@ -369,39 +482,39 @@ p, span, li, label, input, select, textarea {
 }
 
 .badge.bg-label-primary {
-    background-color: rgba(59, 130, 246, 0.15) !important;
-    color: #60a5fa !important;
-    border: 1px solid rgba(59, 130, 246, 0.3) !important;
+    background-color: var(--badge-primary-bg) !important;
+    color: var(--badge-primary-text) !important;
+    border: 1px solid var(--badge-primary-border) !important;
 }
 
 .badge.bg-label-success {
-    background-color: rgba(16, 185, 129, 0.15) !important;
-    color: #34d399 !important;
-    border: 1px solid rgba(16, 185, 129, 0.3) !important;
+    background-color: var(--badge-success-bg) !important;
+    color: var(--badge-success-text) !important;
+    border: 1px solid var(--badge-success-border) !important;
 }
 
 .badge.bg-label-warning {
-    background-color: rgba(245, 158, 11, 0.15) !important;
-    color: #fbbf24 !important;
-    border: 1px solid rgba(245, 158, 11, 0.3) !important;
+    background-color: var(--badge-warning-bg) !important;
+    color: var(--badge-warning-text) !important;
+    border: 1px solid var(--badge-warning-border) !important;
 }
 
 .badge.bg-label-danger {
-    background-color: rgba(239, 68, 68, 0.15) !important;
-    color: #f87171 !important;
-    border: 1px solid rgba(239, 68, 68, 0.3) !important;
+    background-color: var(--badge-danger-bg) !important;
+    color: var(--badge-danger-text) !important;
+    border: 1px solid var(--badge-danger-border) !important;
 }
 
 .badge.bg-label-info {
-    background-color: rgba(6, 182, 212, 0.15) !important;
-    color: #38bdf8 !important;
-    border: 1px solid rgba(6, 182, 212, 0.3) !important;
+    background-color: var(--badge-info-bg) !important;
+    color: var(--badge-info-text) !important;
+    border: 1px solid var(--badge-info-border) !important;
 }
 
 .badge.bg-label-secondary {
-    background-color: rgba(100, 116, 139, 0.18) !important;
-    color: #cbd5e1 !important;
-    border: 1px solid rgba(100, 116, 139, 0.3) !important;
+    background-color: var(--badge-secondary-bg) !important;
+    color: var(--badge-secondary-text) !important;
+    border: 1px solid var(--badge-secondary-border) !important;
 }
 
 /* Pulsing Status Indicators */
@@ -435,7 +548,7 @@ p, span, li, label, input, select, textarea {
 }
 
 /* --------------------------------------------------------------------------
-   9. BUTTONS & ACTIONS
+   11. BUTTONS & ACTIONS
    -------------------------------------------------------------------------- */
 .btn {
     font-family: var(--neo-font-sans);
@@ -462,32 +575,31 @@ p, span, li, label, input, select, textarea {
     background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%) !important;
     border-color: #2563eb !important;
     color: #ffffff !important;
-    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.35) !important;
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.25) !important;
 }
 
 .btn-primary:hover {
     background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%) !important;
     border-color: #1d4ed8 !important;
-    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.45) !important;
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35) !important;
 }
 
 .btn-secondary {
-    background-color: #1e293b !important;
-    border-color: #334155 !important;
-    color: #cbd5e1 !important;
+    background-color: var(--neo-surface-elevated) !important;
+    border-color: var(--neo-border) !important;
+    color: var(--neo-text-secondary) !important;
 }
 
 .btn-secondary:hover {
-    background-color: #334155 !important;
-    border-color: #475569 !important;
-    color: #ffffff !important;
+    background-color: var(--neo-border) !important;
+    color: var(--neo-text-heading) !important;
 }
 
 .btn-success {
     background: linear-gradient(180deg, #10b981 0%, #059669 100%) !important;
     border-color: #059669 !important;
     color: #ffffff !important;
-    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3) !important;
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2) !important;
 }
 
 .btn-success:hover {
@@ -507,31 +619,30 @@ p, span, li, label, input, select, textarea {
 }
 
 /* --------------------------------------------------------------------------
-   10. FORMS & CONTROLS
+   12. FORMS & INPUTS
    -------------------------------------------------------------------------- */
 .form-control,
 .form-select,
 .input-group-text {
-    background-color: var(--neo-dark-surface-subtle) !important;
-    border: 1px solid var(--neo-dark-border) !important;
+    background-color: var(--neo-input-bg) !important;
+    border: 1px solid var(--neo-input-border) !important;
     border-radius: 0.5rem !important;
     padding: 0.55rem 0.85rem !important;
     font-size: 0.875rem !important;
     font-family: var(--neo-font-sans);
-    color: var(--neo-text-primary) !important;
+    color: var(--neo-input-text) !important;
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .form-control::placeholder {
-    color: var(--neo-text-muted) !important;
+    color: var(--neo-input-placeholder) !important;
 }
 
 .form-control:focus,
 .form-select:focus {
-    background-color: #101726 !important;
-    border-color: var(--neo-primary) !important;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25) !important;
-    color: #ffffff !important;
+    border-color: var(--neo-input-focus-border) !important;
+    box-shadow: 0 0 0 3px var(--neo-input-focus-shadow) !important;
+    color: var(--neo-input-text) !important;
 }
 
 .form-label {
@@ -547,15 +658,16 @@ p, span, li, label, input, select, textarea {
 }
 
 /* --------------------------------------------------------------------------
-   11. 4-PILLAR VISUAL COST BREAKDOWN BAR
+   13. 4-PILLAR VISUAL COST BREAKDOWN BAR
    -------------------------------------------------------------------------- */
 .neo-pillar-progress-track {
     height: 12px;
-    background: #1e293b;
+    background: var(--neo-track-bg);
     border-radius: 9999px;
     overflow: hidden;
     display: flex;
     margin: 0.75rem 0 1rem 0;
+    border: 1px solid var(--neo-border);
 }
 
 .neo-pillar-segment {
@@ -591,11 +703,11 @@ p, span, li, label, input, select, textarea {
 }
 
 /* --------------------------------------------------------------------------
-   12. DROPDOWNS, MODALS & TOAST NOTIFICATIONS
+   14. DROPDOWNS & MODALS
    -------------------------------------------------------------------------- */
 .dropdown-menu {
-    background-color: var(--neo-dark-surface) !important;
-    border: 1px solid var(--neo-dark-border) !important;
+    background-color: var(--neo-surface) !important;
+    border: 1px solid var(--neo-border) !important;
     border-radius: 0.65rem !important;
     box-shadow: var(--neo-dropdown-shadow) !important;
     padding: 0.45rem !important;
@@ -612,33 +724,33 @@ p, span, li, label, input, select, textarea {
 
 .dropdown-item:hover,
 .dropdown-item:focus {
-    background-color: var(--neo-dark-surface-elevated) !important;
+    background-color: var(--neo-surface-elevated) !important;
     color: var(--neo-text-heading) !important;
 }
 
 .dropdown-divider {
-    border-top: 1px solid var(--neo-dark-border) !important;
+    border-top: 1px solid var(--neo-border) !important;
     margin: 0.4rem 0 !important;
 }
 
 .modal-content {
-    background-color: var(--neo-dark-surface) !important;
-    border: 1px solid var(--neo-dark-border) !important;
+    background-color: var(--neo-surface) !important;
+    border: 1px solid var(--neo-border) !important;
     border-radius: 0.85rem !important;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75) !important;
+    box-shadow: var(--neo-dropdown-shadow) !important;
     color: var(--neo-text-primary) !important;
 }
 
 .modal-header {
-    border-bottom: 1px solid var(--neo-dark-border) !important;
+    border-bottom: 1px solid var(--neo-border) !important;
 }
 
 .modal-footer {
-    border-top: 1px solid var(--neo-dark-border) !important;
+    border-top: 1px solid var(--neo-border) !important;
 }
 
 /* --------------------------------------------------------------------------
-   13. NAV PILLS & TABS
+   15. NAV PILLS & TABS
    -------------------------------------------------------------------------- */
 .nav-pills .nav-link {
     font-weight: var(--neo-weight-medium);
@@ -646,72 +758,32 @@ p, span, li, label, input, select, textarea {
     border-radius: 0.5rem;
     padding: 0.55rem 1rem;
     color: var(--neo-text-secondary);
-    background-color: var(--neo-dark-surface-subtle);
-    border: 1px solid var(--neo-dark-border);
+    background-color: var(--neo-surface-subtle);
+    border: 1px solid var(--neo-border);
     transition: all 0.15s ease;
 }
 
 .nav-pills .nav-link:hover {
     color: var(--neo-text-primary);
-    background-color: var(--neo-dark-surface-elevated);
+    background-color: var(--neo-surface-elevated);
 }
 
 .nav-pills .nav-link.active {
     background-color: var(--neo-primary) !important;
     border-color: var(--neo-primary) !important;
     color: #ffffff !important;
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4) !important;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35) !important;
 }
 
 /* --------------------------------------------------------------------------
-   14. CODE SNIPPETS & MONOSPACE TAGS
-   -------------------------------------------------------------------------- */
-code {
-    background-color: #0b101c !important;
-    color: #60a5fa !important;
-    padding: 0.2em 0.45em;
-    border-radius: 0.35rem;
-    font-size: 0.825em;
-    font-family: var(--neo-font-mono) !important;
-    border: 1px solid var(--neo-dark-border);
-}
-
-/* --------------------------------------------------------------------------
-   15. SLEEK DARK SCROLLBAR
-   -------------------------------------------------------------------------- */
-::-webkit-scrollbar {
-    width: 7px;
-    height: 7px;
-}
-
-::-webkit-scrollbar-track {
-    background: var(--neo-dark-bg);
-}
-
-::-webkit-scrollbar-thumb {
-    background: #23304a;
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: #334366;
-}
-
-/* Firefox */
-* {
-    scrollbar-width: thin;
-    scrollbar-color: #23304a var(--neo-dark-bg);
-}
-
-/* --------------------------------------------------------------------------
-   16. BOOTSTRAP DARK UTILITIES & COMPONENT OVERRIDES
+   16. BOOTSTRAP UTILITIES & OVERRIDES
    -------------------------------------------------------------------------- */
 .border,
 .border-top,
 .border-bottom,
 .border-start,
 .border-end {
-    border-color: var(--neo-dark-border) !important;
+    border-color: var(--neo-border) !important;
 }
 
 .text-body {
@@ -730,43 +802,43 @@ code {
 
 .bg-light,
 .bg-body {
-    background-color: var(--neo-dark-surface-subtle) !important;
+    background-color: var(--neo-surface-subtle) !important;
 }
 
 .bg-white {
-    background-color: var(--neo-dark-surface) !important;
+    background-color: var(--neo-surface) !important;
     color: var(--neo-text-primary) !important;
 }
 
 /* List Groups */
 .list-group {
-    background-color: var(--neo-dark-surface) !important;
-    border-color: var(--neo-dark-border) !important;
+    background-color: var(--neo-surface) !important;
+    border-color: var(--neo-border) !important;
 }
 
 .list-group-item {
-    background-color: var(--neo-dark-surface) !important;
-    border-color: var(--neo-dark-border) !important;
+    background-color: var(--neo-surface) !important;
+    border-color: var(--neo-border) !important;
     color: var(--neo-text-primary) !important;
 }
 
 .list-group-item-action:hover,
 .list-group-item-action:focus {
-    background-color: var(--neo-dark-surface-elevated) !important;
+    background-color: var(--neo-surface-elevated) !important;
     color: var(--neo-text-heading) !important;
 }
 
 /* Pagination */
 .pagination .page-link {
-    background-color: var(--neo-dark-surface) !important;
-    border-color: var(--neo-dark-border) !important;
+    background-color: var(--neo-surface) !important;
+    border-color: var(--neo-border) !important;
     color: var(--neo-text-secondary) !important;
     font-family: var(--neo-font-mono);
     font-size: 0.85rem;
 }
 
 .pagination .page-link:hover {
-    background-color: var(--neo-dark-surface-elevated) !important;
+    background-color: var(--neo-surface-elevated) !important;
     color: var(--neo-text-heading) !important;
 }
 
@@ -794,70 +866,174 @@ code {
 
 /* Progress Bars */
 .progress {
-    background-color: #172033 !important;
+    background-color: var(--neo-track-bg) !important;
     border-radius: 9999px;
 }
 
 /* Dividers */
 .divider::before,
 .divider::after {
-    border-color: var(--neo-dark-border) !important;
+    border-color: var(--neo-border) !important;
 }
 
 .divider .divider-text {
     color: var(--neo-text-secondary) !important;
 }
 
-/* Alerts */
+/* Code Snippets */
+code {
+    background-color: var(--neo-surface-subtle) !important;
+    color: var(--neo-primary) !important;
+    padding: 0.2em 0.45em;
+    border-radius: 0.35rem;
+    font-size: 0.825em;
+    font-family: var(--neo-font-mono) !important;
+    border: 1px solid var(--neo-border);
+}
+
+/* Sleek Scrollbar */
+::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--neo-scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--neo-scrollbar-thumb);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--neo-scrollbar-thumb-hover);
+}
+
+/* Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--neo-scrollbar-thumb) var(--neo-scrollbar-track);
+}
+
+/* --------------------------------------------------------------------------
+   17. AUTHENTICATION SCREENS (Login, Forgot Password, Reset)
+   -------------------------------------------------------------------------- */
+.authentication-wrapper {
+    background-color: var(--neo-bg) !important;
+}
+
+.authentication-wrapper .auth-cover-bg {
+    background-color: var(--neo-surface-subtle) !important;
+}
+
+.authentication-wrapper .authentication-bg {
+    background-color: var(--neo-surface) !important;
+    border-left: 1px solid var(--neo-border) !important;
+}
+
+/* --------------------------------------------------------------------------
+   18. ALERTS & CALLOUT NOTIFICATIONS
+   -------------------------------------------------------------------------- */
 .alert {
     border-radius: 0.65rem;
     font-size: 0.875rem;
+    font-weight: var(--neo-weight-medium);
 }
 
 .alert-primary {
-    background-color: rgba(59, 130, 246, 0.12) !important;
-    border: 1px solid rgba(59, 130, 246, 0.25) !important;
-    color: #93c5fd !important;
+    background-color: var(--badge-primary-bg) !important;
+    border: 1px solid var(--badge-primary-border) !important;
+    color: var(--badge-primary-text) !important;
 }
 
 .alert-success {
-    background-color: rgba(16, 185, 129, 0.12) !important;
-    border: 1px solid rgba(16, 185, 129, 0.25) !important;
-    color: #6ee7b7 !important;
+    background-color: var(--badge-success-bg) !important;
+    border: 1px solid var(--badge-success-border) !important;
+    color: var(--badge-success-text) !important;
 }
 
 .alert-warning {
-    background-color: rgba(245, 158, 11, 0.12) !important;
-    border: 1px solid rgba(245, 158, 11, 0.25) !important;
-    color: #fde68a !important;
+    background-color: var(--badge-warning-bg) !important;
+    border: 1px solid var(--badge-warning-border) !important;
+    color: var(--badge-warning-text) !important;
 }
 
 .alert-danger {
-    background-color: rgba(239, 68, 68, 0.12) !important;
-    border: 1px solid rgba(239, 68, 68, 0.25) !important;
-    color: #fca5a5 !important;
+    background-color: var(--badge-danger-bg) !important;
+    border: 1px solid var(--badge-danger-border) !important;
+    color: var(--badge-danger-text) !important;
 }
 
 .alert-info {
-    background-color: rgba(6, 182, 212, 0.12) !important;
-    border: 1px solid rgba(6, 182, 212, 0.25) !important;
-    color: #a5f3fc !important;
+    background-color: var(--badge-info-bg) !important;
+    border: 1px solid var(--badge-info-border) !important;
+    color: var(--badge-info-text) !important;
 }
 
-/* Accordions */
-.accordion-item {
-    background-color: var(--neo-dark-surface) !important;
-    border-color: var(--neo-dark-border) !important;
+/* --------------------------------------------------------------------------
+   19. FOOTER & MISC UI ENHANCEMENTS
+   -------------------------------------------------------------------------- */
+.content-footer,
+.footer {
+    background-color: var(--neo-bg) !important;
+    color: var(--neo-text-muted) !important;
+    border-top: 1px solid var(--neo-border) !important;
 }
 
-.accordion-button {
-    background-color: var(--neo-dark-surface) !important;
+.footer a {
+    color: var(--neo-text-secondary) !important;
+}
+
+.footer a:hover {
+    color: var(--neo-primary) !important;
+}
+
+/* Striped and Active Table Rows */
+.table-striped > tbody > tr:nth-of-type(odd) > * {
+    background-color: var(--neo-surface-subtle) !important;
     color: var(--neo-text-primary) !important;
 }
 
-.accordion-button:not(.collapsed) {
-    background-color: var(--neo-dark-surface-elevated) !important;
-    color: var(--neo-primary) !important;
+.table-active,
+.table-active > th,
+.table-active > td {
+    background-color: var(--neo-surface-elevated) !important;
+    color: var(--neo-text-heading) !important;
+}
+
+/* Form Check & Switches */
+.form-check-input {
+    background-color: var(--neo-input-bg);
+    border-color: var(--neo-input-border);
+}
+
+.form-check-input:checked {
+    background-color: var(--neo-primary);
+    border-color: var(--neo-primary);
+}
+
+.form-check-label {
+    color: var(--neo-text-primary);
+    font-size: var(--neo-font-sm);
+}
+
+/* Close Button Contrast in Dark Mode */
+[data-bs-theme="dark"] .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* Smooth Theme Switching Transitions */
+body,
+.card,
+.layout-navbar,
+.layout-menu,
+.table,
+.form-control,
+.form-select,
+.modal-content,
+.dropdown-menu {
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.15s ease, box-shadow 0.2s ease;
 }
 
 /* --------------------------------------------------------------------------

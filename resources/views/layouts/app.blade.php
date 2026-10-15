@@ -1,11 +1,11 @@
 <!doctype html>
 
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" 
-    class="layout-wide customizer-hide dark-style"
+    class="layout-wide customizer-hide"
     dir="ltr"
     data-skin="default"
     data-template="horizontal-menu-template-no-customizer"
-    data-bs-theme="dark">
+    data-bs-theme="light">
 
 <head>
     <meta charset="utf-8" />

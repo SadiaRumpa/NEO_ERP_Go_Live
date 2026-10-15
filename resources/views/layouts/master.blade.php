@@ -1,7 +1,7 @@
 <!doctype html>
 
-<html lang="en" class="layout-navbar-fixed layout-menu-fixed layout-compact dark-style" dir="ltr" data-skin="default"
-    data-template="vertical-menu-template" data-bs-theme="dark">
+<html lang="en" class="layout-navbar-fixed layout-menu-fixed layout-compact" dir="ltr" data-skin="default"
+    data-template="vertical-menu-template" data-bs-theme="light">
 
 <head>
     <meta charset="utf-8" />
@@ -19,7 +19,7 @@
 
     <!-- PWA Manifest & Mobile Configuration (FR-022) -->
     <link rel="manifest" href="{{ asset('manifest.json') }}">
-    <meta name="theme-color" content="#0b0f19">
+    <meta name="theme-color" content="#ffffff">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NeoField">
@@ -108,22 +108,22 @@
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle hide-arrow btn btn-icon btn-text-secondary rounded-pill"
                                     id="nav-theme" href="javascript:void(0);" data-bs-toggle="dropdown">
-                                    <i class="icon-base ti tabler-moon-stars icon-22px theme-icon-active text-heading"></i>
+                                    <i class="icon-base ti tabler-sun icon-22px theme-icon-active text-heading"></i>
                                     <span class="d-none ms-2" id="nav-theme-text">Toggle theme</span>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-theme-text">
                                     <li>
                                         <button type="button" class="dropdown-item align-items-center active"
-                                            data-bs-theme-value="dark" aria-pressed="true">
-                                            <span><i class="icon-base ti tabler-moon-stars icon-22px me-3"
-                                                    data-icon="moon-stars"></i>Dark (Default)</span>
+                                            data-bs-theme-value="light" aria-pressed="true">
+                                            <span><i class="icon-base ti tabler-sun icon-22px me-3"
+                                                    data-icon="sun"></i>Light</span>
                                         </button>
                                     </li>
                                     <li>
                                         <button type="button" class="dropdown-item align-items-center"
-                                            data-bs-theme-value="light" aria-pressed="false">
-                                            <span><i class="icon-base ti tabler-sun icon-22px me-3"
-                                                    data-icon="sun"></i>Light</span>
+                                            data-bs-theme-value="dark" aria-pressed="false">
+                                            <span><i class="icon-base ti tabler-moon-stars icon-22px me-3"
+                                                    data-icon="moon-stars"></i>Dark</span>
                                         </button>
                                     </li>
                                     <li>

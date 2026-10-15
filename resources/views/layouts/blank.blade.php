@@ -1,8 +1,6 @@
 <!doctype html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-
-<html lang="en" class="layout-wide dark-style" dir="ltr" data-skin="default"
-    data-template="horizontal-menu-template-no-customizer" data-bs-theme="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="layout-wide" dir="ltr" data-skin="default"
+    data-template="horizontal-menu-template-no-customizer" data-bs-theme="light">
 
 <head>
     <meta charset="utf-8" />
