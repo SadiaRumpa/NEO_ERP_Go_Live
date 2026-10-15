@@ -81,8 +81,7 @@ document.addEventListener('DOMContentLoaded', function () {
     Waves.attach('.dropdown-menu .dropdown-item');
     Waves.attach('[data-bs-theme="light"] .list-group .list-group-item-action');
     Waves.attach('[data-bs-theme="dark"] .list-group .list-group-item-action', ['waves-light']);
-    Waves.attach('.nav-tabs:not(.nav-tabs-widget) .nav-item .nav-link');
-    Waves.attach('.nav-pills .nav-item .nav-link', ['waves-light']);
+    // Nav tabs and pills excluded from Waves ripple to guarantee instant zero-flash switching
   }
 
   // Initialize menu

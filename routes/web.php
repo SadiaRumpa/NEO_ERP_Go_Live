@@ -169,6 +169,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('jobs/rejected', [FjobController::class, 'showRejectedJobs'])->name('job.show.rejected');
 
     Route::get('job/{id}', [FjobController::class, 'show'])->name('job.show');
+    Route::get('jobs/{id}', [FjobController::class, 'show'])->name('jobs.show');
     Route::post('job/updatedescription/{id}', [FjobController::class, 'updateJobDetails'])->name('job.updatedescription');
     Route::post('job/updateaddress/{id}', [FjobController::class, 'updateJobAddress'])->name('job.updateaddress');
     Route::post('job/updatestatus/{id}', [FjobController::class, 'updateJobStatus'])->name('job.updatestatus');

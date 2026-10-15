@@ -1,4 +1,4 @@
-const CACHE_NAME = 'neoerp-field-v1';
+const CACHE_NAME = 'neoerp-field-v2';
 const ASSETS_TO_CACHE = [
   '/field/jobs',
   '/assets/vendor/css/core.css',

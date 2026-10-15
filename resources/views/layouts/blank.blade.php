@@ -4,6 +4,20 @@
 
 <head>
     <meta charset="utf-8" />
+    <!-- Prevent White Flash in Dark Mode before CSS or JS loads -->
+    <script>
+        (function() {
+            try {
+                var stored = localStorage.getItem('templateCustomizer-vertical-menu-template--Theme') || 'light';
+                var isDark = stored === 'dark' || (stored === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                if (isDark) {
+                    document.documentElement.setAttribute('data-bs-theme', 'dark');
+                    document.documentElement.style.backgroundColor = '#0b0f19';
+                    document.documentElement.style.colorScheme = 'dark';
+                }
+            } catch (e) {}
+        })();
+    </script>
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
 
@@ -29,9 +43,9 @@
         <!-- Core CSS -->
         <!-- build:css assets/vendor/css/theme.css  -->
         <link rel="stylesheet" href="{{ asset('assets/vendor/libs/node-waves/node-waves.css') }}" />
-        <link rel="stylesheet" href="{{ asset('assets/vendor/css/core.css') }}" />
+        <link rel="stylesheet" href="{{ asset('assets/vendor/css/core.css') }}?v={{ file_exists(public_path('assets/vendor/css/core.css')) ? filemtime(public_path('assets/vendor/css/core.css')) : time() }}" />
         <link rel="stylesheet" href="{{asset('assets/css/demo.css')}}" />
-        <link rel="stylesheet" href="{{asset('assets/css/custom.css')}}" />
+        <link rel="stylesheet" href="{{asset('assets/css/custom.css')}}?v={{ file_exists(public_path('assets/css/custom.css')) ? filemtime(public_path('assets/css/custom.css')) : time() }}" />
         <!-- Vendors CSS -->
 
         <link rel="stylesheet" href="{{ asset('assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css') }}" />

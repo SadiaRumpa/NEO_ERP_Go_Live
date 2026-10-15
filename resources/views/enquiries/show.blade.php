@@ -649,7 +649,7 @@
 
                                                     </ul>
                                                     <div class="tab-content border-0 mx-1">
-                                                        <div class="tab-pane fade show active" id="navs-justified-details"
+                                                        <div class="tab-pane show active" id="navs-justified-details"
                                                             role="tabpanel">
                                                             <ul class="timeline mb-0">
                                                                 <li class="timeline-item ps-6 border-dashed">
@@ -719,7 +719,7 @@
                                                                 </li>
                                                             </ul>
                                                         </div>
-                                                        <div class="tab-pane fade" id="navs-justified-link-billing"
+                                                        <div class="tab-pane" id="navs-justified-link-billing"
                                                             role="tabpanel">
                                                             @isset($enquiry->customer->billingaddress)
                                                                 <ul class="timeline mb-0">

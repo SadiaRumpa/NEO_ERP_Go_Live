@@ -135,7 +135,7 @@
                                                 <div class="card-body">
                                                     <div class="tab-content p-0">
                                                         <!-- Compnay Info -->
-                                                        <div class="tab-pane fade active show" id="form-tabs-company"
+                                                        <div class="tab-pane active show" id="form-tabs-company"
                                                             role="tabpanel">
                                                             <div class="row g-6">
                                                                 <div class="col-md-12">

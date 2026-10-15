@@ -200,7 +200,7 @@ $(function() {
                                 <div class="card-body">
                                     <div class="tab-content p-0">
                                         <!-- Compnay Info -->
-                                        <div class="tab-pane fade active show" id="form-tabs-businessinfo" role="tabpanel">
+                                        <div class="tab-pane active show" id="form-tabs-businessinfo" role="tabpanel">
                                         
                                         <div class="row g-6">
                                             <div class="col-md-12">
@@ -422,7 +422,7 @@ $(function() {
                                         </div>
 
                                         <!-- Billing Address -->
-                                        <div class="tab-pane fade" id="form-tabs-billing-address" role="tabpanel">
+                                        <div class="tab-pane" id="form-tabs-billing-address" role="tabpanel">
                                             <div class="row g-6">
                                                 <div class="col-md-9">
                                                     <div class="row">

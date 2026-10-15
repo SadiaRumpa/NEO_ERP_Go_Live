@@ -17,9 +17,28 @@
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{{ $appbrand->business_favicon??asset('assets/img/favicon/favicon.ico') }}" />
 
+    <!-- Prevent White Flash in Dark Mode before CSS or JS loads -->
+    <script>
+        (function() {
+            try {
+                var stored = localStorage.getItem('templateCustomizer-vertical-menu-template--Theme') || 'light';
+                var isDark = stored === 'dark' || (stored === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                if (isDark) {
+                    document.documentElement.setAttribute('data-bs-theme', 'dark');
+                    document.documentElement.style.backgroundColor = '#0b0f19';
+                    document.documentElement.style.colorScheme = 'dark';
+                } else {
+                    document.documentElement.setAttribute('data-bs-theme', 'light');
+                    document.documentElement.style.backgroundColor = '#ffffff';
+                    document.documentElement.style.colorScheme = 'light';
+                }
+            } catch (e) {}
+        })();
+    </script>
+
     <!-- PWA Manifest & Mobile Configuration (FR-022) -->
     <link rel="manifest" href="{{ asset('manifest.json') }}">
-    <meta name="theme-color" content="#ffffff">
+    <meta name="theme-color" content="#ffffff" id="meta-theme-color">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NeoField">
@@ -41,9 +60,9 @@
         <!-- Core CSS -->
         <!-- build:css assets/vendor/css/theme.css  -->
         <link rel="stylesheet" href="{{ asset('assets/vendor/libs/node-waves/node-waves.css') }}" />
-        <link rel="stylesheet" href="{{ asset('assets/vendor/css/core.css') }}" />
+        <link rel="stylesheet" href="{{ asset('assets/vendor/css/core.css') }}?v={{ file_exists(public_path('assets/vendor/css/core.css')) ? filemtime(public_path('assets/vendor/css/core.css')) : time() }}" />
         <link rel="stylesheet" href="{{ asset('assets/css/demo.css') }}" />
-        <link rel="stylesheet" href="{{ asset('assets/css/custom.css') }}" />
+        <link rel="stylesheet" href="{{ asset('assets/css/custom.css') }}?v={{ file_exists(public_path('assets/css/custom.css')) ? filemtime(public_path('assets/css/custom.css')) : time() }}" />
 
         <!-- Vendors CSS -->
         <link rel="stylesheet" href="{{ asset('assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css') }}" />
@@ -339,7 +358,7 @@
         <script src="{{ asset('assets/vendor/libs/swiper/swiper.js') }}"></script>
 
         <!-- Main JS -->
-        <script src="{{ asset('assets/js/main.js') }}"></script>
+        <script src="{{ asset('assets/js/main.js') }}?v={{ file_exists(public_path('assets/js/main.js')) ? filemtime(public_path('assets/js/main.js')) : time() }}"></script>
     @show
 
     <!-- PWA Service Worker Registration -->
@@ -353,6 +372,89 @@
                 });
             });
         }
+    </script>
+    <!-- Zero-Flash Instant Tab Switching Enforcement -->
+    <script>
+        (function() {
+            // 1. Force Bootstrap 5 Tab switcher to run 100% synchronously without transition delay
+            function patchBootstrapTab() {
+                if (window.bootstrap && window.bootstrap.Tab) {
+                    window.bootstrap.Tab.prototype._queueCallback = function(callback) {
+                        if (typeof callback === 'function') {
+                            callback();
+                        }
+                    };
+                }
+            }
+            patchBootstrapTab();
+
+            // 2. Strip all .fade classes so panes switch with zero opacity latency
+            function cleanTabFades() {
+                patchBootstrapTab();
+                document.querySelectorAll('.tab-pane.fade').forEach(function(pane) {
+                    pane.classList.remove('fade');
+                });
+            }
+
+            // 3. Pre-emptively sanitize tabs on click
+            document.addEventListener('click', function(e) {
+                var tabBtn = e.target.closest('[data-bs-toggle="tab"], [data-bs-toggle="pill"]');
+                if (tabBtn) {
+                    patchBootstrapTab();
+                    var targetSelector = tabBtn.getAttribute('data-bs-target') || tabBtn.getAttribute('href');
+                    if (targetSelector && targetSelector.startsWith('#')) {
+                        var targetPane = document.querySelector(targetSelector);
+                        if (targetPane) {
+                            targetPane.classList.remove('fade');
+                            if (targetPane.parentElement) {
+                                targetPane.parentElement.querySelectorAll('.tab-pane').forEach(function(p) {
+                                    p.classList.remove('fade');
+                                });
+                            }
+                        }
+                    }
+                }
+            }, true);
+
+            // 4. Instantaneous activation on show.bs.tab to prevent visual blank frame
+            document.addEventListener('show.bs.tab', function(e) {
+                if (e.target) {
+                    var targetSel = e.target.getAttribute('data-bs-target') || e.target.getAttribute('href');
+                    if (targetSel && targetSel.startsWith('#')) {
+                        var targetEl = document.querySelector(targetSel);
+                        if (targetEl) {
+                            targetEl.classList.remove('fade');
+                            targetEl.classList.add('show', 'active');
+                            targetEl.style.opacity = '1';
+                            targetEl.style.display = 'block';
+                            targetEl.style.transform = 'none';
+                            targetEl.style.transition = 'none';
+                        }
+                    }
+                }
+            });
+
+            // 5. Synchronize theme-color meta and html canvas background on theme toggle
+            document.querySelectorAll('[data-bs-theme-value]').forEach(function(toggle) {
+                toggle.addEventListener('click', function() {
+                    setTimeout(function() {
+                        var isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+                        var bg = isDark ? '#0b0f19' : '#ffffff';
+                        document.documentElement.style.backgroundColor = bg;
+                        document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+                        var meta = document.getElementById('meta-theme-color');
+                        if (meta) meta.setAttribute('content', bg);
+                    }, 10);
+                });
+            });
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', cleanTabFades);
+            } else {
+                cleanTabFades();
+            }
+            window.addEventListener('load', cleanTabFades);
+        })();
     </script>
 </body>
 

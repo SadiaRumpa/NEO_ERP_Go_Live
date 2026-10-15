@@ -11848,26 +11848,26 @@ li:not(:first-child) .dropdown-item, .dropdown-menu .dropdown-item:not(:first-ch
   padding: 1.5rem;
 }
 .tab-content:not(.doc-example-content) .tab-pane {
-  opacity: 0;
-  transform: translateX(-30px);
-  transition: all linear 0.1s;
+  opacity: 1;
+  transform: none !important;
+  transition: none !important;
 }
 @media (prefers-reduced-motion: reduce) {
   .tab-content:not(.doc-example-content) .tab-pane {
-    transition: none;
+    transition: none !important;
   }
 }
 :dir(rtl) .tab-content:not(.doc-example-content) .tab-pane {
-  transform: translateX(30px);
+  transform: none !important;
 }
 .tab-content:not(.doc-example-content) .tab-pane.show {
   opacity: 1;
-  transform: unset !important;
-  transition: all ease-out 0.2s 0.1s;
+  transform: none !important;
+  transition: none !important;
 }
 @media (prefers-reduced-motion: reduce) {
   .tab-content:not(.doc-example-content) .tab-pane.show {
-    transition: none;
+    transition: none !important;
   }
 }
 
@@ -12059,11 +12059,11 @@ li:not(:first-child) .dropdown-item, .dropdown-menu .dropdown-item:not(:first-ch
 }
 .nav-align-right > .tab-content .tab-pane,
 .nav-align-left > .tab-content .tab-pane {
-  transform: translateY(-30px);
+  transform: none !important;
 }
 .nav-align-right > .tab-content .tab-pane.show,
 .nav-align-left > .tab-content .tab-pane.show {
-  transform: translateY(0);
+  transform: none !important;
 }
 
 /* Top tabs */
@@ -12097,17 +12097,17 @@ li:not(:first-child) .dropdown-item, .dropdown-menu .dropdown-item:not(:first-ch
 .nav-align-top > .tab-content .tab-pane,
 .nav-align-bottom > .tab-content .tab-pane,
 .card > .tab-content .tab-pane {
-  transform: translateX(-30px);
+  transform: none !important;
 }
 :dir(rtl) .nav-align-top > .tab-content .tab-pane,
 :dir(rtl) .nav-align-bottom > .tab-content .tab-pane,
 :dir(rtl) .card > .tab-content .tab-pane {
-  transform: translateX(30px);
+  transform: none !important;
 }
 .nav-align-top > .tab-content .tab-pane.show,
 .nav-align-bottom > .tab-content .tab-pane.show,
 .card > .tab-content .tab-pane.show {
-  transform: translateX(0) !important;
+  transform: none !important;
 }
 .nav-align-top > .nav.nav-pills .nav-item:not(:last-child),
 .nav-align-bottom > .nav.nav-pills .nav-item:not(:last-child),

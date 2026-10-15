@@ -139,6 +139,7 @@
 
     /* Bootstrap 5 Native Overrides */
     --bs-body-bg: #0b0f19;
+    --bs-paper-bg: #121826;
     --bs-body-color: #f8fafc;
     --bs-heading-color: #ffffff;
     --bs-border-color: #1e293d;
@@ -186,6 +187,44 @@
 }
 
 /* --------------------------------------------------------------------------
+   3.1. ROOT CANVAS & DARK MODE COMPOSITOR ZERO-FLASH STABILITY
+   -------------------------------------------------------------------------- */
+html,
+:root {
+    background-color: var(--neo-bg) !important;
+    background: var(--neo-bg) !important;
+    min-height: 100% !important;
+    height: auto;
+    color-scheme: light;
+}
+
+/* Force dark color-scheme on root so Chromium GPU compositor canvas is dark, never white */
+html[data-bs-theme="dark"],
+:root[data-bs-theme="dark"],
+[data-bs-theme="dark"] {
+    color-scheme: dark !important;
+    background-color: #0b0f19 !important;
+    background: #0b0f19 !important;
+    --bs-paper-bg: #121826 !important;
+}
+
+html[data-bs-theme="dark"] body,
+body[data-bs-theme="dark"] {
+    color-scheme: dark !important;
+    background-color: #0b0f19 !important;
+    background: #0b0f19 !important;
+    min-height: 100vh !important;
+}
+
+/* Neutralize .bg-light and .bg-white in dark mode so panels never render light */
+[data-bs-theme="dark"] .bg-light,
+[data-bs-theme="dark"] .bg-white {
+    background-color: var(--neo-surface-elevated) !important;
+    color: var(--neo-text-primary) !important;
+    border-color: var(--neo-border) !important;
+}
+
+/* --------------------------------------------------------------------------
    4. GLOBAL BODY & LAYOUT WRAPPERS
    -------------------------------------------------------------------------- */
 body {
@@ -195,6 +234,7 @@ body {
     line-height: 1.55;
     color: var(--neo-text-primary) !important;
     background-color: var(--neo-bg) !important;
+    min-height: 100vh !important;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -204,6 +244,7 @@ body {
 .layout-page,
 .content-wrapper {
     background-color: var(--neo-bg) !important;
+    min-height: 100vh !important;
 }
 
 /* Standard Heading Weights & Sizes */
@@ -350,7 +391,7 @@ p, span, li, label, input, select, textarea {
     border-radius: 0.75rem !important;
     box-shadow: var(--neo-card-shadow) !important;
     color: var(--neo-text-primary) !important;
-    transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+    transition: none !important;
 }
 
 .card-hoverable:hover,
@@ -774,45 +815,94 @@ p, span, li, label, input, select, textarea {
 }
 
 /* --------------------------------------------------------------------------
-   15. NAV PILLS, TABS & INSTANT CONTENT SWITCHING
+   15. NAV PILLS, TABS & ZERO-FLASH INSTANT CONTENT SWITCHING
    -------------------------------------------------------------------------- */
-/* Tab Panes: Eliminate animations, sliding translateX offsets, delays & repainting flashing */
+/* Eliminate all transitions, transforms, delays, sliding, and repainting flashes */
+.tab-content,
+.tab-content *,
 .tab-content .tab-pane,
 .tab-content:not(.doc-example-content) .tab-pane,
+.tab-content:not(.doc-example-content) .tab-pane.show,
 .nav-align-top > .tab-content .tab-pane,
+.nav-align-top > .tab-content .tab-pane.show,
 .nav-align-bottom > .tab-content .tab-pane,
+.nav-align-bottom > .tab-content .tab-pane.show,
 .card > .tab-content .tab-pane,
-.tab-pane.fade {
+.card > .tab-content .tab-pane.show,
+.tab-pane,
+.tab-pane.fade,
+.tab-pane.show,
+.tab-pane.active {
     transition: none !important;
+    -webkit-transition: none !important;
     transform: none !important;
+    -webkit-transform: none !important;
     animation: none !important;
+    -webkit-animation: none !important;
 }
 
+/* Tab content and panes background must be transparent to seamlessly match card surface */
+.tab-content,
+.tab-pane,
+.card-body,
+.nav-align-top > .tab-content,
+.nav-align-right > .tab-content,
+.nav-align-bottom > .tab-content,
+.nav-align-left > .tab-content {
+    background-color: transparent !important;
+    background: transparent !important;
+}
+
+/* Prevent 0px height collapse and strictly contain repaints during tab switching */
+.tab-content {
+    min-height: 120px;
+    contain: paint layout;
+}
+
+/* Active Tab Pane: Instantly fully visible, zero opacity transition or blank delay */
+.tab-content > .tab-pane.active,
 .tab-content .tab-pane.active,
+.tab-content:not(.doc-example-content) .tab-pane.active,
 .tab-content:not(.doc-example-content) .tab-pane.show.active,
-.tab-content > .active {
+.tab-content > .active,
+.nav-align-top > .tab-content .tab-pane.active,
+.card > .tab-content .tab-pane.active,
+.tab-pane.active {
     display: block !important;
     opacity: 1 !important;
-    transform: none !important;
     visibility: visible !important;
+    transform: none !important;
 }
 
+/* Inactive Tab Pane: Instantly hidden without residual height shift */
+.tab-content > .tab-pane:not(.active),
 .tab-content .tab-pane:not(.active),
-.tab-content > :not(.active) {
+.tab-content:not(.doc-example-content) .tab-pane:not(.active),
+.tab-content > :not(.active),
+.nav-align-top > .tab-content .tab-pane:not(.active),
+.card > .tab-content .tab-pane:not(.active),
+.tab-pane:not(.active) {
     display: none !important;
     opacity: 0 !important;
-    transform: none !important;
     visibility: hidden !important;
+    transform: none !important;
 }
 
-/* Eliminate Node Waves click ripple flash on all navs and tabs */
+/* Eliminate Node Waves click ripple flash and background flutters on all navs and tabs */
+.waves-ripple,
+.waves-effect .waves-ripple,
 .nav-tabs .waves-ripple,
 .nav-pills .waves-ripple,
 .nav-link.waves-effect .waves-ripple,
+.nav-link .waves-ripple,
 .nav .waves-ripple {
     display: none !important;
     opacity: 0 !important;
     visibility: hidden !important;
+    width: 0 !important;
+    height: 0 !important;
+    background: transparent !important;
+    pointer-events: none !important;
 }
 
 /* --- NAV PILLS --- */
@@ -828,13 +918,14 @@ p, span, li, label, input, select, textarea {
     color: var(--neo-text-secondary) !important;
     background-color: var(--neo-surface-subtle) !important;
     border: 1px solid var(--neo-border) !important;
-    transition: color 0.1s ease, background-color 0.1s ease, border-color 0.1s ease;
+    transition: none !important;
 }
 
 .nav-pills .nav-link:hover:not(.active) {
     color: var(--neo-text-primary) !important;
     background-color: var(--neo-surface-elevated) !important;
     border-color: var(--neo-border-hover) !important;
+    transition: none !important;
 }
 
 /* Only the active pill is highlighted */
@@ -844,7 +935,8 @@ p, span, li, label, input, select, textarea {
     border-color: transparent !important;
     color: #ffffff !important;
     font-weight: var(--neo-weight-semibold) !important;
-    box-shadow: 0 3px 10px rgba(37, 99, 235, 0.3) !important;
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25) !important;
+    transition: none !important;
 }
 
 .nav-pills .nav-link.active i,
@@ -853,6 +945,9 @@ p, span, li, label, input, select, textarea {
 }
 
 /* --- NAV TABS --- */
+.nav-tabs .nav-link {
+    transition: none !important;
+}
 .nav-tabs {
     border-bottom: 1px solid var(--neo-border) !important;
     background: transparent !important;
@@ -869,7 +964,7 @@ p, span, li, label, input, select, textarea {
     padding: 0.65rem 1.25rem !important;
     border-radius: 0 !important;
     box-shadow: none !important;
-    transition: color 0.1s ease, border-color 0.1s ease;
+    transition: none !important;
 }
 
 .nav-tabs .nav-link:hover:not(.active) {
@@ -1148,9 +1243,10 @@ code {
     filter: invert(1) grayscale(100%) brightness(200%);
 }
 
-/* Smooth Theme Switching on body only without triggering cascading layout/tab repainting */
+/* Zero-flash theme stability: prevent browser from transitioning body background on tab blur/focus */
+html,
 body {
-    transition: background-color 0.2s ease, color 0.15s ease;
+    transition: none !important;
 }
 
 /* --------------------------------------------------------------------------

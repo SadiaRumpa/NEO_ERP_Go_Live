@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             CreateAdminUserSeeder::class,
             StockUnitSeeder::class,
             DemoDataSeeder::class,
+            Populate100DataSeeder::class,
         ]);
     }
 }

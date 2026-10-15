@@ -241,7 +241,7 @@
         <div class="card-body">
             <div class="tab-content p-0">
                 <!-- Tab Materials -->
-                <div class="tab-pane fade show active" id="tab-materials" role="tabpanel">
+                <div class="tab-pane show active" id="tab-materials" role="tabpanel">
                     <div class="table-responsive text-nowrap">
                         <table class="table table-hover">
                             <thead>
@@ -275,7 +275,7 @@
                 </div>
 
                 <!-- Tab Labor -->
-                <div class="tab-pane fade" id="tab-labor" role="tabpanel">
+                <div class="tab-pane" id="tab-labor" role="tabpanel">
                     <div class="table-responsive text-nowrap">
                         <table class="table table-hover">
                             <thead>
@@ -317,7 +317,7 @@
                 </div>
 
                 <!-- Tab Subcontractors -->
-                <div class="tab-pane fade" id="tab-subs" role="tabpanel">
+                <div class="tab-pane" id="tab-subs" role="tabpanel">
                     <div class="table-responsive text-nowrap">
                         <table class="table table-hover">
                             <thead>
@@ -358,7 +358,7 @@
                 </div>
 
                 <!-- Tab Plant -->
-                <div class="tab-pane fade" id="tab-plant" role="tabpanel">
+                <div class="tab-pane" id="tab-plant" role="tabpanel">
                     <div class="table-responsive text-nowrap">
                         <table class="table table-hover">
                             <thead>
@@ -403,7 +403,7 @@
                 </div>
 
                 <!-- Tab Commercial -->
-                <div class="tab-pane fade" id="tab-commercial" role="tabpanel">
+                <div class="tab-pane" id="tab-commercial" role="tabpanel">
                     <h6 class="fw-bold mb-2">Approved Variations & Scope Changes</h6>
                     <div class="table-responsive text-nowrap mb-4">
                         <table class="table table-bordered table-sm">
