@@ -219,7 +219,7 @@ class DemoDataSeeder extends Seeder
                 'job_type' => 'commercial',
                 'job_priority' => 'high',
                 'job_status' => 'in_progress',
-                'assigned_to' => $admin->id,
+                'assigned_to' => [$admin->id],
             ]
         );
 
@@ -263,7 +263,7 @@ class DemoDataSeeder extends Seeder
                 'job_type' => 'commercial',
                 'job_priority' => 'medium',
                 'job_status' => 'in_progress',
-                'assigned_to' => $admin->id,
+                'assigned_to' => [$admin->id],
             ]
         );
 

@@ -33,6 +33,35 @@ class Fjob extends Model
         'assigned_to'
     ];
 
+    protected $casts = [
+        'assigned_to' => 'array',
+        'annual_maintenance' => 'boolean',
+        'installations' => 'boolean',
+        'repairs' => 'boolean',
+        'testing' => 'boolean',
+        'job_closed_at' => 'datetime',
+    ];
+
+    public function setAssignedToAttribute($value): void
+    {
+        if (is_null($value) || $value === '') {
+            $this->attributes['assigned_to'] = null;
+        } elseif (is_array($value)) {
+            $this->attributes['assigned_to'] = json_encode(array_values($value));
+        } elseif (is_numeric($value)) {
+            $this->attributes['assigned_to'] = json_encode([(int) $value]);
+        } elseif (is_string($value)) {
+            json_decode($value);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $this->attributes['assigned_to'] = $value;
+            } else {
+                $this->attributes['assigned_to'] = json_encode([$value]);
+            }
+        } else {
+            $this->attributes['assigned_to'] = json_encode($value);
+        }
+    }
+
     public function customer()
     {
         return $this->belongsTo(Customer::class);
