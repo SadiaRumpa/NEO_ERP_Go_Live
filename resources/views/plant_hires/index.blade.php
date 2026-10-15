@@ -29,41 +29,61 @@
     </div>
     @endif
 
-    <!-- KPI Summary Cards -->
-    <div class="row mb-4">
-        <div class="col-md-3 mb-2">
-            <div class="card bg-label-primary">
-                <div class="card-body">
-                    <h6 class="card-subtitle text-primary mb-1 fw-bold">Active Plant Hires</h6>
-                    <h3 class="card-title fw-bold mb-0 text-primary">{{ $alerts['active_count'] }}</h3>
-                    <small class="text-muted">Currently deployed on site</small>
+    <!-- Enterprise KPI Summary Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-lg-3">
+            <div class="neo-kpi-card kpi-primary h-100 shadow-sm">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="kpi-subtitle">Active Site Plant</div>
+                        <div class="kpi-value text-primary">{{ $alerts['active_count'] }}</div>
+                        <div class="kpi-footnote"><i class="bx bx-check-circle text-success me-1"></i>Currently deployed on site</div>
+                    </div>
+                    <div class="p-2 rounded bg-label-primary">
+                        <i class="bx bx-wrench fs-4 text-primary"></i>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3 mb-2">
-            <div class="card bg-label-warning">
-                <div class="card-body">
-                    <h6 class="card-subtitle text-warning mb-1 fw-bold">Expiring in 48h</h6>
-                    <h3 class="card-title fw-bold mb-0 text-warning">{{ count($alerts['expiring']) }}</h3>
-                    <small class="text-muted">Prepare off-hire reference</small>
+        <div class="col-sm-6 col-lg-3">
+            <div class="neo-kpi-card kpi-warning h-100 shadow-sm">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="kpi-subtitle">Expiring in 48h</div>
+                        <div class="kpi-value text-warning">{{ count($alerts['expiring']) }}</div>
+                        <div class="kpi-footnote"><i class="bx bx-time text-warning me-1"></i>Prepare off-hire reference</div>
+                    </div>
+                    <div class="p-2 rounded bg-label-warning">
+                        <i class="bx bx-alarm-exclamation fs-4 text-warning"></i>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3 mb-2">
-            <div class="card bg-label-danger">
-                <div class="card-body">
-                    <h6 class="card-subtitle text-danger mb-1 fw-bold">Overdue Standby Items</h6>
-                    <h3 class="card-title fw-bold mb-0 text-danger">{{ count($alerts['overdue']) }}</h3>
-                    <small class="text-muted">Eroding project gross margin</small>
+        <div class="col-sm-6 col-lg-3">
+            <div class="neo-kpi-card kpi-danger h-100 shadow-sm">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="kpi-subtitle">Overdue Standby Items</div>
+                        <div class="kpi-value text-danger">{{ count($alerts['overdue']) }}</div>
+                        <div class="kpi-footnote"><i class="bx bx-trending-down text-danger me-1"></i>Eroding project gross margin</div>
+                    </div>
+                    <div class="p-2 rounded bg-label-danger">
+                        <i class="bx bx-error-alt fs-4 text-danger"></i>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3 mb-2">
-            <div class="card bg-label-info">
-                <div class="card-body">
-                    <h6 class="card-subtitle text-info mb-1 fw-bold">Active Accrued Hire Cost</h6>
-                    <h3 class="card-title fw-bold mb-0 text-info">£{{ number_format($alerts['total_accrued_active'], 2) }}</h3>
-                    <small class="text-muted">Direct Job WIP commitment</small>
+        <div class="col-sm-6 col-lg-3">
+            <div class="neo-kpi-card kpi-info h-100 shadow-sm">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="kpi-subtitle">Active Accrued Cost</div>
+                        <div class="kpi-value text-info tabular-nums">£{{ number_format($alerts['total_accrued_active'], 2) }}</div>
+                        <div class="kpi-footnote"><i class="bx bx-line-chart text-info me-1"></i>Live Job WIP commitment</div>
+                    </div>
+                    <div class="p-2 rounded bg-label-info">
+                        <i class="bx bx-pound fs-4 text-info"></i>
+                    </div>
                 </div>
             </div>
         </div>
@@ -124,44 +144,51 @@
                     @forelse($plantHires as $hire)
                     <tr>
                         <td>
-                            <a href="{{ route('plant-hires.show', $hire) }}" class="fw-bold text-primary">
+                            <a href="{{ route('plant-hires.show', $hire) }}" class="fw-bold text-primary font-monospace">
                                 {{ $hire->hire_reference }}
                             </a>
                         </td>
                         <td>
-                            <strong>{{ $hire->item_name }}</strong>
-                            <div class="small text-muted text-capitalize">{{ str_replace('_', ' ', $hire->category) }}</div>
+                            <div class="fw-bold text-dark">{{ $hire->item_name }}</div>
+                            <div class="small text-muted text-capitalize"><i class="bx bx-tag-alt me-1"></i>{{ str_replace('_', ' ', $hire->category) }}</div>
                         </td>
-                        <td>{{ $hire->supplier->name ?? 'N/A' }}</td>
+                        <td>
+                            <div class="fw-semibold text-dark">{{ $hire->supplier->name ?? 'N/A' }}</div>
+                        </td>
                         <td>
                             <span class="badge bg-label-secondary">
-                                Job #{{ $hire->job_id }} - {{ Str::limit($hire->job->job_title ?? $hire->job->job_name, 18) }}
+                                Job #{{ $hire->job_id }} &bull; {{ Str::limit($hire->job->job_title ?? $hire->job->job_name, 18) }}
                             </span>
                         </td>
                         <td>
-                            <div><i class="bx bx-calendar me-1 text-muted"></i>{{ $hire->start_date->format('d M Y') }}</div>
-                            <small class="{{ $hire->isOverdue() ? 'text-danger fw-bold' : ($hire->isExpiringSoon() ? 'text-warning fw-bold' : 'text-muted') }}">
+                            <div class="d-flex align-items-center gap-1">
+                                <i class="bx bx-calendar text-muted"></i>
+                                <span>{{ $hire->start_date->format('d M Y') }}</span>
+                            </div>
+                            <div class="small mt-1 {{ $hire->isOverdue() ? 'text-danger fw-bold' : ($hire->isExpiringSoon() ? 'text-warning fw-bold' : 'text-muted') }}">
                                 Expected off: {{ $hire->expected_end_date->format('d M Y') }}
                                 @if($hire->isOverdue())
-                                    <span class="badge bg-danger ms-1">OVERDUE</span>
+                                    <span class="badge bg-danger ms-1"><span class="status-indicator-dot dot-critical me-1"></span>OVERDUE</span>
                                 @elseif($hire->isExpiringSoon())
-                                    <span class="badge bg-warning ms-1">DUE SOON</span>
+                                    <span class="badge bg-warning ms-1"><span class="status-indicator-dot dot-warning me-1"></span>DUE SOON</span>
                                 @endif
-                            </small>
+                            </div>
                         </td>
-                        <td class="text-end">
+                        <td class="text-end tabular-nums">
                             @if($hire->weekly_rate > 0)
-                                £{{ number_format($hire->weekly_rate, 2) }} /wk
+                                £{{ number_format($hire->weekly_rate, 2) }} <span class="text-muted small">/wk</span>
                             @else
-                                £{{ number_format($hire->daily_rate, 2) }} /day
+                                £{{ number_format($hire->daily_rate, 2) }} <span class="text-muted small">/day</span>
                             @endif
                         </td>
-                        <td class="text-end fw-bold text-dark">
+                        <td class="text-end fw-bold text-dark tabular-nums">
                             £{{ number_format($hire->accrued_hire_cost, 2) }}
                         </td>
                         <td>
                             @if($hire->status === 'active')
-                                <span class="badge bg-label-success">Active On-Hire</span>
+                                <span class="badge bg-label-success">
+                                    <span class="status-indicator-dot dot-healthy me-1"></span>Active On-Hire
+                                </span>
                             @elseif($hire->status === 'off_hired')
                                 <span class="badge bg-label-secondary">Off-Hired</span>
                             @else

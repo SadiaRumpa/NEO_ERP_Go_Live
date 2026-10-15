@@ -23,32 +23,47 @@
     </div>
     @endif
 
-    <!-- KPI Summary Cards -->
-    <div class="row mb-4">
-        <div class="col-md-4 mb-2">
-            <div class="card bg-label-warning">
-                <div class="card-body">
-                    <h6 class="card-subtitle text-warning mb-1 fw-bold">Total Cash Retention Currently Held</h6>
-                    <h3 class="card-title fw-bold mb-0 text-warning">£{{ number_format($totalHeld, 2) }}</h3>
-                    <small class="text-muted">Awaiting PC or Defects liability release</small>
+    <!-- Enterprise KPI Summary Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="neo-kpi-card kpi-warning h-100 shadow-sm">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="kpi-subtitle">Total Cash Retention Held</div>
+                        <div class="kpi-value text-warning tabular-nums">£{{ number_format($totalHeld, 2) }}</div>
+                        <div class="kpi-footnote"><i class="bx bx-lock-alt me-1"></i>Awaiting PC or Defects liability release</div>
+                    </div>
+                    <div class="p-2 rounded bg-label-warning">
+                        <i class="bx bx-shield-quarter fs-4 text-warning"></i>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4 mb-2">
-            <div class="card bg-label-success">
-                <div class="card-body">
-                    <h6 class="card-subtitle text-success mb-1 fw-bold">Total Retention Released to Date</h6>
-                    <h3 class="card-title fw-bold mb-0 text-success">£{{ number_format($totalReleased, 2) }}</h3>
-                    <small class="text-muted">Released to contractor cashflow</small>
+        <div class="col-md-4">
+            <div class="neo-kpi-card kpi-success h-100 shadow-sm">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="kpi-subtitle">Total Retention Released</div>
+                        <div class="kpi-value text-success tabular-nums">£{{ number_format($totalReleased, 2) }}</div>
+                        <div class="kpi-footnote"><i class="bx bx-check-circle text-success me-1"></i>Released to contractor cashflow</div>
+                    </div>
+                    <div class="p-2 rounded bg-label-success">
+                        <i class="bx bx-coin-stack fs-4 text-success"></i>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4 mb-2">
-            <div class="card bg-label-info">
-                <div class="card-body">
-                    <h6 class="card-subtitle text-info mb-1 fw-bold">Active Retention Contracts</h6>
-                    <h3 class="card-title fw-bold mb-0 text-info">{{ $retentions->total() }}</h3>
-                    <small class="text-muted">Linked across commercial contracts</small>
+        <div class="col-md-4">
+            <div class="neo-kpi-card kpi-info h-100 shadow-sm">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="kpi-subtitle">Active Retention Contracts</div>
+                        <div class="kpi-value text-info">{{ $retentions->total() }}</div>
+                        <div class="kpi-footnote"><i class="bx bx-buildings text-info me-1"></i>Linked across commercial contracts</div>
+                    </div>
+                    <div class="p-2 rounded bg-label-info">
+                        <i class="bx bx-file-blank fs-4 text-info"></i>
+                    </div>
                 </div>
             </div>
         </div>
@@ -100,40 +115,50 @@
                 <tbody>
                     @forelse($retentions as $ret)
                     <tr>
-                        <td><span class="fw-bold font-monospace text-primary">{{ $ret->retention_reference }}</span></td>
-                        <td>Job #{{ $ret->job_id }} - {{ Str::limit($ret->job->job_title ?? $ret->job->job_name, 20) }}</td>
+                        <td><span class="fw-bold font-monospace text-primary fs-6">{{ $ret->retention_reference }}</span></td>
+                        <td>
+                            <span class="badge bg-label-secondary">
+                                Job #{{ $ret->job_id }} &bull; {{ Str::limit($ret->job->job_title ?? $ret->job->job_name, 20) }}
+                            </span>
+                        </td>
                         <td>
                             @if($ret->valuation)
-                            <a href="{{ route('commercial.valuations.show', $ret->valuation) }}" class="fw-semibold">
-                                {{ $ret->valuation->application_number }}
+                            <a href="{{ route('commercial.valuations.show', $ret->valuation) }}" class="fw-semibold text-primary">
+                                <i class="bx bx-receipt me-1"></i>{{ $ret->valuation->application_number }}
                             </a>
                             @else
                             <span class="text-muted">N/A</span>
                             @endif
                         </td>
-                        <td class="text-end fw-semibold">£{{ number_format($ret->total_retained_amount, 2) }}</td>
-                        <td class="text-end">
+                        <td class="text-end fw-semibold tabular-nums">£{{ number_format($ret->total_retained_amount, 2) }}</td>
+                        <td class="text-end tabular-nums">
                             £{{ number_format($ret->pc_release_amount, 2) }}
                             @if($ret->pc_released_at)
-                                <div class="badge bg-label-success d-block mt-1">Released {{ $ret->pc_released_at->format('d/m/y') }}</div>
+                                <div class="badge bg-label-success d-block mt-1"><i class="bx bx-check me-1"></i>{{ $ret->pc_released_at->format('d/m/y') }}</div>
                             @endif
                         </td>
-                        <td class="text-end">
+                        <td class="text-end tabular-nums">
                             £{{ number_format($ret->defects_release_amount, 2) }}
                             @if($ret->defects_released_at)
-                                <div class="badge bg-label-success d-block mt-1">Released {{ $ret->defects_released_at->format('d/m/y') }}</div>
+                                <div class="badge bg-label-success d-block mt-1"><i class="bx bx-check me-1"></i>{{ $ret->defects_released_at->format('d/m/y') }}</div>
                             @endif
                         </td>
-                        <td class="text-end fw-bold text-warning fs-6">
+                        <td class="text-end fw-bold text-warning fs-6 tabular-nums">
                             £{{ number_format($ret->balance_held, 2) }}
                         </td>
                         <td>
                             @if($ret->status === 'fully_released')
-                                <span class="badge bg-label-success">Fully Released</span>
+                                <span class="badge bg-label-success">
+                                    <span class="status-indicator-dot dot-healthy me-1"></span>Fully Released
+                                </span>
                             @elseif($ret->status === 'partially_released')
-                                <span class="badge bg-label-info">PC Released (50%)</span>
+                                <span class="badge bg-label-info">
+                                    <span class="status-indicator-dot dot-warning me-1"></span>PC Released (50%)
+                                </span>
                             @else
-                                <span class="badge bg-label-warning">Held in Escrow</span>
+                                <span class="badge bg-label-warning">
+                                    <span class="status-indicator-dot dot-warning me-1"></span>Held in Escrow
+                                </span>
                             @endif
                         </td>
                         <td>

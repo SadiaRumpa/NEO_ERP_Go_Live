@@ -63,62 +63,67 @@
     @endif
 
     <!-- Audit Details Cards -->
-    <div class="row">
-        <div class="col-md-4 mb-4">
-            <div class="card h-100">
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
                 <div class="card-body">
-                    <h6 class="card-subtitle text-muted mb-2">Invoice Details</h6>
-                    <div class="small">
-                        <div class="mb-1"><strong>Supplier:</strong> {{ $supplierBill->supplier->name }}</div>
-                        <div class="mb-1"><strong>Invoice Number:</strong> {{ $supplierBill->bill_number }}</div>
-                        <div class="mb-1"><strong>Invoice Date:</strong> {{ $supplierBill->bill_date?->format('d M Y') }}</div>
-                        <div class="mb-1"><strong>Payment Due:</strong> {{ $supplierBill->due_date?->format('d M Y') }}</div>
-                        <div><strong>Terms:</strong> <span class="badge bg-label-info">{{ $supplierBill->supplier->payment_terms }}</span></div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <small class="text-muted text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Invoice Details</small>
+                        <span class="badge bg-label-info">{{ $supplierBill->supplier->payment_terms }}</span>
+                    </div>
+                    <h5 class="card-title fw-bold text-dark mb-1">{{ $supplierBill->supplier->name }}</h5>
+                    <div class="small mt-2">
+                        <div class="mb-1"><strong class="text-secondary">Invoice Number:</strong> <span class="font-monospace fw-bold text-dark">{{ $supplierBill->bill_number }}</span></div>
+                        <div class="mb-1"><strong class="text-secondary">Invoice Date:</strong> {{ $supplierBill->bill_date?->format('d M Y') }}</div>
+                        <div><strong class="text-secondary">Payment Due:</strong> {{ $supplierBill->due_date?->format('d M Y') }}</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-4 mb-4">
-            <div class="card h-100">
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
                 <div class="card-body">
-                    <h6 class="card-subtitle text-muted mb-2">Status & Authorization</h6>
-                    <div class="mb-2">
+                    <small class="text-muted d-block text-uppercase fw-semibold mb-2" style="font-size: 0.72rem; letter-spacing: 0.05em;">Commercial Status & Authorization</small>
+                    <div class="mb-3">
                         @if($supplierBill->approval_status === 'approved')
-                            <span class="badge bg-success fs-6">Approved for Payment</span>
+                            <span class="badge bg-success fs-6 px-3 py-2">
+                                <span class="status-indicator-dot dot-healthy me-1"></span> Approved for Payment
+                            </span>
                         @elseif($supplierBill->approval_status === 'held')
-                            <span class="badge bg-danger fs-6">HELD ON VARIANCE</span>
+                            <span class="badge bg-danger fs-6 px-3 py-2">
+                                <span class="status-indicator-dot dot-critical me-1"></span> HELD ON VARIANCE
+                            </span>
                         @else
-                            <span class="badge bg-secondary fs-6">Pending Review</span>
+                            <span class="badge bg-secondary fs-6 px-3 py-2">Pending Review</span>
                         @endif
                     </div>
-                    <div class="small">
+                    <div class="small border-top pt-2">
                         @if($supplierBill->approved_by)
-                            <div><strong>Approved By:</strong> {{ $supplierBill->approver->name }}</div>
-                            <div><strong>Approved At:</strong> {{ $supplierBill->approved_at?->format('d M Y H:i') }}</div>
+                            <div><strong class="text-secondary">Authorized By:</strong> {{ $supplierBill->approver->name }}</div>
+                            <div class="text-muted"><i class="bx bx-time me-1"></i>{{ $supplierBill->approved_at?->format('d M Y H:i') }}</div>
                         @else
-                            <div class="text-muted">Awaiting commercial sign-off</div>
+                            <div class="text-muted"><i class="bx bx-shield-quarter me-1"></i>Awaiting commercial sign-off</div>
                         @endif
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-4 mb-4">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h6 class="card-subtitle text-muted mb-2">Invoice Amount</h6>
+        <div class="col-md-4">
+            <div class="neo-kpi-card kpi-primary h-100 shadow-sm">
+                <div class="kpi-subtitle">Total Invoiced Amount</div>
+                <div class="kpi-value text-primary tabular-nums mb-3">
+                    £{{ number_format($supplierBill->total_amount, 2) }}
+                </div>
+                <div class="border-top pt-2 small">
                     <div class="d-flex justify-content-between mb-1">
-                        <span class="text-muted">Subtotal:</span>
-                        <span class="fw-bold">£{{ number_format($supplierBill->subtotal, 2) }}</span>
+                        <span class="text-muted">Net Subtotal:</span>
+                        <span class="fw-semibold tabular-nums">£{{ number_format($supplierBill->subtotal, 2) }}</span>
                     </div>
-                    <div class="d-flex justify-content-between mb-1">
-                        <span class="text-muted">VAT:</span>
-                        <span class="fw-bold">£{{ number_format($supplierBill->tax_amount, 2) }}</span>
-                    </div>
-                    <div class="d-flex justify-content-between border-top pt-2">
-                        <span class="fw-bold fs-5">Total Billed:</span>
-                        <span class="fw-bold fs-5 text-primary">£{{ number_format($supplierBill->total_amount, 2) }}</span>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">VAT Amount:</span>
+                        <span class="fw-semibold tabular-nums">£{{ number_format($supplierBill->tax_amount, 2) }}</span>
                     </div>
                 </div>
             </div>
@@ -158,28 +163,28 @@
                         $hasPriceDiff = $item->price_variance_percentage > 5.0;
                     @endphp
                     <tr>
-                        <td><strong>{{ $item->description }}</strong></td>
+                        <td><strong class="text-dark">{{ $item->description }}</strong></td>
                         
                         <!-- PO values -->
-                        <td class="text-center border-start">{{ number_format($item->po_quantity, 2) }}</td>
-                        <td class="text-end border-end">£{{ number_format($item->po_unit_price, 2) }}</td>
+                        <td class="text-center border-start tabular-nums">{{ number_format($item->po_quantity, 2) }}</td>
+                        <td class="text-end border-end tabular-nums">£{{ number_format($item->po_unit_price, 2) }}</td>
                         
                         <!-- GRN values -->
-                        <td class="text-center border-end fw-bold text-success">{{ number_format($item->grn_received_quantity, 2) }}</td>
+                        <td class="text-center border-end fw-bold text-success tabular-nums">{{ number_format($item->grn_received_quantity, 2) }}</td>
                         
                         <!-- Bill values -->
-                        <td class="text-center fw-bold {{ $hasQtyDiff ? 'text-danger bg-label-danger' : '' }}">{{ number_format($item->billed_quantity, 2) }}</td>
-                        <td class="text-end border-end fw-bold {{ $hasPriceDiff ? 'text-danger bg-label-danger' : '' }}">£{{ number_format($item->billed_unit_price, 2) }}</td>
+                        <td class="text-center fw-bold tabular-nums {{ $hasQtyDiff ? 'text-danger bg-label-danger' : '' }}">{{ number_format($item->billed_quantity, 2) }}</td>
+                        <td class="text-end border-end fw-bold tabular-nums {{ $hasPriceDiff ? 'text-danger bg-label-danger' : '' }}">£{{ number_format($item->billed_unit_price, 2) }}</td>
                         
                         <!-- Variances -->
-                        <td class="text-center">
+                        <td class="text-center tabular-nums">
                             @if($item->quantity_variance > 0)
                                 <span class="badge bg-label-danger">+{{ number_format($item->quantity_variance, 2) }} Unreceived</span>
                             @else
                                 <span class="text-muted">—</span>
                             @endif
                         </td>
-                        <td class="text-center">
+                        <td class="text-center tabular-nums">
                             @if($item->price_variance_percentage > 0)
                                 <span class="badge {{ $hasPriceDiff ? 'bg-label-danger' : 'bg-label-warning' }}">
                                     +{{ number_format($item->price_variance_percentage, 1) }}%
@@ -192,9 +197,13 @@
                         <!-- Line Status -->
                         <td class="text-center">
                             @if($item->variance_type === 'none')
-                                <span class="badge bg-success"><i class="bx bx-check"></i> Matched</span>
+                                <span class="badge bg-success">
+                                    <span class="status-indicator-dot dot-healthy me-1"></span> Matched
+                                </span>
                             @else
-                                <span class="badge bg-danger"><i class="bx bx-x"></i> Variance</span>
+                                <span class="badge bg-danger">
+                                    <span class="status-indicator-dot dot-critical me-1"></span> Variance
+                                </span>
                             @endif
                         </td>
                     </tr>

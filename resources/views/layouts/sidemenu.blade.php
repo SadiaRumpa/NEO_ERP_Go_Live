@@ -640,6 +640,7 @@
                     <div data-i18n="Field Hub">Field Hub (PWA)</div>
                 </a>
             </li>
+            <li class="menu-header"><span class="menu-header-text">Commercial & WIP Costing</span></li>
             <li class="menu-item {{ request()->is('procurement*') ? 'open active' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon icon-base ti tabler-truck-delivery"></i>

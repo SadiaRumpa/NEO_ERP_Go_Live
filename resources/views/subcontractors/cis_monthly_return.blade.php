@@ -2,35 +2,39 @@
 
 @section('content')
 <div class="container-xxl flex-grow-1 container-p-y">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <div>
-            <h4 class="fw-bold py-1 mb-1"><span class="text-muted fw-light">HMRC Compliance /</span> CIS300 Monthly Return</h4>
-            <p class="text-muted mb-0">Construction Industry Scheme monthly return schedule, statutory subcontractor deductions, and HMRC submission ledger.</p>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge bg-label-primary px-2 py-1"><i class="ti tabler-building-bank me-1"></i> HMRC Statutory Compliance</span>
+                <span class="text-muted fs-7">&bull; UK CIS Regulation</span>
+            </div>
+            <h4 class="fw-bold mb-1 text-dark"><span class="text-muted fw-light">HMRC Compliance /</span> CIS300 Monthly Return</h4>
+            <p class="text-muted mb-0 small">Construction Industry Scheme monthly return schedule, statutory subcontractor deductions, and HMRC submission ledger.</p>
         </div>
         <div class="d-flex gap-2">
-            <button type="button" class="btn btn-outline-primary" onclick="window.print();">
-                <i class="bx bx-printer me-1"></i> Print Return
+            <button type="button" class="btn btn-outline-secondary" onclick="window.print();">
+                <i class="ti tabler-printer me-1"></i> Print HMRC CIS300
             </button>
-            <a href="{{ route('subcontractors.certificates.index') }}" class="btn btn-secondary">
-                <i class="bx bx-receipt me-1"></i> Certificates Ledger
+            <a href="{{ route('subcontractors.certificates.index') }}" class="btn btn-primary">
+                <i class="ti tabler-receipt me-1"></i> Certificates Ledger
             </a>
         </div>
     </div>
 
     <!-- Month Filter & HMRC Deadline Banner -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="row align-items-center">
+    <div class="card mb-4 border-primary">
+        <div class="card-body py-3">
+            <div class="row align-items-center g-3">
                 <div class="col-md-5">
-                    <form method="GET" action="{{ route('subcontractors.cis-monthly-return') }}" class="d-flex gap-2">
-                        <label class="form-label col-form-label fw-bold">Tax Month:</label>
+                    <form method="GET" action="{{ route('subcontractors.cis-monthly-return') }}" class="d-flex gap-2 align-items-center">
+                        <label class="form-label col-form-label fw-bold mb-0 text-nowrap">Tax Month:</label>
                         <input type="month" name="tax_month" class="form-control" value="{{ $taxMonth }}">
-                        <button type="submit" class="btn btn-primary"><i class="bx bx-refresh me-1"></i> Load</button>
+                        <button type="submit" class="btn btn-primary"><i class="ti tabler-refresh me-1"></i> Load</button>
                     </form>
                 </div>
-                <div class="col-md-7 text-md-end mt-2 mt-md-0">
-                    <div class="alert alert-warning py-2 mb-0 d-inline-block">
-                        <i class="bx bx-calendar-exclamation me-1"></i>
+                <div class="col-md-7 text-md-end">
+                    <div class="badge bg-label-warning py-2 px-3 fs-7 border">
+                        <i class="ti tabler-calendar-time me-1"></i>
                         HMRC CIS Filing Deadline for <strong>{{ $taxMonth }}</strong> is <strong>19th {{ date('F Y', strtotime($taxMonth . '-01 +1 month')) }}</strong>
                     </div>
                 </div>
@@ -39,52 +43,68 @@
     </div>
 
     <!-- Summary Metrics Cards -->
-    <div class="row">
-        <div class="col-md-3 mb-4">
-            <div class="card">
-                <div class="card-body">
-                    <h6 class="card-subtitle text-muted mb-1">Total Gross Payments</h6>
-                    <h4 class="card-title fw-bold mb-0">£{{ number_format($return['total_gross'], 2) }}</h4>
-                    <small class="text-muted">{{ $return['certificates_count'] }} payment certificates</small>
+    <div class="row g-3 mb-4">
+        <div class="col-xl-3 col-sm-6">
+            <div class="neo-kpi-card kpi-primary h-100">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="kpi-subtitle">Total Gross Payments</div>
+                        <div class="kpi-value text-dark tabular-nums">£{{ number_format($return['total_gross'], 2) }}</div>
+                    </div>
+                    <span class="badge bg-label-primary p-2 rounded-3"><i class="ti tabler-cash fs-4"></i></span>
                 </div>
+                <div class="kpi-footnote">{{ $return['certificates_count'] }} payment certificates processed</div>
             </div>
         </div>
 
-        <div class="col-md-3 mb-4">
-            <div class="card">
-                <div class="card-body">
-                    <h6 class="card-subtitle text-muted mb-1">Materials Exempt</h6>
-                    <h4 class="card-title fw-bold mb-0">£{{ number_format($return['total_materials'], 2) }}</h4>
-                    <small class="text-muted">Direct costs of materials</small>
+        <div class="col-xl-3 col-sm-6">
+            <div class="neo-kpi-card kpi-info h-100">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="kpi-subtitle">Materials Exempt from CIS</div>
+                        <div class="kpi-value text-info tabular-nums">£{{ number_format($return['total_materials'], 2) }}</div>
+                    </div>
+                    <span class="badge bg-label-info p-2 rounded-3"><i class="ti tabler-shield-check fs-4"></i></span>
                 </div>
+                <div class="kpi-footnote">Direct cost of goods/materials</div>
             </div>
         </div>
 
-        <div class="col-md-3 mb-4">
-            <div class="card">
-                <div class="card-body">
-                    <h6 class="card-subtitle text-muted mb-1">Labor Liable to CIS</h6>
-                    <h4 class="card-title fw-bold mb-0 text-primary">£{{ number_format($return['total_labor'], 2) }}</h4>
-                    <small class="text-muted">Taxable labor element</small>
+        <div class="col-xl-3 col-sm-6">
+            <div class="neo-kpi-card kpi-warning h-100">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="kpi-subtitle">Labor Element (Taxable)</div>
+                        <div class="kpi-value text-primary tabular-nums">£{{ number_format($return['total_labor'], 2) }}</div>
+                    </div>
+                    <span class="badge bg-label-warning p-2 rounded-3"><i class="ti tabler-hammer fs-4"></i></span>
                 </div>
+                <div class="kpi-footnote">Subject to CIS deduction rates</div>
             </div>
         </div>
 
-        <div class="col-md-3 mb-4">
-            <div class="card bg-label-danger">
-                <div class="card-body">
-                    <h6 class="card-subtitle text-danger mb-1 fw-bold">CIS Deductions to Pay HMRC</h6>
-                    <h4 class="card-title fw-bold mb-0 text-danger">£{{ number_format($return['total_deductions'], 2) }}</h4>
-                    <small class="text-muted">Payable to Collector of Taxes</small>
+        <div class="col-xl-3 col-sm-6">
+            <div class="neo-kpi-card kpi-danger h-100">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="kpi-subtitle">CIS Tax Payable to HMRC</div>
+                        <div class="kpi-value text-danger tabular-nums">£{{ number_format($return['total_deductions'], 2) }}</div>
+                    </div>
+                    <span class="badge bg-label-danger p-2 rounded-3"><i class="ti tabler-receipt-tax fs-4"></i></span>
                 </div>
+                <div class="kpi-footnote">Payable to Collector of Taxes</div>
             </div>
         </div>
     </div>
 
     <!-- HMRC CIS300 Schedule Table -->
     <div class="card">
-        <div class="card-header border-bottom">
-            <h5 class="card-title mb-0">Subcontractor Payment & Deduction Schedule (HMRC CIS300)</h5>
+        <div class="card-header d-flex justify-content-between align-items-center border-bottom">
+            <div>
+                <h5 class="card-title mb-0">Subcontractor Payment & Deduction Schedule (HMRC CIS300)</h5>
+                <small class="text-muted">Statutory monthly return breakdown by subcontractor UTR</small>
+            </div>
+            <span class="badge bg-label-secondary font-monospace">{{ count($return['schedule']) }} Subcontractors</span>
         </div>
         <div class="table-responsive text-nowrap">
             <table class="table table-hover">
@@ -102,31 +122,35 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($return['schedule'] as $row)
+                    @forelse($return['schedule'] as $sub)
                     <tr>
                         <td>
-                            <a href="{{ route('subcontractors.show', $row['subcontractor_id']) }}" class="fw-bold text-primary">
-                                {{ $row['name'] }}
+                            <a href="{{ route('subcontractors.show', $sub['subcontractor_id']) }}" class="fw-bold text-primary">
+                                {{ $sub['name'] }}
                             </a>
                         </td>
-                        <td><code>{{ $row['utr_number'] }}</code></td>
-                        <td><span class="badge bg-label-info">{{ $row['verification_number'] }}</span></td>
+                        <td><code>{{ $sub['utr_number'] }}</code></td>
+                        <td><span class="badge bg-label-info">{{ $sub['verification_number'] }}</span></td>
                         <td>
-                            <span class="badge {{ $row['tax_rate'] == 0 ? 'bg-label-success' : ($row['tax_rate'] == 20 ? 'bg-label-primary' : 'bg-label-danger') }}">
-                                {{ number_format($row['tax_rate'], 0) }}% ({{ ucfirst($row['tax_status']) }})
-                            </span>
+                            @if($sub['tax_rate'] == 0)
+                                <span class="badge bg-label-success">0% (Gross)</span>
+                            @elseif($sub['tax_rate'] == 20)
+                                <span class="badge bg-label-primary">20% (Standard)</span>
+                            @else
+                                <span class="badge bg-label-danger">30% (Higher)</span>
+                            @endif
                         </td>
-                        <td class="text-end fw-bold">£{{ number_format($row['total_gross'], 2) }}</td>
-                        <td class="text-end">£{{ number_format($row['total_materials'], 2) }}</td>
-                        <td class="text-end">£{{ number_format($row['total_labor'], 2) }}</td>
-                        <td class="text-end fw-bold text-danger">-£{{ number_format($row['total_deductions'], 2) }}</td>
-                        <td class="text-end fw-bold text-success">£{{ number_format($row['total_net_paid'], 2) }}</td>
+                        <td class="text-end fw-bold tabular-nums">£{{ number_format($sub['total_gross'], 2) }}</td>
+                        <td class="text-end tabular-nums">£{{ number_format($sub['total_materials'], 2) }}</td>
+                        <td class="text-end tabular-nums">£{{ number_format($sub['total_labor'], 2) }}</td>
+                        <td class="text-end fw-bold text-danger tabular-nums">-£{{ number_format($sub['total_deductions'], 2) }}</td>
+                        <td class="text-end fw-bold text-success tabular-nums">£{{ number_format($sub['total_net_paid'], 2) }}</td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="9" class="text-center py-4 text-muted">
-                            <i class="bx bx-receipt fs-1 d-block mb-2"></i>
-                            No certified payments recorded for tax month {{ $taxMonth }}.
+                        <td colspan="9" class="text-center py-5 text-muted">
+                            <i class="ti tabler-file-off fs-1 d-block mb-2 text-secondary"></i>
+                            No subcontractor payments certified or paid in tax month {{ $taxMonth }}.
                         </td>
                     </tr>
                     @endforelse
@@ -135,11 +159,11 @@
                 <tfoot class="table-light">
                     <tr>
                         <th colspan="4" class="text-end fw-bold">HMRC CIS300 Return Totals:</th>
-                        <th class="text-end fw-bold">£{{ number_format($return['total_gross'], 2) }}</th>
-                        <th class="text-end fw-bold">£{{ number_format($return['total_materials'], 2) }}</th>
-                        <th class="text-end fw-bold">£{{ number_format($return['total_labor'], 2) }}</th>
-                        <th class="text-end fw-bold text-danger">-£{{ number_format($return['total_deductions'], 2) }}</th>
-                        <th class="text-end fw-bold text-success fs-6">£{{ number_format($return['total_net_paid'], 2) }}</th>
+                        <th class="text-end fw-bold tabular-nums">£{{ number_format($return['total_gross'], 2) }}</th>
+                        <th class="text-end fw-bold tabular-nums">£{{ number_format($return['total_materials'], 2) }}</th>
+                        <th class="text-end fw-bold tabular-nums">£{{ number_format($return['total_labor'], 2) }}</th>
+                        <th class="text-end fw-bold text-danger tabular-nums">-£{{ number_format($return['total_deductions'], 2) }}</th>
+                        <th class="text-end fw-bold text-success fs-6 tabular-nums">£{{ number_format($return['total_net_paid'], 2) }}</th>
                     </tr>
                 </tfoot>
                 @endif

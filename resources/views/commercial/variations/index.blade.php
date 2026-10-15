@@ -69,39 +69,49 @@
                     @forelse($variations as $var)
                     <tr>
                         <td>
-                            <a href="{{ route('commercial.variations.show', $var) }}" class="fw-bold text-primary">
+                            <a href="{{ route('commercial.variations.show', $var) }}" class="fw-bold text-primary font-monospace">
                                 {{ $var->variation_number }}
                             </a>
                         </td>
                         <td>
-                            <strong>{{ $var->title }}</strong>
+                            <strong class="text-dark">{{ $var->title }}</strong>
                             @if($var->description)
                             <div class="small text-muted text-truncate" style="max-width: 250px;">{{ $var->description }}</div>
                             @endif
                         </td>
-                        <td>Job #{{ $var->job_id }} - {{ Str::limit($var->job->job_title ?? $var->job->job_name, 20) }}</td>
-                        <td class="text-end">£{{ number_format($var->cost_amount, 2) }}</td>
-                        <td class="text-end">{{ number_format($var->markup_percentage, 1) }}%</td>
-                        <td class="text-end fw-bold text-dark">£{{ number_format($var->quoted_amount, 2) }}</td>
+                        <td>
+                            <span class="badge bg-label-secondary">
+                                Job #{{ $var->job_id }} &bull; {{ Str::limit($var->job->job_title ?? $var->job->job_name, 20) }}
+                            </span>
+                        </td>
+                        <td class="text-end tabular-nums">£{{ number_format($var->cost_amount, 2) }}</td>
+                        <td class="text-end tabular-nums">{{ number_format($var->markup_percentage, 1) }}%</td>
+                        <td class="text-end fw-bold text-dark tabular-nums fs-6">£{{ number_format($var->quoted_amount, 2) }}</td>
                         <td>
                             @if($var->status === 'approved')
-                                <span class="badge bg-label-success">Approved</span>
+                                <span class="badge bg-label-success">
+                                    <span class="status-indicator-dot dot-healthy me-1"></span> Approved
+                                </span>
                             @elseif($var->status === 'rejected')
-                                <span class="badge bg-label-danger">Rejected</span>
+                                <span class="badge bg-label-danger">
+                                    <span class="status-indicator-dot dot-critical me-1"></span> Rejected
+                                </span>
                             @else
-                                <span class="badge bg-label-secondary">Draft</span>
+                                <span class="badge bg-label-warning">
+                                    <span class="status-indicator-dot dot-warning me-1"></span> Draft
+                                </span>
                             @endif
                         </td>
                         <td>
                             @if($var->signed_at)
-                                <div class="small text-success fw-bold"><i class="bx bx-check me-1"></i>{{ $var->client_signer_name }}</div>
+                                <div class="small text-success fw-bold"><i class="bx bx-check-shield me-1"></i>{{ $var->client_signer_name }}</div>
                                 <small class="text-muted">{{ $var->signed_at->format('d M Y H:i') }}</small>
                             @else
-                                <span class="badge bg-label-warning">Pending Signature</span>
+                                <span class="badge bg-label-warning"><i class="bx bx-time me-1"></i>Awaiting E-Sign</span>
                             @endif
                         </td>
                         <td>
-                            <a href="{{ route('commercial.variations.show', $var) }}" class="btn btn-sm btn-outline-primary">
+                            <a href="{{ route('commercial.variations.show', $var) }}" class="btn btn-sm btn-outline-primary shadow-sm">
                                 <i class="bx bx-show me-1"></i> View
                             </a>
                         </td>

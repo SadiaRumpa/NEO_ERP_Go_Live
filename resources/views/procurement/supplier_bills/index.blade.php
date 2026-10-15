@@ -67,19 +67,24 @@
                     @forelse($bills as $bill)
                     <tr>
                         <td>
-                            <a href="{{ route('procurement.supplier-bills.show', $bill) }}" class="fw-bold text-primary">
+                            <a href="{{ route('procurement.supplier-bills.show', $bill) }}" class="fw-bold text-primary font-monospace">
                                 {{ $bill->internal_reference }}
                             </a>
                         </td>
-                        <td><strong>{{ $bill->bill_number }}</strong></td>
-                        <td>{{ $bill->supplier->name ?? '—' }}</td>
+                        <td><strong class="text-dark font-monospace">{{ $bill->bill_number }}</strong></td>
+                        <td><span class="fw-semibold text-dark">{{ $bill->supplier->name ?? '—' }}</span></td>
                         <td>
-                            <a href="{{ route('procurement.purchase-orders.show', $bill->purchaseOrder) }}" class="text-primary">
+                            <a href="{{ route('procurement.purchase-orders.show', $bill->purchaseOrder) }}" class="text-primary font-monospace">
                                 {{ $bill->purchaseOrder->po_number }}
                             </a>
                         </td>
-                        <td>{{ $bill->due_date?->format('d M Y') }}</td>
-                        <td class="fw-bold">£{{ number_format($bill->total_amount, 2) }}</td>
+                        <td>
+                            <div class="d-flex align-items-center gap-1">
+                                <i class="bx bx-calendar text-muted"></i>
+                                <span>{{ $bill->due_date?->format('d M Y') }}</span>
+                            </div>
+                        </td>
+                        <td class="fw-bold tabular-nums text-dark fs-6">£{{ number_format($bill->total_amount, 2) }}</td>
                         <td>
                             @php
                                 $mClass = match($bill->match_status) {
@@ -88,17 +93,23 @@
                                     'approved_override' => 'bg-label-warning',
                                     default => 'bg-label-secondary'
                                 };
+                                $mDot = match($bill->match_status) {
+                                    'matched' => 'dot-healthy',
+                                    'variance_detected' => 'dot-critical',
+                                    'approved_override' => 'dot-warning',
+                                    default => ''
+                                };
                             @endphp
                             <span class="badge {{ $mClass }}">
-                                <i class="bx {{ $bill->match_status === 'matched' ? 'bx-check-circle' : 'bx-error-circle' }} me-1"></i>
+                                @if($mDot)<span class="status-indicator-dot {{ $mDot }} me-1"></span>@endif
                                 {{ ucfirst(str_replace('_', ' ', $bill->match_status)) }}
                             </span>
                         </td>
                         <td>
                             @if($bill->approval_status === 'approved')
-                                <span class="badge bg-success">Approved</span>
+                                <span class="badge bg-success"><span class="status-indicator-dot dot-healthy me-1"></span> Approved</span>
                             @elseif($bill->approval_status === 'held')
-                                <span class="badge bg-danger">ON HOLD</span>
+                                <span class="badge bg-danger"><span class="status-indicator-dot dot-critical me-1"></span> ON HOLD</span>
                             @else
                                 <span class="badge bg-secondary">Pending</span>
                             @endif

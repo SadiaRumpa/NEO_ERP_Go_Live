@@ -67,22 +67,27 @@
                     @forelse($purchaseOrders as $po)
                     <tr>
                         <td>
-                            <a href="{{ route('procurement.purchase-orders.show', $po) }}" class="fw-bold text-primary">
+                            <a href="{{ route('procurement.purchase-orders.show', $po) }}" class="fw-bold text-primary font-monospace">
                                 {{ $po->po_number }}
                             </a>
                         </td>
-                        <td>{{ $po->supplier->name ?? '—' }}</td>
+                        <td><strong class="text-dark">{{ $po->supplier->name ?? '—' }}</strong></td>
                         <td>
                             @if($po->job)
-                                <span class="badge bg-label-info"><i class="bx bx-briefcase me-1"></i> Job #{{ $po->job->id }}: {{ Str::limit($po->job->job_title ?? $po->job->job_name, 25) }}</span>
+                                <span class="badge bg-label-secondary"><i class="bx bx-briefcase me-1"></i> Job #{{ $po->job->id }} &bull; {{ Str::limit($po->job->job_title ?? $po->job->job_name, 22) }}</span>
                             @elseif($po->warehouse)
-                                <span class="badge bg-label-primary"><i class="bx bx-building me-1"></i> {{ $po->warehouse->warehouse_name ?? 'Warehouse' }}</span>
+                                <span class="badge bg-label-info"><i class="bx bx-building me-1"></i> {{ $po->warehouse->warehouse_name ?? 'Warehouse' }}</span>
                             @else
-                                <span class="text-muted">Direct Expense</span>
+                                <span class="text-muted small">Direct Expense</span>
                             @endif
                         </td>
-                        <td>{{ $po->order_date?->format('d M Y') }}</td>
-                        <td class="fw-bold">£{{ number_format($po->total_amount, 2) }}</td>
+                        <td>
+                            <div class="d-flex align-items-center gap-1">
+                                <i class="bx bx-calendar text-muted"></i>
+                                <span>{{ $po->order_date?->format('d M Y') }}</span>
+                            </div>
+                        </td>
+                        <td class="fw-bold tabular-nums text-dark fs-6">£{{ number_format($po->total_amount, 2) }}</td>
                         <td>
                             @php
                                 $badgeClass = match($po->status) {
@@ -93,8 +98,17 @@
                                     'cancelled' => 'bg-label-danger',
                                     default => 'bg-label-secondary'
                                 };
+                                $statusDot = match($po->status) {
+                                    'received' => 'dot-healthy',
+                                    'partially_received', 'sent' => 'dot-warning',
+                                    'cancelled' => 'dot-critical',
+                                    default => ''
+                                };
                             @endphp
-                            <span class="badge {{ $badgeClass }}">{{ ucfirst(str_replace('_', ' ', $po->status)) }}</span>
+                            <span class="badge {{ $badgeClass }}">
+                                @if($statusDot)<span class="status-indicator-dot {{ $statusDot }} me-1"></span>@endif
+                                {{ ucfirst(str_replace('_', ' ', $po->status)) }}
+                            </span>
                         </td>
                         <td>
                             <div class="d-flex gap-1">

@@ -72,32 +72,47 @@
                     @forelse($valuations as $val)
                     <tr>
                         <td>
-                            <a href="{{ route('commercial.valuations.show', $val) }}" class="fw-bold text-primary">
+                            <a href="{{ route('commercial.valuations.show', $val) }}" class="fw-bold text-primary font-monospace">
                                 {{ $val->application_number }}
                             </a>
                         </td>
-                        <td>Job #{{ $val->job_id }} - {{ Str::limit($val->job->job_title ?? $val->job->job_name, 20) }}</td>
-                        <td>{{ $val->valuation_date->format('d M Y') }}</td>
-                        <td class="text-end fw-semibold">£{{ number_format($val->gross_valuation, 2) }}</td>
-                        <td class="text-end text-muted">£{{ number_format($val->previous_certified_amount, 2) }}</td>
-                        <td class="text-end text-danger fw-semibold">
+                        <td>
+                            <span class="badge bg-label-secondary">
+                                Job #{{ $val->job_id }} &bull; {{ Str::limit($val->job->job_title ?? $val->job->job_name, 20) }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center gap-1">
+                                <i class="bx bx-calendar text-muted"></i>
+                                <span>{{ $val->valuation_date->format('d M Y') }}</span>
+                            </div>
+                        </td>
+                        <td class="text-end fw-semibold tabular-nums">£{{ number_format($val->gross_valuation, 2) }}</td>
+                        <td class="text-end text-muted tabular-nums">£{{ number_format($val->previous_certified_amount, 2) }}</td>
+                        <td class="text-end text-danger fw-semibold tabular-nums">
                             -£{{ number_format($val->retention_deduction, 2) }}
                             <small class="text-muted d-block">({{ number_format($val->retention_rate, 1) }}%)</small>
                         </td>
-                        <td class="text-end fw-bold text-success fs-6">
+                        <td class="text-end fw-bold text-success fs-6 tabular-nums">
                             £{{ number_format($val->certified_amount ?? $val->net_claim_amount, 2) }}
                         </td>
                         <td>
                             @if($val->status === 'paid')
-                                <span class="badge bg-label-success">Paid</span>
+                                <span class="badge bg-label-success">
+                                    <span class="status-indicator-dot dot-healthy me-1"></span> Paid
+                                </span>
                             @elseif($val->status === 'certified')
-                                <span class="badge bg-label-info">Certified</span>
+                                <span class="badge bg-label-info">
+                                    <span class="status-indicator-dot dot-warning me-1"></span> Certified
+                                </span>
                             @else
-                                <span class="badge bg-label-secondary">Draft Claim</span>
+                                <span class="badge bg-label-warning">
+                                    <span class="status-indicator-dot dot-warning me-1"></span> Draft Claim
+                                </span>
                             @endif
                         </td>
                         <td>
-                            <a href="{{ route('commercial.valuations.show', $val) }}" class="btn btn-sm btn-outline-primary">
+                            <a href="{{ route('commercial.valuations.show', $val) }}" class="btn btn-sm btn-outline-primary shadow-sm">
                                 <i class="bx bx-show me-1"></i> View / Certify
                             </a>
                         </td>

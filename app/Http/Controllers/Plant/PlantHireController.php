@@ -144,4 +144,11 @@ class PlantHireController extends Controller
         $alerts = $this->plantHireService->getExpiringOrOverdueHires($request->user()->business_id);
         return view('plant_hires.alerts', compact('alerts'));
     }
+
+    public function destroy(PlantHire $plantHire): RedirectResponse
+    {
+        $plantHire->delete();
+        return redirect()->route('plant-hires.index')
+            ->with('success', 'Plant hire record ' . $plantHire->hire_reference . ' deleted.');
+    }
 }

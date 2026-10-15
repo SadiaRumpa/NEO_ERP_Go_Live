@@ -66,44 +66,50 @@
                                 {{ $sub->company_name }}
                             </a>
                             @if($sub->contact_name)
-                                <div class="small text-muted">{{ $sub->contact_name }} • {{ $sub->phone }}</div>
+                                <div class="small text-muted"><i class="bx bx-user me-1"></i>{{ $sub->contact_name }} &bull; {{ $sub->phone }}</div>
                             @endif
                         </td>
-                        <td><code>{{ $sub->utr_number }}</code></td>
-                        <td>{{ $sub->trade_specialism ?? 'General Trades' }}</td>
+                        <td><span class="font-monospace fw-bold text-dark fs-6">{{ $sub->utr_number }}</span></td>
+                        <td><span class="badge bg-label-secondary text-capitalize">{{ $sub->trade_specialism ?? 'General Trades' }}</span></td>
                         <td>
                             @if($sub->cis_tax_status === 'gross')
-                                <span class="badge bg-label-success">Gross (0%)</span>
+                                <span class="badge bg-label-success">
+                                    <span class="status-indicator-dot dot-healthy me-1"></span> Gross (0%)
+                                </span>
                             @elseif($sub->cis_tax_status === 'standard')
-                                <span class="badge bg-label-primary">Standard (20%)</span>
+                                <span class="badge bg-label-primary">
+                                    <span class="status-indicator-dot dot-healthy me-1"></span> Standard (20%)
+                                </span>
                             @else
-                                <span class="badge bg-label-danger">Higher (30%)</span>
+                                <span class="badge bg-label-danger">
+                                    <span class="status-indicator-dot dot-warning me-1"></span> Higher (30%)
+                                </span>
                             @endif
                         </td>
                         <td>
                             @if($sub->cis_verification_number)
-                                <span class="badge bg-label-info">{{ $sub->cis_verification_number }}</span>
+                                <span class="badge bg-label-info font-monospace">{{ $sub->cis_verification_number }}</span>
                             @else
-                                <span class="text-muted small">Pending Verification</span>
+                                <span class="badge bg-label-warning"><i class="bx bx-time me-1"></i>Pending</span>
                             @endif
                         </td>
                         <td>
-                            <span class="badge bg-label-secondary">{{ $sub->payment_certificates_count }} certs</span>
+                            <span class="badge bg-light text-dark border">{{ $sub->payment_certificates_count }} certs</span>
                         </td>
                         <td>
                             @if($sub->status === 'active')
-                                <span class="badge bg-label-success">Active</span>
+                                <span class="badge bg-label-success"><span class="status-indicator-dot dot-healthy me-1"></span>Active</span>
                             @else
                                 <span class="badge bg-label-secondary">Inactive</span>
                             @endif
                         </td>
                         <td>
                             <div class="d-flex gap-1">
-                                <a href="{{ route('subcontractors.show', $sub) }}" class="btn btn-sm btn-icon btn-outline-info" title="View Profile">
+                                <a href="{{ route('subcontractors.show', $sub) }}" class="btn btn-sm btn-icon btn-outline-primary" title="View Profile">
                                     <i class="bx bx-show"></i>
                                 </a>
-                                <a href="{{ route('subcontractors.certificates.create', ['subcontractor_id' => $sub->id]) }}" class="btn btn-sm btn-outline-success" title="Raise Payment Cert">
-                                    <i class="bx bx-receipt me-1"></i> Cert
+                                <a href="{{ route('subcontractors.certificates.create', ['subcontractor_id' => $sub->id]) }}" class="btn btn-sm btn-outline-success shadow-sm" title="Raise Payment Cert">
+                                    <i class="bx bx-receipt me-1"></i> Issue Cert
                                 </a>
                             </div>
                         </td>

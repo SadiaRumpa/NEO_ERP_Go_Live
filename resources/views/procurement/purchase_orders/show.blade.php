@@ -42,78 +42,91 @@
     </div>
     @endif
 
-    <div class="row">
+    <div class="row g-3 mb-4">
         <!-- Overview Cards -->
-        <div class="col-md-4 mb-4">
-            <div class="card h-100">
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
                 <div class="card-body">
-                    <h6 class="card-subtitle text-muted mb-2">Supplier & Account</h6>
-                    <h5 class="card-title fw-bold text-primary mb-1">{{ $purchaseOrder->supplier->name }}</h5>
-                    <p class="mb-1 text-muted">{{ $purchaseOrder->supplier->address ?? 'No address registered' }}</p>
-                    <div class="small mt-2">
-                        <div><strong>Contact:</strong> {{ $purchaseOrder->supplier->contact_name ?? '—' }}</div>
-                        <div><strong>Email:</strong> {{ $purchaseOrder->supplier->email ?? '—' }}</div>
-                        <div><strong>Phone:</strong> {{ $purchaseOrder->supplier->phone ?? '—' }}</div>
-                        <div><strong>Terms:</strong> <span class="badge bg-label-info">{{ $purchaseOrder->supplier->payment_terms }}</span></div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <small class="text-muted text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Supplier Account</small>
+                        <span class="badge bg-label-info">{{ $purchaseOrder->supplier->payment_terms }}</span>
+                    </div>
+                    <h5 class="card-title fw-bold text-dark mb-1">{{ $purchaseOrder->supplier->name }}</h5>
+                    <p class="mb-2 text-muted small">{{ $purchaseOrder->supplier->address ?? 'No address registered' }}</p>
+                    <div class="small border-top pt-2 mt-2">
+                        <div class="mb-1"><strong class="text-secondary">Contact:</strong> {{ $purchaseOrder->supplier->contact_name ?? '—' }}</div>
+                        <div class="mb-1"><strong class="text-secondary">Email:</strong> {{ $purchaseOrder->supplier->email ?? '—' }}</div>
+                        <div><strong class="text-secondary">Phone:</strong> {{ $purchaseOrder->supplier->phone ?? '—' }}</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-4 mb-4">
-            <div class="card h-100">
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
                 <div class="card-body">
-                    <h6 class="card-subtitle text-muted mb-2">Cost Allocation & Destination</h6>
+                    <small class="text-muted d-block text-uppercase fw-semibold mb-2" style="font-size: 0.72rem; letter-spacing: 0.05em;">Cost Allocation & Destination</small>
                     @if($purchaseOrder->job)
-                        <div class="alert alert-primary mb-2 py-2">
-                            <i class="bx bx-briefcase me-1"></i>
-                            <strong>Allocated to Job #{{ $purchaseOrder->job->id }}</strong>
-                            <div class="small">{{ $purchaseOrder->job->job_title ?? $purchaseOrder->job->job_name }}</div>
+                        <div class="p-3 border rounded bg-slate-50 mb-2" style="background-color: #f8fafc;">
+                            <div class="d-flex align-items-center gap-2 text-primary fw-bold mb-1">
+                                <i class="bx bx-briefcase"></i> Job Allocation #{{ $purchaseOrder->job->id }}
+                            </div>
+                            <div class="text-dark fw-semibold small">{{ $purchaseOrder->job->job_title ?? $purchaseOrder->job->job_name }}</div>
                         </div>
                     @elseif($purchaseOrder->warehouse)
-                        <div class="alert alert-info mb-2 py-2">
-                            <i class="bx bx-building me-1"></i>
-                            <strong>Central Inventory: {{ $purchaseOrder->warehouse->warehouse_name }}</strong>
+                        <div class="p-3 border rounded bg-slate-50 mb-2" style="background-color: #f8fafc;">
+                            <div class="d-flex align-items-center gap-2 text-info fw-bold mb-1">
+                                <i class="bx bx-building"></i> Central Warehouse
+                            </div>
+                            <div class="text-dark fw-semibold small">{{ $purchaseOrder->warehouse->warehouse_name }}</div>
                         </div>
                     @else
-                        <span class="text-muted">Direct Expense / Unallocated</span>
+                        <div class="p-3 border rounded bg-light mb-2 text-muted small">Direct Overhead Expense / Unallocated</div>
                     @endif
                     <div class="small mt-2">
-                        <div><strong>Expected Delivery:</strong> {{ $purchaseOrder->expected_delivery_date?->format('d M Y') ?? 'Not specified' }}</div>
-                        <div><strong>Special Notes:</strong> {{ $purchaseOrder->notes ?? 'None' }}</div>
+                        <div class="mb-1"><strong class="text-secondary">Expected Delivery:</strong> {{ $purchaseOrder->expected_delivery_date?->format('d M Y') ?? 'Not specified' }}</div>
+                        <div><strong class="text-secondary">Notes:</strong> {{ $purchaseOrder->notes ?? 'None' }}</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-4 mb-4">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h6 class="card-subtitle text-muted mb-2">Financial Commitment & Status</h6>
-                    @php
-                        $badgeClass = match($purchaseOrder->status) {
-                            'draft' => 'bg-label-secondary',
-                            'sent' => 'bg-label-primary',
-                            'partially_received' => 'bg-label-warning',
-                            'received' => 'bg-label-success',
-                            'cancelled' => 'bg-label-danger',
-                            default => 'bg-label-secondary'
-                        };
-                    @endphp
-                    <div class="mb-3">
-                        <span class="badge {{ $badgeClass }} fs-6">{{ ucfirst(str_replace('_', ' ', $purchaseOrder->status)) }}</span>
-                    </div>
+        <div class="col-md-4">
+            <div class="neo-kpi-card kpi-primary h-100 shadow-sm">
+                @php
+                    $badgeClass = match($purchaseOrder->status) {
+                        'draft' => 'bg-label-secondary',
+                        'sent' => 'bg-label-primary',
+                        'partially_received' => 'bg-label-warning',
+                        'received' => 'bg-label-success',
+                        'cancelled' => 'bg-label-danger',
+                        default => 'bg-label-secondary'
+                    };
+                    $statusDot = match($purchaseOrder->status) {
+                        'received' => 'dot-healthy',
+                        'partially_received', 'sent' => 'dot-warning',
+                        'cancelled' => 'dot-critical',
+                        default => ''
+                    };
+                @endphp
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="kpi-subtitle mb-0">Financial Commitment</span>
+                    <span class="badge {{ $badgeClass }}">
+                        @if($statusDot)<span class="status-indicator-dot {{ $statusDot }} me-1"></span>@endif
+                        {{ ucfirst(str_replace('_', ' ', $purchaseOrder->status)) }}
+                    </span>
+                </div>
+                <div class="kpi-value text-primary tabular-nums mb-3">
+                    £{{ number_format($purchaseOrder->total_amount, 2) }}
+                </div>
+                <div class="border-top pt-2 small">
                     <div class="d-flex justify-content-between mb-1">
                         <span class="text-muted">Subtotal:</span>
-                        <span class="fw-bold">£{{ number_format($purchaseOrder->subtotal, 2) }}</span>
+                        <span class="fw-semibold tabular-nums">£{{ number_format($purchaseOrder->subtotal, 2) }}</span>
                     </div>
-                    <div class="d-flex justify-content-between mb-1">
+                    <div class="d-flex justify-content-between">
                         <span class="text-muted">VAT ({{ number_format($purchaseOrder->tax_rate, 0) }}%):</span>
-                        <span class="fw-bold">£{{ number_format($purchaseOrder->tax_amount, 2) }}</span>
-                    </div>
-                    <div class="d-flex justify-content-between border-top pt-2">
-                        <span class="fw-bold fs-5">Total Committed:</span>
-                        <span class="fw-bold fs-5 text-primary">£{{ number_format($purchaseOrder->total_amount, 2) }}</span>
+                        <span class="fw-semibold tabular-nums">£{{ number_format($purchaseOrder->tax_amount, 2) }}</span>
                     </div>
                 </div>
             </div>
@@ -145,23 +158,23 @@
                     @endphp
                     <tr>
                         <td>
-                            <strong>{{ $item->description }}</strong>
+                            <strong class="text-dark">{{ $item->description }}</strong>
                             @if($item->stockItem)
-                                <div><small class="text-muted">SKU: {{ $item->stockItem->item_name }}</small></div>
+                                <div><small class="text-muted"><i class="bx bx-barcode me-1"></i>SKU: {{ $item->stockItem->item_name }}</small></div>
                             @endif
                         </td>
-                        <td class="text-center fw-bold">{{ number_format($item->quantity, 2) }}</td>
-                        <td class="text-center fw-bold">{{ number_format($item->received_quantity, 2) }}</td>
+                        <td class="text-center fw-bold tabular-nums">{{ number_format($item->quantity, 2) }}</td>
+                        <td class="text-center fw-bold tabular-nums text-success">{{ number_format($item->received_quantity, 2) }}</td>
                         <td class="align-middle">
                             <div class="d-flex align-items-center gap-2">
-                                <div class="progress flex-grow-1" style="height: 8px;">
+                                <div class="progress flex-grow-1" style="height: 7px; border-radius: 9999px;">
                                     <div class="progress-bar {{ $barClass }}" role="progressbar" style="width: {{ $pct }}%;" aria-valuenow="{{ $pct }}" aria-valuemin="0" aria-valuemax="100"></div>
                                 </div>
-                                <small class="fw-bold">{{ $pct }}%</small>
+                                <span class="badge {{ $pct >= 100 ? 'bg-label-success' : ($pct > 0 ? 'bg-label-warning' : 'bg-label-secondary') }}">{{ $pct }}%</span>
                             </div>
                         </td>
-                        <td class="text-end">£{{ number_format($item->unit_price, 2) }}</td>
-                        <td class="text-end fw-bold">£{{ number_format($item->total_price, 2) }}</td>
+                        <td class="text-end tabular-nums">£{{ number_format($item->unit_price, 2) }}</td>
+                        <td class="text-end fw-bold tabular-nums text-dark">£{{ number_format($item->total_price, 2) }}</td>
                     </tr>
                     @endforeach
                 </tbody>

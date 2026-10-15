@@ -82,38 +82,49 @@
                     @forelse($timesheets as $ts)
                     <tr>
                         <td>
-                            <a href="{{ route('labor.timesheets.show', $ts) }}" class="fw-bold text-primary">
+                            <a href="{{ route('labor.timesheets.show', $ts) }}" class="fw-bold text-primary font-monospace">
                                 {{ $ts->timesheet_number }}
                             </a>
                         </td>
                         <td>
-                            <strong>{{ $ts->worker->name ?? '—' }}</strong>
+                            <strong class="text-dark">{{ $ts->worker->name ?? '—' }}</strong>
                         </td>
                         <td>
-                            <span class="badge bg-label-info">Job #{{ $ts->job->id }}: {{ Str::limit($ts->job->job_title ?? $ts->job->job_name, 20) }}</span>
+                            <span class="badge bg-label-secondary">Job #{{ $ts->job->id }} &bull; {{ Str::limit($ts->job->job_title ?? $ts->job->job_name, 20) }}</span>
                         </td>
-                        <td>{{ $ts->work_date?->format('d M Y') }}</td>
                         <td>
-                            <span class="fw-bold">{{ number_format($ts->total_hours, 1) }}h</span>
-                            <small class="text-muted d-block">
-                                Std: {{ number_format($ts->standard_hours, 1) }} | OT: {{ number_format($ts->overtime_1_5_hours + $ts->overtime_2_0_hours, 1) }} | Trv: {{ number_format($ts->travel_hours, 1) }}
+                            <div class="d-flex align-items-center gap-1">
+                                <i class="bx bx-calendar text-muted"></i>
+                                <span>{{ $ts->work_date?->format('d M Y') }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="fw-bold text-dark tabular-nums">{{ number_format($ts->total_hours, 1) }}h</span>
+                            <small class="text-muted d-block tabular-nums">
+                                Std: {{ number_format($ts->standard_hours, 1) }}h | OT: {{ number_format($ts->overtime_1_5_hours + $ts->overtime_2_0_hours, 1) }}h | Trv: {{ number_format($ts->travel_hours, 1) }}h
                             </small>
                         </td>
-                        <td>£{{ number_format($ts->direct_pay_amount, 2) }}</td>
-                        <td class="fw-bold text-success fs-6">
+                        <td class="tabular-nums">£{{ number_format($ts->direct_pay_amount, 2) }}</td>
+                        <td class="fw-bold text-success fs-6 tabular-nums">
                             £{{ number_format($ts->fully_burdened_cost, 2) }}
                         </td>
                         <td>
                             @if($ts->status === 'approved')
-                                <span class="badge bg-label-success">Approved</span>
+                                <span class="badge bg-label-success">
+                                    <span class="status-indicator-dot dot-healthy me-1"></span> Approved
+                                </span>
                             @elseif($ts->status === 'rejected')
-                                <span class="badge bg-label-danger">Rejected</span>
+                                <span class="badge bg-label-danger">
+                                    <span class="status-indicator-dot dot-critical me-1"></span> Rejected
+                                </span>
                             @else
-                                <span class="badge bg-label-warning">Submitted</span>
+                                <span class="badge bg-label-warning">
+                                    <span class="status-indicator-dot dot-warning me-1"></span> Submitted
+                                </span>
                             @endif
                         </td>
                         <td>
-                            <a href="{{ route('labor.timesheets.show', $ts) }}" class="btn btn-sm btn-icon btn-outline-info" title="View Timesheet">
+                            <a href="{{ route('labor.timesheets.show', $ts) }}" class="btn btn-sm btn-icon btn-outline-primary" title="View Timesheet">
                                 <i class="bx bx-show"></i>
                             </a>
                         </td>

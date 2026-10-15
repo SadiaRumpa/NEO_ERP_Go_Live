@@ -84,7 +84,7 @@
 
         <!-- Financial Statement Breakdown -->
         <div class="table-responsive mb-4">
-            <table class="table table-bordered">
+            <table class="table table-bordered align-middle">
                 <thead class="table-light">
                     <tr>
                         <th>Statement Component</th>
@@ -94,31 +94,35 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td><strong>Total Gross Amount Paid (excl. VAT)</strong></td>
-                        <td class="text-muted">Total claimed for labor, plant, materials</td>
-                        <td class="text-end fw-bold">£{{ number_format($certificate->gross_amount, 2) }}</td>
+                        <td><strong class="text-dark">Total Gross Amount Paid (excl. VAT)</strong></td>
+                        <td class="text-muted small">Total claimed for labor, plant, materials</td>
+                        <td class="text-end fw-bold tabular-nums fs-6">£{{ number_format($certificate->gross_amount, 2) }}</td>
                     </tr>
                     <tr>
-                        <td><strong>Less: Cost of Materials</strong></td>
-                        <td class="text-muted">Exempt from CIS tax deduction</td>
-                        <td class="text-end text-muted">-£{{ number_format($certificate->materials_cost, 2) }}</td>
+                        <td><strong class="text-dark">Less: Cost of Materials</strong></td>
+                        <td class="text-muted small">Statutory exemption from CIS tax deduction</td>
+                        <td class="text-end text-muted tabular-nums fs-6">-£{{ number_format($certificate->materials_cost, 2) }}</td>
                     </tr>
-                    <tr class="table-light">
-                        <td><strong>Amount Liable to CIS Deduction (Labor Element)</strong></td>
-                        <td class="text-muted">Subject to CIS withholding</td>
-                        <td class="text-end fw-bold">£{{ number_format($certificate->labor_amount, 2) }}</td>
+                    <tr style="background-color: #f8fafc;">
+                        <td><strong class="text-dark">Amount Liable to CIS Deduction (Labor Element)</strong></td>
+                        <td class="text-muted small">Subject to statutory CIS withholding rate</td>
+                        <td class="text-end fw-bold tabular-nums fs-6">£{{ number_format($certificate->labor_amount, 2) }}</td>
                     </tr>
-                    <tr class="table-warning">
+                    <tr style="background-color: #fffbeb;">
                         <td>
                             <strong class="text-danger">CIS Tax Deducted at {{ number_format($certificate->cis_tax_rate, 0) }}%</strong>
-                            <div class="small text-muted">Paid directly to HMRC under CIS scheme</div>
+                            <div class="small text-muted">Withheld and paid directly to HMRC under CIS scheme</div>
                         </td>
-                        <td class="text-danger fw-bold">{{ $certificate->subcontractor->cis_tax_status === 'gross' ? '0% Gross' : number_format($certificate->cis_tax_rate, 0) . '% Statutory' }}</td>
-                        <td class="text-end fw-bold text-danger fs-6">-£{{ number_format($certificate->cis_deduction_amount, 2) }}</td>
+                        <td class="text-danger fw-bold">
+                            <span class="badge bg-label-danger">{{ $certificate->subcontractor->cis_tax_status === 'gross' ? '0% Gross' : number_format($certificate->cis_tax_rate, 0) . '% Statutory' }}</span>
+                        </td>
+                        <td class="text-end fw-bold text-danger fs-6 tabular-nums">-£{{ number_format($certificate->cis_deduction_amount, 2) }}</td>
                     </tr>
-                    <tr class="table-success">
-                        <td colspan="2" class="fs-5 fw-bold text-success">NET AMOUNT PAYABLE TO SUBCONTRACTOR</td>
-                        <td class="text-end fs-5 fw-bold text-success">£{{ number_format($certificate->net_payable, 2) }}</td>
+                    <tr style="background-color: #ecfdf5; border: 2px solid #10b981;">
+                        <td colspan="2" class="fs-5 fw-bold text-success py-3">
+                            <i class="bx bx-check-circle me-1"></i> NET AMOUNT PAYABLE TO SUBCONTRACTOR
+                        </td>
+                        <td class="text-end fs-4 fw-bold text-success tabular-nums py-3">£{{ number_format($certificate->net_payable, 2) }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -126,21 +130,27 @@
 
         @if($certificate->notes)
         <div class="mb-4">
-            <h6 class="fw-bold small text-muted mb-1">CERTIFICATE NOTES & WORK DESCRIPTION</h6>
-            <div class="p-3 bg-light rounded text-dark small">{{ $certificate->notes }}</div>
+            <h6 class="fw-bold small text-muted mb-1 text-uppercase">Certificate Notes & Work Description</h6>
+            <div class="p-3 bg-light rounded text-dark small border">{{ $certificate->notes }}</div>
         </div>
         @endif
 
         <div class="row pt-4 border-top mt-auto text-muted small">
             <div class="col-6">
-                <div>Payment Status: <strong>{{ strtoupper($certificate->payment_status) }}</strong></div>
+                <div>Payment Status: 
+                    @if($certificate->payment_status === 'paid')
+                        <span class="badge bg-success"><span class="status-indicator-dot dot-healthy me-1"></span> PAID</span>
+                    @else
+                        <span class="badge bg-warning"><span class="status-indicator-dot dot-warning me-1"></span> {{ strtoupper($certificate->payment_status) }}</span>
+                    @endif
+                </div>
                 @if($certificate->paid_at)
-                    <div>Settlement Date: {{ $certificate->paid_at?->format('d M Y') }}</div>
+                    <div class="mt-1">Settlement Date: <strong class="text-dark">{{ $certificate->paid_at?->format('d M Y') }}</strong></div>
                 @endif
             </div>
             <div class="col-6 text-end">
-                <div>Generated by NeoERP Construction Suite</div>
-                <div>Keep this statement for HMRC end-of-year tax filing</div>
+                <div>Generated by <strong>NeoERP Construction Suite</strong></div>
+                <div class="text-muted">Keep this official statement for HMRC end-of-year CIS accounting</div>
             </div>
         </div>
     </div>
