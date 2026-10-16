@@ -26,7 +26,8 @@ fi
 
 # 3. Update dependencies & database
 echo "==> Updating composer dependencies..."
-$DOCKER_COMPOSE exec -T app composer install --no-dev --optimize-autoloader --no-interaction
+$DOCKER_COMPOSE exec -T app git config --global --add safe.directory /var/www/html 2>/dev/null || true
+$DOCKER_COMPOSE exec -T app composer install --no-dev --optimize-autoloader --no-interaction --ignore-platform-reqs
 
 echo "==> Running any pending migrations..."
 $DOCKER_COMPOSE exec -T app php artisan migrate --force

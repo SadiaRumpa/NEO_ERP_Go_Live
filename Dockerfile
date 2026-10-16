@@ -1,4 +1,7 @@
-FROM php:8.2-fpm
+FROM php:8.4-fpm
+
+# Configure git safe directory
+RUN git config --global --add safe.directory /var/www/html
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \

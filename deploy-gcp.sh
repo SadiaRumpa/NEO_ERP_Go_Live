@@ -122,7 +122,8 @@ $DOCKER_COMPOSE up -d --build
 
 # 5. Install PHP dependencies inside app container
 echo "==> Installing Composer dependencies (production)..."
-$DOCKER_COMPOSE exec -T app composer install --no-dev --optimize-autoloader --no-interaction
+$DOCKER_COMPOSE exec -T app git config --global --add safe.directory /var/www/html 2>/dev/null || true
+$DOCKER_COMPOSE exec -T app composer install --no-dev --optimize-autoloader --no-interaction --ignore-platform-reqs
 
 # 6. Generate application key if missing
 if ! grep -q "APP_KEY=base64:" .env; then
