@@ -36,14 +36,13 @@
         <form id="loginForm" class="mb-0 text-start" action="{{ route('login') }}" method="POST">
             @csrf
 
-            <!-- Email -->
+            <!-- Email (No left icon) -->
             <div class="mb-4">
                 <label for="email" class="form-label">Email Address</label>
-                <div class="input-group input-group-merge auth-input-group">
-                    <span class="input-group-text"><i class="icon-base ti tabler-mail"></i></span>
+                <div class="auth-input-wrapper">
                     <input
                         type="email"
-                        class="form-control"
+                        class="form-control auth-input"
                         id="email"
                         name="email"
                         value="{{ old('email') }}"
@@ -53,7 +52,7 @@
                 </div>
             </div>
 
-            <!-- Password -->
+            <!-- Password (No left icon; show password icon placed inside input on the right with 50% opacity) -->
             <div class="mb-4">
                 <div class="d-flex justify-content-between align-items-center mb-1">
                     <label class="form-label mb-0" for="password">Password</label>
@@ -63,20 +62,24 @@
                         </a>
                     @endif
                 </div>
-                <div class="input-group input-group-merge auth-input-group form-password-toggle">
-                    <span class="input-group-text"><i class="icon-base ti tabler-lock"></i></span>
+                <div class="auth-input-wrapper">
                     <input
                         type="password"
                         id="password"
-                        class="form-control"
+                        class="form-control auth-input auth-input-password"
                         name="password"
                         placeholder="••••••••••••"
                         aria-describedby="password"
                         required 
                         autocomplete="current-password" />
-                    <span class="input-group-text cursor-pointer" id="passwordToggleWrapper">
+                    <button type="button" 
+                            id="passwordToggleBtn" 
+                            class="auth-password-toggle"
+                            onclick="togglePasswordVisibility()"
+                            title="Show password"
+                            aria-label="Toggle password visibility">
                         <i id="passwordToggleIcon" class="icon-base ti tabler-eye-off"></i>
-                    </span>
+                    </button>
                 </div>
             </div>
 
@@ -125,6 +128,23 @@
 </div>
 
 <script>
+    function togglePasswordVisibility() {
+        var passwordInput = document.getElementById('password');
+        var toggleIcon = document.getElementById('passwordToggleIcon');
+        var toggleBtn = document.getElementById('passwordToggleBtn');
+        if (!passwordInput || !toggleIcon) return;
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleIcon.className = 'icon-base ti tabler-eye';
+            if (toggleBtn) toggleBtn.setAttribute('title', 'Hide password');
+        } else {
+            passwordInput.type = 'password';
+            toggleIcon.className = 'icon-base ti tabler-eye-off';
+            if (toggleBtn) toggleBtn.setAttribute('title', 'Show password');
+        }
+    }
+
     function fillDemoAccount(email, password) {
         var emailInput = document.getElementById('email');
         var passwordInput = document.getElementById('password');
@@ -152,23 +172,6 @@
                 if (icon) {
                     icon.className = 'spinner-border spinner-border-sm';
                     icon.setAttribute('role', 'status');
-                }
-            });
-        }
-
-        // Fallback toggle for password visibility
-        var toggleWrapper = document.getElementById('passwordToggleWrapper');
-        var toggleIcon = document.getElementById('passwordToggleIcon');
-        var passwordField = document.getElementById('password');
-        if (toggleWrapper && toggleIcon && passwordField) {
-            toggleWrapper.addEventListener('click', function (e) {
-                e.preventDefault();
-                if (passwordField.type === 'password') {
-                    passwordField.type = 'text';
-                    toggleIcon.classList.replace('tabler-eye-off', 'tabler-eye');
-                } else {
-                    passwordField.type = 'password';
-                    toggleIcon.classList.replace('tabler-eye', 'tabler-eye-off');
                 }
             });
         }

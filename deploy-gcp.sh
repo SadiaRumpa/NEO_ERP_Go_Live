@@ -153,6 +153,7 @@ $DOCKER_COMPOSE exec -T app php artisan migrate --force
 
 echo "==> Seeding full commercial demo showcase data (100 enquiries, active jobs, live WIP portfolio, plant hires)..."
 $DOCKER_COMPOSE exec -T app php artisan db:seed --force
+$DOCKER_COMPOSE exec -T app php artisan auth:ensure-admin
 
 # 9. Create storage symlink & optimize
 echo "==> Creating storage symlink..."

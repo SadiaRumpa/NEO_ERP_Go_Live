@@ -19,11 +19,11 @@ class CreateAdminUserSeeder extends Seeder
         $adminPassword = env('INITIAL_ADMIN_PASSWORD', 'NeoErp!Admin2026#Secure');
 
         $business = \App\Models\BusinessInfo::first();
-        $user = User::firstOrCreate(
+        $user = User::updateOrCreate(
             ['email' => $adminEmail],
             [
                 'name' => 'Super Admin',
-                'password' => bcrypt($adminPassword),
+                'password' => \Illuminate\Support\Facades\Hash::make($adminPassword),
                 'business_id' => $business?->id ?? 1,
             ]
         );

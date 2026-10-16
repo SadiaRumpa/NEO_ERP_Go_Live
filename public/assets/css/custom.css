@@ -1739,43 +1739,85 @@ body {
     color: #cbd5e1;
 }
 
-.auth-input-group {
+.auth-input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.auth-input {
+    width: 100%;
+    height: 44px;
+    padding: 0.65rem 0.95rem;
+    font-size: 0.9375rem;
     border-radius: 0.5rem;
     border: 1px solid #cbd5e1;
+    background-color: #ffffff;
+    color: #1e293b;
     transition: all 0.15s ease;
-    overflow: hidden;
 }
 
-[data-bs-theme="dark"] .auth-input-group {
-    border-color: #374151;
-}
-
-.auth-input-group .input-group-text {
-    border: none;
-    background-color: transparent;
-    color: #64748b;
-    padding-left: 0.875rem;
-    padding-right: 0.875rem;
-}
-
-.auth-input-group .form-control {
-    border: none;
-    font-size: 0.9125rem;
-    padding-left: 0;
-}
-
-.auth-input-group .form-control:focus {
-    box-shadow: none;
-}
-
-.auth-input-group:focus-within {
+.auth-input:focus {
     border-color: #163659 !important;
     box-shadow: 0 0 0 3px rgba(16, 43, 72, 0.14) !important;
+    outline: none;
+    background-color: #ffffff;
 }
 
-[data-bs-theme="dark"] .auth-input-group:focus-within {
+[data-bs-theme="dark"] .auth-input {
+    background-color: #1e293b;
+    border-color: #374151;
+    color: #f8fafc;
+}
+
+[data-bs-theme="dark"] .auth-input:focus {
     border-color: #60a5fa !important;
     box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2) !important;
+}
+
+.auth-input-password {
+    padding-right: 2.75rem !important;
+}
+
+.auth-password-toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    padding: 4px;
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0.5;
+    color: #475569;
+    transition: opacity 0.2s ease, color 0.2s ease;
+    z-index: 10;
+}
+
+.auth-password-toggle:hover {
+    opacity: 0.9;
+    color: #0a1e36;
+}
+
+.auth-password-toggle:focus {
+    outline: none;
+    opacity: 1;
+}
+
+[data-bs-theme="dark"] .auth-password-toggle {
+    color: #94a3b8;
+}
+
+[data-bs-theme="dark"] .auth-password-toggle:hover {
+    color: #ffffff;
+}
+
+.auth-password-toggle i {
+    font-size: 1.25rem;
+    line-height: 1;
 }
 
 .auth-submit-btn {
