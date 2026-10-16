@@ -12,12 +12,11 @@ echo "================================================================="
 if ! command -v docker &> /dev/null; then
     echo "==> Docker not found. Installing Docker Engine..."
     curl -fsSL https://get.docker.com -o get-docker.sh
-    sh get-docker.sh
+    sudo sh get-docker.sh
     rm -f get-docker.sh
-    if [ -n "$SUDO_USER" ]; then
-        usermod -aG docker "$SUDO_USER"
-    elif [ -n "$USER" ]; then
-        usermod -aG docker "$USER" || true
+    CURRENT_USER="${SUDO_USER:-$USER}"
+    if [ -n "$CURRENT_USER" ]; then
+        sudo usermod -aG docker "$CURRENT_USER" || true
     fi
     echo "==> Docker installed successfully."
 fi
@@ -27,15 +26,22 @@ if command -v systemctl &> /dev/null; then
     sudo systemctl enable --now docker || true
 fi
 
-# Determine docker compose command (compose plugin or docker-compose)
-if docker compose version &> /dev/null; then
-    DOCKER_COMPOSE="docker compose"
+# Test if docker needs sudo in current session
+if docker ps &> /dev/null; then
+    DOCKER_CMD="docker"
+else
+    DOCKER_CMD="sudo docker"
+fi
+
+# Determine docker compose command
+if $DOCKER_CMD compose version &> /dev/null; then
+    DOCKER_COMPOSE="$DOCKER_CMD compose"
 elif command -v docker-compose &> /dev/null; then
-    DOCKER_COMPOSE="docker-compose"
+    DOCKER_COMPOSE="sudo docker-compose"
 else
     echo "==> Installing Docker Compose plugin..."
     sudo apt-get update && sudo apt-get install -y docker-compose-plugin
-    DOCKER_COMPOSE="docker compose"
+    DOCKER_COMPOSE="$DOCKER_CMD compose"
 fi
 
 # 2. Configure .env file
