@@ -960,12 +960,14 @@
         <div class="modal fade" id="viewMapModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title d-flex align-items-center" id="viewMapModalLabel">
+                    <div class="modal-header d-flex justify-content-between align-items-center">
+                        <h5 class="modal-title d-flex align-items-center mb-0" id="viewMapModalLabel">
                             <i class="icon-base ti tabler-map-pin me-2 text-primary"></i>
                             <span id="mapModalTitle">Location Map</span>
                         </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="btn btn-sm btn-icon btn-outline-secondary" data-bs-dismiss="modal" aria-label="Close" style="transform: none; position: static; box-shadow: none;">
+                            <i class="icon-base ti tabler-x fs-5"></i>
+                        </button>
                     </div>
                     <div class="modal-body pt-0">
                         <p class="text-muted mb-3" id="mapModalAddress"></p>
