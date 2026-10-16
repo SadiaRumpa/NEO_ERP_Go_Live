@@ -86,10 +86,13 @@
                                     name="password"
                                     placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
                                     autocomplete="new-password"
+                                    minlength="8"
+                                    required
                                     value=""
                                     aria-describedby="multicol-password2" />
                                 <span class="input-group-text cursor-pointer" id="multicol-password2"><i class="icon-base ti tabler-eye-off"></i></span>
                             </div>
+                            <small class="text-muted d-block mt-1">Must be at least 8 characters and include uppercase, lowercase, numbers, and signs/symbols.</small>
                         </div>
                     </div>
                     <div class="row form-password-toggle mb-6">
@@ -103,6 +106,8 @@
                                     name="confirm-password"
                                     placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
                                     autocomplete="new-password"
+                                    minlength="8"
+                                    required
                                     value=""
                                     aria-describedby="multicol-confirm-password2" />
                                 <span class="input-group-text cursor-pointer" id="multicol-confirm-password2"><i class="icon-base ti tabler-eye-off"></i></span>

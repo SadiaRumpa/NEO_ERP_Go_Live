@@ -13,6 +13,7 @@ use Illuminate\Support\Arr;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Validation\Rules\Password;
 
 class UserController extends Controller
 {
@@ -73,7 +74,11 @@ class UserController extends Controller
         $this->validate($request, [
             'name' => 'required',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|same:confirm-password',
+            'password' => [
+                'required',
+                'same:confirm-password',
+                Password::min(8)->mixedCase()->numbers()->symbols(),
+            ],
             'roles' => 'required'
         ]);
 
@@ -144,7 +149,11 @@ class UserController extends Controller
 
         if ($request->filled('password')) {
             $rules['current_password'] = 'required|current_password';
-            $rules['password'] = 'required|min:8|same:confirm-password';
+            $rules['password'] = [
+                'required',
+                'same:confirm-password',
+                Password::min(8)->mixedCase()->numbers()->symbols(),
+            ];
         }
 
         $request->validate($rules);
@@ -173,7 +182,11 @@ class UserController extends Controller
         $this->validate($request, [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id,
-            'password' => 'nullable|same:confirm-password',
+            'password' => [
+                'nullable',
+                'same:confirm-password',
+                Password::min(8)->mixedCase()->numbers()->symbols(),
+            ],
             'roles' => 'nullable|array'
         ]);
 
