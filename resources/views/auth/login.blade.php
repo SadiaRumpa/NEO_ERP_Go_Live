@@ -17,7 +17,7 @@
                     <i class="icon-base ti tabler-building-skyscraper"></i>
                 </div>
             @endif
-            <h4 class="mb-1 fw-bold text-heading">{{ $appbrand->business_brand_app_name ?? 'NEO ERP' }}</h4>
+            <h4 class="mb-1 fw-bold text-heading" style="letter-spacing: -0.01em;">{{ $appbrand->business_brand_app_name ?? 'NEO ERP' }}</h4>
             <p class="text-muted small mb-0">Commercial Contracting & Costing Portal</p>
         </div>
 
@@ -32,15 +32,15 @@
         </div>
         @endif
 
-        <!-- Login Form -->
-        <form id="formAuthentication" class="mb-0 text-start" action="{{ route('login') }}" method="POST">
+        <!-- Login Form (Bypasses third-party page-auth validator that intercepted and blocked submit) -->
+        <form id="loginForm" class="mb-0 text-start" action="{{ route('login') }}" method="POST">
             @csrf
 
             <!-- Email -->
             <div class="mb-4">
-                <label for="email" class="form-label small fw-semibold text-heading">Email Address</label>
+                <label for="email" class="form-label">Email Address</label>
                 <div class="input-group input-group-merge auth-input-group">
-                    <span class="input-group-text"><i class="icon-base ti tabler-mail text-muted"></i></span>
+                    <span class="input-group-text"><i class="icon-base ti tabler-mail"></i></span>
                     <input
                         type="email"
                         class="form-control"
@@ -56,15 +56,15 @@
             <!-- Password -->
             <div class="mb-4">
                 <div class="d-flex justify-content-between align-items-center mb-1">
-                    <label class="form-label small fw-semibold text-heading mb-0" for="password">Password</label>
+                    <label class="form-label mb-0" for="password">Password</label>
                     @if (Route::has('password.request'))
-                        <a href="{{ route('password.request') }}" class="small text-primary text-decoration-none">
+                        <a href="{{ route('password.request') }}" class="small auth-link">
                             Forgot Password?
                         </a>
                     @endif
                 </div>
                 <div class="input-group input-group-merge auth-input-group form-password-toggle">
-                    <span class="input-group-text"><i class="icon-base ti tabler-lock text-muted"></i></span>
+                    <span class="input-group-text"><i class="icon-base ti tabler-lock"></i></span>
                     <input
                         type="password"
                         id="password"
@@ -74,7 +74,9 @@
                         aria-describedby="password"
                         required 
                         autocomplete="current-password" />
-                    <span class="input-group-text cursor-pointer"><i class="icon-base ti tabler-eye-off"></i></span>
+                    <span class="input-group-text cursor-pointer" id="passwordToggleWrapper">
+                        <i id="passwordToggleIcon" class="icon-base ti tabler-eye-off"></i>
+                    </span>
                 </div>
             </div>
 
@@ -82,27 +84,27 @@
             <div class="mb-4">
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" id="remember" name="remember" {{ old('remember') ? 'checked' : '' }} />
-                    <label class="form-check-label small" for="remember">
+                    <label class="form-check-label small text-muted" for="remember">
                         Keep me signed in on this device
                     </label>
                 </div>
             </div>
 
             <!-- Submit Button -->
-            <button type="submit" class="btn auth-submit-btn text-white w-100 d-flex align-items-center justify-content-center gap-2 mb-4">
-                <span>Sign In to Dashboard</span>
-                <i class="icon-base ti tabler-arrow-right"></i>
+            <button type="submit" id="loginSubmitBtn" class="btn auth-submit-btn w-100 d-flex align-items-center justify-content-center gap-2 mb-4">
+                <span id="loginSubmitText">Sign In to Dashboard</span>
+                <i id="loginSubmitIcon" class="icon-base ti tabler-arrow-right"></i>
             </button>
         </form>
 
         <!-- One-Click Showcase Demo Login Helper -->
-        <div class="auth-demo-badge d-flex align-items-center justify-content-between mt-2">
+        <div class="auth-demo-box d-flex align-items-center justify-content-between mt-2">
             <div class="overflow-hidden me-2 text-start">
-                <div class="fw-semibold text-primary d-flex align-items-center gap-1 small">
-                    <i class="icon-base ti tabler-sparkles"></i>
+                <div class="demo-title d-flex align-items-center gap-1 small">
+                    <i class="icon-base ti tabler-sparkles text-warning"></i>
                     <span>Showcase Evaluator Login</span>
                 </div>
-                <small class="text-muted text-truncate d-block" style="font-size: 0.75rem;">admin@neoerp.local</small>
+                <small class="text-muted text-truncate d-block font-monospace" style="font-size: 0.75rem;">admin@neoerp.local</small>
             </div>
             <button type="button" 
                     class="auth-demo-btn flex-shrink-0" 
@@ -129,8 +131,47 @@
         if (emailInput && passwordInput) {
             emailInput.value = email;
             passwordInput.value = password;
-            emailInput.focus();
+            emailInput.dispatchEvent(new Event('input', { bubbles: true }));
+            emailInput.dispatchEvent(new Event('change', { bubbles: true }));
+            passwordInput.dispatchEvent(new Event('input', { bubbles: true }));
+            passwordInput.dispatchEvent(new Event('change', { bubbles: true }));
+            passwordInput.focus();
         }
     }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var form = document.getElementById('loginForm');
+        var btn = document.getElementById('loginSubmitBtn');
+        var text = document.getElementById('loginSubmitText');
+        var icon = document.getElementById('loginSubmitIcon');
+
+        if (form && btn) {
+            form.addEventListener('submit', function () {
+                btn.disabled = true;
+                if (text) text.textContent = 'Signing in...';
+                if (icon) {
+                    icon.className = 'spinner-border spinner-border-sm';
+                    icon.setAttribute('role', 'status');
+                }
+            });
+        }
+
+        // Fallback toggle for password visibility
+        var toggleWrapper = document.getElementById('passwordToggleWrapper');
+        var toggleIcon = document.getElementById('passwordToggleIcon');
+        var passwordField = document.getElementById('password');
+        if (toggleWrapper && toggleIcon && passwordField) {
+            toggleWrapper.addEventListener('click', function (e) {
+                e.preventDefault();
+                if (passwordField.type === 'password') {
+                    passwordField.type = 'text';
+                    toggleIcon.classList.replace('tabler-eye-off', 'tabler-eye');
+                } else {
+                    passwordField.type = 'password';
+                    toggleIcon.classList.replace('tabler-eye', 'tabler-eye-off');
+                }
+            });
+        }
+    });
 </script>
 @endsection
