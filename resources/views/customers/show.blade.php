@@ -965,8 +965,14 @@
                             <i class="icon-base ti tabler-map-pin me-2 text-primary"></i>
                             <span id="mapModalTitle">Location Map</span>
                         </h5>
-                        <button type="button" class="btn btn-sm btn-icon btn-outline-secondary" data-bs-dismiss="modal" aria-label="Close" style="transform: none; position: static; box-shadow: none;">
-                            <i class="icon-base ti tabler-x fs-5"></i>
+                        <button type="button" class="btn btn-sm btn-icon" data-bs-dismiss="modal" aria-label="Close"
+                            style="width: 32px; height: 32px; min-width: 32px; border-radius: 6px; background-color: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.3); color: #ffffff; display: flex; align-items: center; justify-content: center; padding: 0; cursor: pointer; transform: none; box-shadow: none;"
+                            onmouseover="this.style.backgroundColor='rgba(255, 255, 255, 0.25)'; this.style.borderColor='rgba(255, 255, 255, 0.5)';"
+                            onmouseout="this.style.backgroundColor='rgba(255, 255, 255, 0.12)'; this.style.borderColor='rgba(255, 255, 255, 0.3)';">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="pointer-events: none; display: block;">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
                         </button>
                     </div>
                     <div class="modal-body pt-0">
