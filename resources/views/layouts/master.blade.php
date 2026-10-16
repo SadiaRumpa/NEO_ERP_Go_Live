@@ -307,51 +307,6 @@
 
                 <!-- Content wrapper -->
                 <div class="content-wrapper">
-                    <!-- Global Session Alerts (Success, Error, Warning, Info) -->
-                    @if (session('success') || session('error') || session('warning') || session('info') || session('status'))
-                        <div class="container-xxl pt-4 pb-0">
-                            @if (session('success'))
-                                <div class="alert alert-success alert-dismissible d-flex align-items-center shadow-sm fade show mb-4" role="alert">
-                                    <i class="icon-base ti tabler-circle-check fs-4 me-2"></i>
-                                    <div class="flex-grow-1">
-                                        <strong>Success:</strong> {{ session('success') }}
-                                    </div>
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                </div>
-                            @endif
-
-                            @if (session('error'))
-                                <div class="alert alert-danger alert-dismissible d-flex align-items-center shadow-sm fade show mb-4" role="alert">
-                                    <i class="icon-base ti tabler-alert-triangle fs-4 me-2"></i>
-                                    <div class="flex-grow-1">
-                                        <strong>Error:</strong> {{ session('error') }}
-                                    </div>
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                </div>
-                            @endif
-
-                            @if (session('warning'))
-                                <div class="alert alert-warning alert-dismissible d-flex align-items-center shadow-sm fade show mb-4" role="alert">
-                                    <i class="icon-base ti tabler-alert-circle fs-4 me-2"></i>
-                                    <div class="flex-grow-1">
-                                        <strong>Warning:</strong> {{ session('warning') }}
-                                    </div>
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                </div>
-                            @endif
-
-                            @if (session('info') || session('status'))
-                                <div class="alert alert-info alert-dismissible d-flex align-items-center shadow-sm fade show mb-4" role="alert">
-                                    <i class="icon-base ti tabler-info-circle fs-4 me-2"></i>
-                                    <div class="flex-grow-1">
-                                        <strong>Notice:</strong> {{ session('info') ?? session('status') }}
-                                    </div>
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                </div>
-                            @endif
-                        </div>
-                    @endif
-
                     <!-- Content -->
                     @yield('content')
                     <!-- / Content -->
@@ -404,40 +359,6 @@
 
         <!-- Main JS -->
         <script src="{{ asset('assets/js/main.js') }}?v={{ file_exists(public_path('assets/js/main.js')) ? filemtime(public_path('assets/js/main.js')) : time() }}"></script>
-
-        <!-- Global Toastr Flash Bridge -->
-        <script>
-            $(document).ready(function() {
-                if (typeof toastr !== 'undefined') {
-                    toastr.options = {
-                        "closeButton": true,
-                        "debug": false,
-                        "newestOnTop": true,
-                        "progressBar": true,
-                        "positionClass": "toast-top-right",
-                        "preventDuplicates": false,
-                        "timeOut": "5000",
-                        "extendedTimeOut": "2000"
-                    };
-
-                    @if (session('success'))
-                        toastr.success("{!! addslashes(session('success')) !!}", "Success");
-                    @endif
-
-                    @if (session('error'))
-                        toastr.error("{!! addslashes(session('error')) !!}", "Error");
-                    @endif
-
-                    @if (session('warning'))
-                        toastr.warning("{!! addslashes(session('warning')) !!}", "Warning");
-                    @endif
-
-                    @if (session('info') || session('status'))
-                        toastr.info("{!! addslashes(session('info') ?? session('status')) !!}", "Notice");
-                    @endif
-                }
-            });
-        </script>
     @show
 
     <!-- PWA Service Worker Registration -->
