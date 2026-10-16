@@ -44,6 +44,15 @@ else
     DOCKER_COMPOSE="$DOCKER_CMD compose"
 fi
 
+# Ensure swap space (prevents Composer / Docker memory errors on smaller cloud VMs)
+if [ ! -f /swapfile ] && command -v swapon &> /dev/null; then
+    echo "==> Configuring 2GB swap space for stable builds..."
+    sudo fallocate -l 2G /swapfile 2>/dev/null || sudo dd if=/dev/zero of=/swapfile bs=1M count=2048 2>/dev/null || true
+    sudo chmod 600 /swapfile 2>/dev/null || true
+    sudo mkswap /swapfile 2>/dev/null || true
+    sudo swapon /swapfile 2>/dev/null || true
+fi
+
 # 2. Configure .env file
 if [ ! -f .env ]; then
     echo "==> Creating production .env file..."
