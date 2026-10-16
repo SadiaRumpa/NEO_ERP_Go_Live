@@ -5,14 +5,14 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
-permissions:
-  contents: read
-
 jobs:
   deploy:
     name: Deploy to Google Cloud VM
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+
       - name: Check secrets configuration
         id: check_secrets
         env:
@@ -60,44 +60,54 @@ jobs:
           echo "Testing SSH connection to ${GCP_VM_USER}@${GCP_VM_HOST}..."
           ssh -o BatchMode=yes -o StrictHostKeyChecking=no -o ConnectTimeout=15 -i /tmp/deploy_key "${GCP_VM_USER}@${GCP_VM_HOST}" 'echo "==> SSH authentication successful! Connected to $(hostname) as $(whoami)."'
 
-      - name: Execute deployment on VM
+      - name: Ensure target directory and rsync on VM
         if: steps.check_secrets.outputs.configured == 'true'
         env:
           GCP_VM_HOST: ${{ secrets.GCP_VM_HOST }}
           GCP_VM_USER: ${{ secrets.GCP_VM_USER }}
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO: ${{ github.repository }}
         run: |
-          echo "Starting deployment on ${GCP_VM_HOST}..."
-          ssh -o StrictHostKeyChecking=no -o ConnectTimeout=30 -i /tmp/deploy_key "${GCP_VM_USER}@${GCP_VM_HOST}" "bash -s -- '${TOKEN}' '${REPO}'" << 'EOF'
+          echo "Preparing ~/neoerp directory on VM..."
+          ssh -o StrictHostKeyChecking=no -i /tmp/deploy_key "${GCP_VM_USER}@${GCP_VM_HOST}" '
+            mkdir -p ~/neoerp
+            command -v rsync >/dev/null 2>&1 || (sudo apt-get update && sudo apt-get install -y rsync)
+          '
+
+      - name: Sync repository files to VM via rsync
+        if: steps.check_secrets.outputs.configured == 'true'
+        env:
+          GCP_VM_HOST: ${{ secrets.GCP_VM_HOST }}
+          GCP_VM_USER: ${{ secrets.GCP_VM_USER }}
+        run: |
+          echo "Syncing code to ${GCP_VM_HOST}:~/neoerp/..."
+          rsync -avz \
+            --exclude '.git/' \
+            --exclude '.env' \
+            --exclude 'vendor/' \
+            --exclude 'node_modules/' \
+            --exclude 'storage/logs/*' \
+            -e "ssh -i /tmp/deploy_key -o StrictHostKeyChecking=no" \
+            ./ "${GCP_VM_USER}@${GCP_VM_HOST}:~/neoerp/"
+          echo "Code synchronized successfully."
+
+      - name: Execute deployment or update on VM
+        if: steps.check_secrets.outputs.configured == 'true'
+        env:
+          GCP_VM_HOST: ${{ secrets.GCP_VM_HOST }}
+          GCP_VM_USER: ${{ secrets.GCP_VM_USER }}
+        run: |
+          echo "Executing deployment on ${GCP_VM_HOST}..."
+          ssh -o StrictHostKeyChecking=no -o ConnectTimeout=30 -i /tmp/deploy_key "${GCP_VM_USER}@${GCP_VM_HOST}" '
             set -e
-            TOKEN="$1"
-            REPO="$2"
-            REPO_URL="https://x-access-token:${TOKEN}@github.com/${REPO}.git"
-
-            # 1. Ensure git and curl exist
-            if ! command -v git &>/dev/null || ! command -v curl &>/dev/null; then
-              echo "==> Installing git and curl..."
-              sudo apt-get update && sudo apt-get install -y git curl
-            fi
-
-            # 2. Clone or update repository
-            if [ ! -d ~/neoerp ]; then
-              echo "==> ~/neoerp does not exist on VM. Performing initial automated clone & deployment..."
-              git clone "$REPO_URL" ~/neoerp
-              cd ~/neoerp
-              git remote set-url origin "https://github.com/${REPO}.git"
-              chmod +x deploy-gcp.sh update.sh
+            cd ~/neoerp
+            chmod +x deploy-gcp.sh update.sh
+            if [ ! -f .env ]; then
+              echo "==> Initial installation: launching deploy-gcp.sh..."
               ./deploy-gcp.sh
             else
-              echo "==> ~/neoerp found. Synchronizing latest commit from GitHub..."
-              cd ~/neoerp
-              git fetch "$REPO_URL" main
-              git reset --hard FETCH_HEAD
-              chmod +x update.sh deploy-gcp.sh
+              echo "==> Existing installation: launching update.sh..."
               ./update.sh
             fi
-EOF
+          '
 
       - name: Cleanup SSH private key
         if: always()
