@@ -105,15 +105,17 @@ EOF
 fi
 
 # 3. Ensure SSL certificate exists for HTTPS (port 443)
+mkdir -p docker/nginx/ssl
 if [ ! -f docker/nginx/ssl/server.crt ] || [ ! -f docker/nginx/ssl/server.key ]; then
-    echo "==> Generating SSL certificate for HTTPS..."
-    mkdir -p docker/nginx/ssl
-    openssl req -x509 -nodes -days 3650 -newkey rsa:2048 \
-        -keyout docker/nginx/ssl/server.key \
-        -out docker/nginx/ssl/server.crt \
-        -subj "/C=GB/ST=London/L=London/O=NeoERP/CN=neoerp" \
-        -addext "subjectAltName=IP:8.228.59.10,IP:127.0.0.1,DNS:localhost" 2>/dev/null || true
+    echo "==> Generating enterprise 2-tier SSL certificates (Root CA + Leaf SAN)..."
+    chmod +x setup-ip-ssl.sh 2>/dev/null || true
+    ./setup-ip-ssl.sh "8.228.59.10"
+else
     chmod 600 docker/nginx/ssl/server.key 2>/dev/null || true
+    if [ -f docker/nginx/ssl/neoerp-root-ca.crt ]; then
+        mkdir -p public
+        cp -f docker/nginx/ssl/neoerp-root-ca.crt public/neoerp-root-ca.crt 2>/dev/null || true
+    fi
 fi
 
 # 4. Build & start containers
@@ -181,6 +183,7 @@ echo "   🎉 NeoERP Showcase Deployment Complete on Google Cloud!"
 echo "================================================================="
 echo "   HTTP URL:      http://${SERVER_IP}"
 echo "   HTTPS URL:     https://${SERVER_IP}"
+echo "   Root CA Cert:  http://${SERVER_IP}/neoerp-root-ca.crt"
 echo ""
 echo "   Default Super Admin Login:"
 echo "   Email:         admin@neoerp.local"
