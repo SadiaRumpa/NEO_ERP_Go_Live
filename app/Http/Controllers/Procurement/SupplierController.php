@@ -28,7 +28,7 @@ class SupplierController extends Controller
             $query->where('status', $request->input('status'));
         }
 
-        $suppliers = $query->latest('id')->paginate(15);
+        $suppliers = $query->latest('id')->paginate($this->getPerPage(15))->withQueryString();
 
         return view('procurement.suppliers.index', compact('suppliers'));
     }

@@ -97,6 +97,9 @@
                 </div>
             </form>
         </div>
+        <div class="px-4 py-3 d-flex justify-content-between align-items-center flex-wrap gap-2 border-bottom">
+            @include('partials.per-page-selector', ['paginator' => $retentions])
+        </div>
         <div class="table-responsive text-nowrap">
             <table class="table table-hover">
                 <thead>
@@ -191,11 +194,14 @@
                 </tbody>
             </table>
         </div>
-        @if($retentions->hasPages())
-        <div class="card-footer border-top">
-            {{ $retentions->withQueryString()->links() }}
+        <div class="card-footer border-top d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div class="text-muted small">
+                Showing {{ $retentions->firstItem() ?? 0 }} to {{ $retentions->lastItem() ?? 0 }} of {{ $retentions->total() }} results
+            </div>
+            <div>
+                {{ $retentions->withQueryString()->links() }}
+            </div>
         </div>
-        @endif
     </div>
 </div>
 @endsection

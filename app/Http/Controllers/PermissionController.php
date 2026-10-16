@@ -29,9 +29,10 @@ class PermissionController extends Controller
      */
     public function index(Request $request): View
     {
-        $permissions = Permission::orderBy('id', 'DESC')->paginate(5);
-        return view('permissions.index', compact('permissions'))
-            ->with('i', ($request->input('page', 1) - 1) * 5);
+        $perPage = $this->getPerPage(10);
+        $permissions = Permission::orderBy('id', 'DESC')->paginate($perPage)->withQueryString();
+        return view('permissions.index', compact('permissions', 'perPage'))
+            ->with('i', ($permissions->currentPage() - 1) * $permissions->perPage());
     }
 
     /**

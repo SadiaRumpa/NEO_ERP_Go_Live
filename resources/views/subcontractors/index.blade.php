@@ -44,6 +44,9 @@
                 </div>
             </form>
         </div>
+        <div class="px-4 py-3 d-flex justify-content-between align-items-center flex-wrap gap-2 border-bottom">
+            @include('partials.per-page-selector', ['paginator' => $subcontractors])
+        </div>
         <div class="table-responsive text-nowrap">
             <table class="table table-hover">
                 <thead>
@@ -125,11 +128,14 @@
                 </tbody>
             </table>
         </div>
-        @if($subcontractors->hasPages())
-        <div class="card-footer">
-            {{ $subcontractors->withQueryString()->links() }}
+        <div class="card-footer border-top d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div class="text-muted small">
+                Showing {{ $subcontractors->firstItem() ?? 0 }} to {{ $subcontractors->lastItem() ?? 0 }} of {{ $subcontractors->total() }} results
+            </div>
+            <div>
+                {{ $subcontractors->withQueryString()->links() }}
+            </div>
         </div>
-        @endif
     </div>
 </div>
 @endsection

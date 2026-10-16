@@ -13,9 +13,10 @@ class MailTemplateController extends Controller
      */
     public function index()
     {
-        $data = MailTemplate::latest()->paginate(5);
-        return view('mailtemplates.index', compact('data'))
-            ->with('i', (request()->input('page', 1) - 1) * 5);
+        $perPage = $this->getPerPage(10);
+        $data = MailTemplate::latest()->paginate($perPage)->withQueryString();
+        return view('mailtemplates.index', compact('data', 'perPage'))
+            ->with('i', ($data->currentPage() - 1) * $data->perPage());
     }
 
     /**

@@ -33,7 +33,7 @@ class TimesheetController extends Controller
             $query->where('job_id', $request->input('job_id'));
         }
 
-        $timesheets = $query->latest('work_date')->paginate(15);
+        $timesheets = $query->latest('work_date')->paginate($this->getPerPage(15))->withQueryString();
         $workers = User::orderBy('name')->get();
         $jobs = Fjob::latest('id')->limit(50)->get();
 

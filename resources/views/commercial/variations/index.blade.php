@@ -50,6 +50,9 @@
                 </div>
             </form>
         </div>
+        <div class="px-4 py-3 d-flex justify-content-between align-items-center flex-wrap gap-2 border-bottom">
+            @include('partials.per-page-selector', ['paginator' => $variations])
+        </div>
         <div class="table-responsive text-nowrap">
             <table class="table table-hover">
                 <thead>
@@ -124,11 +127,14 @@
                 </tbody>
             </table>
         </div>
-        @if($variations->hasPages())
-        <div class="card-footer border-top">
-            {{ $variations->withQueryString()->links() }}
+        <div class="card-footer border-top d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div class="text-muted small">
+                Showing {{ $variations->firstItem() ?? 0 }} to {{ $variations->lastItem() ?? 0 }} of {{ $variations->total() }} results
+            </div>
+            <div>
+                {{ $variations->withQueryString()->links() }}
+            </div>
         </div>
-        @endif
     </div>
 </div>
 @endsection

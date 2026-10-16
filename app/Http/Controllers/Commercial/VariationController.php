@@ -28,7 +28,7 @@ class VariationController extends Controller
             $query->where('job_id', $request->input('job_id'));
         }
 
-        $variations = $query->latest('id')->paginate(15);
+        $variations = $query->latest('id')->paginate($this->getPerPage(15))->withQueryString();
         $jobs = Fjob::latest('id')->limit(50)->get();
 
         return view('commercial.variations.index', compact('variations', 'jobs'));

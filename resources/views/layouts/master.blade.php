@@ -456,6 +456,28 @@
             window.addEventListener('load', cleanTabFades);
         })();
     </script>
+
+    <!-- Interactive Per-Page Selector & DataTables Page Length Defaults -->
+    <script>
+        document.addEventListener('change', function(e) {
+            if (e.target && e.target.classList.contains('per-page-selector')) {
+                var perPage = e.target.value;
+                var url = new URL(window.location.href);
+                url.searchParams.set('per_page', perPage);
+                url.searchParams.set('page', '1');
+                window.location.href = url.toString();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.jQuery && window.jQuery.fn && window.jQuery.fn.dataTable) {
+                window.jQuery.extend(true, window.jQuery.fn.dataTable.defaults, {
+                    lengthMenu: [5, 10, 25, 50, 100],
+                    pageLength: 10
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>

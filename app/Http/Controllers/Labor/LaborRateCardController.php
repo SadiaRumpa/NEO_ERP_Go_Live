@@ -13,7 +13,7 @@ class LaborRateCardController extends Controller
 {
     public function index(): View
     {
-        $rateCards = LaborRateCard::with('user')->latest('effective_from')->paginate(15);
+        $rateCards = LaborRateCard::with('user')->latest('effective_from')->paginate($this->getPerPage(15))->withQueryString();
         return view('labor.rate_cards.index', compact('rateCards'));
     }
 

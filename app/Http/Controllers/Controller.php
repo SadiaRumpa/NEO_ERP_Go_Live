@@ -16,4 +16,16 @@ class Controller extends BaseController
         $appbrand = view()->shared('appbrand');
         $this->mimetypes = $appbrand ? $appbrand->getAllowedFileType('IMG', true) : '';
     }
+
+    /**
+     * Get validated per-page count from request or default.
+     */
+    protected function getPerPage(int $default = 10, array $allowed = [5, 10, 25, 50, 100]): int
+    {
+        $perPage = (int) request()->input('per_page', $default);
+        if (!in_array($perPage, $allowed)) {
+            $perPage = $default;
+        }
+        return $perPage;
+    }
 }

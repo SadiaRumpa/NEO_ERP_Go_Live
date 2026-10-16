@@ -22,6 +22,9 @@
     @endif
 
     <div class="card">
+        <div class="px-4 py-3 d-flex justify-content-between align-items-center flex-wrap gap-2 border-bottom">
+            @include('partials.per-page-selector', ['paginator' => $rateCards])
+        </div>
         <div class="table-responsive text-nowrap">
             <table class="table table-hover">
                 <thead>
@@ -80,11 +83,14 @@
                 </tbody>
             </table>
         </div>
-        @if($rateCards->hasPages())
-        <div class="card-footer">
-            {{ $rateCards->links() }}
+        <div class="card-footer border-top d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div class="text-muted small">
+                Showing {{ $rateCards->firstItem() ?? 0 }} to {{ $rateCards->lastItem() ?? 0 }} of {{ $rateCards->total() }} results
+            </div>
+            <div>
+                {{ $rateCards->withQueryString()->links() }}
+            </div>
         </div>
-        @endif
     </div>
 </div>
 @endsection

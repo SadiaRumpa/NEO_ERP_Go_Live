@@ -37,7 +37,7 @@ class PlantHireController extends Controller
             $query->where('category', $request->input('category'));
         }
 
-        $plantHires = $query->latest('id')->paginate(15);
+        $plantHires = $query->latest('id')->paginate($this->getPerPage(15))->withQueryString();
         $suppliers = Supplier::where('status', 'active')->orderBy('name')->get();
         $jobs = Fjob::latest('id')->limit(50)->get();
 

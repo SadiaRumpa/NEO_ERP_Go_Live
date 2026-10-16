@@ -45,10 +45,11 @@ class UserController extends Controller
             Role::create(['name' => 'customer']);
         }
 
-        $data = User::latest()->paginate(50);
+        $perPage = $this->getPerPage(10);
+        $data = User::latest()->paginate($perPage)->withQueryString();
 
-        return view('users.index', compact('data'))
-            ->with('i', ($request->input('page', 1) - 1) * 50);
+        return view('users.index', compact('data', 'perPage'))
+            ->with('i', ($data->currentPage() - 1) * $data->perPage());
     }
 
     /**

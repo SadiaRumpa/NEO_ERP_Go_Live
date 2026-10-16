@@ -33,7 +33,7 @@ class SubcontractorCertificateController extends Controller
             $query->where('tax_month', $request->input('tax_month'));
         }
 
-        $certificates = $query->latest('id')->paginate(15);
+        $certificates = $query->latest('id')->paginate($this->getPerPage(15))->withQueryString();
         $subcontractors = Subcontractor::where('status', 'active')->orderBy('company_name')->get();
 
         return view('subcontractors.certificates.index', compact('certificates', 'subcontractors'));

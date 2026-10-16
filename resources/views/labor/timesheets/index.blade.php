@@ -63,6 +63,9 @@
                 </div>
             </form>
         </div>
+        <div class="px-4 py-3 d-flex justify-content-between align-items-center flex-wrap gap-2 border-bottom">
+            @include('partials.per-page-selector', ['paginator' => $timesheets])
+        </div>
         <div class="table-responsive text-nowrap">
             <table class="table table-hover">
                 <thead>
@@ -140,11 +143,14 @@
                 </tbody>
             </table>
         </div>
-        @if($timesheets->hasPages())
-        <div class="card-footer">
-            {{ $timesheets->withQueryString()->links() }}
+        <div class="card-footer border-top d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div class="text-muted small">
+                Showing {{ $timesheets->firstItem() ?? 0 }} to {{ $timesheets->lastItem() ?? 0 }} of {{ $timesheets->total() }} results
+            </div>
+            <div>
+                {{ $timesheets->withQueryString()->links() }}
+            </div>
         </div>
-        @endif
     </div>
 </div>
 @endsection

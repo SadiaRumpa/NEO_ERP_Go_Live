@@ -26,6 +26,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        \Illuminate\Pagination\Paginator::useBootstrapFive();
         // // Grant all abilities to super_admin role
         // Gate::before(function (User $user, string $ability): bool|null {
         //     return $user->hasRole('super_admin') ? true : null;

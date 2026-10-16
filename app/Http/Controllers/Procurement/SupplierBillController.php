@@ -32,7 +32,7 @@ class SupplierBillController extends Controller
             $query->where('supplier_id', $request->input('supplier_id'));
         }
 
-        $bills = $query->latest('id')->paginate(15);
+        $bills = $query->latest('id')->paginate($this->getPerPage(15))->withQueryString();
 
         return view('procurement.supplier_bills.index', compact('bills'));
     }

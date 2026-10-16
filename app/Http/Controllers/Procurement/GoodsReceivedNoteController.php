@@ -24,7 +24,7 @@ class GoodsReceivedNoteController extends Controller
             $query->where('purchase_order_id', $request->input('purchase_order_id'));
         }
 
-        $grns = $query->latest('id')->paginate(15);
+        $grns = $query->latest('id')->paginate($this->getPerPage(15))->withQueryString();
 
         return view('procurement.grns.index', compact('grns'));
     }

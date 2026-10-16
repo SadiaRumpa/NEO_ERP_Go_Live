@@ -35,7 +35,7 @@ class PurchaseOrderController extends Controller
             $query->where('job_id', $request->input('job_id'));
         }
 
-        $purchaseOrders = $query->latest('id')->paginate(15);
+        $purchaseOrders = $query->latest('id')->paginate($this->getPerPage(15))->withQueryString();
         $suppliers = Supplier::where('status', 'active')->orderBy('name')->get();
 
         return view('procurement.purchase_orders.index', compact('purchaseOrders', 'suppliers'));

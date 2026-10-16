@@ -24,13 +24,17 @@
             </div>
         </div>
 
-
         <div class="card-body">
             @session('success')
             <div class="alert alert-success" role="alert">
                 {{ $value }}
             </div>
             @endsession
+
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                @include('partials.per-page-selector', ['paginator' => $data])
+            </div>
+
             <div class="table-responsive text-nowrap">
                 <table class="table table-hover">
                     <thead>
@@ -62,9 +66,20 @@
                         </tr>
                         @endforeach
                     </tbody>
-                    {!! $data->links('pagination::bootstrap-5') !!}
                 </table>
             </div>
+
+            @if($data->hasPages())
+                <div class="mt-4">
+                    {!! $data->withQueryString()->links() !!}
+                </div>
+            @else
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-4 pt-2 border-top">
+                    <div class="text-muted small">
+                        Showing {{ $data->firstItem() ?? 0 }} to {{ $data->lastItem() ?? 0 }} of {{ $data->total() }} results
+                    </div>
+                </div>
+            @endif
         </div>
 
     </div>

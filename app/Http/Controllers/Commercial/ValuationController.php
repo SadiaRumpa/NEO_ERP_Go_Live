@@ -28,7 +28,7 @@ class ValuationController extends Controller
             $query->where('job_id', $request->input('job_id'));
         }
 
-        $valuations = $query->latest('id')->paginate(15);
+        $valuations = $query->latest('id')->paginate($this->getPerPage(15))->withQueryString();
         $jobs = Fjob::latest('id')->limit(50)->get();
 
         return view('commercial.valuations.index', compact('valuations', 'jobs'));

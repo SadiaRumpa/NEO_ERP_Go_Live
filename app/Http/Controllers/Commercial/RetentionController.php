@@ -28,7 +28,7 @@ class RetentionController extends Controller
             $query->where('job_id', $request->input('job_id'));
         }
 
-        $retentions = $query->latest('id')->paginate(15);
+        $retentions = $query->latest('id')->paginate($this->getPerPage(15))->withQueryString();
         $jobs = Fjob::latest('id')->limit(50)->get();
 
         $totalHeld = JobRetention::whereIn('status', ['held', 'partially_released'])->get()->sum(fn($r) => $r->balance_held);

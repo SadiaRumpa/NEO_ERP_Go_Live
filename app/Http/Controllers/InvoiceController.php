@@ -35,7 +35,7 @@ class InvoiceController extends Controller
             $query->where('customer_id', $request->input('customer_id'));
         }
 
-        $invoices = $query->latest('id')->paginate(15);
+        $invoices = $query->latest('id')->paginate($this->getPerPage(15))->withQueryString();
         $customers = Customer::orderBy('company_name')->get();
 
         return view('invoices.index', compact('invoices', 'customers'));

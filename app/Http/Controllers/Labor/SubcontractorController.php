@@ -28,7 +28,7 @@ class SubcontractorController extends Controller
             });
         }
 
-        $subcontractors = $query->latest('id')->paginate(15);
+        $subcontractors = $query->latest('id')->paginate($this->getPerPage(15))->withQueryString();
 
         return view('subcontractors.index', compact('subcontractors'));
     }
