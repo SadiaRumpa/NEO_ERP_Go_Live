@@ -1,98 +1,136 @@
 @extends('layouts.app')
 
 @section('title', 'Login')
-@section('scripts')
-    @parent
-@endsection
-
-@section('styles')
-    @parent
-
-@endsection
 
 @section('content')
-<div class="authentication-wrapper authentication-cover">
-    <!-- Logo -->
-
-    <!-- /Logo -->
-    <div class="authentication-inner row m-0">
-        <!-- /Left Text -->
-        <div class="d-none d-xl-flex col-xl-8 p-0">
-            <div class="auth-cover-bg d-flex justify-content-center align-items-center">
-                <img
-                    src="{{asset('assets/img/illustrations/auth-login-illustration-light.png')}}"
-                    alt="auth-login-cover"
-                    class="my-5 auth-illustration" />
-                <img
-                    src="{{asset('assets/img/illustrations/bg-shape-image-light.png')}}"
-                    alt="auth-login-cover"
-                    class="platform-bg" />
-            </div>
-        </div>
-        <!-- /Left Text -->
-
-        <!-- Login -->
-        <div class="d-flex col-12 col-xl-4 align-items-center authentication-bg p-sm-12 p-6">
-            <div class="w-px-400 mx-auto mt-12 pt-5">
-                <h4 class="mb-1">Welcome to {{ $appbrand->business_brand_app_name??'ERP' }}! 👋</h4>
-                <p class="mb-6">Please login to your account and start the adventure</p>
-
-                @if ($errors->any())
-                <div class="alert alert-danger">
-                    @foreach ($errors->all() as $error)
-                    <div>{{$error}}</div>
-                    @endforeach
+<div class="auth-centered-wrapper">
+    <div class="auth-card p-sm-8 p-6">
+        <!-- Logo & Brand Header -->
+        <div class="text-center mb-6">
+            @if(isset($appbrand) && $appbrand->business_logo)
+                <img src="{{ asset($appbrand->business_logo) }}" 
+                     alt="{{ $appbrand->business_brand_app_name ?? 'NEO ERP' }}" 
+                     class="img-fluid mb-3" 
+                     style="max-height: 52px; max-width: 200px; object-fit: contain;" />
+            @else
+                <div class="auth-logo-badge mx-auto">
+                    <i class="icon-base ti tabler-building-skyscraper"></i>
                 </div>
-                @endif
-
-                <form id="formAuthentication" class="mb-6" action="{{ route('login') }}" method="POST">
-                    @csrf
-
-                    <div class="mb-6 form-control-validation">
-                        <label for="email" class="form-label">Email or Username</label>
-                        <input
-                            type="text"
-                            class="form-control"
-                            id="email"
-                            name="email"
-                            placeholder="Enter your email or username"
-                            required
-                            autofocus />
-                    </div>
-                    <div class="mb-6 form-password-toggle form-control-validation">
-                        <label class="form-label" for="password">Password</label>
-                        <div class="input-group input-group-merge">
-                            <input
-                                type="password"
-                                id="password"
-                                class="form-control"
-                                name="password"
-                                placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
-                                aria-describedby="password"
-                                required autocomplete="current-password" />
-                            <span class="input-group-text cursor-pointer"><i class="icon-base ti tabler-eye-off"></i></span>
-                        </div>
-                    </div>
-                    <div class="my-8">
-                        <div class="d-flex justify-content-between">
-                            <div class="form-check mb-0 ms-2">
-                                <input class="form-check-input" type="checkbox" id="remember" name="remember" {{ old('remember') ? 'checked' : '' }} />
-                                <label class="form-check-label" for="remember-me"> Remember Me </label>
-                            </div>
-                            @if (Route::has('password.request'))
-                            <a href="{{ route('password.request') }}">
-                                <p class="mb-0">Forgot Password?</p>
-                            </a>
-                            @endif
-                        </div>
-                    </div>
-                    <button class="btn btn-primary d-grid w-100">Login</button>
-                </form>
-
-            </div>
+            @endif
+            <h4 class="mb-1 fw-bold text-heading">{{ $appbrand->business_brand_app_name ?? 'NEO ERP' }}</h4>
+            <p class="text-muted small mb-0">Commercial Contracting & Costing Portal</p>
         </div>
-        <!-- /Login -->
+
+        @if (isset($errors) && $errors->any())
+        <div class="alert alert-danger py-2 px-3 mb-4 rounded-3 text-start small">
+            @foreach ($errors->all() as $error)
+                <div class="d-flex align-items-center gap-1">
+                    <i class="icon-base ti tabler-alert-circle flex-shrink-0"></i>
+                    <span>{{ $error }}</span>
+                </div>
+            @endforeach
+        </div>
+        @endif
+
+        <!-- Login Form -->
+        <form id="formAuthentication" class="mb-0 text-start" action="{{ route('login') }}" method="POST">
+            @csrf
+
+            <!-- Email -->
+            <div class="mb-4">
+                <label for="email" class="form-label small fw-semibold text-heading">Email Address</label>
+                <div class="input-group input-group-merge auth-input-group">
+                    <span class="input-group-text"><i class="icon-base ti tabler-mail text-muted"></i></span>
+                    <input
+                        type="email"
+                        class="form-control"
+                        id="email"
+                        name="email"
+                        value="{{ old('email') }}"
+                        placeholder="name@company.com"
+                        required
+                        autofocus />
+                </div>
+            </div>
+
+            <!-- Password -->
+            <div class="mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <label class="form-label small fw-semibold text-heading mb-0" for="password">Password</label>
+                    @if (Route::has('password.request'))
+                        <a href="{{ route('password.request') }}" class="small text-primary text-decoration-none">
+                            Forgot Password?
+                        </a>
+                    @endif
+                </div>
+                <div class="input-group input-group-merge auth-input-group form-password-toggle">
+                    <span class="input-group-text"><i class="icon-base ti tabler-lock text-muted"></i></span>
+                    <input
+                        type="password"
+                        id="password"
+                        class="form-control"
+                        name="password"
+                        placeholder="••••••••••••"
+                        aria-describedby="password"
+                        required 
+                        autocomplete="current-password" />
+                    <span class="input-group-text cursor-pointer"><i class="icon-base ti tabler-eye-off"></i></span>
+                </div>
+            </div>
+
+            <!-- Remember Me -->
+            <div class="mb-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="remember" name="remember" {{ old('remember') ? 'checked' : '' }} />
+                    <label class="form-check-label small" for="remember">
+                        Keep me signed in on this device
+                    </label>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn auth-submit-btn text-white w-100 d-flex align-items-center justify-content-center gap-2 mb-4">
+                <span>Sign In to Dashboard</span>
+                <i class="icon-base ti tabler-arrow-right"></i>
+            </button>
+        </form>
+
+        <!-- One-Click Showcase Demo Login Helper -->
+        <div class="auth-demo-badge d-flex align-items-center justify-content-between mt-2">
+            <div class="overflow-hidden me-2 text-start">
+                <div class="fw-semibold text-primary d-flex align-items-center gap-1 small">
+                    <i class="icon-base ti tabler-sparkles"></i>
+                    <span>Showcase Evaluator Login</span>
+                </div>
+                <small class="text-muted text-truncate d-block" style="font-size: 0.75rem;">admin@neoerp.local</small>
+            </div>
+            <button type="button" 
+                    class="auth-demo-btn flex-shrink-0" 
+                    onclick="fillDemoAccount('admin@neoerp.local', 'NeoErp!Admin2026#Secure')"
+                    title="Auto-fill Super Admin credentials">
+                Auto-Fill
+            </button>
+        </div>
+
+        <!-- Security Disclaimer -->
+        <div class="text-center mt-5 pt-3 border-top">
+            <small class="text-muted d-inline-flex align-items-center gap-1" style="font-size: 0.75rem;">
+                <i class="icon-base ti tabler-shield-check text-success"></i>
+                <span>256-bit TLS Encrypted Enterprise Portal</span>
+            </small>
+        </div>
     </div>
 </div>
 
+<script>
+    function fillDemoAccount(email, password) {
+        var emailInput = document.getElementById('email');
+        var passwordInput = document.getElementById('password');
+        if (emailInput && passwordInput) {
+            emailInput.value = email;
+            passwordInput.value = password;
+            emailInput.focus();
+        }
+    }
+</script>
 @endsection
