@@ -16,6 +16,8 @@
             processing: true,
             serverSide: true,
             ajax: "{{ route('certificates.index') }}",
+            pageLength: 10,
+            lengthMenu: [10, 25, 50, 100],
 
             columns: [{
                     data: 'id',
@@ -113,9 +115,9 @@
             </div>
         </div>
     </div>
-    <div class="card">
-        <div class="card-datatable table-responsive p-2">
-            <table class="datatables-ajax table table-bordered">
+    <div class="card border-0 shadow-sm">
+        <div class="card-datatable table-responsive p-3">
+            <table class="datatables-ajax table table-hover">
                 <thead>
                     <tr>
                         <th>ID</th>

@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             StockUnitSeeder::class,
             DemoDataSeeder::class,
             Populate100DataSeeder::class,
+            RoleDataExpansionSeeder::class,
         ]);
     }
 }

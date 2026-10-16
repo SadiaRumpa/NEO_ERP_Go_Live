@@ -72,6 +72,9 @@
 
 
     @show
+
+    <!-- Modern DataTables & UI Polish Overrides (Ensures global precedence over all page-level vendor stylesheets) -->
+    <link rel="stylesheet" href="{{ asset('assets/css/custom.css') }}?v={{ file_exists(public_path('assets/css/custom.css')) ? filemtime(public_path('assets/css/custom.css')) : time() }}" />
     <!-- Helpers -->
     <script src="{{ asset('assets/vendor/js/helpers.js') }}"></script>
     <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->

@@ -14,11 +14,29 @@ class CertificateController extends Controller
             $data = CourseCertificate::orderBy('id', 'desc');
             return DataTables::of($data)
                 ->addIndexColumn()
-                ->addColumn('action', function ($row) {
-                    return '<a class="btn btn-sm btn-primary edit" href="' . route('certificates.edit', $row->id) . '">Edit</a>
-                            <button class="btn btn-sm btn-danger delete" data-id="' . $row->id . '">Delete</button>';
+                ->editColumn('certificate_name', function ($row) {
+                    return '<div class="d-flex align-items-center gap-2">
+                                <i class="ti tabler-certificate text-primary fs-5"></i>
+                                <span class="fw-bold text-heading">' . e($row->certificate_name) . '</span>
+                            </div>';
                 })
-                ->rawColumns(['action'])
+                ->editColumn('status', function ($row) {
+                    $st = strtolower($row->status ?? 'active');
+                    $badgeClass = match($st) {
+                        'active' => 'badge bg-label-success',
+                        'expired' => 'badge bg-label-danger',
+                        'pending' => 'badge bg-label-warning',
+                        default => 'badge bg-label-primary',
+                    };
+                    return '<span class="' . $badgeClass . '">' . e(ucfirst($st)) . '</span>';
+                })
+                ->addColumn('action', function ($row) {
+                    return '<div class="d-flex align-items-center gap-1">
+                                <a class="btn btn-sm btn-icon btn-outline-primary edit" href="' . route('certificates.edit', $row->id) . '" title="Edit"><i class="ti tabler-edit"></i></a>
+                                <button class="btn btn-sm btn-icon btn-outline-danger delete" data-id="' . $row->id . '" title="Delete"><i class="ti tabler-trash"></i></button>
+                            </div>';
+                })
+                ->rawColumns(['certificate_name', 'status', 'action'])
                 ->make(true);
         }
 

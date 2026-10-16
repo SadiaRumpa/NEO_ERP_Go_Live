@@ -21,83 +21,47 @@
                 processing: true,
                 serverSide: true,
                 ajax: ajaxUrl,
-
-                columns: [{
+                pageLength: 10,
+                lengthMenu: [10, 25, 50, 100],
+                columns: [
+                    {
                         data: 'DT_RowIndex',
                         name: 'DT_RowIndex',
                         orderable: false,
                         searchable: false,
-                        render: function(data, type, row, meta) {
-                            return meta.row + meta.settings._iDisplayStart + 1;
-                        }
-
+                        width: '50px'
                     },
                     {
-                        data: 'registration_no',
-                        name: 'registration_no',
-                        render: function(data, type, row, meta) {
-                            // Row number
-                            let rowNumber = meta.row + meta.settings._iDisplayStart + 1;
-
-                            // Status badge
-                            let statusBadge = '';
-                            if (row.status === 'Available') {
-                                statusBadge = '<span class="badge bg-success">Available</span>';
-                            } else if (row.status === 'Assigned') {
-                                statusBadge = '<span class="badge bg-danger">Assigned</span>';
-                            } else if (row.status === 'under-maintenance') {
-                                statusBadge =
-                                    '<span class="badge bg-warning text-dark">Under Maintenance</span>';
-                            } else {
-                                statusBadge = '<span class="badge bg-secondary">Unknown</span>';
-                            }
-
-                            // Merge row number, registration_no, and status
-                            return data + ' ' + statusBadge;
-                        }
-                    }, // MEWPS
+                        data: 'registration_display',
+                        name: 'registration_no'
+                    },
                     {
-                        data: 'make_model_engine',
-                        name: 'make_model_engine'
-                    }, // manufacturer + model + engine
+                        data: 'make_model_display',
+                        name: 'manufacturer'
+                    },
                     {
-                        data: 'tax_due',
-                        name: 'tax_due'
-                    }, // from tax_expiry_date
-                    {
-                        data: 'loler_due',
-                        name: 'loler_due'
-                    }, // from loler_expire_date
-                    {
-                        data: 'serial_no',
-                        name: 'serial_no'
+                        data: 'category_name',
+                        name: 'category_id'
                     },
                     {
                         data: 'mot_due',
-                        name: 'mot_due'
-                    }, // from mot_expiry_date
-                    {
-                        data: 'tyre_sizes',
-                        name: 'tyre_sizes'
-                    }, // tyre_size_front + rear
-                    {
-                        data: 'service_due',
-                        name: 'service_due'
-                    }, // from next_service_date
-                    {
-                        data: 'vin_number',
-                        name: 'vin_number'
+                        name: 'mot_expiry_date'
                     },
                     {
-                        data: 'vehicle_codes',
-                        name: 'vehicle_codes'
-                    }, // mechanical_code + electronic_code + radio_code
-                    
+                        data: 'tax_due',
+                        name: 'tax_expiry_date'
+                    },
+                    {
+                        data: 'service_due',
+                        name: 'next_service_date'
+                    },
                     {
                         data: 'action',
                         name: 'action',
                         orderable: false,
-                        searchable: false
+                        searchable: false,
+                        width: '140px',
+                        className: 'text-center'
                     }
                 ]
             });
@@ -112,7 +76,7 @@
                 // SweetAlert confirmation
                 Swal.fire({
                     title: 'Are you sure?',
-                    text: "This category will be deleted!",
+                    text: "This vehicle record will be permanently deleted!",
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#d33',
@@ -121,8 +85,7 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
-                            url: '{{ route('vehiclecategories.destroy', ':id') }}'.replace(
-                                ':id', id),
+                            url: '{{ route('vehicles.destroy', ':id') }}'.replace(':id', id),
                             type: 'POST',
                             data: {
                                 _method: 'DELETE',
@@ -130,8 +93,7 @@
                             },
                             success: function(response) {
                                 Swal.fire('Deleted!', response.message, 'success');
-                                $('#Vehicle-categories-table').DataTable().ajax
-                                    .reload();
+                                $('#Vehicle-table').DataTable().ajax.reload();
                             },
                             error: function() {
                                 Swal.fire('Error!', 'Something went wrong.', 'error');
@@ -155,37 +117,33 @@
 
 @section('content')
     <div class="container-xxl flex-grow-1 container-p-y">
-        <div
-            class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-6 row-gap-4">
-            <div class="d-flex flex-column justify-content-center">
-                <h4 class="mb-1">Vehicles</h4>
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 row-gap-3">
+            <div>
+                <h4 class="fw-bold mb-1">Fleet & Commercial Vehicles</h4>
+                <p class="text-muted mb-0 small">Active company vehicles, roadworthiness compliance, MOT and service schedules</p>
             </div>
 
-            <div class="d-flex justify-content-end mb-3">
+            <div class="d-flex justify-content-end">
                 <a type="button" class="btn btn-primary" href="{{ route('vehicles.create') }}">
-                    <i class="icon-base ti tabler-plus"></i>
+                    <i class="icon-base ti tabler-plus me-1"></i>
                     Add Vehicle
                 </a>
             </div>
         </div>
 
-        <div class="card">
-            <div class="card-datatable table-responsive p-2">
-                <table class="datatables-ajax table table-bordered" id="Vehicle-table">
+        <div class="card border-0 shadow-sm">
+            <div class="card-datatable table-responsive p-3">
+                <table class="datatables-ajax table table-hover" id="Vehicle-table">
                     <thead>
                         <tr>
-                            <th>#</th>
-                            <th>MEWPS</th>
-                            <th>MAKE / MODEL / ENGINE</th>
-                            <th>TAX</th>
-                            <th>LOLER</th>
-                            <th>SERIAL</th>
-                            <th>MOT</th>
-                            <th>TYRE SIZES</th>
-                            <th>SERVICE DUE</th>
-                            <th>VIN NUMBER</th>
-                            <th>VEHICLE CODES</th>
-                            <th>ACTION</th>
+                            <th style="width: 50px;">#</th>
+                            <th>Vehicle & Registration</th>
+                            <th>Make & Model</th>
+                            <th>Category</th>
+                            <th>MOT Expiry</th>
+                            <th>Tax Expiry</th>
+                            <th>Next Service</th>
+                            <th style="width: 140px; text-align: center;">Actions</th>
                         </tr>
                     </thead>
                 </table>

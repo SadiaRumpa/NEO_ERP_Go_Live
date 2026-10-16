@@ -12,44 +12,60 @@ class VehicleController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = VehicleDetail::select('*');
+            $data = VehicleDetail::with(['category'])->select('*');
 
             return DataTables::of($data)
                 ->addIndexColumn()
-                ->addColumn('make_model_engine', function ($row) {
-                    return $row->manufacturer . ' / ' . $row->model . ' / ' . $row->engine;
+                ->addColumn('registration_display', function ($row) {
+                    $badgeClass = match($row->status) {
+                        'Available' => 'badge bg-label-success',
+                        'Assigned' => 'badge bg-label-primary',
+                        'under-maintenance' => 'badge bg-label-warning',
+                        default => 'badge bg-label-secondary',
+                    };
+                    $label = match($row->status) {
+                        'under-maintenance' => 'Maintenance',
+                        default => $row->status ?? 'Available',
+                    };
+                    return '<div class="d-flex align-items-center gap-2">
+                                <span class="fw-bold font-monospace text-heading fs-6">' . e($row->registration_no) . '</span>
+                                <span class="' . $badgeClass . '">' . e($label) . '</span>
+                            </div>';
                 })
-                ->addColumn('tax_due', function ($row) {
-                    return $row->tax_expiry_date ? \Carbon\Carbon::parse($row->tax_expiry_date)->format('d-m-Y') : '-';
+                ->addColumn('make_model_display', function ($row) {
+                    $engineYear = array_filter([$row->engine, $row->year ? "({$row->year})" : null]);
+                    $subtext = !empty($engineYear) ? '<small class="text-muted d-block">' . e(implode(' ', $engineYear)) . '</small>' : '';
+                    return '<div>
+                                <span class="fw-semibold text-heading">' . e($row->manufacturer . ' ' . $row->model) . '</span>
+                                ' . $subtext . '
+                            </div>';
                 })
-                ->addColumn('loler_due', function ($row) {
-                    return $row->loler_expire_date ? \Carbon\Carbon::parse($row->loler_expire_date)->format('d-m-Y') : '-';
+                ->addColumn('category_name', function ($row) {
+                    return '<span class="badge bg-label-info">' . e($row->category->category_name ?? 'Commercial Fleet') . '</span>';
                 })
                 ->addColumn('mot_due', function ($row) {
-                    return $row->mot_expiry_date ? \Carbon\Carbon::parse($row->mot_expiry_date)->format('d-m-Y') : '-';
+                    return $row->mot_expiry_date ? '<span class="fw-medium">' . \Carbon\Carbon::parse($row->mot_expiry_date)->format('d M Y') . '</span>' : '<span class="text-muted">-</span>';
+                })
+                ->addColumn('tax_due', function ($row) {
+                    return $row->tax_expiry_date ? '<span class="fw-medium">' . \Carbon\Carbon::parse($row->tax_expiry_date)->format('d M Y') : '<span class="text-muted">-</span>';
                 })
                 ->addColumn('service_due', function ($row) {
-                    return $row->next_service_date ? \Carbon\Carbon::parse($row->next_service_date)->format('d-m-Y') : '-';
-                })
-                ->addColumn('tyre_sizes', function ($row) {
-                    return $row->tyre_size_front . ' / ' . $row->tyre_size_rear;
-                })
-                ->addColumn('vehicle_codes', function ($row) {
-                    return implode(', ', array_filter([
-                        $row->mechanical_code,
-                        $row->electronic_code,
-                        $row->radio_code
-                    ]));
+                    return $row->next_service_date ? '<span class="fw-medium">' . \Carbon\Carbon::parse($row->next_service_date)->format('d M Y') : '<span class="text-muted">-</span>';
                 })
                 ->addColumn('action', function ($row) {
                     $showUrl = route('vehicles.show', $row->id);
+                    $overviewUrl = route('vehicle-overviews.index', $row->id);
+                    $editUrl = route('vehicles.edit', $row->id);
                     return '
-                        <a href="' . route('vehicle-overviews.index', $row->id) . '" class="btn btn-sm btn-info">Overview</a>
-                        <a href="' . $showUrl . '" class="btn btn-sm btn-primary">Show</a>
-                        <button class="btn btn-sm btn-danger delete" data-id="' . $row->id . '">Delete</button>
+                        <div class="d-flex align-items-center justify-content-center gap-1">
+                            <a href="' . $overviewUrl . '" class="btn btn-sm btn-icon btn-outline-info" title="Fleet Overview"><i class="ti tabler-chart-bar"></i></a>
+                            <a href="' . $showUrl . '" class="btn btn-sm btn-icon btn-outline-primary" title="View Details"><i class="ti tabler-eye"></i></a>
+                            <a href="' . $editUrl . '" class="btn btn-sm btn-icon btn-outline-secondary" title="Edit Vehicle"><i class="ti tabler-edit"></i></a>
+                            <button class="btn btn-sm btn-icon btn-outline-danger delete" data-id="' . $row->id . '" title="Delete"><i class="ti tabler-trash"></i></button>
+                        </div>
                     ';
                 })
-
+                ->rawColumns(['registration_display', 'make_model_display', 'category_name', 'mot_due', 'tax_due', 'service_due', 'action'])
                 ->make(true);
         }
 
