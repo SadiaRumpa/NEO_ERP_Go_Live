@@ -89,9 +89,22 @@ class Populate100DataSeeder extends Seeder
                 ['name' => 'Chloe Bennett (H&S Compliance Auditor)', 'email' => 'chloe.bennett@neoerp.local', 'rate' => 30.00],
             ];
 
+            $memberRoleMap = [
+                'marcus.vance@neoerp.local' => ['admin', 'commercial-director'],
+                'sarah.engineer@neoerp.local' => ['job-manager'],
+                'james.oconnor@neoerp.local' => ['lead-job-manager'],
+                'priya.patel@neoerp.local' => ['accounts-manager'],
+                'michael.chang@neoerp.local' => ['inventory-manager'],
+                'chloe.bennett@neoerp.local' => ['health-safety-manager'],
+                'dave.operative@neoerp.local' => ['staff'],
+                'liam.wright@neoerp.local' => ['staff'],
+                'elena.rostova@neoerp.local' => ['staff'],
+                'tom.hardy@neoerp.local' => ['staff'],
+            ];
+
             $userPool = [$admin];
             foreach ($teamMembers as $tm) {
-                $user = User::firstOrCreate(
+                $user = User::updateOrCreate(
                     ['email' => $tm['email']],
                     [
                         'name' => $tm['name'],
@@ -99,6 +112,12 @@ class Populate100DataSeeder extends Seeder
                         'business_id' => $business->id,
                     ]
                 );
+
+                $rolesToAssign = $memberRoleMap[$tm['email']] ?? ['staff'];
+                foreach ($rolesToAssign as $rName) {
+                    Role::firstOrCreate(['name' => $rName, 'guard_name' => 'web']);
+                }
+                $user->syncRoles($rolesToAssign);
 
                 LaborRateCard::updateOrCreate(
                     ['user_id' => $user->id],

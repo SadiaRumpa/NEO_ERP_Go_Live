@@ -33,7 +33,7 @@ class HomeController extends Controller
     {
         $metricsService = $metricsService ?? app(DashboardMetrics::class);
 
-        if (auth()->user()->hasRole('super_admin|admin')) {
+        if (auth()->user()->hasRole('super_admin|admin|commercial-director')) {
             return $this->adminDashboard($metricsService);
         } elseif (auth()->user()->hasRole('enquiry-manager')) {
             return $this->enquiryManagerDashboard();
@@ -56,7 +56,7 @@ class HomeController extends Controller
         } elseif (auth()->user()->hasRole('staff')) {
             return $this->staffDashboard($metricsService);
         } else {
-            abort(403, 'CAN NOT ACCESS TO ROLE');
+            return $this->adminDashboard($metricsService);
         }
     }
 

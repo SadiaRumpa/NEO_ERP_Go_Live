@@ -100,21 +100,38 @@
             </button>
         </form>
 
-        <!-- One-Click Showcase Demo Login Helper -->
-        <div class="auth-demo-box d-flex align-items-center justify-content-between mt-2">
-            <div class="overflow-hidden me-2 text-start">
-                <div class="demo-title d-flex align-items-center gap-1 small">
-                    <i class="icon-base ti tabler-sparkles text-warning"></i>
-                    <span>Showcase Evaluator Login</span>
+        <!-- One-Click Showcase Demo Login Helpers -->
+        <div class="auth-demo-box mt-3 p-3">
+            <div class="d-flex align-items-center justify-content-between mb-2 pb-2 border-bottom">
+                <div class="overflow-hidden me-2 text-start">
+                    <div class="demo-title d-flex align-items-center gap-1 small">
+                        <i class="icon-base ti tabler-shield-check text-success"></i>
+                        <span>Super Administrator</span>
+                    </div>
+                    <small class="text-muted text-truncate d-block font-monospace" style="font-size: 0.725rem;">admin@neoerp.local</small>
                 </div>
-                <small class="text-muted text-truncate d-block font-monospace" style="font-size: 0.75rem;">admin@neoerp.local</small>
+                <button type="button" 
+                        class="auth-demo-btn flex-shrink-0" 
+                        onclick="fillDemoAccount('admin@neoerp.local', 'NeoErp!Admin2026#Secure')"
+                        title="Auto-fill Super Admin credentials">
+                    Auto-Fill
+                </button>
             </div>
-            <button type="button" 
-                    class="auth-demo-btn flex-shrink-0" 
-                    onclick="fillDemoAccount('admin@neoerp.local', 'NeoErp!Admin2026#Secure')"
-                    title="Auto-fill Super Admin credentials">
-                Auto-Fill
-            </button>
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="overflow-hidden me-2 text-start">
+                    <div class="demo-title d-flex align-items-center gap-1 small">
+                        <i class="icon-base ti tabler-chart-pie text-info"></i>
+                        <span>Commercial Director</span>
+                    </div>
+                    <small class="text-muted text-truncate d-block font-monospace" style="font-size: 0.725rem;">marcus.vance@neoerp.local</small>
+                </div>
+                <button type="button" 
+                        class="auth-demo-btn flex-shrink-0" 
+                        onclick="fillDemoAccount('marcus.vance@neoerp.local', 'NeoErp!Staff2026#')"
+                        title="Auto-fill Commercial Director credentials">
+                    Auto-Fill
+                </button>
+            </div>
         </div>
 
         <!-- Security Disclaimer -->

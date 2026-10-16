@@ -587,7 +587,7 @@
                 </ul>
             </li>
         @endhasrole
-        @hasanyrole('super_admin|admin')
+        @hasanyrole('super_admin|admin|commercial-director')
             <li class="menu-item {{ request()->is('reports/*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon icon-base ti tabler-chart-pie"></i>
