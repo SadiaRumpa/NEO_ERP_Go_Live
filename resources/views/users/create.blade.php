@@ -8,6 +8,20 @@
 <script src="{{asset('assets/vendor/libs/moment/moment.js')}}"></script>
 <script src="{{asset('assets/vendor/libs/flatpickr/flatpickr.js')}}"></script>
 <script src="{{asset('assets/vendor/libs/select2/select2.js')}}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        @if(!$errors->any() && !old('email'))
+        setTimeout(function() {
+            var emailInput = document.getElementById('multicol-email');
+            var passInput = document.getElementById('multicol-password');
+            var confirmPassInput = document.getElementById('multicol-confirm-password');
+            if (emailInput) emailInput.value = '';
+            if (passInput) passInput.value = '';
+            if (confirmPassInput) confirmPassInput.value = '';
+        }, 50);
+        @endif
+    });
+</script>
 @endsection
 
 @section('styles')
@@ -39,29 +53,26 @@
                     </ul>
                 </div>
                 @endif
-                <form class="card-body" method="POST" action="{{ route('users.store') }}">
+                <form class="card-body" method="POST" action="{{ route('users.store') }}" autocomplete="off">
                     @csrf
                     <div class="row mb-6">
                         <label class="col-sm-3 col-form-label" for="multicol-full-name">Full Name</label>
                         <div class="col-sm-9">
-                            <input type="text" id="multicol-full-name" name="name" class="form-control" placeholder="John Doe" />
+                            <input type="text" id="multicol-full-name" name="name" class="form-control" placeholder="e.g. John Doe" value="{{ old('name') }}" autocomplete="off" />
                         </div>
                     </div>
 
                     <div class="row mb-6">
                         <label class="col-sm-3 col-form-label" for="multicol-email">Email</label>
                         <div class="col-sm-9">
-                            <div class="input-group input-group-merge">
-                                <input
-                                    type="email"
-                                    id="multicol-email"
-                                    class="form-control"
-                                    name="email"
-                                    placeholder="john.doe"
-                                    aria-label="john.doe"
-                                    aria-describedby="multicol-email2" />
-                                <span class="input-group-text" id="multicol-email2">@example.com</span>
-                            </div>
+                            <input
+                                type="email"
+                                id="multicol-email"
+                                class="form-control"
+                                name="email"
+                                placeholder="e.g. name@company.com"
+                                value="{{ old('email') }}"
+                                autocomplete="off" />
                         </div>
                     </div>
                     <div class="row form-password-toggle mb-6">
@@ -74,6 +85,8 @@
                                     class="form-control"
                                     name="password"
                                     placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
+                                    autocomplete="new-password"
+                                    value=""
                                     aria-describedby="multicol-password2" />
                                 <span class="input-group-text cursor-pointer" id="multicol-password2"><i class="icon-base ti tabler-eye-off"></i></span>
                             </div>
@@ -89,8 +102,10 @@
                                     class="form-control"
                                     name="confirm-password"
                                     placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
+                                    autocomplete="new-password"
+                                    value=""
                                     aria-describedby="multicol-confirm-password2" />
-                                <span class="input-group-text cursor-pointer" id="multicol-password2"><i class="icon-base ti tabler-eye-off"></i></span>
+                                <span class="input-group-text cursor-pointer" id="multicol-confirm-password2"><i class="icon-base ti tabler-eye-off"></i></span>
                             </div>
                         </div>
                     </div>
@@ -98,13 +113,13 @@
                     <div class="row mb-6">
                         <label class="col-sm-3 col-form-label" for="multicol-country">Roles</label>
                         <div class="col-sm-9">
-                            <select id="multicol-country" class="select2 form-select" data-allow-clear="true" name="roles[]">
+                            <select id="multicol-country" class="select2 form-select" data-allow-clear="true" data-placeholder="Select a role" name="roles[]">
+                                <option value="" disabled {{ old('roles') ? '' : 'selected' }}>Select a role</option>
                                 @foreach ($roles as $value => $label)
-                                <option value="{{ $value }}" {{ $value=='staff' ? 'selected' : '' }} >
+                                <option value="{{ $value }}" {{ (is_array(old('roles')) && in_array($value, old('roles'))) || old('roles') == $value ? 'selected' : '' }} >
                                     {{ $label }}
                                 </option>
                                 @endforeach
-
                             </select>
                         </div>
                     </div>
