@@ -8,8 +8,8 @@ echo "================================================================="
 echo "   Updating NeoERP to latest GitHub code..."
 echo "================================================================="
 
-# 1. Pull latest code
-git pull origin main
+# 1. Pull latest code (if git remote is configured and reachable)
+git pull origin main 2>/dev/null || true
 
 # 2. Determine docker compose command (with or without sudo)
 if docker ps &> /dev/null; then

@@ -5,6 +5,9 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   deploy:
     name: Deploy to Google Cloud VM
@@ -50,9 +53,26 @@ jobs:
           port: 22
           script_stop: true
           script: |
-            cd ~/neoerp
-            chmod +x update.sh
-            ./update.sh
+            # Ensure git and curl are installed on the VM
+            command -v git >/dev/null 2>&1 || (sudo apt-get update && sudo apt-get install -y git curl)
+
+            REPO_URL="https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+
+            if [ ! -d ~/neoerp ]; then
+              echo "==> ~/neoerp does not exist on VM. Performing initial automated clone & deployment..."
+              git clone "$REPO_URL" ~/neoerp
+              cd ~/neoerp
+              git remote set-url origin "https://github.com/${{ github.repository }}.git"
+              chmod +x deploy-gcp.sh update.sh
+              ./deploy-gcp.sh
+            else
+              echo "==> ~/neoerp found. Synchronizing latest commit from GitHub..."
+              cd ~/neoerp
+              git fetch "$REPO_URL" main
+              git reset --hard FETCH_HEAD
+              chmod +x update.sh deploy-gcp.sh
+              ./update.sh
+            fi
 
       - name: Cleanup SSH private key
         if: always()
