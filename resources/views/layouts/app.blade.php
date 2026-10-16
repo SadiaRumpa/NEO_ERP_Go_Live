@@ -35,6 +35,8 @@
 
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{{ $appbrand->business_favicon??asset('assets/img/favicon/favicon.ico')}}" />
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="{{ asset('manifest.json') }}" />
 
     <!-- Fonts: Standard Roboto -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -114,6 +116,19 @@
 
     <!-- Page JS -->
     <script src="{{asset('assets/js/pages-auth.js')}}"></script>
+
+    <!-- PWA Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').then(function(reg) {
+                    console.log('NeoERP ServiceWorker registered:', reg.scope);
+                }).catch(function(err) {
+                    console.warn('NeoERP ServiceWorker registration failed:', err);
+                });
+            });
+        }
+    </script>
 </body>
 
 </html>

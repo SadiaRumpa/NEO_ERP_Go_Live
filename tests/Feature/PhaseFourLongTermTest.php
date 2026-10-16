@@ -140,10 +140,14 @@ class PhaseFourLongTermTest extends TestCase
             'display'     => 'standalone',
         ]);
 
-        // 2. Service Worker File
+        // 2. Service Worker File (/sw.js and /service-worker.js alias)
         $swRes = $this->get('/sw.js');
         $swRes->assertStatus(200);
-        $this->assertStringContainsString('neoerp-field-v1', $swRes->getContent());
+        $this->assertStringContainsString('neoerp-field-v2', $swRes->getContent());
+
+        $swServiceWorkerRes = $this->get('/service-worker.js');
+        $swServiceWorkerRes->assertStatus(200);
+        $this->assertStringContainsString('neoerp-field-v2', $swServiceWorkerRes->getContent());
     }
 
     public function test_field_engineer_mobile_workflow_arrival_safety_and_photos(): void

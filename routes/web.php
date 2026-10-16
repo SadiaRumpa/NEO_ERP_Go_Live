@@ -63,6 +63,12 @@ Route::get('sw.js', function () {
     ]);
 })->name('pwa.sw');
 
+Route::get('service-worker.js', function () {
+    return response(file_get_contents(public_path('service-worker.js')), 200, [
+        'Content-Type' => 'application/javascript',
+    ]);
+})->name('pwa.service-worker');
+
 // Customer Quotation Acceptance Portal (Guarded by temporary signed URL verification)
 Route::prefix('portal')->middleware('signed')->group(function () {
     Route::get('quotations/{quotation}', [QuotationPortalController::class, 'show'])->name('portal.quotations.show');
