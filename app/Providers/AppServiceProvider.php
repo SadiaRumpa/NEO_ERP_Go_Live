@@ -27,6 +27,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         \Illuminate\Pagination\Paginator::useBootstrapFive();
+
+        if (request()->isSecure() || request()->header('x-forwarded-proto') === 'https' || (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on')) {
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+        }
         // // Grant all abilities to super_admin role
         // Gate::before(function (User $user, string $ability): bool|null {
         //     return $user->hasRole('super_admin') ? true : null;

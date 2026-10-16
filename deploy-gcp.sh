@@ -94,22 +94,34 @@ WEB_PORT=80
 EOF
 fi
 
-# 3. Build & start containers
-echo "==> Building and launching NeoERP containers..."
+# 3. Ensure SSL certificate exists for HTTPS (port 443)
+if [ ! -f docker/nginx/ssl/server.crt ] || [ ! -f docker/nginx/ssl/server.key ]; then
+    echo "==> Generating SSL certificate for HTTPS..."
+    mkdir -p docker/nginx/ssl
+    openssl req -x509 -nodes -days 3650 -newkey rsa:2048 \
+        -keyout docker/nginx/ssl/server.key \
+        -out docker/nginx/ssl/server.crt \
+        -subj "/C=GB/ST=London/L=London/O=NeoERP/CN=neoerp" \
+        -addext "subjectAltName=IP:8.228.59.10,IP:127.0.0.1,DNS:localhost" 2>/dev/null || true
+    chmod 600 docker/nginx/ssl/server.key 2>/dev/null || true
+fi
+
+# 4. Build & start containers
+echo "==> Building and launching NeoERP containers (HTTP :80 & HTTPS :443)..."
 $DOCKER_COMPOSE down --remove-orphans || true
 $DOCKER_COMPOSE up -d --build
 
-# 4. Install PHP dependencies inside app container
+# 5. Install PHP dependencies inside app container
 echo "==> Installing Composer dependencies (production)..."
 $DOCKER_COMPOSE exec -T app composer install --no-dev --optimize-autoloader --no-interaction
 
-# 5. Generate application key if missing
+# 6. Generate application key if missing
 if ! grep -q "APP_KEY=base64:" .env; then
     echo "==> Generating Laravel application key..."
     $DOCKER_COMPOSE exec -T app php artisan key:generate --force
 fi
 
-# 6. Wait for MySQL to become ready
+# 7. Wait for MySQL to become ready
 echo "==> Waiting for MySQL database to initialize..."
 RETRIES=30
 until $DOCKER_COMPOSE exec -T db mysqladmin ping -h localhost -u neoerp_user -pneoerp_secret --silent || [ $RETRIES -eq 0 ]; do
@@ -124,26 +136,26 @@ if [ $RETRIES -eq 0 ]; then
 fi
 echo "==> Database connection established."
 
-# 7. Run database migrations & showcase seed data
+# 8. Run database migrations & showcase seed data
 echo "==> Running database migrations..."
 $DOCKER_COMPOSE exec -T app php artisan migrate --force
 
 echo "==> Seeding full commercial demo showcase data (100 enquiries, active jobs, live WIP portfolio, plant hires)..."
 $DOCKER_COMPOSE exec -T app php artisan db:seed --force
 
-# 8. Create storage symlink & optimize
+# 9. Create storage symlink & optimize
 echo "==> Creating storage symlink..."
 $DOCKER_COMPOSE exec -T app php artisan storage:link || true
 
 echo "==> Optimizing configuration, routes, and views..."
 $DOCKER_COMPOSE exec -T app php artisan optimize
 
-# 9. Ensure correct permissions on storage and cache
+# 10. Ensure correct permissions on storage and cache
 echo "==> Setting directory permissions..."
 $DOCKER_COMPOSE exec -T app chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 $DOCKER_COMPOSE exec -T app chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# 10. Detect public IP address
+# 11. Detect public IP address
 SERVER_IP=$(curl -s -m 5 ifconfig.me || curl -s -m 5 icanhazip.com || hostname -I | awk '{print $1}')
 
 # Update APP_URL in .env with public IP
@@ -155,7 +167,8 @@ echo ""
 echo "================================================================="
 echo "   🎉 NeoERP Showcase Deployment Complete on Google Cloud!"
 echo "================================================================="
-echo "   Public URL:    http://${SERVER_IP}"
+echo "   HTTP URL:      http://${SERVER_IP}"
+echo "   HTTPS URL:     https://${SERVER_IP}"
 echo ""
 echo "   Default Super Admin Login:"
 echo "   Email:         admin@neoerp.local"
