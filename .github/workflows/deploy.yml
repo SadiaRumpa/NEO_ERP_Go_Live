@@ -32,37 +32,61 @@ jobs:
         env:
           RAW_SSH_KEY: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
         run: |
-          # Detect base64 encoding vs raw PEM/OpenSSH format
-          if echo "$RAW_SSH_KEY" | base64 -d 2>/dev/null | grep -q "BEGIN"; then
-            echo "$RAW_SSH_KEY" | base64 -d > /tmp/deploy_key
+          set -euo pipefail
+          # Check if base64 encoded
+          if echo "$RAW_SSH_KEY" | tr -d '\r\n ' | base64 -d 2>/dev/null | grep -q "BEGIN"; then
+            echo "$RAW_SSH_KEY" | tr -d '\r\n ' | base64 -d > /tmp/deploy_key
           else
-            # Replace literal \n with real newlines in case secret was pasted on a single line
-            printf '%s\n' "$RAW_SSH_KEY" | sed 's/\\n/\n/g' > /tmp/deploy_key
+            # Interpret literal \n if single line, or keep as-is
+            printf '%b\n' "$RAW_SSH_KEY" > /tmp/deploy_key
           fi
-          # Ensure trailing newline and set 600 permissions
           sed -i -e '$a\' /tmp/deploy_key
           chmod 600 /tmp/deploy_key
 
-      - name: Deploy via SSH
+          # Validate key format
+          if ! grep -q -E '^-----BEGIN .*PRIVATE KEY-----' /tmp/deploy_key; then
+            echo "::error ::/tmp/deploy_key does not look like a valid private key (missing BEGIN header)"
+            head -n 2 /tmp/deploy_key || true
+            exit 1
+          fi
+          echo "SSH key formatted and validated successfully."
+
+      - name: Test SSH connection
         if: steps.check_secrets.outputs.configured == 'true'
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.GCP_VM_HOST }}
-          username: ${{ secrets.GCP_VM_USER }}
-          key_path: /tmp/deploy_key
-          port: 22
-          script_stop: true
-          script: |
-            # Ensure git and curl are installed on the VM
-            command -v git >/dev/null 2>&1 || (sudo apt-get update && sudo apt-get install -y git curl)
+        env:
+          GCP_VM_HOST: ${{ secrets.GCP_VM_HOST }}
+          GCP_VM_USER: ${{ secrets.GCP_VM_USER }}
+        run: |
+          echo "Testing SSH connection to ${GCP_VM_USER}@${GCP_VM_HOST}..."
+          ssh -o BatchMode=yes -o StrictHostKeyChecking=no -o ConnectTimeout=15 -i /tmp/deploy_key "${GCP_VM_USER}@${GCP_VM_HOST}" 'echo "==> SSH authentication successful! Connected to $(hostname) as $(whoami)."'
 
-            REPO_URL="https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+      - name: Execute deployment on VM
+        if: steps.check_secrets.outputs.configured == 'true'
+        env:
+          GCP_VM_HOST: ${{ secrets.GCP_VM_HOST }}
+          GCP_VM_USER: ${{ secrets.GCP_VM_USER }}
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          echo "Starting deployment on ${GCP_VM_HOST}..."
+          ssh -o StrictHostKeyChecking=no -o ConnectTimeout=30 -i /tmp/deploy_key "${GCP_VM_USER}@${GCP_VM_HOST}" "bash -s -- '${TOKEN}' '${REPO}'" << 'EOF'
+            set -e
+            TOKEN="$1"
+            REPO="$2"
+            REPO_URL="https://x-access-token:${TOKEN}@github.com/${REPO}.git"
 
+            # 1. Ensure git and curl exist
+            if ! command -v git &>/dev/null || ! command -v curl &>/dev/null; then
+              echo "==> Installing git and curl..."
+              sudo apt-get update && sudo apt-get install -y git curl
+            fi
+
+            # 2. Clone or update repository
             if [ ! -d ~/neoerp ]; then
               echo "==> ~/neoerp does not exist on VM. Performing initial automated clone & deployment..."
               git clone "$REPO_URL" ~/neoerp
               cd ~/neoerp
-              git remote set-url origin "https://github.com/${{ github.repository }}.git"
+              git remote set-url origin "https://github.com/${REPO}.git"
               chmod +x deploy-gcp.sh update.sh
               ./deploy-gcp.sh
             else
@@ -73,6 +97,7 @@ jobs:
               chmod +x update.sh deploy-gcp.sh
               ./update.sh
             fi
+EOF
 
       - name: Cleanup SSH private key
         if: always()
