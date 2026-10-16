@@ -281,6 +281,23 @@
                 $('.address-title.mb-2').show();
                 $('.address-title.mb-3').hide();
             });
+
+            $('#viewMapModal').on('show.bs.modal', function(event) {
+                const button = $(event.relatedTarget);
+                const title = button.data('map-title') || 'Location Map';
+                const address = button.data('map-address') || '';
+                const mapSrc = button.data('map-src') || '';
+                const externalUrl = button.data('map-external') || '#';
+
+                $('#mapModalTitle').text(title);
+                $('#mapModalAddress').text(address);
+                $('#mapModalIframe').attr('src', mapSrc);
+                $('#mapModalExternalLink').attr('href', externalUrl);
+            });
+
+            $('#viewMapModal').on('hidden.bs.modal', function() {
+                $('#mapModalIframe').attr('src', '');
+            });
         });
     </script>
     <script>
@@ -610,43 +627,46 @@
                     <div class="col-md-6 mb-4">
                         @if ($customer->billingaddress)
                             <div class="card">
-                                <div class="d-flex flex-md-row flex-column">
-                                    <div>
-                                        <iframe width="100%" height="300" frameborder="0" style="border:0"
-                                            referrerpolicy="no-referrer-when-downgrade"
-                                            src="{{ google_map_embed_url([$customer->billingaddress->address, $customer->billingaddress->county, $customer->billingaddress->postcode, $customer->billingaddress->country]) }}"
-                                            allowfullscreen>
-                                        </iframe>
+                                <div class="card-body">
+                                    <h5 class="card-title">Billing Address</h5>
+                                    <p class="card-text">
+                                        <span class="badge bg-label-dark mb-2">Contact: </span>
+                                        {{ $customer->billingaddress->contact_firstname }}
+                                        {{ $customer->billingaddress->contact_lastname }}
+                                        </br>
+                                        <span class="badge bg-label-dark mb-2">Email: </span>
+                                        {{ $customer->billingaddress->contact_email }}
+                                        </br>
+                                        <span class="badge bg-label-dark mb-2">Phone: </span>
+                                        {{ $customer->billingaddress->contact_phone }}
+                                        </br>
+                                        <span class="badge bg-label-dark mb-2">Mobile: </span>
+                                        {{ $customer->billingaddress->contact_mobile }}
+                                    </p>
+
+                                    <p class="card-text">
+                                        {{ $customer->billingaddress->address }},
+                                        {{ $customer->billingaddress->county }},
+                                        {{ $customer->billingaddress->country }}
+                                    </p>
+                                    <div class="mb-3">
+                                        <button type="button"
+                                            class="btn btn-outline-primary btn-sm waves-effect"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#viewMapModal"
+                                            data-map-title="Billing Address"
+                                            data-map-address="{{ trim(($customer->billingaddress->address ?? '') . ', ' . ($customer->billingaddress->county ?? '') . ', ' . ($customer->billingaddress->country ?? '')) }}"
+                                            data-map-src="{{ google_map_embed_url([$customer->billingaddress->address, $customer->billingaddress->county, $customer->billingaddress->postcode, $customer->billingaddress->country]) }}"
+                                            data-map-external="https://www.google.com/maps/search/?api=1&query={{ urlencode(trim(($customer->billingaddress->address ?? '') . ', ' . ($customer->billingaddress->county ?? '') . ', ' . ($customer->billingaddress->postcode ?? '') . ', ' . ($customer->billingaddress->country ?? ''))) }}">
+                                            <i class="icon-base ti tabler-map-pin icon-xs me-1"></i> Show in the map
+                                        </button>
                                     </div>
                                     <div>
-                                        <div class="card-body">
-                                            <h5 class="card-title">Billing Address</h5>
-                                            <p class="card-text">
-                                                <span class="badge bg-label-dark mb-2">Contact: </span>
-                                                {{ $customer->billingaddress->contact_firstname }}
-                                                {{ $customer->billingaddress->contact_lastname }}
-                                                </br>
-                                                <span class="badge bg-label-dark mb-2">Email: </span>
-                                                {{ $customer->billingaddress->contact_email }}
-                                                </br>
-                                                <span class="badge bg-label-dark mb-2">Phone: </span>
-                                                {{ $customer->billingaddress->contact_phone }}
-                                                </br>
-                                                <span class="badge bg-label-dark mb-2">Mobile: </span>
-                                                {{ $customer->billingaddress->contact_mobile }}
-                                            </p>
-
-                                            <p class="card-text">
-                                                {{ $customer->billingaddress->address }},
-                                                {{ $customer->billingaddress->county }},
-                                                {{ $customer->billingaddress->country }}
-                                            </p>
-                                            <a href="javascript:void(0);"
-                                                class="btn btn-outline-dark btn-sm waves-effect" data-bs-toggle="modal"  data-bs-target="#addNewAddress" data-address-type="billing" data-address-id="{{ $customer->billingaddress->id }}">Edit</a>
-                                            <a href="javascript:void(0);"
-                                                onclick="deleteCustomerAddress({{ $customer->billingaddress->id }})"
-                                                class="btn btn-outline-danger btn-sm waves-effect">DELETE</a>
-                                        </div>
+                                        <a href="javascript:void(0);"
+                                            class="btn btn-outline-dark btn-sm waves-effect" data-bs-toggle="modal"  data-bs-target="#addNewAddress" data-address-type="billing" data-address-id="{{ $customer->billingaddress->id }}">Edit</a>
+                                        <a href="javascript:void(0);"
+                                            onclick="deleteCustomerAddress({{ $customer->billingaddress->id }})"
+                                            class="btn btn-outline-danger btn-sm waves-effect">DELETE</a>
                                     </div>
                                 </div>
                             </div>
@@ -663,42 +683,45 @@
                         @if ($customer->siteaddress && $customer->siteaddress->count() > 0)
                             @foreach ($customer->siteaddress as $csaddress)
                                 <div class="card mb-4">
-                                    <div class="d-flex flex-md-row flex-column">
-                                        <div>
-                                            <iframe width="100%" height="300" frameborder="0" style="border:0"
-                                                referrerpolicy="no-referrer-when-downgrade"
-                                                src="{{ google_map_embed_url([$csaddress->address, $csaddress->county, $csaddress->postcode, $csaddress->country]) }}"
-                                                allowfullscreen>
-                                            </iframe>
+                                    <div class="card-body">
+                                        <h5 class="card-title">Site Address</h5>
+                                        <p class="card-text">
+                                            <span class="badge bg-label-dark mb-2">Contact: </span>
+                                            {{ $csaddress->contact_firstname }}
+                                            {{ $csaddress->contact_lastname }}
+                                            </br>
+                                            <span class="badge bg-label-dark mb-2">Email: </span>
+                                            {{ $csaddress->contact_email }}
+                                            </br>
+                                            <span class="badge bg-label-dark mb-2">Phone: </span>
+                                            {{ $csaddress->contact_phone }}
+                                            </br>
+                                            <span class="badge bg-label-dark mb-2">Mobile: </span>
+                                            {{ $csaddress->contact_mobile }}
+                                        </p>
+                                        <p class="card-text">
+                                            {{ $csaddress->address }}, {{ $csaddress->county }},
+                                            {{ $csaddress->country }}
+                                        </p>
+                                        <div class="mb-3">
+                                            <button type="button"
+                                                class="btn btn-outline-primary btn-sm waves-effect"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#viewMapModal"
+                                                data-map-title="Site Address"
+                                                data-map-address="{{ trim(($csaddress->address ?? '') . ', ' . ($csaddress->county ?? '') . ', ' . ($csaddress->country ?? '')) }}"
+                                                data-map-src="{{ google_map_embed_url([$csaddress->address, $csaddress->county, $csaddress->postcode, $csaddress->country]) }}"
+                                                data-map-external="https://www.google.com/maps/search/?api=1&query={{ urlencode(trim(($csaddress->address ?? '') . ', ' . ($csaddress->county ?? '') . ', ' . ($csaddress->postcode ?? '') . ', ' . ($csaddress->country ?? ''))) }}">
+                                                <i class="icon-base ti tabler-map-pin icon-xs me-1"></i> Show in the map
+                                            </button>
                                         </div>
                                         <div>
-                                            <div class="card-body">
-                                                <h5 class="card-title">Site Address</h5>
-                                                <p class="card-text">
-                                                    <span class="badge bg-label-dark mb-2">Contact: </span>
-                                                    {{ $csaddress->contact_firstname }}
-                                                    {{ $csaddress->contact_lastname }}
-                                                    </br>
-                                                    <span class="badge bg-label-dark mb-2">Email: </span>
-                                                    {{ $csaddress->contact_email }}
-                                                    </br>
-                                                    <span class="badge bg-label-dark mb-2">Phone: </span>
-                                                    {{ $csaddress->contact_phone }}
-                                                    </br>
-                                                    <span class="badge bg-label-dark mb-2">Mobile: </span>
-                                                    {{ $csaddress->contact_mobile }}
-                                                </p>
-                                                <p class="card-text">
-                                                    {{ $csaddress->address }}, {{ $csaddress->county }},
-                                                    {{ $csaddress->country }}
-                                                </p>
-                                                <a href="javascript:void(0);"
-                                                    class="btn btn-outline-dark btn-sm waves-effect" data-bs-toggle="modal"  data-bs-target="#addNewAddress" data-address-type="site" data-address-id="{{ $csaddress->id }}">Edit</a>
+                                            <a href="javascript:void(0);"
+                                                class="btn btn-outline-dark btn-sm waves-effect" data-bs-toggle="modal"  data-bs-target="#addNewAddress" data-address-type="site" data-address-id="{{ $csaddress->id }}">Edit</a>
 
-                                                <a href="javascript:void(0);"
-                                                    onclick="deleteCustomerAddress({{ $csaddress->id }})"
-                                                    class="btn btn-outline-danger btn-sm waves-effect">DELETE</a>
-                                            </div>
+                                            <a href="javascript:void(0);"
+                                                onclick="deleteCustomerAddress({{ $csaddress->id }})"
+                                                class="btn btn-outline-danger btn-sm waves-effect">DELETE</a>
                                         </div>
                                     </div>
                                 </div>
@@ -933,6 +956,35 @@
         </div>
         <!--/ Add New Address Modal -->
 
+        <!-- View Map Modal -->
+        <div class="modal fade" id="viewMapModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title d-flex align-items-center" id="viewMapModalLabel">
+                            <i class="icon-base ti tabler-map-pin me-2 text-primary"></i>
+                            <span id="mapModalTitle">Location Map</span>
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body pt-0">
+                        <p class="text-muted mb-3" id="mapModalAddress"></p>
+                        <div class="rounded overflow-hidden border">
+                            <iframe id="mapModalIframe" width="100%" height="450" frameborder="0" style="border:0; display: block;"
+                                referrerpolicy="no-referrer-when-downgrade" src="" allowfullscreen>
+                            </iframe>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <a id="mapModalExternalLink" href="#" target="_blank" class="btn btn-outline-primary">
+                            <i class="icon-base ti tabler-external-link me-1"></i> Open in Google Maps
+                        </a>
+                        <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--/ View Map Modal -->
 
         <!-- /Modal -->
     </div>
