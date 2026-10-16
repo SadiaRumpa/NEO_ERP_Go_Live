@@ -606,9 +606,9 @@
                 <!--/ Customer Pills -->
                 <!-- Address -->
                 <div class="row">
-                    <!-- Billing Address -->
-                    @if ($customer->billingaddress)
-                        <div class="col-md-6 mb-4">
+                    <!-- Billing Address Column -->
+                    <div class="col-md-6 mb-4">
+                        @if ($customer->billingaddress)
                             <div class="card">
                                 <div class="d-flex flex-md-row flex-column">
                                     <div>
@@ -650,16 +650,19 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    @endif
-                    <!--/ Billing Address -->
-                </div>
-                <div class="row">
-                    <!-- Site Address -->
-                    @if ($customer->siteaddress)
-                        @foreach ($customer->siteaddress as $csaddress)
-                            <div class="col-md-6 mb-4">
-                                <div class="card">
+                        @else
+                            <div class="card p-4 text-center text-muted">
+                                <p class="mb-0">No billing address added yet.</p>
+                            </div>
+                        @endif
+                    </div>
+                    <!--/ Billing Address Column -->
+
+                    <!-- Site Address Column -->
+                    <div class="col-md-6 mb-4">
+                        @if ($customer->siteaddress && $customer->siteaddress->count() > 0)
+                            @foreach ($customer->siteaddress as $csaddress)
+                                <div class="card mb-4">
                                     <div class="d-flex flex-md-row flex-column">
                                         <div>
                                             <iframe width="100%" height="300" frameborder="0" style="border:0"
@@ -699,11 +702,14 @@
                                         </div>
                                     </div>
                                 </div>
+                            @endforeach
+                        @else
+                            <div class="card p-4 text-center text-muted">
+                                <p class="mb-0">No site address added yet.</p>
                             </div>
-                        @endforeach
-                    @endif
-                    <!--/ Site Address -->
-
+                        @endif
+                    </div>
+                    <!--/ Site Address Column -->
                 </div>
 
                 <!-- Address -->
