@@ -240,4 +240,20 @@ if (!function_exists('simple_format_uk_phone')) {
     //echo simple_format_uk_phone('07700900000'); // Output: +44 7700 900 000
 }
 
+if (!function_exists('google_map_embed_url')) {
+    function google_map_embed_url($address): string
+    {
+        $addressParts = is_array($address) ? $address : [(string) $address];
+        $cleanParts = array_filter(array_map('trim', $addressParts));
+        $query = urlencode(implode(', ', $cleanParts));
+        $apiKey = config('services.google.maps_api_key');
+
+        if (!empty($apiKey)) {
+            return "https://www.google.com/maps/embed/v1/place?key={$apiKey}&q={$query}";
+        }
+
+        return "https://maps.google.com/maps?q={$query}&t=&z=14&ie=UTF8&iwloc=&output=embed";
+    }
+}
+
 

@@ -508,7 +508,7 @@
                                             <div class="card-img-top">
                                                 <iframe width="100%" height="450" frameborder="0" style="border:0"
                                                     referrerpolicy="no-referrer-when-downgrade"
-                                                    src="https://www.google.com/maps/embed/v1/place?key={{ config('services.google.maps_api_key') }}&q={{ $enquiry->enquiryaddress->address }}, {{ $enquiry->enquiryaddress->county }}, {{ $enquiry->enquiryaddress->postcode }}+{{ $enquiry->enquiryaddress->address }}, {{ $enquiry->enquiryaddress->county }}, {{ $enquiry->enquiryaddress->country }}"
+                                                    src="{{ google_map_embed_url([$enquiry->enquiryaddress->address, $enquiry->enquiryaddress->county, $enquiry->enquiryaddress->postcode, $enquiry->enquiryaddress->country]) }}"
                                                     allowfullscreen>
                                                 </iframe>
                                             </div>

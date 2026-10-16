@@ -614,7 +614,7 @@
                                     <div>
                                         <iframe width="100%" height="300" frameborder="0" style="border:0"
                                             referrerpolicy="no-referrer-when-downgrade"
-                                            src="https://www.google.com/maps/embed/v1/place?key={{ config('services.google.maps_api_key') }}&q={{ $customer->billingaddress->address ?? '' }}, {{ $customer->billingaddress->county ?? '' }}, {{ $customer->billingaddress->postcode ?? '' }}+{{ $customer->billingaddress->address ?? '' }}, {{ $customer->billingaddress->county ?? '' }}, {{ $customer->billingaddress->country ?? '' }}"
+                                            src="{{ google_map_embed_url([$customer->billingaddress->address, $customer->billingaddress->county, $customer->billingaddress->postcode, $customer->billingaddress->country]) }}"
                                             allowfullscreen>
                                         </iframe>
                                     </div>
@@ -667,7 +667,7 @@
                                         <div>
                                             <iframe width="100%" height="300" frameborder="0" style="border:0"
                                                 referrerpolicy="no-referrer-when-downgrade"
-                                                src="https://www.google.com/maps/embed/v1/place?key={{ config('services.google.maps_api_key') }}&q={{ $csaddress->address }}, {{ $csaddress->county }}, {{ $csaddress->postcode }}+{{ $csaddress->address }}, {{ $csaddress->county }}, {{ $csaddress->country }}"
+                                                src="{{ google_map_embed_url([$csaddress->address, $csaddress->county, $csaddress->postcode, $csaddress->country]) }}"
                                                 allowfullscreen>
                                             </iframe>
                                         </div>
