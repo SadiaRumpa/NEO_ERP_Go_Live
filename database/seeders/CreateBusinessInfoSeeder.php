@@ -28,7 +28,7 @@ class CreateBusinessInfoSeeder extends Seeder
             </span>
             <span class="app-brand-text demo menu-text fw-bold ms-3">NEOERP</span>',
             'business_brand_credit_on_footer_enable' => '1',
-            'business_brand_credit_on_footer' => '&copy; ' . date('Y') . ', made with &#10084;&#65039; by <a href="https://neotericdigital.co.uk/" target="_blank" class="footer-link">Neoteric Digital</a>',
+            'business_brand_credit_on_footer' => '&copy; ' . date('Y') . ', created by <a href="https://neotericdigital.co.uk/" target="_blank" class="footer-link">Neoteric Digital</a>',
             'business_status' => 'Active',
             'business_short_name' => 'ND',
             'business_allowed_file_types' => 'IMG:.jpg,.jpeg,.png DOC:.pdf,.jpg,.jpeg,.png,.doc,.docx',

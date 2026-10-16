@@ -46,26 +46,52 @@
                             let html = '';
 
                             if (data.company_name) {
-                                html += '<strong>' + data.company_name + '</strong><br>';
+                                html += '<div class="fw-bold text-heading mb-1">' + data.company_name + '</div>';
                             }
 
                             if (data.customer_name) {
-                                html += data.customer_name + '<br>';
+                                html += '<div class="text-secondary small mb-1">' + data.customer_name + '</div>';
                             }
 
-                            if (data.customer_email) {
-                                html += '<i class="icon-base fas fa-envelope mb-2 mr-2"></i> ' +
-                                    data.customer_email + '<br>';
+                            let contacts = [];
+                            if (data.customer_email && String(data.customer_email).trim()) {
+                                let email = String(data.customer_email).trim();
+                                contacts.push(
+                                    '<div class="contact-detail-row">' +
+                                        '<span class="contact-icon-badge contact-email-badge" title="Email: ' + email + '">' +
+                                            '<i class="bx bx-envelope"></i>' +
+                                        '</span>' +
+                                        '<a href="mailto:' + email + '" class="contact-detail-text" title="' + email + '">' + email + '</a>' +
+                                    '</div>'
+                                );
                             }
 
-                            if (data.customer_phone) {
-                                html += '<i class="icon-base fas fa-phone mb-2 mr-2"></i> ' + data
-                                    .customer_phone + '<br>';
+                            if (data.customer_phone && String(data.customer_phone).trim()) {
+                                let phone = String(data.customer_phone).trim();
+                                contacts.push(
+                                    '<div class="contact-detail-row">' +
+                                        '<span class="contact-icon-badge contact-phone-badge" title="Office Phone: ' + phone + '">' +
+                                            '<i class="bx bx-phone"></i>' +
+                                        '</span>' +
+                                        '<a href="tel:' + phone + '" class="contact-detail-text" title="' + phone + '">' + phone + '</a>' +
+                                    '</div>'
+                                );
                             }
 
-                            if (data.customer_mobile) {
-                                html += '<i class="icon-base fas fa-mobile mb-2"></i> ' + data
-                                    .customer_mobile;
+                            if (data.customer_mobile && String(data.customer_mobile).trim()) {
+                                let mobile = String(data.customer_mobile).trim();
+                                contacts.push(
+                                    '<div class="contact-detail-row">' +
+                                        '<span class="contact-icon-badge contact-mobile-badge" title="Mobile: ' + mobile + '">' +
+                                            '<i class="bx bx-mobile-alt"></i>' +
+                                        '</span>' +
+                                        '<a href="tel:' + mobile + '" class="contact-detail-text" title="' + mobile + '">' + mobile + '</a>' +
+                                    '</div>'
+                                );
+                            }
+
+                            if (contacts.length > 0) {
+                                html += '<div class="contact-details-list mt-1">' + contacts.join('') + '</div>';
                             }
 
                             return html;

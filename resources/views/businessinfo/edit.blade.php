@@ -13,18 +13,6 @@
 <script src="{{asset('assets/vendor/libs/tagify/tagify.js')}}"></script>
 <!-- Page JS -->
 <script>
-    $(function() {
-        $('.select2').select2();
-
-        $('#business_brand_logo_on_top_left').on('input', function() {
-            $('#brand-logo-preview').html($(this).val());
-        });
-        $('#business_brand_credit_on_footer').on('input', function() {
-            $('#brand-credit-preview').html($(this).val());
-        });
-    });
-</script>
-<script>
     function previewFile(input, previewId) {
         const file = input.files[0];
         if (file) {
@@ -37,71 +25,180 @@
             reader.readAsDataURL(file);
         }
     }
-</script>
-<script type="text/javascript">
-    async function copyToClipboard(textToCopy) {
-    // Navigator clipboard api needs a secure context (https)
-    if (navigator.clipboard && window.isSecureContext) {
-        await navigator.clipboard.writeText(textToCopy);
-    } else {
-        // Use the 'out of viewport hidden text area' trick
-        const textArea = document.createElement("textarea");
-        textArea.value = textToCopy;
-            
-        // Move textarea out of the viewport so it's not visible
-        textArea.style.position = "absolute";
-        textArea.style.left = "-999999px";
-            
-        document.body.prepend(textArea);
-        textArea.select();
 
-        try {
-            document.execCommand('copy');
-            toastr.info("<strong>Image src Copied!</strong><br><br>" + textToCopy);
-        } catch (error) {
-            console.error(error);
-        } finally {
-            textArea.remove();
+    function triggerCustomFileInput(inputId, e) {
+        if (e && e.target && e.target.closest('.custom-file-help-icon')) {
+            return;
+        }
+        const fileInput = document.getElementById(inputId);
+        if (fileInput) {
+            fileInput.click();
         }
     }
-}
-$(function() {
-    
-    $('#brandfiles a').click(function(e) {
-        e.preventDefault();
-        var imageSrc = $(this).find('img').attr('src');
-        try {
-            copyToClipboard(imageSrc);
-        } catch(error) {
-            
+
+    function handleCustomFileChange(input, labelSelector, previewSelector) {
+        const file = input.files && input.files[0];
+        const labelEl = document.querySelector(labelSelector);
+        if (labelEl) {
+            labelEl.textContent = file ? file.name : 'No file chosen';
+            if (file) {
+                labelEl.classList.remove('text-muted');
+                labelEl.classList.add('text-body', 'fw-medium');
+            } else {
+                labelEl.classList.add('text-muted');
+                labelEl.classList.remove('text-body', 'fw-medium');
+            }
+        }
+        previewFile(input, previewSelector);
+    }
+
+    async function copyToClipboard(textToCopy) {
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(textToCopy);
+        } else {
+            const textArea = document.createElement("textarea");
+            textArea.value = textToCopy;
+            textArea.style.position = "absolute";
+            textArea.style.left = "-999999px";
+            document.body.prepend(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+            } catch (error) {
+                console.error(error);
+            } finally {
+                textArea.remove();
+            }
+        }
+        if (typeof toastr !== 'undefined') {
+            toastr.info("Image URL copied to clipboard!");
+        }
+    }
+
+    const DEFAULT_SNEAT_SVG = `<span class="text-primary"><svg width="32" height="22" viewBox="0 0 32 22" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M0.00172773 0V6.85398C0.00172773 6.85398 -0.133178 9.01207 1.98092 10.8388L13.6912 21.9964L19.7809 21.9181L18.8042 9.88248L16.4951 7.17289L9.23799 0H0.00172773Z" fill="currentColor"></path><path opacity="0.06" fill-rule="evenodd" clip-rule="evenodd" d="M7.69824 16.4364L12.5199 3.23696L16.5541 7.25596L7.69824 16.4364Z" fill="#161616"></path><path opacity="0.06" fill-rule="evenodd" clip-rule="evenodd" d="M8.07751 15.9175L13.9419 4.63989L16.5849 7.28475L8.07751 15.9175Z" fill="#161616"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M7.77295 16.3566L23.6563 0H32V6.88383C32 6.88383 31.8262 9.17836 30.6591 10.4057L19.7824 22H13.6938L7.77295 16.3566Z" fill="currentColor"></path></svg></span>`;
+    let activeLogoImageSrc = '';
+
+    function updateSidebarLogoPreview() {
+        const mode = $('input[name="brand_logo_mode"]:checked').val() || 'default';
+        const appName = $('#formtabs-brand-app-name').val() || 'NEOERP';
+        const showText = $('#brand_logo_show_text').is(':checked');
+        const textHtml = showText ? `<span class="app-brand-text demo menu-text fw-bold ms-3">${appName}</span>` : '';
+
+        if (mode === 'custom') {
+            $('#logo-upload-container').addClass('d-none');
+            $('#logo-custom-container').removeClass('d-none');
+            const customVal = $('#business_brand_logo_on_top_left').val();
+            $('#brand-logo-preview').html(customVal);
+            $('#constructed_brand_logo').val(customVal);
+            return;
+        } else {
+            $('#logo-custom-container').addClass('d-none');
+        }
+
+        let iconHtml = '';
+        if (mode === 'upload') {
+            $('#logo-upload-container').removeClass('d-none');
+            if (activeLogoImageSrc) {
+                iconHtml = `<img src="${activeLogoImageSrc}" alt="${appName}" style="max-height: 28px; width: auto; object-fit: contain;">`;
+            } else {
+                iconHtml = DEFAULT_SNEAT_SVG;
+            }
+        } else if (mode === 'business') {
+            $('#logo-upload-container').addClass('d-none');
+            const bizLogo = $('#business-logo-source-url').val();
+            if (bizLogo) {
+                iconHtml = `<img src="${bizLogo}" alt="${appName}" style="max-height: 28px; width: auto; object-fit: contain;">`;
+            } else {
+                iconHtml = `<span class="badge bg-label-warning py-1 px-2">No Business Logo uploaded in Tab 1</span>`;
+            }
+        } else { // default
+            $('#logo-upload-container').addClass('d-none');
+            iconHtml = DEFAULT_SNEAT_SVG;
+        }
+
+        const fullHtml = `<span class="app-brand-logo demo">${iconHtml}</span>${textHtml}`;
+        $('#brand-logo-preview').html(fullHtml);
+        $('#constructed_brand_logo').val(fullHtml);
+        $('#business_brand_logo_on_top_left').val(fullHtml);
+    }
+
+    function previewSidebarLogoFile(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                activeLogoImageSrc = e.target.result;
+                $('#logoModeUpload').prop('checked', true);
+                updateSidebarLogoPreview();
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function selectAssetAsSidebarLogo(url) {
+        activeLogoImageSrc = url;
+        $('#logoModeUpload').prop('checked', true);
+        updateSidebarLogoPreview();
+        if (typeof toastr !== 'undefined') {
+            toastr.success("Applied to Sidebar Logo preview!");
+        }
+    }
+
+    $(function() {
+        $('.select2').select2();
+
+        // Detect initial logo mode from current business_brand_logo_on_top_left
+        const currentLogo = $('#business_brand_logo_on_top_left').val() || '';
+        const imgMatch = currentLogo.match(/<img[^>]+src=["']([^"']+)["']/i);
+        if (imgMatch) {
+            activeLogoImageSrc = imgMatch[1];
+            const bizLogo = $('#business-logo-source-url').val();
+            if (bizLogo && activeLogoImageSrc === bizLogo) {
+                $('#logoModeBusiness').prop('checked', true);
+            } else {
+                $('#logoModeUpload').prop('checked', true);
+            }
+        } else if (currentLogo.indexOf('<svg') !== -1 && currentLogo.indexOf('M0.00172773') !== -1) {
+            $('#logoModeDefault').prop('checked', true);
+        } else if (currentLogo.trim() !== '') {
+            $('#logoModeCustom').prop('checked', true);
+        }
+
+        // Check if text is currently shown
+        if (currentLogo.indexOf('menu-text') === -1 && currentLogo.trim() !== '') {
+            $('#brand_logo_show_text').prop('checked', false);
+        }
+
+        // Event listeners for logo
+        $('input[name="brand_logo_mode"]').on('change', updateSidebarLogoPreview);
+        $('#brand_logo_show_text').on('change', updateSidebarLogoPreview);
+        $('#formtabs-brand-app-name').on('input', function() {
+            updateSidebarLogoPreview();
+        });
+        $('#business_brand_logo_on_top_left').on('input', function() {
+            $('#brand-logo-preview').html($(this).val());
+            $('#constructed_brand_logo').val($(this).val());
+        });
+
+        // Brand assets copy link
+        $(document).on('click', '.copy-asset-url', function(e) {
+            e.preventDefault();
+            const url = $(this).data('url');
+            if (url) {
+                copyToClipboard(url);
+            }
+        });
+
+        // Initial preview rendering
+        updateSidebarLogoPreview();
+
+        // Initialize tooltips
+        if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+                new bootstrap.Tooltip(tooltipTriggerEl);
+            });
         }
     });
-    $('#addbrandfileform1').on('submit', function(e){
-        e.preventDefault();
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        });
-        $.ajax({
-            type: "POST",
-            url: $(this).attr('action'),
-            enctype: 'multipart/form-data',
-            data: $('#addbrandfileform'),
-            success: function (response) {
-                console.log(response)
-                $('#addbrandfile').modal('hide')
-                alert("Brand file added Successfully");
-                
-            },
-            error: function(error){
-                console.log(error)
-                alert("Brand file not added");
-            }
-        });
-    });
-
-});
 </script>
 @endsection
 
@@ -258,21 +355,38 @@ $(function() {
                                                 <div class="row">
                                                     <label class="col-sm-3 col-form-label text-sm-end" for="businessLogo">Logo</label>
                                                     <div class="col-sm-9">
-                                                        <input class="form-control" type="file" name="businessLogo" id="businessLogo"  accept=".jpg,.jpeg,.png" 
-                                                    onchange="previewFile(this, '#previewLogo')">
-                                                    <img id="previewLogo" class="img-thumbnail mt-2 d-none1" style="max-height: 120px;" src="{{ $businessinfo->business_logo }}" />
+                                                        <div class="custom-file-wrapper position-relative">
+                                                            <input class="d-none custom-native-file" type="file" name="businessLogo" id="businessLogo" accept=".jpg,.jpeg,.png" 
+                                                                onchange="handleCustomFileChange(this, '#logoFileName', '#previewLogo')">
+                                                            <div class="form-control custom-file-box d-flex align-items-center p-0 overflow-hidden" onclick="triggerCustomFileInput('businessLogo', event)">
+                                                                <span class="custom-file-btn border-end d-inline-flex align-items-center gap-1 text-nowrap user-select-none">
+                                                                    <span>Choose File</span>
+                                                                    <i class="bx bx-help-circle custom-file-help-icon" data-bs-toggle="tooltip" data-bs-placement="top" title="jpg, jpeg, png formats only" onclick="event.stopPropagation()"></i>
+                                                                </span>
+                                                                <span id="logoFileName" class="text-muted px-3 text-truncate small">No file chosen</span>
+                                                            </div>
+                                                        </div>
+                                                        <img id="previewLogo" class="img-thumbnail mt-2 d-none1" style="max-height: 120px;" src="{{ $businessinfo->business_logo }}" />
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            
                                             <div class="col-md-6">
                                                 <div class="row">
                                                     <label class="col-sm-3 col-form-label text-sm-end" for="businessLogoDark">Logo Dark</label>
                                                     <div class="col-sm-9">
-                                                        <input class="form-control" type="file" name="businessLogoDark" id="businessLogoDark" accept=".jpg,.jpeg,.png"  
-                                                    onchange="previewFile(this, '#previewLogoDark')">
-                                                    <img id="previewLogoDark" class="img-thumbnail mt-2 d-none1" style="max-height: 120px;"  src="{{ $businessinfo->business_logo_dark }}" />
+                                                        <div class="custom-file-wrapper position-relative">
+                                                            <input class="d-none custom-native-file" type="file" name="businessLogoDark" id="businessLogoDark" accept=".jpg,.jpeg,.png"  
+                                                                onchange="handleCustomFileChange(this, '#logoDarkFileName', '#previewLogoDark')">
+                                                            <div class="form-control custom-file-box d-flex align-items-center p-0 overflow-hidden" onclick="triggerCustomFileInput('businessLogoDark', event)">
+                                                                <span class="custom-file-btn border-end d-inline-flex align-items-center gap-1 text-nowrap user-select-none">
+                                                                    <span>Choose File</span>
+                                                                    <i class="bx bx-help-circle custom-file-help-icon" data-bs-toggle="tooltip" data-bs-placement="top" title="jpg, jpeg, png formats only" onclick="event.stopPropagation()"></i>
+                                                                </span>
+                                                                <span id="logoDarkFileName" class="text-muted px-3 text-truncate small">No file chosen</span>
+                                                            </div>
+                                                        </div>
+                                                        <img id="previewLogoDark" class="img-thumbnail mt-2 d-none1" style="max-height: 120px;" src="{{ $businessinfo->business_logo_dark }}" />
                                                     </div>
                                                 </div>
                                             </div>
@@ -281,21 +395,24 @@ $(function() {
                                                 <div class="row">
                                                     <label class="col-sm-3 col-form-label text-sm-end" for="businessFavicon">Favicon</label>
                                                     <div class="col-sm-9">
-                                                        <input class="form-control" type="file" name="businessFavicon" id="businessFavicon" accept=".jpg,.jpeg,.png,.ico"  
-                                                    onchange="previewFile(this, '#previewFavicon')">
-                                                    <img id="previewFavicon" class="img-thumbnail mt-2 d-none1" style="max-height: 120px;"  src="{{ $businessinfo->business_favicon }}" />
+                                                        <div class="custom-file-wrapper position-relative">
+                                                            <input class="d-none custom-native-file" type="file" name="businessFavicon" id="businessFavicon" accept=".jpg,.jpeg,.png,.ico"  
+                                                                onchange="handleCustomFileChange(this, '#faviconFileName', '#previewFavicon')">
+                                                            <div class="form-control custom-file-box d-flex align-items-center p-0 overflow-hidden" onclick="triggerCustomFileInput('businessFavicon', event)">
+                                                                <span class="custom-file-btn border-end d-inline-flex align-items-center gap-1 text-nowrap user-select-none">
+                                                                    <span>Choose File</span>
+                                                                    <i class="bx bx-help-circle custom-file-help-icon" data-bs-toggle="tooltip" data-bs-placement="top" title="jpg, jpeg, png formats only" onclick="event.stopPropagation()"></i>
+                                                                </span>
+                                                                <span id="faviconFileName" class="text-muted px-3 text-truncate small">No file chosen</span>
+                                                            </div>
+                                                        </div>
+                                                        <img id="previewFavicon" class="img-thumbnail mt-2 d-none1" style="max-height: 120px;" src="{{ $businessinfo->business_favicon }}" />
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            <div class="col-md-6">
-                                                <div class="row">
-                                                    <label class="col-sm-3 col-form-label text-sm-end"
-                                                        for="formtabs-allowedfiletypes">Allowed File Types</label>
-                                                    <div class="col-sm-9">
-                                                        <textarea name ="allowedFiletypes" id="formtabs-allowedFiletypes" rows="3" class="form-control" placeholder="Allowed File Types">{{$businessinfo->business_allowed_file_types }}</textarea>
-                                                    </div>
-                                                </div>
+                                            <div class="col-md-6 d-none d-md-block">
+                                                <!-- Grid spacer to keep address fields cleanly aligned as a pair -->
                                             </div>
 
                                             <div class="col-md-6">
@@ -421,93 +538,171 @@ $(function() {
                                                     </div>
                                                 </div>
                                             </div>
+
+                                            <div class="col-12 mt-4 pt-2">
+                                                <div class="d-flex justify-content-end gap-3">
+                                                    <button type="submit" class="btn btn-primary d-flex align-items-center gap-2">
+                                                        <i class="icon-base ti tabler-device-floppy"></i> Save Business Info
+                                                    </button>
+                                                </div>
+                                            </div>
                                          </div>
 
                                         </div>
 
-                                        <!-- Billing Address -->
+                                        <!-- Brand Info Tab -->
                                         <div class="tab-pane" id="form-tabs-billing-address" role="tabpanel">
+                                            <input type="hidden" id="business-logo-source-url" value="{{ $businessinfo->business_logo ?? '' }}">
+                                            <input type="hidden" id="constructed_brand_logo" name="constructed_brand_logo" value="">
+
                                             <div class="row g-6">
-                                                <div class="col-md-9">
+                                                <div class="col-md-8 col-lg-8">
                                                     <div class="row g-4">
+                                                        
                                                         <!-- Brand App Name -->
                                                         <div class="col-12">
-                                                            <div class="border-bottom pb-2 mb-3">
-                                                                <h6 class="mb-0 text-primary fw-semibold">Brand App Name</h6>
-                                                            </div>
-                                                            <div class="row align-items-center">
-                                                                <label class="col-sm-3 col-form-label text-sm-end"
-                                                                    for="formtabs-brand-app-name">App Name</label>
-                                                                <div class="col-sm-9">
-                                                                    <input type="text" id="formtabs-brand-app-name" class="form-control"
-                                                                        placeholder="Brand App Name (e.g. NEOERP)" aria-label="Brand App Name" name="business_brand_app_name" value="{{ $businessinfo->business_brand_app_name }}"/>
-                                                                    <div class="form-text">Displayed on the login screen, page titles, and navigation bar.</div>
+                                                            <div class="card border shadow-none mb-0">
+                                                                <div class="card-header border-bottom py-3">
+                                                                    <h6 class="mb-0 text-primary fw-semibold d-flex align-items-center gap-2">
+                                                                        <i class="icon-base ti tabler-id-badge-2"></i> Application Name
+                                                                    </h6>
+                                                                </div>
+                                                                <div class="card-body pt-4">
+                                                                    <div class="row align-items-center">
+                                                                        <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-brand-app-name">App Name</label>
+                                                                        <div class="col-sm-9">
+                                                                            <input type="text" id="formtabs-brand-app-name" class="form-control"
+                                                                                placeholder="Brand App Name (e.g. NEOERP)" name="business_brand_app_name" value="{{ $businessinfo->business_brand_app_name }}" required />
+                                                                            <div class="form-text">Displayed on the browser page titles, login screen, and sidebar navigation header.</div>
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
 
-                                                        <!-- Brand Logo On Top -->
+                                                        <!-- Brand Logo On Top (Sidebar) -->
                                                         <div class="col-12">
-                                                            <div class="border-bottom pb-2 mb-3">
-                                                                <h6 class="mb-0 text-primary fw-semibold">Brand Logo On Top (Sidebar)</h6>
-                                                            </div>
-                                                            <div class="row">
-                                                                <label class="col-sm-3 col-form-label text-sm-end" for="business_brand_logo_on_top_left">SVG / HTML Code</label>
-                                                                <div class="col-sm-9">
-                                                                    <div class="d-flex align-items-center gap-3 p-3 mb-2 rounded bg-label-secondary border">
-                                                                        <span class="text-muted small fw-medium">Live Preview:</span>
-                                                                        <div id="brand-logo-preview" class="d-inline-flex align-items-center">
-                                                                            {!! strip_tags($businessinfo->business_brand_logo_on_top_left ?? '', '<span><svg><path><img><b><strong><g><circle><rect>') !!}
+                                                            <div class="card border shadow-none mb-0">
+                                                                <div class="card-header border-bottom py-3 d-flex justify-content-between align-items-center">
+                                                                    <h6 class="mb-0 text-primary fw-semibold d-flex align-items-center gap-2">
+                                                                        <i class="icon-base ti tabler-layout-sidebar"></i> Sidebar Logo & Brand
+                                                                    </h6>
+                                                                    <span class="badge bg-label-primary">Navigation Header</span>
+                                                                </div>
+                                                                <div class="card-body pt-4">
+                                                                    <!-- Live Preview Banner -->
+                                                                    <div class="p-3 mb-4 rounded bg-dark border border-secondary d-flex align-items-center justify-content-between">
+                                                                        <div class="d-flex align-items-center gap-3">
+                                                                            <span class="text-white-50 small text-uppercase fw-semibold" style="letter-spacing: 0.5px;">Sidebar Preview:</span>
+                                                                            <div id="brand-logo-preview" class="d-inline-flex align-items-center px-3 py-2 rounded bg-black bg-opacity-25 border border-white-10">
+                                                                                {!! strip_tags($businessinfo->business_brand_logo_on_top_left ?? 'ERP', '<span><svg><path><img><b><strong><g><circle><rect>') !!}
+                                                                            </div>
+                                                                        </div>
+                                                                        <span class="badge bg-label-info d-none d-sm-inline-block">Real-time Preview</span>
+                                                                    </div>
+
+                                                                    <!-- Logo Style Selector -->
+                                                                    <div class="row mb-3">
+                                                                        <label class="col-sm-3 col-form-label text-sm-end">Logo Style</label>
+                                                                        <div class="col-sm-9">
+                                                                            <div class="d-flex flex-wrap gap-2" role="group">
+                                                                                <input type="radio" class="btn-check" name="brand_logo_mode" id="logoModeDefault" value="default" autocomplete="off" checked>
+                                                                                <label class="btn btn-outline-primary btn-sm" for="logoModeDefault">
+                                                                                    <i class="icon-base ti tabler-sparkles me-1"></i> Theme Icon
+                                                                                </label>
+
+                                                                                <input type="radio" class="btn-check" name="brand_logo_mode" id="logoModeUpload" value="upload" autocomplete="off">
+                                                                                <label class="btn btn-outline-primary btn-sm" for="logoModeUpload">
+                                                                                    <i class="icon-base ti tabler-upload me-1"></i> Upload Image
+                                                                                </label>
+
+                                                                                @if(!empty($businessinfo->business_logo))
+                                                                                <input type="radio" class="btn-check" name="brand_logo_mode" id="logoModeBusiness" value="business" autocomplete="off">
+                                                                                <label class="btn btn-outline-primary btn-sm" for="logoModeBusiness">
+                                                                                    <i class="icon-base ti tabler-building me-1"></i> Use Main Business Logo
+                                                                                </label>
+                                                                                @endif
+
+                                                                                <input type="radio" class="btn-check" name="brand_logo_mode" id="logoModeCustom" value="custom" autocomplete="off">
+                                                                                <label class="btn btn-outline-secondary btn-sm" for="logoModeCustom">
+                                                                                    <i class="icon-base ti tabler-code me-1"></i> Custom Code
+                                                                                </label>
+                                                                            </div>
                                                                         </div>
                                                                     </div>
-                                                                    <textarea name="business_brand_logo_on_top_left" id="business_brand_logo_on_top_left" rows="5" class="form-control font-monospace small" placeholder="<svg ...>...</svg>">{{ $businessinfo->business_brand_logo_on_top_left }}</textarea>
-                                                                    <div class="form-text">Stores the vector SVG or image markup rendered at the top-left of the sidebar menu.</div>
+
+                                                                    <!-- Upload Logo File (Shown in upload mode) -->
+                                                                    <div id="logo-upload-container" class="row mb-3 d-none">
+                                                                        <label class="col-sm-3 col-form-label text-sm-end" for="brandSidebarLogo">Sidebar Logo File</label>
+                                                                        <div class="col-sm-9">
+                                                                            <input type="file" class="form-control" id="brandSidebarLogo" name="brandSidebarLogo" accept=".png,.jpg,.jpeg,.svg,.webp" onchange="previewSidebarLogoFile(this)">
+                                                                            <div class="form-text">Upload PNG, JPG, SVG, or WebP. Optimal height: 28px - 34px with transparent background.</div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <!-- Show App Name Text Beside Logo -->
+                                                                    <div class="row mb-3 align-items-center">
+                                                                        <label class="col-sm-3 col-form-label text-sm-end">Text Beside Logo</label>
+                                                                        <div class="col-sm-9">
+                                                                            <div class="form-check form-switch">
+                                                                                <input class="form-check-input" type="checkbox" id="brand_logo_show_text" name="brand_logo_show_text" value="1" checked>
+                                                                                <label class="form-check-label" for="brand_logo_show_text">Show App Name text beside the logo icon</label>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <!-- Advanced Raw SVG Textarea (Hidden unless custom mode is picked) -->
+                                                                    <div id="logo-custom-container" class="row mb-3 d-none">
+                                                                        <label class="col-sm-3 col-form-label text-sm-end" for="business_brand_logo_on_top_left">SVG / HTML Code</label>
+                                                                        <div class="col-sm-9">
+                                                                            <textarea name="business_brand_logo_on_top_left" id="business_brand_logo_on_top_left" rows="5" class="form-control font-monospace small" placeholder="<svg ...>...</svg>">{{ $businessinfo->business_brand_logo_on_top_left }}</textarea>
+                                                                            <div class="form-text">Custom HTML or SVG vector markup for advanced developers.</div>
+                                                                        </div>
+                                                                    </div>
+
                                                                 </div>
                                                             </div>
                                                         </div>
 
-                                                        <!-- Brand Credit On Footer -->
-                                                        <div class="col-12">
-                                                            <div class="border-bottom pb-2 mb-3">
-                                                                <h6 class="mb-0 text-primary fw-semibold">Brand Credit On Footer</h6>
-                                                            </div>
-                                                            <div class="row mb-3 align-items-center">
-                                                                <label class="col-sm-3 col-form-label text-sm-end" for="business_brand_credit_on_footer_enable">Show in Footer?</label>
-                                                                <div class="col-sm-9">
-                                                                    <select id="business_brand_credit_on_footer_enable" class="form-select" name="business_brand_credit_on_footer_enable" required>
-                                                                        <option value="1"
-                                                                            {{ old('business_brand_credit_on_footer_enable', $businessinfo->business_brand_credit_on_footer_enable) == '1' ? 'selected' : '' }}>
-                                                                            Yes</option>
-                                                                        <option value="0"
-                                                                            {{ old('business_brand_credit_on_footer_enable', $businessinfo->business_brand_credit_on_footer_enable) == '0' ? 'selected' : '' }}>
-                                                                            No</option>
-                                                                    </select>
-                                                                </div>
-                                                            </div>
-                                                            <div class="row">
-                                                                <label class="col-sm-3 col-form-label text-sm-end" for="business_brand_credit_on_footer">Footer HTML</label>
-                                                                <div class="col-sm-9">
-                                                                    <div class="p-3 mb-2 rounded bg-label-secondary border">
-                                                                        <span class="text-muted small fw-medium d-block mb-1">Live Preview:</span>
-                                                                        <div id="brand-credit-preview">
-                                                                            {!! strip_tags($businessinfo->business_brand_credit_on_footer ?? '', '<a><span><strong><em><b><i>') !!}
-                                                                        </div>
-                                                                    </div>
-                                                                    <textarea name="business_brand_credit_on_footer" id="business_brand_credit_on_footer" rows="4" class="form-control font-monospace small">{{ $businessinfo->business_brand_credit_on_footer }}</textarea>
-                                                                    <div class="form-text">HTML code for the copyright text and agency credit link in the footer.</div>
-                                                                </div>
+                                                        <!-- Save Button in Brand Info Tab -->
+                                                        <div class="col-12 mt-2">
+                                                            <div class="d-flex align-items-center gap-3">
+                                                                <button type="submit" class="btn btn-primary d-flex align-items-center gap-2">
+                                                                    <i class="icon-base ti tabler-device-floppy"></i> Save Brand Info
+                                                                </button>
                                                             </div>
                                                         </div>
+
                                                     </div>
                                                 </div>
-                                                <div class="col-md-3">
-                                                    <div class="row">
-                                                        <a href="javascript:;" class="btn btn-xs btn-primary waves-effect waves-light" data-bs-target="#addbrandfile" data-bs-toggle="modal"> <span class="icon-base ti tabler-plus icon-xs me-1"></span>Upload Files</a>
 
-                                                        <div id="brandfiles" style="display:inline-block; width: 100%;    padding: 10px 0px;">
-                                                            @foreach ($branlogoinfo as $item)
-                                                                <a href="#"><img src="{{ $item }}"  style="max-width: 100px; max-height: 100px;" title="Click to copy image url." /></a>
-                                                            @endforeach
+                                                <!-- Right Side: Brand Media Assets Card -->
+                                                <div class="col-md-4 col-lg-4">
+                                                    <div class="card border shadow-none">
+                                                        <div class="card-header border-bottom py-3 d-flex justify-content-between align-items-center">
+                                                            <h6 class="mb-0 text-primary fw-semibold d-flex align-items-center gap-2">
+                                                                <i class="icon-base ti tabler-photo"></i> Brand Assets
+                                                            </h6>
+                                                            <button type="button" class="btn btn-xs btn-primary waves-effect waves-light" data-bs-target="#addbrandfile" data-bs-toggle="modal">
+                                                                <i class="icon-base ti tabler-plus icon-xs me-1"></i> Upload
+                                                            </button>
+                                                        </div>
+                                                        <div class="card-body pt-3">
+                                                            <p class="text-muted small mb-3">Click <strong>Use as Logo</strong> on any uploaded image to set it as your sidebar logo, or copy its URL.</p>
+                                                            <div id="brandfiles" class="d-flex flex-wrap gap-2">
+                                                                @forelse ($branlogoinfo as $item)
+                                                                    <div class="border rounded p-2 text-center bg-label-secondary brand-asset-card" data-url="{{ $item }}" style="width: 95px;">
+                                                                        <img src="{{ $item }}" style="max-width: 75px; max-height: 55px; object-fit: contain;" class="rounded mb-2 d-block mx-auto" />
+                                                                        <button type="button" class="btn btn-xs btn-primary w-100 py-0 mb-1" style="font-size: 10px;" onclick="selectAssetAsSidebarLogo('{{ $item }}')">Use Logo</button>
+                                                                        <a href="javascript:void(0);" class="small text-muted copy-asset-url d-block" data-url="{{ $item }}" style="font-size: 10px;">Copy URL</a>
+                                                                    </div>
+                                                                @empty
+                                                                    <div class="text-center py-4 w-100 text-muted">
+                                                                        <i class="icon-base ti tabler-photo-off fs-2 mb-2 d-block opacity-50"></i>
+                                                                        <span class="small">No brand files uploaded yet.</span>
+                                                                    </div>
+                                                                @endforelse
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>

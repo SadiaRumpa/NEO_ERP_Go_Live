@@ -77,26 +77,52 @@
                             let html = '';
 
                             if (row.company_name) {
-                                html += '<strong>' + row.company_name + '</strong><br>';
+                                html += '<div class="fw-bold text-heading mb-1">' + row.company_name + '</div>';
                             }
 
                             if (row.customer_name) {
-                                html += row.customer_name + '<br>';
+                                html += '<div class="text-secondary small mb-1">' + row.customer_name + '</div>';
                             }
 
-                            if (row.customer_email) {
-                                html += '<i class="icon-base fas fa-envelope mb-2 mr-2"></i> ' + row
-                                    .customer_email + '<br>';
+                            let contacts = [];
+                            if (row.customer_email && row.customer_email.trim()) {
+                                let email = row.customer_email.trim();
+                                contacts.push(
+                                    '<div class="contact-detail-row">' +
+                                        '<span class="contact-icon-badge contact-email-badge" title="Email: ' + email + '">' +
+                                            '<i class="bx bx-envelope"></i>' +
+                                        '</span>' +
+                                        '<a href="mailto:' + email + '" class="contact-detail-text" title="' + email + '">' + email + '</a>' +
+                                    '</div>'
+                                );
                             }
 
-                            if (row.customer_phone) {
-                                html += '<i class="icon-base fas fa-phone mb-2 mr-2"></i> ' + row
-                                    .customer_phone + '<br>';
+                            if (row.customer_phone && row.customer_phone.trim()) {
+                                let phone = row.customer_phone.trim();
+                                contacts.push(
+                                    '<div class="contact-detail-row">' +
+                                        '<span class="contact-icon-badge contact-phone-badge" title="Office Phone: ' + phone + '">' +
+                                            '<i class="bx bx-phone"></i>' +
+                                        '</span>' +
+                                        '<a href="tel:' + phone + '" class="contact-detail-text" title="' + phone + '">' + phone + '</a>' +
+                                    '</div>'
+                                );
                             }
 
-                            if (row.customer_mobile) {
-                                html += '<i class="icon-base fas fa-mobile mb-2"></i> ' + row
-                                    .customer_mobile;
+                            if (row.customer_mobile && row.customer_mobile.trim()) {
+                                let mobile = row.customer_mobile.trim();
+                                contacts.push(
+                                    '<div class="contact-detail-row">' +
+                                        '<span class="contact-icon-badge contact-mobile-badge" title="Mobile: ' + mobile + '">' +
+                                            '<i class="bx bx-mobile-alt"></i>' +
+                                        '</span>' +
+                                        '<a href="tel:' + mobile + '" class="contact-detail-text" title="' + mobile + '">' + mobile + '</a>' +
+                                    '</div>'
+                                );
+                            }
+
+                            if (contacts.length > 0) {
+                                html += '<div class="contact-details-list mt-1">' + contacts.join('') + '</div>';
                             }
 
                             return html;

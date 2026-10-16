@@ -166,11 +166,23 @@
                 <h5 class="card-title mb-0">Project Financial Cost Ledger & Work-in-Progress</h5>
                 <small class="text-muted">Live reconciliation across all contract commitments and revenue certifications</small>
             </div>
-            <div>
+            <div class="d-flex align-items-center gap-2">
+                <div class="btn-group btn-group-sm shadow-sm" id="portfolioSliderControls" role="group" aria-label="Table horizontal slider">
+                    <button type="button" class="btn btn-outline-primary d-inline-flex align-items-center gap-1" id="btnSlidePortfolioLeft" title="Slide Left">
+                        <i class="bx bx-chevron-left"></i> <span>Slide Left</span>
+                    </button>
+                    <button type="button" class="btn btn-outline-primary d-inline-flex align-items-center gap-1" id="btnSlidePortfolioRight" title="Slide Right">
+                        <span>Slide Right</span> <i class="bx bx-chevron-right"></i>
+                    </button>
+                </div>
                 <input type="text" id="projectSearch" class="form-control form-control-sm" placeholder="Quick filter projects..." style="width: 220px;">
             </div>
         </div>
-        <div class="table-responsive text-nowrap">
+        <!-- Top Synchronized Horizontal Scrollbar -->
+        <div class="top-scrollbar-wrapper" id="portfolioTopScrollWrapper" style="overflow-x: auto; overflow-y: hidden; height: 12px; display: none; background: rgba(128,128,128,0.06); border-bottom: 1px solid rgba(128,128,128,0.12);">
+            <div id="portfolioTopScrollDummy" style="height: 12px;"></div>
+        </div>
+        <div class="table-responsive text-nowrap" id="portfolioTableContainer">
             <table class="table table-hover" id="projectsTable">
                 <thead>
                     <tr>
@@ -281,6 +293,68 @@
                 });
             });
         }
+
+        const tableContainer = document.getElementById('portfolioTableContainer');
+        const table = document.getElementById('projectsTable');
+        const topScrollWrapper = document.getElementById('portfolioTopScrollWrapper');
+        const topScrollDummy = document.getElementById('portfolioTopScrollDummy');
+        const btnLeft = document.getElementById('btnSlidePortfolioLeft');
+        const btnRight = document.getElementById('btnSlidePortfolioRight');
+        const controls = document.getElementById('portfolioSliderControls');
+
+        if (!tableContainer || !table) return;
+
+        function updateControls() {
+            const scrollWidth = table.scrollWidth;
+            const clientWidth = tableContainer.clientWidth;
+            const isOverflowing = scrollWidth > clientWidth + 5;
+
+            if (isOverflowing) {
+                if (topScrollWrapper) {
+                    topScrollWrapper.style.display = 'block';
+                    if (topScrollDummy) topScrollDummy.style.width = scrollWidth + 'px';
+                }
+                if (controls) controls.style.display = 'inline-flex';
+
+                const scrollLeft = tableContainer.scrollLeft;
+                const maxScroll = scrollWidth - clientWidth;
+
+                if (btnLeft) btnLeft.disabled = scrollLeft <= 2;
+                if (btnRight) btnRight.disabled = scrollLeft >= maxScroll - 5;
+            } else {
+                if (topScrollWrapper) topScrollWrapper.style.display = 'none';
+                if (controls) controls.style.display = 'none';
+            }
+        }
+
+        if (topScrollWrapper) {
+            topScrollWrapper.addEventListener('scroll', function () {
+                tableContainer.scrollLeft = topScrollWrapper.scrollLeft;
+                updateControls();
+            });
+        }
+
+        tableContainer.addEventListener('scroll', function () {
+            if (topScrollWrapper) {
+                topScrollWrapper.scrollLeft = tableContainer.scrollLeft;
+            }
+            updateControls();
+        });
+
+        if (btnLeft) {
+            btnLeft.addEventListener('click', function () {
+                tableContainer.scrollBy({ left: -320, behavior: 'smooth' });
+            });
+        }
+
+        if (btnRight) {
+            btnRight.addEventListener('click', function () {
+                tableContainer.scrollBy({ left: 320, behavior: 'smooth' });
+            });
+        }
+
+        window.addEventListener('resize', updateControls);
+        setTimeout(updateControls, 150);
     });
 </script>
 @endsection

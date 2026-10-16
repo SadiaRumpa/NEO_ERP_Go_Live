@@ -489,6 +489,24 @@ p, span, li, label, input, select, textarea {
    -------------------------------------------------------------------------- */
 .table-responsive {
     border-radius: 0 0 0.75rem 0.75rem;
+    max-height: calc(100vh - 260px);
+    overflow-y: auto;
+    position: relative;
+}
+
+.table-responsive::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+.table-responsive::-webkit-scrollbar-track {
+    background: var(--neo-track-bg, rgba(128, 128, 128, 0.04));
+}
+.table-responsive::-webkit-scrollbar-thumb {
+    background: var(--neo-scrollbar-thumb, rgba(128, 128, 128, 0.3));
+    border-radius: 4px;
+}
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: var(--neo-scrollbar-thumb-hover, rgba(105, 108, 255, 0.6));
 }
 
 .table {
@@ -498,7 +516,12 @@ p, span, li, label, input, select, textarea {
     border-color: var(--neo-border) !important;
 }
 
-.table thead th {
+.table thead th,
+.table-responsive > .table thead th,
+.card-datatable.table-responsive thead th {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 10 !important;
     background-color: var(--neo-surface-subtle) !important;
     color: var(--neo-text-secondary) !important;
     font-size: var(--neo-font-xs) !important;
@@ -508,7 +531,18 @@ p, span, li, label, input, select, textarea {
     padding: 0.85rem 1.15rem !important;
     border-top: none !important;
     border-bottom: 1px solid var(--neo-border) !important;
+    box-shadow: inset 0 -1px 0 var(--neo-border) !important;
     white-space: nowrap;
+}
+
+.table thead th.sticky-col {
+    z-index: 12 !important;
+}
+
+@media (max-width: 767.98px) {
+    .table-responsive {
+        max-height: 65vh;
+    }
 }
 
 .table tbody td {
@@ -1287,4 +1321,338 @@ body {
         box-shadow: none !important;
         break-inside: avoid;
     }
+}
+
+/* --------------------------------------------------------------------------
+   18. UNIVERSAL TABLE TOP HORIZONTAL SCROLLBAR & SLIDER CONTROLS
+   -------------------------------------------------------------------------- */
+.universal-top-scrollbar {
+    overflow-x: auto;
+    overflow-y: hidden;
+    height: 10px;
+    background: rgba(128, 128, 128, 0.05);
+    border-bottom: 1px solid rgba(128, 128, 128, 0.12);
+}
+.universal-top-scrollbar::-webkit-scrollbar {
+    height: 8px;
+}
+.universal-top-scrollbar::-webkit-scrollbar-track {
+    background: rgba(128, 128, 128, 0.06);
+}
+.universal-top-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(105, 108, 255, 0.4);
+    border-radius: 4px;
+}
+.universal-top-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(105, 108, 255, 0.75);
+}
+
+/* --------------------------------------------------------------------------
+   19. CUSTOM FILE UPLOAD INPUT WITH EMBEDDED HELPER ICON
+   -------------------------------------------------------------------------- */
+.custom-file-box {
+    cursor: pointer;
+    background-color: var(--neo-input-bg, var(--neo-surface)) !important;
+    border: 1px solid var(--neo-input-border, var(--neo-border)) !important;
+    color: var(--neo-text-primary) !important;
+    min-height: 38px;
+    border-radius: 0.375rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.custom-file-box:hover {
+    border-color: var(--neo-border-hover, #cbd5e1) !important;
+}
+
+.custom-file-box:focus-within {
+    border-color: var(--neo-input-focus-border, #2563eb) !important;
+    box-shadow: 0 0 0 0.25rem var(--neo-input-focus-shadow, rgba(37, 99, 235, 0.15)) !important;
+}
+
+.custom-file-btn {
+    background-color: var(--neo-surface-elevated, #f1f5f9);
+    border-color: var(--neo-border, #e2e8f0) !important;
+    color: var(--neo-text-primary, #0f172a);
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 0.45rem 0.85rem;
+    transition: background-color 0.15s ease-in-out;
+}
+
+.custom-file-box:hover .custom-file-btn {
+    background-color: var(--neo-surface-subtle, #e2e8f0);
+}
+
+.custom-file-help-icon {
+    font-size: 0.825rem !important;
+    opacity: 0.5 !important;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    cursor: help;
+    display: inline-flex;
+    align-items: center;
+}
+
+.custom-file-help-icon:hover {
+    opacity: 1 !important;
+    transform: scale(1.15);
+}
+
+/* --------------------------------------------------------------------------
+   20. CONTACT DETAILS PILLS & ICONS (Tables, Datatables & Cards)
+   -------------------------------------------------------------------------- */
+.contact-details-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.contact-detail-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    line-height: 1.3;
+    max-width: 100%;
+}
+
+.contact-icon-badge {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8125rem;
+    line-height: 1;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    border: 1px solid transparent;
+    flex-shrink: 0;
+}
+
+/* Email Badge: Sleek Sapphire / Sky */
+.contact-email-badge {
+    background-color: var(--badge-primary-bg, #eff6ff);
+    color: var(--badge-primary-text, #1d4ed8);
+    border-color: var(--badge-primary-border, #bfdbfe);
+}
+
+/* Landline/Office Phone Badge: Crisp Emerald */
+.contact-phone-badge {
+    background-color: var(--badge-success-bg, #ecfdf5);
+    color: var(--badge-success-text, #047857);
+    border-color: var(--badge-success-border, #a7f3d0);
+}
+
+/* Mobile Phone Badge: Modern Violet / Purple */
+.contact-mobile-badge {
+    background-color: #f5f3ff;
+    color: #7c3aed;
+    border-color: #ddd6fe;
+}
+
+[data-bs-theme="dark"] .contact-mobile-badge {
+    background-color: rgba(167, 139, 250, 0.15);
+    color: #c4b5fd;
+    border-color: rgba(167, 139, 250, 0.3);
+}
+
+/* Website Badge: Teal / Cyan */
+.contact-website-badge {
+    background-color: var(--badge-info-bg, #ecfeff);
+    color: var(--badge-info-text, #0e7490);
+    border-color: var(--badge-info-border, #a5f3fc);
+}
+
+/* Hover effect on row */
+.contact-detail-row:hover .contact-icon-badge {
+    transform: scale(1.12);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+/* Interactive Text & Links */
+.contact-detail-text {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--neo-text-primary, #0f172a);
+    text-decoration: none;
+    transition: color 0.15s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 280px;
+}
+
+.contact-detail-text:hover {
+    color: #2563eb !important;
+    text-decoration: underline;
+}
+
+[data-bs-theme="dark"] .contact-detail-text {
+    color: #e2e8f0;
+}
+
+[data-bs-theme="dark"] .contact-detail-text:hover {
+    color: #60a5fa !important;
+}
+
+/* Fallback styling for legacy icon-base FontAwesome glyphs */
+.icon-base.fas.fa-envelope {
+    color: #3b82f6 !important;
+    font-size: 0.875rem;
+    vertical-align: middle;
+}
+
+.icon-base.fas.fa-phone {
+    color: #10b981 !important;
+    font-size: 0.875rem;
+    vertical-align: middle;
+}
+
+.icon-base.fas.fa-mobile {
+    color: #8b5cf6 !important;
+    font-size: 0.875rem;
+    vertical-align: middle;
+}
+
+.icon-base.fas.fa-url {
+    color: #06b6d4 !important;
+    font-size: 0.875rem;
+    vertical-align: middle;
+}
+
+.fa-solid.fa-phone, i.fa-phone {
+    color: #10b981;
+}
+
+/* --------------------------------------------------------------------------
+   21. SIDEBAR BOTTOM CONTROLS DOCK (Profile, Mode & Configuration)
+   -------------------------------------------------------------------------- */
+#layout-menu {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    max-height: 100vh !important;
+}
+
+#layout-menu .menu-inner {
+    flex: 1 1 auto !important;
+    overflow-y: auto !important;
+    min-height: 0 !important;
+    height: auto !important;
+}
+
+.sidebar-bottom-bar {
+    flex-shrink: 0;
+    margin-top: auto;
+    background-color: var(--neo-surface-subtle, #f8fafc);
+    border-top: 1px solid var(--neo-border, #e2e8f0) !important;
+    padding: 0.65rem 0.85rem;
+    transition: background-color 0.15s ease;
+    z-index: 10;
+}
+
+[data-bs-theme="dark"] .sidebar-bottom-bar {
+    background-color: rgba(18, 24, 38, 0.95);
+    border-top: 1px solid var(--neo-border, #1e293d) !important;
+}
+
+.sidebar-footer-btn {
+    background: transparent;
+    border: none;
+    padding: 0.35rem 0.45rem;
+    border-radius: 0.5rem;
+    color: var(--neo-text-primary, #0f172a);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.15s ease;
+    max-width: 155px;
+    cursor: pointer;
+}
+
+.sidebar-footer-btn:hover {
+    background-color: var(--neo-surface-elevated, #f1f5f9);
+    color: var(--neo-text-primary, #0f172a);
+}
+
+[data-bs-theme="dark"] .sidebar-footer-btn:hover {
+    background-color: rgba(255, 255, 255, 0.06);
+}
+
+.sidebar-user-name {
+    font-size: 0.8125rem;
+    line-height: 1.2;
+    color: var(--neo-text-primary, #0f172a);
+    max-width: 105px;
+}
+
+[data-bs-theme="dark"] .sidebar-user-name {
+    color: #f8fafc;
+}
+
+.sidebar-user-role {
+    font-size: 0.72rem;
+    line-height: 1.1;
+    color: var(--neo-text-muted, #64748b);
+    max-width: 105px;
+}
+
+.sidebar-footer-icon-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--neo-text-secondary, #475569);
+    font-size: 1.15rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-decoration: none;
+    padding: 0;
+}
+
+.sidebar-footer-icon-btn:hover {
+    background-color: var(--neo-surface-elevated, #f1f5f9);
+    color: #2563eb;
+    border-color: var(--neo-border, #e2e8f0);
+}
+
+[data-bs-theme="dark"] .sidebar-footer-icon-btn {
+    color: #94a3b8;
+}
+
+[data-bs-theme="dark"] .sidebar-footer-icon-btn:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: #60a5fa;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-footer-icon-btn.active {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+}
+
+/* Collapsed sidebar mode adjustments */
+.layout-menu-collapsed #layout-menu .sidebar-bottom-bar {
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.75rem 0.35rem;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.layout-menu-collapsed #layout-menu .sidebar-user-text {
+    display: none !important;
+}
+
+.layout-menu-collapsed #layout-menu .sidebar-footer-btn {
+    padding: 0;
+    max-width: none;
+    justify-content: center;
 }

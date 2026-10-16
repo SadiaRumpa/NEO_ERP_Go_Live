@@ -37,7 +37,45 @@
                     orderable: false,
                     searchable: false,
                     render: function(data, type, row) {
-                        return '<i class="icon-base fas fa-envelope mb-2 mr-2"></i> ' + row.business_email + '<br>' + '<i class="icon-base fas fa-phone mb-2 mr-2"></i> ' + row.business_phone + '<br>' + '<i class="icon-base fas fa-url mb-2"></i> ' + (row.business_website!=null?row.business_website:'');
+                        let items = [];
+                        if (row.business_email && row.business_email.trim()) {
+                            let email = row.business_email.trim();
+                            items.push(
+                                '<div class="contact-detail-row">' +
+                                    '<span class="contact-icon-badge contact-email-badge" title="Email: ' + email + '">' +
+                                        '<i class="bx bx-envelope"></i>' +
+                                    '</span>' +
+                                    '<a href="mailto:' + email + '" class="contact-detail-text" title="' + email + '">' + email + '</a>' +
+                                '</div>'
+                            );
+                        }
+                        if (row.business_phone && row.business_phone.trim()) {
+                            let phone = row.business_phone.trim();
+                            items.push(
+                                '<div class="contact-detail-row">' +
+                                    '<span class="contact-icon-badge contact-phone-badge" title="Phone: ' + phone + '">' +
+                                        '<i class="bx bx-phone"></i>' +
+                                    '</span>' +
+                                    '<a href="tel:' + phone + '" class="contact-detail-text" title="' + phone + '">' + phone + '</a>' +
+                                '</div>'
+                            );
+                        }
+                        if (row.business_website && row.business_website.trim()) {
+                            let web = row.business_website.trim();
+                            let url = web.startsWith('http://') || web.startsWith('https://') ? web : 'https://' + web;
+                            items.push(
+                                '<div class="contact-detail-row">' +
+                                    '<span class="contact-icon-badge contact-website-badge" title="Website: ' + web + '">' +
+                                        '<i class="bx bx-globe"></i>' +
+                                    '</span>' +
+                                    '<a href="' + url + '" target="_blank" rel="noopener noreferrer" class="contact-detail-text" title="' + web + '">' + web + '</a>' +
+                                '</div>'
+                            );
+                        }
+                        if (items.length === 0) {
+                            return '<span class="text-muted fst-italic small">No contact details</span>';
+                        }
+                        return '<div class="contact-details-list">' + items.join('') + '</div>';
                     }
                 },
 

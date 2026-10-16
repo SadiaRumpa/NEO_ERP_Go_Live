@@ -35,7 +35,8 @@
                     data: 'contact_name',
                     name: 'contact_name',
                     render: function(data, type, row) {
-                        return '<strong>' + row.contact_firstname + ' ' + row.contact_lastname + '</strong>';
+                        let name = ((row.contact_firstname || '') + ' ' + (row.contact_lastname || '')).trim();
+                        return name ? '<strong class="text-heading">' + name + '</strong>' : '<span class="text-muted">-</span>';
                     },
                     searchable: false
                 },
@@ -44,7 +45,44 @@
                     orderable: false,
                     searchable: false,
                     render: function(data, type, row) {
-                        return '<i class="icon-base fas fa-envelope mb-2 mr-2"></i> ' + (row.contact_email?row.contact_email:'') + '<br>' + '<i class="icon-base fas fa-phone mb-2 mr-2"></i> ' + (row.contact_phone?row.contact_phone:'') + '<br>' + '<i class="icon-base fas fa-mobile mb-2"></i> ' + (row.contact_mobile?row.contact_mobile:'');
+                        let items = [];
+                        if (row.contact_email && row.contact_email.trim()) {
+                            let email = row.contact_email.trim();
+                            items.push(
+                                '<div class="contact-detail-row">' +
+                                    '<span class="contact-icon-badge contact-email-badge" title="Email: ' + email + '">' +
+                                        '<i class="bx bx-envelope"></i>' +
+                                    '</span>' +
+                                    '<a href="mailto:' + email + '" class="contact-detail-text" title="' + email + '">' + email + '</a>' +
+                                '</div>'
+                            );
+                        }
+                        if (row.contact_phone && row.contact_phone.trim()) {
+                            let phone = row.contact_phone.trim();
+                            items.push(
+                                '<div class="contact-detail-row">' +
+                                    '<span class="contact-icon-badge contact-phone-badge" title="Office Phone: ' + phone + '">' +
+                                        '<i class="bx bx-phone"></i>' +
+                                    '</span>' +
+                                    '<a href="tel:' + phone + '" class="contact-detail-text" title="' + phone + '">' + phone + '</a>' +
+                                '</div>'
+                            );
+                        }
+                        if (row.contact_mobile && row.contact_mobile.trim()) {
+                            let mobile = row.contact_mobile.trim();
+                            items.push(
+                                '<div class="contact-detail-row">' +
+                                    '<span class="contact-icon-badge contact-mobile-badge" title="Mobile: ' + mobile + '">' +
+                                        '<i class="bx bx-mobile-alt"></i>' +
+                                    '</span>' +
+                                    '<a href="tel:' + mobile + '" class="contact-detail-text" title="' + mobile + '">' + mobile + '</a>' +
+                                '</div>'
+                            );
+                        }
+                        if (items.length === 0) {
+                            return '<span class="text-muted fst-italic small">No contact details</span>';
+                        }
+                        return '<div class="contact-details-list">' + items.join('') + '</div>';
                     }
                 },
 

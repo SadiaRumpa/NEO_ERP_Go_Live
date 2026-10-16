@@ -122,47 +122,13 @@
                         <!-- /Search -->
 
                         <ul class="navbar-nav flex-row align-items-center ms-md-auto">
-
-                            <!-- Style Switcher -->
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle hide-arrow btn btn-icon btn-text-secondary rounded-pill"
-                                    id="nav-theme" href="javascript:void(0);" data-bs-toggle="dropdown">
-                                    <i class="icon-base ti tabler-sun icon-22px theme-icon-active text-heading"></i>
-                                    <span class="d-none ms-2" id="nav-theme-text">Toggle theme</span>
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-theme-text">
-                                    <li>
-                                        <button type="button" class="dropdown-item align-items-center active"
-                                            data-bs-theme-value="light" aria-pressed="true">
-                                            <span><i class="icon-base ti tabler-sun icon-22px me-3"
-                                                    data-icon="sun"></i>Light</span>
-                                        </button>
-                                    </li>
-                                    <li>
-                                        <button type="button" class="dropdown-item align-items-center"
-                                            data-bs-theme-value="dark" aria-pressed="false">
-                                            <span><i class="icon-base ti tabler-moon-stars icon-22px me-3"
-                                                    data-icon="moon-stars"></i>Dark</span>
-                                        </button>
-                                    </li>
-                                    <li>
-                                        <button type="button" class="dropdown-item align-items-center"
-                                            data-bs-theme-value="system" aria-pressed="false">
-                                            <span><i class="icon-base ti tabler-device-desktop-analytics icon-22px me-3"
-                                                    data-icon="device-desktop-analytics"></i>System</span>
-                                        </button>
-                                    </li>
-                                </ul>
-                            </li>
-                            <!-- / Style Switcher-->
-
                             <!-- Notification -->
                             @php
                                 $currentUser = auth()->user();
                                 $unreadCount = $currentUser ? $currentUser->unreadNotifications()->count() : 0;
                                 $recentNotifications = $currentUser ? $currentUser->notifications()->latest()->take(5)->get() : collect();
                             @endphp
-                            <li class="nav-item dropdown-notifications navbar-dropdown dropdown me-3 me-xl-2">
+                            <li class="nav-item dropdown-notifications navbar-dropdown dropdown">
                                 <a class="nav-link dropdown-toggle hide-arrow btn btn-icon btn-text-secondary rounded-pill"
                                     href="javascript:void(0);" data-bs-toggle="dropdown" data-bs-auto-close="outside"
                                     aria-expanded="false">
@@ -229,78 +195,10 @@
                                 </ul>
                             </li>
                             <!--/ Notification -->
-
-                            <!-- User -->
-                            <li class="nav-item navbar-dropdown dropdown-user dropdown">
-                                <a class="nav-link dropdown-toggle hide-arrow p-0" href="javascript:void(0);"
-                                    data-bs-toggle="dropdown">
-                                    <div class="avatar avatar-online">
-                                        <img src="{{ asset('assets/img/front-pages/icons/user.png') }}" alt
-                                            class="rounded-circle" />
-                                    </div>
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li>
-                                        <a class="dropdown-item mt-0" href="{{ route('users.myprofile') }}">
-                                            <div class="d-flex align-items-center">
-                                                <div class="flex-shrink-0 me-2">
-                                                    <div class="avatar avatar-online">
-                                                        <img src="{{ asset('assets/img/front-pages/icons/user.png') }}"
-                                                            alt class="rounded-circle" />
-                                                    </div>
-                                                </div>
-                                                <div class="flex-grow-1">
-                                                    <h6 class="mb-0">{{ auth()->user()->name }}</h6>
-                                                    <small class="text-body-secondary">
-                                                        {{ Str::title(str_replace('-', ' ', auth()->user()->getRoleNames()->first())) }}
-                                                    </small>
-                                                </div>
-                                            </div>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <div class="dropdown-divider my-1 mx-n2"></div>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" href="{{ route('users.myprofile') }}">
-                                            <i class="icon-base ti tabler-user me-3 icon-md"></i><span
-                                                class="align-middle">My Profile</span>
-                                        </a>
-                                    </li>
-                                    <!-- <li>
-                                        <a class="dropdown-item" href="#">
-                                            <i class="icon-base ti tabler-settings me-3 icon-md"></i><span
-                                                class="align-middle">Settings</span>
-                                        </a>
-                                    </li> -->
-                                    <li>
-                                        <div class="dropdown-divider my-1 mx-n2"></div>
-                                    </li>
-                                    <!-- <li>
-                                        <a class="dropdown-item" href="#">
-                                            <i class="icon-base ti tabler-question-mark me-3 icon-md"></i><span
-                                                class="align-middle">FAQ</span>
-                                        </a>
-                                    </li> -->
-                                    <li>
-                                        <div class="d-grid px-2 pt-2 pb-1">
-                                            <a class="btn btn-sm btn-danger d-flex" href="{{ route('logout') }}"
-                                                onclick="event.preventDefault();
-                                                     document.getElementById('logout-form').submit();">
-                                                <small class="align-middle">Logout</small>
-                                                <i class="icon-base ti tabler-logout ms-2 icon-14px"></i>
-                                            </a>
-
-                                            <form id="logout-form" action="{{ route('logout') }}" method="POST"
-                                                class="d-none">
-                                                @csrf
-                                            </form>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </li>
-                            <!--/ User -->
                         </ul>
+                        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                            @csrf
+                        </form>
                     </div>
                 </nav>
                 <!-- / Navbar -->
@@ -317,7 +215,7 @@
                             <div
                                 class="footer-container d-flex align-items-center justify-content-between py-4 flex-md-row flex-column">
                                 <div class="text-body">
-                                    {!! strip_tags(isset($appbrand) && $appbrand->business_brand_credit_on_footer_enable==1 ? ($appbrand->business_brand_credit_on_footer ?? '') : '', '<a><span><strong><em><b><i>') !!}
+                                    {!! strip_tags(isset($appbrand) && $appbrand->business_brand_credit_on_footer_enable==1 ? ($appbrand->business_brand_credit_on_footer ?: '&copy; ' . date('Y') . ', created by <a href="https://neotericdigital.co.uk/" target="_blank" class="footer-link">Neoteric Digital</a>') : '', '<a><span><strong><em><b><i>') !!}
                                 </div>
 
                             </div>
@@ -476,6 +374,162 @@
                     pageLength: 10
                 });
             }
+        });
+
+        // Universal Horizontal Table Slider & Synchronized Top Scrollbar
+        function initUniversalTableSliders() {
+            document.querySelectorAll('.table-responsive').forEach(function(container) {
+                if (container.id === 'portfolioTableContainer') return;
+
+                var table = container.querySelector('table');
+                if (!table) return;
+
+                var card = container.closest('.card') || container.parentElement;
+                var controls = card ? card.querySelector('.table-slider-controls') : null;
+                if (!controls && container.previousElementSibling) {
+                    controls = container.previousElementSibling.querySelector('.table-slider-controls');
+                }
+                var btnLeft = controls ? controls.querySelector('.btn-slide-table-left') : null;
+                var btnRight = controls ? controls.querySelector('.btn-slide-table-right') : null;
+
+                // Ensure top synchronized scrollbar exists
+                var topScroll = container.previousElementSibling;
+                var isTopScroll = topScroll && topScroll.classList.contains('universal-top-scrollbar');
+                if (!isTopScroll) {
+                    topScroll = document.createElement('div');
+                    topScroll.className = 'universal-top-scrollbar';
+                    topScroll.style.cssText = 'overflow-x: auto; overflow-y: hidden; height: 10px; display: none; background: rgba(128,128,128,0.04); border-bottom: 1px solid rgba(128,128,128,0.1);';
+                    var dummy = document.createElement('div');
+                    dummy.className = 'universal-top-scrollbar-dummy';
+                    dummy.style.height = '10px';
+                    topScroll.appendChild(dummy);
+                    container.parentNode.insertBefore(topScroll, container);
+                }
+                var dummy = topScroll.querySelector('.universal-top-scrollbar-dummy');
+
+                function update() {
+                    var scrollWidth = table.scrollWidth;
+                    var clientWidth = container.clientWidth;
+                    var isOverflowing = scrollWidth > clientWidth + 5;
+
+                    if (isOverflowing) {
+                        topScroll.style.display = 'block';
+                        if (dummy) dummy.style.width = scrollWidth + 'px';
+                        if (controls) {
+                            controls.classList.remove('d-none');
+                            controls.style.setProperty('display', 'flex', 'important');
+                        }
+
+                        var scrollLeft = container.scrollLeft;
+                        var maxScroll = scrollWidth - clientWidth;
+                        if (btnLeft) btnLeft.disabled = scrollLeft <= 2;
+                        if (btnRight) btnRight.disabled = scrollLeft >= maxScroll - 5;
+                    } else {
+                        topScroll.style.display = 'none';
+                        if (controls) {
+                            controls.classList.add('d-none');
+                            controls.style.setProperty('display', 'none', 'important');
+                        }
+                    }
+                }
+
+                if (!container.dataset.sliderInitialized) {
+                    container.dataset.sliderInitialized = 'true';
+
+                    topScroll.addEventListener('scroll', function() {
+                        container.scrollLeft = topScroll.scrollLeft;
+                        update();
+                    });
+
+                    container.addEventListener('scroll', function() {
+                        topScroll.scrollLeft = container.scrollLeft;
+                        update();
+                    });
+
+                    if (btnLeft) {
+                        btnLeft.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            container.scrollBy({ left: -320, behavior: 'smooth' });
+                        });
+                    }
+
+                    if (btnRight) {
+                        btnRight.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            container.scrollBy({ left: 320, behavior: 'smooth' });
+                        });
+                    }
+
+                    if (window.ResizeObserver) {
+                        var ro = new ResizeObserver(function() {
+                            update();
+                        });
+                        ro.observe(container);
+                        ro.observe(table);
+                    }
+                    window.addEventListener('resize', update);
+                }
+
+                update();
+            });
+        }
+
+        function updateSidebarThemeIcon(theme) {
+            var icon = document.getElementById('sidebar-theme-icon');
+            var btn = document.getElementById('sidebar-theme-toggle');
+            if (!icon) return;
+            if (theme === 'dark') {
+                icon.className = 'bx bx-sun';
+                if (btn) btn.setAttribute('title', 'Switch to Light Mode');
+            } else {
+                icon.className = 'bx bx-moon';
+                if (btn) btn.setAttribute('title', 'Switch to Dark Mode');
+            }
+        }
+
+        window.toggleAppTheme = function() {
+            var current = document.documentElement.getAttribute('data-bs-theme') || 'light';
+            var next = current === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-bs-theme', next);
+            try {
+                localStorage.setItem('templateCustomizer-vertical-menu-template--Theme', next);
+            } catch(e) {}
+            
+            var bg = next === 'dark' ? '#0b0f19' : '#ffffff';
+            document.documentElement.style.backgroundColor = bg;
+            document.documentElement.style.colorScheme = next;
+            var meta = document.getElementById('meta-theme-color');
+            if (meta) meta.setAttribute('content', bg);
+            
+            updateSidebarThemeIcon(next);
+        };
+
+        // Global Bootstrap Tooltips Initialization
+        function initBootstrapTooltips() {
+            if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+                    if (!tooltipTriggerEl._tooltip) {
+                        tooltipTriggerEl._tooltip = new bootstrap.Tooltip(tooltipTriggerEl);
+                    }
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var currentTheme = document.documentElement.getAttribute('data-bs-theme') || 'light';
+            updateSidebarThemeIcon(currentTheme);
+            initBootstrapTooltips();
+            setTimeout(initUniversalTableSliders, 100);
+            setTimeout(initUniversalTableSliders, 400);
+        });
+        window.addEventListener('load', function() {
+            var currentTheme = document.documentElement.getAttribute('data-bs-theme') || 'light';
+            updateSidebarThemeIcon(currentTheme);
+            initBootstrapTooltips();
+            setTimeout(initUniversalTableSliders, 50);
+            setTimeout(initUniversalTableSliders, 300);
         });
     </script>
 </body>

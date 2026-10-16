@@ -588,22 +588,6 @@
             </li>
         @endhasrole
         @hasanyrole('super_admin|admin')
-            <!-- Apps & Pages -->
-            <li
-                class="menu-item {{ request()->is('businessinfo') || request()->is('businessinfo/*') ? 'open' : '' }}">
-                <a href="javascript:void(0);" class="menu-link menu-toggle">
-                    <i class="menu-icon icon-base ti tabler-settings"></i>
-                    <div data-i18n="Manage Users">Configuration</div>
-                </a>
-                <ul class="menu-sub">
-                    <li class="menu-item {{ request()->is('businessinfo') || request()->is('businessinfo/*') ? 'active' : '' }}">
-                        <a href="{{ url('businessinfo') }}" class="menu-link">
-                            <div data-i18n="Users">Business Info</div>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-
             <li class="menu-item {{ request()->is('reports/*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon icon-base ti tabler-chart-pie"></i>
@@ -622,12 +606,7 @@
                     </li>
                 </ul>
             </li>
-            <li class="menu-item {{ request()->is('notifications') ? 'active' : '' }}">
-                <a href="{{ route('notifications.index') }}" class="menu-link">
-                    <i class="menu-icon icon-base ti tabler-bell"></i>
-                    <div data-i18n="Notifications">Notifications</div>
-                </a>
-            </li>
+
             <li class="menu-item {{ request()->is('invoices') || request()->is('invoices/*') ? 'active' : '' }}">
                 <a href="{{ route('invoices.index') }}" class="menu-link">
                     <i class="menu-icon icon-base ti tabler-receipt"></i>
@@ -762,4 +741,100 @@
                 </ul>
             </li>
         @endhasrole
+    </ul>
+
+    <!-- Sidebar Bottom Controls Dock: Profile, Mode, Configuration -->
+    <div class="sidebar-bottom-bar border-top d-flex align-items-center justify-content-between px-3 py-2">
+        <!-- Profile Icon / User with Dropup -->
+        @auth
+        <div class="dropup position-relative">
+            <button class="sidebar-footer-btn dropdown-toggle hide-arrow d-flex align-items-center gap-2 p-1 border-0 bg-transparent text-start"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    data-bs-boundary="viewport"
+                    aria-expanded="false"
+                    title="User Profile: {{ auth()->user()->name }}">
+                <div class="avatar avatar-sm avatar-online flex-shrink-0">
+                    <img src="{{ asset('assets/img/front-pages/icons/user.png') }}" alt="{{ auth()->user()->name }}" class="rounded-circle" />
+                </div>
+                <div class="sidebar-user-text d-flex flex-column text-start overflow-hidden">
+                    <span class="sidebar-user-name fw-semibold text-truncate">{{ auth()->user()->name }}</span>
+                    <small class="sidebar-user-role text-muted text-truncate">{{ Str::title(str_replace('-', ' ', auth()->user()->getRoleNames()->first() ?? 'User')) }}</small>
+                </div>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-start shadow-lg mb-2" style="min-width: 220px; z-index: 1060;">
+                <li class="px-3 py-2 border-bottom">
+                    <div class="fw-bold text-heading">{{ auth()->user()->name }}</div>
+                    <small class="text-muted d-block text-truncate">{{ auth()->user()->email ?? '' }}</small>
+                </li>
+                <li>
+                    <a class="dropdown-item py-2 d-flex align-items-center" href="{{ route('users.myprofile') }}">
+                        <i class="bx bx-user me-2 text-primary"></i>
+                        <span>My Profile</span>
+                    </a>
+                </li>
+                <li><hr class="dropdown-divider my-1"></li>
+                <li>
+                    <a class="dropdown-item py-2 d-flex align-items-center text-danger" href="{{ route('logout') }}"
+                       onclick="event.preventDefault(); document.getElementById('sidebar-logout-form').submit();">
+                        <i class="bx bx-log-out me-2"></i>
+                        <span>Logout</span>
+                    </a>
+                    <form id="sidebar-logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                        @csrf
+                    </form>
+                </li>
+            </ul>
+        </div>
+        @endauth
+
+        <!-- Right Controls: Mode Toggle & Gear Configuration -->
+        <div class="d-flex align-items-center gap-1">
+            <!-- Mode Icon -->
+            <button type="button"
+                    class="sidebar-footer-icon-btn"
+                    id="sidebar-theme-toggle"
+                    onclick="toggleAppTheme()"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    title="Toggle Light / Dark Mode">
+                <i class="bx bx-moon" id="sidebar-theme-icon"></i>
+            </button>
+
+            <!-- Gear Icon for Configuration -->
+            @hasanyrole('super_admin|admin')
+            <div class="dropup position-relative">
+                <button type="button"
+                        class="sidebar-footer-icon-btn dropdown-toggle hide-arrow {{ request()->is('businessinfo*') ? 'active' : '' }}"
+                        data-bs-toggle="dropdown"
+                        data-bs-boundary="viewport"
+                        aria-expanded="false"
+                        title="Configuration">
+                    <i class="bx bx-cog"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow-lg mb-2" style="min-width: 200px; z-index: 1060;">
+                    <li class="dropdown-header text-uppercase small fw-bold">Configuration</li>
+                    <li>
+                        <a class="dropdown-item py-2 d-flex align-items-center {{ request()->is('businessinfo*') ? 'active' : '' }}" href="{{ url('businessinfo') }}">
+                            <i class="bx bx-building me-2 text-primary"></i>
+                            <span>Business Info</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item py-2 d-flex align-items-center {{ request()->is('roles*') ? 'active' : '' }}" href="{{ url('roles') }}">
+                            <i class="bx bx-shield-quarter me-2 text-info"></i>
+                            <span>Roles & Permissions</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item py-2 d-flex align-items-center {{ request()->is('users*') ? 'active' : '' }}" href="{{ url('users') }}">
+                            <i class="bx bx-user-check me-2 text-success"></i>
+                            <span>Users Management</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            @endhasrole
+        </div>
+    </div>
 </aside>

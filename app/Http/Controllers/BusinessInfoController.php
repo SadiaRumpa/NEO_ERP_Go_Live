@@ -121,7 +121,7 @@ class BusinessInfoController extends Controller
             $businessInfo->business_name    = $validated['business_name'];
             $businessInfo->business_short_name    = $validated['businessShortName'] ?? null;
             $businessInfo->business_domain = $validated['businessDomain'] ?? null;
-            $businessInfo->business_allowed_file_types      = $validated['allowedFiletypes'] ?? null;
+            $businessInfo->business_allowed_file_types      = $validated['allowedFiletypes'] ?? 'IMG:.jpg,.jpeg,.png DOC:.pdf,.jpg,.jpeg,.png,.doc,.docx';
             $businessInfo->business_logo  = $businessLogoPath ?? null;
             $businessInfo->business_logo_dark   = $businessLogoDarkPath ?? null;
             $businessInfo->business_favicon   = $businessFaviconPath ?? null;
@@ -220,15 +220,21 @@ class BusinessInfoController extends Controller
         }
 
         $branlogoinfo = array();
-        $brandlogofiles = Storage::disk('public')->files('brandlogos/' . $id);
+        $disk = config('filesystems.default', 'local');
+        $brandlogofiles = Storage::disk($disk)->files('brandlogos/' . $id);
+        $diskToUse = $disk;
+        if (empty($brandlogofiles) && $disk !== 'public') {
+            $brandlogofiles = Storage::disk('public')->files('brandlogos/' . $id);
+            $diskToUse = 'public';
+        }
+
         foreach ($brandlogofiles as $file) {
-            $branlogoinfo[] = Storage::disk('public')->url($file);
-            //$contents = Storage::disk('public')->get($file);
+            $branlogoinfo[] = Storage::disk($diskToUse)->url($file);
         }
 
         return view('businessinfo.edit')->with([
             'businessinfo' => $businessinfo,
-            'branlogoinfo' => $branlogoinfo
+            'branlogoinfo' => $branlogoinfo,
         ]);
     }
 
@@ -262,9 +268,16 @@ class BusinessInfoController extends Controller
             'businessRegistrationNumber'  => 'nullable|string|max:255',
             'businessRegistrationNumber2'  => 'nullable|string|max:255',
             'business_brand_app_name'        => 'required|string|max:255',
-            'business_brand_logo_on_top_left'  => 'required',
-            'business_brand_credit_on_footer_enable'  => 'required|integer|min:0|max:1',
-            'business_brand_credit_on_footer'  => 'required',
+            'business_brand_logo_on_top_left'  => 'nullable',
+            'business_brand_credit_on_footer_enable'  => 'nullable|integer|min:0|max:1',
+            'business_brand_credit_on_footer'  => 'nullable',
+            'brandSidebarLogo' => [
+                'nullable',
+                File::types(['png', 'jpg', 'jpeg', 'svg', 'webp'])
+                    ->max(50 * 1024),
+            ],
+            'constructed_brand_logo' => 'nullable|string',
+            'brand_logo_show_text' => 'nullable',
             'businessLogo' => [
                 'nullable',
                 File::types(['png', 'jpg', 'jpeg']) // Example: allow specific types
@@ -312,15 +325,41 @@ class BusinessInfoController extends Controller
             $businessFaviconPath = Storage::disk($disk)->url($path);
         }
 
-        if(empty($validated['allowedFiletypes'])){
-            $validated['allowedFiletypes'] = 'IMG:.jpg,.jpeg,.png DOC:.pdf,.jpg,.jpeg,.png,.doc,.docx';
-        }
-
         // Update 
         DB::beginTransaction();
 
         try {
             $businessinfo = BusinessInfo::findOrFail($id);
+
+            if(empty($validated['allowedFiletypes'])){
+                $validated['allowedFiletypes'] = $businessinfo->business_allowed_file_types ?: 'IMG:.jpg,.jpeg,.png DOC:.pdf,.jpg,.jpeg,.png,.doc,.docx';
+            }
+
+            // Resolve Brand Logo
+            $businessBrandLogo = $request->input('business_brand_logo_on_top_left');
+            if ($request->hasFile('brandSidebarLogo')) {
+                $fileBrandSidebarLogo = $request->file('brandSidebarLogo');
+                $path = $fileBrandSidebarLogo->store('brandlogos/' . $id, $disk);
+                $brandLogoUrl = Storage::disk($disk)->url($path);
+                $appName = $validated['business_brand_app_name'] ?? 'ERP';
+                $showText = $request->input('brand_logo_show_text', '1') == '1';
+                $textMarkup = $showText ? '<span class="app-brand-text demo menu-text fw-bold ms-3">' . e($appName) . '</span>' : '';
+                $businessBrandLogo = '<span class="app-brand-logo demo"><img src="' . $brandLogoUrl . '" style="max-height: 28px; width: auto; object-fit: contain;" alt="' . e($appName) . '"></span>' . $textMarkup;
+            } elseif ($request->filled('constructed_brand_logo')) {
+                $businessBrandLogo = $request->input('constructed_brand_logo');
+            }
+
+            if (empty($businessBrandLogo)) {
+                $businessBrandLogo = $businessinfo->business_brand_logo_on_top_left ?? 'ERP';
+            }
+
+            // Preserve or set standard Footer HTML
+            $businessBrandFooter = $businessinfo->business_brand_credit_on_footer;
+            if (empty($businessBrandFooter) || str_contains($businessBrandFooter, 'made with')) {
+                $businessBrandFooter = '&copy; ' . date('Y') . ', created by <a href="https://neotericdigital.co.uk/" target="_blank" class="footer-link">Neoteric Digital</a>';
+            }
+            $businessBrandCreditEnable = $request->input('business_brand_credit_on_footer_enable', $businessinfo->business_brand_credit_on_footer_enable ?? 1);
+
             $businessinfoUpdateData = [
                 'business_name'   => $validated['business_name'],
                 'business_short_name' => $validated['businessShortName'] ?? null,
@@ -340,9 +379,9 @@ class BusinessInfoController extends Controller
                 'business_start_date'  => $validated['businessStartDate'] ?? null,
                 'business_status' => $validated['businessStatus'],
                 'business_brand_app_name'   => $validated['business_brand_app_name'],
-                'business_brand_logo_on_top_left' => $validated['business_brand_logo_on_top_left'],
-                'business_brand_credit_on_footer_enable' => $validated['business_brand_credit_on_footer_enable'],
-                'business_brand_credit_on_footer' => $validated['business_brand_credit_on_footer'],
+                'business_brand_logo_on_top_left' => $businessBrandLogo,
+                'business_brand_credit_on_footer_enable' => $businessBrandCreditEnable,
+                'business_brand_credit_on_footer' => $businessBrandFooter,
             ];
             if(!empty($businessLogoPath)){
                 $businessinfoUpdateData['business_logo'] = $businessLogoPath;
@@ -375,7 +414,7 @@ class BusinessInfoController extends Controller
             if ($request->file('brandFile')->isValid()) {
                 //
                 $validated = $request->validate([
-                    'brandFile' => 'mimes:jpg,jpeg,png|max:102400', //100MB
+                    'brandFile' => 'mimes:jpg,jpeg,png,svg,webp|max:102400', //100MB
                 ]);
 
                 $disk = config('filesystems.default', 'local');

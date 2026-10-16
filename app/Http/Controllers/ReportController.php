@@ -50,12 +50,21 @@ class ReportController extends Controller
         $avgEnquiryToLeadDays = round((float) ($enquiryToLead->avg_days ?? 0), 1);
         $avgLeadToJobDays = round((float) ($leadToJob->avg_days ?? 0), 1);
 
+        $totalEnquiries = DB::table('enquiries')->count();
+        $totalLeads = DB::table('leads')->count();
+        $totalJobs = DB::table('fjobs')->count();
+
         $metrics = [
             'enquiry_to_lead_count' => (int) ($enquiryToLead->total_converted ?? 0),
             'enquiry_to_lead_avg_days' => max(0, $avgEnquiryToLeadDays),
             'lead_to_job_count' => (int) ($leadToJob->total_converted ?? 0),
             'lead_to_job_avg_days' => max(0, $avgLeadToJobDays),
-            'total_pipeline_avg_days' => max(0, $avgEnquiryToLeadDays + $avgLeadToJobDays),
+            'total_pipeline_avg_days' => max(0, round($avgEnquiryToLeadDays + $avgLeadToJobDays, 1)),
+            'total_enquiries' => $totalEnquiries,
+            'total_leads' => $totalLeads,
+            'total_jobs' => $totalJobs,
+            'enquiry_to_lead_rate' => $totalEnquiries > 0 ? round(($enquiryToLead->total_converted / $totalEnquiries) * 100, 1) : 0,
+            'lead_to_job_rate' => $totalLeads > 0 ? round(($leadToJob->total_converted / $totalLeads) * 100, 1) : 0,
         ];
 
         if ($request->wantsJson()) {
@@ -65,7 +74,57 @@ class ReportController extends Controller
             ]);
         }
 
-        return view('reports.conversion_velocity', compact('metrics'));
+        // Recent pipeline conversions for the report view table
+        $recentConversions = DB::table('fjobs')
+            ->join('leads', 'fjobs.lead_id', '=', 'leads.id')
+            ->leftJoin('enquiries', 'fjobs.enquiry_id', '=', 'enquiries.id')
+            ->leftJoin('customers', 'fjobs.customer_id', '=', 'customers.id')
+            ->select([
+                'fjobs.id as job_id',
+                'fjobs.slug as job_slug',
+                'fjobs.job_name',
+                'fjobs.job_title',
+                'fjobs.job_status',
+                'fjobs.job_priority',
+                'customers.company_name',
+                'enquiries.enquiry_name',
+                'enquiries.created_at as enquiry_created_at',
+                'leads.lead_name',
+                'leads.created_at as lead_created_at',
+                'fjobs.created_at as job_created_at',
+            ])
+            ->orderBy('fjobs.created_at', 'desc')
+            ->limit(10)
+            ->get()
+            ->map(function ($row) {
+                $enqTime = $row->enquiry_created_at ? Carbon::parse($row->enquiry_created_at) : null;
+                $leadTime = $row->lead_created_at ? Carbon::parse($row->lead_created_at) : null;
+                $jobTime = $row->job_created_at ? Carbon::parse($row->job_created_at) : null;
+
+                $enqToLeadDays = ($enqTime && $leadTime) ? abs(round($leadTime->diffInHours($enqTime) / 24, 1)) : 0;
+                $leadToJobDays = ($leadTime && $jobTime) ? abs(round($jobTime->diffInHours($leadTime) / 24, 1)) : 0;
+                $totalDays = ($enqTime && $jobTime) ? abs(round($jobTime->diffInHours($enqTime) / 24, 1)) : 0;
+
+                return (object) [
+                    'job_id' => $row->job_id,
+                    'job_slug' => $row->job_slug,
+                    'job_name' => $row->job_name,
+                    'job_title' => $row->job_title,
+                    'job_status' => $row->job_status,
+                    'job_priority' => $row->job_priority,
+                    'company_name' => $row->company_name ?? 'N/A',
+                    'enquiry_name' => $row->enquiry_name ?? ('ENQ-' . str_pad($row->job_id, 4, '0', STR_PAD_LEFT)),
+                    'enquiry_date' => $enqTime ? $enqTime->format('d M Y') : '—',
+                    'lead_name' => $row->lead_name ?? ('LEAD-' . str_pad($row->job_id, 4, '0', STR_PAD_LEFT)),
+                    'lead_date' => $leadTime ? $leadTime->format('d M Y') : '—',
+                    'job_date' => $jobTime ? $jobTime->format('d M Y') : '—',
+                    'enq_to_lead_days' => $enqToLeadDays,
+                    'lead_to_job_days' => $leadToJobDays,
+                    'total_days' => $totalDays,
+                ];
+            });
+
+        return view('reports.conversion_velocity', compact('metrics', 'recentConversions'));
     }
 
     /**
@@ -73,7 +132,9 @@ class ReportController extends Controller
      */
     public function stockValuation(Request $request)
     {
-        $variants = StockItemVariant::with('stockItem.category')->get();
+        $variants = StockItemVariant::with(['stockItem.category', 'warehouse'])
+            ->orderBy('stock_item_id')
+            ->get();
 
         $totalValuation = 0;
         $totalQuantity = 0;

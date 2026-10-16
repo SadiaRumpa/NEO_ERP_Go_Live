@@ -309,10 +309,6 @@
                                                 <span>{{ $businessinfo->business_start_date ?? '' }}</span>
                                             </li>
                                             <li class="mb-2">
-                                                <span class="h6 me-1">Allowed File Types:</span>
-                                                <span>{{ $businessinfo->business_allowed_file_types ?? '' }}</span>
-                                            </li>
-                                            <li class="mb-2">
                                                 <span class="h6 me-1">Address:</span>
                                                 <span>{{ $businessinfo->business_address ?? '' }}</span>
                                             </li>

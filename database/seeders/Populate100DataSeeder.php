@@ -31,6 +31,7 @@ use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
 use App\Models\StockCategory;
 use App\Models\StockItem;
+use App\Models\StockItemVariant;
 use App\Models\StockWarehouse;
 use App\Models\Subcontractor;
 use App\Models\SubcontractorPaymentCertificate;
@@ -203,6 +204,49 @@ class Populate100DataSeeder extends Seeder
                         'description' => 'Commercial grade construction specification.',
                         'is_active' => true,
                     ]
+                );
+            }
+
+            $variantsData = [
+                ['stock_item_id' => $stockItemPool[0]->id, 'name' => 'Standard 2.4m x 1.2m Sheet', 'sku' => 'PLAST-FL-24', 'quantity' => 350, 'unit' => 'sheet', 'avg_price' => 14.80, 'warehouse_id' => $warehousePool[0]->id],
+                ['stock_item_id' => $stockItemPool[0]->id, 'name' => 'Long 3.0m x 1.2m Sheet', 'sku' => 'PLAST-FL-30', 'quantity' => 120, 'unit' => 'sheet', 'avg_price' => 18.50, 'warehouse_id' => $warehousePool[0]->id],
+                ['stock_item_id' => $stockItemPool[1]->id, 'name' => '70mm x 3.6m Track & Stud', 'sku' => 'STUD-70-36', 'quantity' => 480, 'unit' => 'length', 'avg_price' => 8.25, 'warehouse_id' => $warehousePool[0]->id],
+                ['stock_item_id' => $stockItemPool[1]->id, 'name' => '50mm x 3.0m Slim Channel', 'sku' => 'STUD-50-30', 'quantity' => 220, 'unit' => 'length', 'avg_price' => 6.90, 'warehouse_id' => $warehousePool[1]->id],
+                ['stock_item_id' => $stockItemPool[2]->id, 'name' => '100mm Rockwool Pack (5.76m²)', 'sku' => 'INSU-RW-100', 'quantity' => 180, 'unit' => 'pack', 'avg_price' => 34.50, 'warehouse_id' => $warehousePool[0]->id],
+                ['stock_item_id' => $stockItemPool[2]->id, 'name' => '50mm Acoustic Roll (14.4m²)', 'sku' => 'INSU-RW-50', 'quantity' => 75, 'unit' => 'roll', 'avg_price' => 28.00, 'warehouse_id' => $warehousePool[2]->id],
+                ['stock_item_id' => $stockItemPool[3]->id, 'name' => 'Board Edge 600x600 (Box of 16)', 'sku' => 'CEIL-DUNE-BE', 'quantity' => 95, 'unit' => 'box', 'avg_price' => 42.00, 'warehouse_id' => $warehousePool[0]->id],
+                ['stock_item_id' => $stockItemPool[3]->id, 'name' => 'Tegular Edge 600x600 (Box of 16)', 'sku' => 'CEIL-DUNE-TE', 'quantity' => 8, 'unit' => 'box', 'avg_price' => 48.50, 'warehouse_id' => $warehousePool[1]->id],
+                ['stock_item_id' => $stockItemPool[4]->id, 'name' => '2.5mm² 100m Drum LSZH White', 'sku' => 'ELEC-LSZH-25', 'quantity' => 85, 'unit' => 'drum', 'avg_price' => 68.50, 'warehouse_id' => $warehousePool[0]->id],
+                ['stock_item_id' => $stockItemPool[4]->id, 'name' => '1.5mm² 100m Drum LSZH White', 'sku' => 'ELEC-LSZH-15', 'quantity' => 110, 'unit' => 'drum', 'avg_price' => 46.20, 'warehouse_id' => $warehousePool[0]->id],
+                ['stock_item_id' => $stockItemPool[4]->id, 'name' => '4.0mm² 100m Drum LSZH White', 'sku' => 'ELEC-LSZH-40', 'quantity' => 6, 'unit' => 'drum', 'avg_price' => 105.00, 'warehouse_id' => $warehousePool[1]->id],
+                ['stock_item_id' => $stockItemPool[5]->id, 'name' => 'Standard 40W Cool White 4000K', 'sku' => 'LIGHT-LED-40W', 'quantity' => 240, 'unit' => 'pcs', 'avg_price' => 24.50, 'warehouse_id' => $warehousePool[0]->id],
+                ['stock_item_id' => $stockItemPool[5]->id, 'name' => 'Emergency 3hr Battery Pack 40W', 'sku' => 'LIGHT-LED-EMERG', 'quantity' => 45, 'unit' => 'pcs', 'avg_price' => 52.00, 'warehouse_id' => $warehousePool[0]->id],
+                ['stock_item_id' => $stockItemPool[6]->id, 'name' => 'Medium Duty 150mm x 3m', 'sku' => 'TRAY-GALV-150', 'quantity' => 160, 'unit' => 'length', 'avg_price' => 19.80, 'warehouse_id' => $warehousePool[0]->id],
+                ['stock_item_id' => $stockItemPool[6]->id, 'name' => 'Heavy Duty 300mm x 3m', 'sku' => 'TRAY-GALV-300', 'quantity' => 80, 'unit' => 'length', 'avg_price' => 31.20, 'warehouse_id' => $warehousePool[1]->id],
+                ['stock_item_id' => $stockItemPool[7]->id, 'name' => 'Cat6A LSZH Blue 305m Box', 'sku' => 'DATA-CAT6A-BLU', 'quantity' => 40, 'unit' => 'reel', 'avg_price' => 118.00, 'warehouse_id' => $warehousePool[0]->id],
+                ['stock_item_id' => $stockItemPool[7]->id, 'name' => 'Cat6A LSZH Violet 305m Box', 'sku' => 'DATA-CAT6A-VIO', 'quantity' => 5, 'unit' => 'reel', 'avg_price' => 122.50, 'warehouse_id' => $warehousePool[2]->id],
+                ['stock_item_id' => $stockItemPool[8]->id, 'name' => '200mm Dia x 3m Length', 'sku' => 'DUCT-SPIR-200', 'quantity' => 65, 'unit' => 'length', 'avg_price' => 38.40, 'warehouse_id' => $warehousePool[0]->id],
+                ['stock_item_id' => $stockItemPool[8]->id, 'name' => '250mm Dia x 3m Length', 'sku' => 'DUCT-SPIR-250', 'quantity' => 30, 'unit' => 'length', 'avg_price' => 49.50, 'warehouse_id' => $warehousePool[1]->id],
+                ['stock_item_id' => $stockItemPool[9]->id, 'name' => 'FXSQ32A Slim Concealed 3.6kW', 'sku' => 'HVAC-DKN-36', 'quantity' => 12, 'unit' => 'pcs', 'avg_price' => 720.00, 'warehouse_id' => $warehousePool[0]->id],
+                ['stock_item_id' => $stockItemPool[9]->id, 'name' => 'FXSQ50A Medium Concealed 5.6kW', 'sku' => 'HVAC-DKN-56', 'quantity' => 4, 'unit' => 'pcs', 'avg_price' => 940.00, 'warehouse_id' => $warehousePool[0]->id],
+                ['stock_item_id' => $stockItemPool[10]->id, 'name' => '28mm Straight Coupling (Bag 10)', 'sku' => 'PLMB-CU-28C', 'quantity' => 85, 'unit' => 'pack', 'avg_price' => 16.50, 'warehouse_id' => $warehousePool[0]->id],
+                ['stock_item_id' => $stockItemPool[10]->id, 'name' => '22mm Straight Coupling (Bag 10)', 'sku' => 'PLMB-CU-22C', 'quantity' => 140, 'unit' => 'pack', 'avg_price' => 11.20, 'warehouse_id' => $warehousePool[0]->id],
+                ['stock_item_id' => $stockItemPool[10]->id, 'name' => '15mm Straight Coupling (Bag 10)', 'sku' => 'PLMB-CU-15C', 'quantity' => 7, 'unit' => 'pack', 'avg_price' => 7.80, 'warehouse_id' => $warehousePool[1]->id],
+                ['stock_item_id' => $stockItemPool[11]->id, 'name' => '1981 x 838 x 44mm Pre-Finished', 'sku' => 'DOOR-FD30-838', 'quantity' => 28, 'unit' => 'pcs', 'avg_price' => 165.00, 'warehouse_id' => $warehousePool[0]->id],
+                ['stock_item_id' => $stockItemPool[11]->id, 'name' => '2040 x 926 x 44mm Commercial Metric', 'sku' => 'DOOR-FD30-926', 'quantity' => 14, 'unit' => 'pcs', 'avg_price' => 185.00, 'warehouse_id' => $warehousePool[1]->id],
+                ['stock_item_id' => $stockItemPool[12]->id, 'name' => '41x41mm Heavy Gauge 2.5mm 3m', 'sku' => 'STRUT-4141-3M', 'quantity' => 210, 'unit' => 'length', 'avg_price' => 22.50, 'warehouse_id' => $warehousePool[0]->id],
+                ['stock_item_id' => $stockItemPool[12]->id, 'name' => '41x21mm Shallow Channel 3m', 'sku' => 'STRUT-4121-3M', 'quantity' => 130, 'unit' => 'length', 'avg_price' => 16.80, 'warehouse_id' => $warehousePool[2]->id],
+                ['stock_item_id' => $stockItemPool[13]->id, 'name' => 'M12 x 100mm Zinc Plated (Box 50)', 'sku' => 'FIX-TB-M12-100', 'quantity' => 60, 'unit' => 'box', 'avg_price' => 32.00, 'warehouse_id' => $warehousePool[0]->id],
+                ['stock_item_id' => $stockItemPool[13]->id, 'name' => 'M10 x 80mm Zinc Plated (Box 50)', 'sku' => 'FIX-TB-M10-80', 'quantity' => 9, 'unit' => 'box', 'avg_price' => 24.00, 'warehouse_id' => $warehousePool[0]->id],
+                ['stock_item_id' => $stockItemPool[14]->id, 'name' => 'White Site Manager Helmet', 'sku' => 'PPE-HELM-WHT', 'quantity' => 65, 'unit' => 'pcs', 'avg_price' => 12.50, 'warehouse_id' => $warehousePool[0]->id],
+                ['stock_item_id' => $stockItemPool[14]->id, 'name' => 'High-Vis Yellow Site Operative Helmet', 'sku' => 'PPE-HELM-YEL', 'quantity' => 90, 'unit' => 'pcs', 'avg_price' => 12.50, 'warehouse_id' => $warehousePool[0]->id],
+                ['stock_item_id' => $stockItemPool[14]->id, 'name' => 'Blue Electrical Specialist Helmet', 'sku' => 'PPE-HELM-BLU', 'quantity' => 8, 'unit' => 'pcs', 'avg_price' => 13.50, 'warehouse_id' => $warehousePool[1]->id],
+            ];
+
+            foreach ($variantsData as $vd) {
+                StockItemVariant::firstOrCreate(
+                    ['sku' => $vd['sku']],
+                    array_merge($vd, ['is_active' => true])
                 );
             }
 
@@ -463,6 +507,12 @@ class Populate100DataSeeder extends Seeder
                 $status = $enquiryStatuses[$i % count($enquiryStatuses)];
                 $loc = $ukPostcodes[$i % count($ukPostcodes)];
 
+                $turnaround1 = 1 + (($i * 3) % 5);
+                $turnaround2 = 3 + (($i * 7) % 9);
+                $totalCycle = $turnaround1 + $turnaround2;
+                $baseDaysAgo = 5 + $totalCycle + (int)(($i / 100.0) * 75);
+                $enquiryDate = Carbon::now()->subDays($baseDaysAgo)->subHours(($i * 7) % 23);
+
                 $enquiry = Enquiry::firstOrCreate(
                     ['enquiry_name' => "ENQ-2026-" . str_pad($i, 4, '0', STR_PAD_LEFT)],
                     [
@@ -479,6 +529,8 @@ class Populate100DataSeeder extends Seeder
                         'installations' => true,
                         'repairs' => ($i % 4 === 0),
                         'testing' => true,
+                        'created_at' => $enquiryDate,
+                        'updated_at' => $enquiryDate,
                     ]
                 );
 
@@ -516,6 +568,13 @@ class Populate100DataSeeder extends Seeder
                 $status = $leadStatuses[$i % count($leadStatuses)];
                 $loc = $ukPostcodes[($i + 2) % count($ukPostcodes)];
 
+                $turnaround1 = 1 + (($i * 3) % 5);
+                $turnaround2 = 3 + (($i * 7) % 9);
+                $totalCycle = $turnaround1 + $turnaround2;
+                $baseDaysAgo = 5 + $totalCycle + (int)(($i / 100.0) * 75);
+                $enquiryDate = Carbon::now()->subDays($baseDaysAgo)->subHours(($i * 7) % 23);
+                $leadDate = (clone $enquiryDate)->addDays($turnaround1)->addHours(($i * 11) % 19);
+
                 $lead = Lead::firstOrCreate(
                     ['lead_name' => "LEAD-2026-" . str_pad($i, 4, '0', STR_PAD_LEFT)],
                     [
@@ -534,6 +593,8 @@ class Populate100DataSeeder extends Seeder
                         'repairs' => ($i % 5 === 0),
                         'testing' => true,
                         'assigned_to' => [$admin->id],
+                        'created_at' => $leadDate,
+                        'updated_at' => $leadDate,
                     ]
                 );
 
@@ -594,6 +655,14 @@ class Populate100DataSeeder extends Seeder
                 $assignedUser = $userPool[$i % count($userPool)];
                 $slug = Str::slug("job-{$i}-" . substr($cust->company_name, 0, 15) . "-project");
 
+                $turnaround1 = 1 + (($i * 3) % 5);
+                $turnaround2 = 3 + (($i * 7) % 9);
+                $totalCycle = $turnaround1 + $turnaround2;
+                $baseDaysAgo = 5 + $totalCycle + (int)(($i / 100.0) * 75);
+                $enquiryDate = Carbon::now()->subDays($baseDaysAgo)->subHours(($i * 7) % 23);
+                $leadDate = (clone $enquiryDate)->addDays($turnaround1)->addHours(($i * 11) % 19);
+                $jobDate = (clone $leadDate)->addDays($turnaround2)->addHours(($i * 5) % 17);
+
                 $job = Fjob::firstOrCreate(
                     ['slug' => $slug],
                     [
@@ -612,6 +681,8 @@ class Populate100DataSeeder extends Seeder
                         'repairs' => ($i % 4 === 0),
                         'testing' => true,
                         'assigned_to' => [$assignedUser->id, $admin->id],
+                        'created_at' => $jobDate,
+                        'updated_at' => $jobDate,
                     ]
                 );
 

@@ -30,6 +30,32 @@
                 reader.readAsDataURL(file);
             }
         }
+
+        function triggerCustomFileInput(inputId, e) {
+            if (e && e.target && e.target.closest('.custom-file-help-icon')) {
+                return;
+            }
+            const fileInput = document.getElementById(inputId);
+            if (fileInput) {
+                fileInput.click();
+            }
+        }
+
+        function handleCustomFileChange(input, labelSelector, previewSelector) {
+            const file = input.files && input.files[0];
+            const labelEl = document.querySelector(labelSelector);
+            if (labelEl) {
+                labelEl.textContent = file ? file.name : 'No file chosen';
+                if (file) {
+                    labelEl.classList.remove('text-muted');
+                    labelEl.classList.add('text-body', 'fw-medium');
+                } else {
+                    labelEl.classList.add('text-muted');
+                    labelEl.classList.remove('text-body', 'fw-medium');
+                }
+            }
+            previewFile(input, previewSelector);
+        }
     </script>
 @endsection
 
@@ -132,21 +158,38 @@
                                         <div class="row">
                                             <label class="col-sm-3 col-form-label text-sm-end" for="businessLogo">Logo</label>
                                             <div class="col-sm-9">
-                                                <input class="form-control" type="file" name="businessLogo" id="businessLogo"  accept=".jpg,.jpeg,.png" 
-                                             onchange="previewFile(this, '#previewLogo')">
-                                             <img id="previewLogo" class="img-thumbnail mt-2 d-none" style="max-height: 120px;" />
+                                                <div class="custom-file-wrapper position-relative">
+                                                    <input class="d-none custom-native-file" type="file" name="businessLogo" id="businessLogo" accept=".jpg,.jpeg,.png" 
+                                                        onchange="handleCustomFileChange(this, '#logoFileName', '#previewLogo')">
+                                                    <div class="form-control custom-file-box d-flex align-items-center p-0 overflow-hidden" onclick="triggerCustomFileInput('businessLogo', event)">
+                                                        <span class="custom-file-btn border-end d-inline-flex align-items-center gap-1 text-nowrap user-select-none">
+                                                            <span>Choose File</span>
+                                                            <i class="bx bx-help-circle custom-file-help-icon" data-bs-toggle="tooltip" data-bs-placement="top" title="jpg, jpeg, png formats only" onclick="event.stopPropagation()"></i>
+                                                        </span>
+                                                        <span id="logoFileName" class="text-muted px-3 text-truncate small">No file chosen</span>
+                                                    </div>
+                                                </div>
+                                                <img id="previewLogo" class="img-thumbnail mt-2 d-none" style="max-height: 120px;" />
                                             </div>
                                         </div>
                                     </div>
 
-                                    
                                     <div class="col-md-6">
                                         <div class="row">
                                             <label class="col-sm-3 col-form-label text-sm-end" for="businessLogoDark">Logo Dark</label>
                                             <div class="col-sm-9">
-                                                <input class="form-control" type="file" name="businessLogoDark" id="businessLogoDark" accept=".jpg,.jpeg,.png"  
-                                             onchange="previewFile(this, '#previewLogoDark')">
-                                             <img id="previewLogoDark" class="img-thumbnail mt-2 d-none" style="max-height: 120px;" />
+                                                <div class="custom-file-wrapper position-relative">
+                                                    <input class="d-none custom-native-file" type="file" name="businessLogoDark" id="businessLogoDark" accept=".jpg,.jpeg,.png"  
+                                                        onchange="handleCustomFileChange(this, '#logoDarkFileName', '#previewLogoDark')">
+                                                    <div class="form-control custom-file-box d-flex align-items-center p-0 overflow-hidden" onclick="triggerCustomFileInput('businessLogoDark', event)">
+                                                        <span class="custom-file-btn border-end d-inline-flex align-items-center gap-1 text-nowrap user-select-none">
+                                                            <span>Choose File</span>
+                                                            <i class="bx bx-help-circle custom-file-help-icon" data-bs-toggle="tooltip" data-bs-placement="top" title="jpg, jpeg, png formats only" onclick="event.stopPropagation()"></i>
+                                                        </span>
+                                                        <span id="logoDarkFileName" class="text-muted px-3 text-truncate small">No file chosen</span>
+                                                    </div>
+                                                </div>
+                                                <img id="previewLogoDark" class="img-thumbnail mt-2 d-none" style="max-height: 120px;" />
                                             </div>
                                         </div>
                                     </div>
@@ -155,22 +198,24 @@
                                         <div class="row">
                                             <label class="col-sm-3 col-form-label text-sm-end" for="businessFavicon">Favicon</label>
                                             <div class="col-sm-9">
-                                                <input class="form-control" type="file" name="businessFavicon" id="businessFavicon" accept=".jpg,.jpeg,.png,.ico"  
-                                             onchange="previewFile(this, '#previewFavicon')">
-                                             <img id="previewFavicon" class="img-thumbnail mt-2 d-none" style="max-height: 120px;" />
+                                                <div class="custom-file-wrapper position-relative">
+                                                    <input class="d-none custom-native-file" type="file" name="businessFavicon" id="businessFavicon" accept=".jpg,.jpeg,.png,.ico"  
+                                                        onchange="handleCustomFileChange(this, '#faviconFileName', '#previewFavicon')">
+                                                    <div class="form-control custom-file-box d-flex align-items-center p-0 overflow-hidden" onclick="triggerCustomFileInput('businessFavicon', event)">
+                                                        <span class="custom-file-btn border-end d-inline-flex align-items-center gap-1 text-nowrap user-select-none">
+                                                            <span>Choose File</span>
+                                                            <i class="bx bx-help-circle custom-file-help-icon" data-bs-toggle="tooltip" data-bs-placement="top" title="jpg, jpeg, png formats only" onclick="event.stopPropagation()"></i>
+                                                        </span>
+                                                        <span id="faviconFileName" class="text-muted px-3 text-truncate small">No file chosen</span>
+                                                    </div>
+                                                </div>
+                                                <img id="previewFavicon" class="img-thumbnail mt-2 d-none" style="max-height: 120px;" />
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div class="col-md-6">
-                                        <div class="row">
-                                            <label class="col-sm-3 col-form-label text-sm-end"
-                                                for="formtabs-allowedfiletypes">Allowed File Types</label>
-                                            <div class="col-sm-9">
-                                                <input type="text" id="formtabs-allowedFiletypes" class="form-control"
-                                                    placeholder="Allowed File Types" aria-label="Allowed File Types" name="allowedFiletypes"  value="{{ old('allowedFiletypes') }}"/>
-                                            </div>
-                                        </div>
+                                    <div class="col-md-6 d-none d-md-block">
+                                        <!-- Grid spacer to keep address fields cleanly aligned as a pair -->
                                     </div>
 
                                     <div class="col-md-6">
