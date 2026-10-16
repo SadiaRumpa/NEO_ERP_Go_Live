@@ -12,13 +12,33 @@ jobs:
     steps:
       - name: Check secrets configuration
         id: check_secrets
+        env:
+          GCP_VM_HOST: ${{ secrets.GCP_VM_HOST }}
+          GCP_VM_USER: ${{ secrets.GCP_VM_USER }}
+          GCP_SSH_PRIVATE_KEY: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
         run: |
-          if [ -z "${{ secrets.GCP_VM_HOST }}" ] || [ -z "${{ secrets.GCP_SSH_PRIVATE_KEY }}" ]; then
+          if [ -z "$GCP_VM_HOST" ] || [ -z "$GCP_VM_USER" ] || [ -z "$GCP_SSH_PRIVATE_KEY" ]; then
             echo "configured=false" >> $GITHUB_OUTPUT
-            echo "::warning ::GCP_VM_HOST or GCP_SSH_PRIVATE_KEY secret is not configured in GitHub repository settings. Skipping auto-deploy."
+            echo "::warning ::One or more required secrets (GCP_VM_HOST, GCP_VM_USER, GCP_SSH_PRIVATE_KEY) are missing in GitHub repository settings. Skipping auto-deploy."
           else
             echo "configured=true" >> $GITHUB_OUTPUT
           fi
+
+      - name: Prepare SSH private key
+        if: steps.check_secrets.outputs.configured == 'true'
+        env:
+          RAW_SSH_KEY: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
+        run: |
+          # Detect base64 encoding vs raw PEM/OpenSSH format
+          if echo "$RAW_SSH_KEY" | base64 -d 2>/dev/null | grep -q "BEGIN"; then
+            echo "$RAW_SSH_KEY" | base64 -d > /tmp/deploy_key
+          else
+            # Replace literal \n with real newlines in case secret was pasted on a single line
+            printf '%s\n' "$RAW_SSH_KEY" | sed 's/\\n/\n/g' > /tmp/deploy_key
+          fi
+          # Ensure trailing newline and set 600 permissions
+          sed -i -e '$a\' /tmp/deploy_key
+          chmod 600 /tmp/deploy_key
 
       - name: Deploy via SSH
         if: steps.check_secrets.outputs.configured == 'true'
@@ -26,10 +46,14 @@ jobs:
         with:
           host: ${{ secrets.GCP_VM_HOST }}
           username: ${{ secrets.GCP_VM_USER }}
-          key: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
+          key_path: /tmp/deploy_key
           port: 22
           script_stop: true
           script: |
             cd ~/neoerp
             chmod +x update.sh
             ./update.sh
+
+      - name: Cleanup SSH private key
+        if: always()
+        run: rm -f /tmp/deploy_key
