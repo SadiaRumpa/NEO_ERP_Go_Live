@@ -43,6 +43,20 @@
                         <a class="btn btn-dark waves-effect waves-light mb-2" href="{{ route('users.index') }}">Back</a>
                     </div>
                 </div>
+                @if (session('success'))
+                <div class="alert alert-success alert-dismissible d-flex align-items-center mb-4" role="alert">
+                    <i class="icon-base ti tabler-circle-check fs-4 me-2"></i>
+                    <div>{{ session('success') }}</div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                @endif
+                @if (session('error'))
+                <div class="alert alert-danger alert-dismissible d-flex align-items-center mb-4" role="alert">
+                    <i class="icon-base ti tabler-alert-triangle fs-4 me-2"></i>
+                    <div>{{ session('error') }}</div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                @endif
                 @if (count($errors) > 0)
                 <div class="alert alert-danger">
                     <strong>Whoops!</strong> There were some problems with your input.<br><br>
