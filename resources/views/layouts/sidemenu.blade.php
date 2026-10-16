@@ -13,613 +13,108 @@
     <div class="menu-inner-shadow"></div>
 
     <ul class="menu-inner py-1">
-        <!-- Dashboards -->
+        <!-- 1. Universal Dashboard -->
         <li class="menu-item {{ request()->is('home') || request()->is('/') ? 'active' : '' }}">
             <a href="{{ url('/') }}" class="menu-link">
                 <i class="menu-icon icon-base ti tabler-apps"></i>
                 <div data-i18n="Dashboard">Dashboard</div>
             </a>
         </li>
-        @hasanyrole('super_admin|admin')
-            <!-- Apps & Pages -->
-            <li
-                class="menu-item {{ request()->is('users') || request()->is('users/*') || (request()->is('roles') || request()->is('roles/*')) ? 'open' : '' }}">
+
+        <!-- 2. System Administration (Super Admin ONLY) -->
+        @hasrole('super_admin')
+            <li class="menu-header"><span class="menu-header-text">Administration & Security</span></li>
+            <li class="menu-item {{ request()->is('users*') || request()->is('roles*') || request()->is('permissions*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
-                    <i class="menu-icon icon-base ti tabler-users"></i>
-                    <div data-i18n="Manage Users">Manage Users</div>
+                    <i class="menu-icon icon-base ti tabler-shield-lock"></i>
+                    <div data-i18n="Manage Users">User & Access Control</div>
                 </a>
                 <ul class="menu-sub">
-                    <li class="menu-item {{ request()->is('users') || request()->is('users/*') ? 'active' : '' }}">
+                    <li class="menu-item {{ request()->is('users*') ? 'active' : '' }}">
                         <a href="{{ url('users') }}" class="menu-link">
-                            <div data-i18n="Users">Users</div>
+                            <div data-i18n="Users">User Directory</div>
                         </a>
                     </li>
-                    <li class="menu-item {{ request()->is('roles') || request()->is('roles/*') ? 'active' : '' }}">
+                    <li class="menu-item {{ request()->is('roles*') ? 'active' : '' }}">
                         <a href="{{ url('roles') }}" class="menu-link">
-                            <div data-i18n="Roles">Roles</div>
+                            <div data-i18n="Roles">Roles & RBAC</div>
                         </a>
                     </li>
-                    <li class="menu-item">
+                    <li class="menu-item {{ request()->is('permissions*') ? 'active' : '' }}">
                         <a href="{{ url('permissions') }}" class="menu-link">
-                            <div data-i18n="Permission">Permission</div>
+                            <div data-i18n="Permission">Permissions Matrix</div>
                         </a>
                     </li>
-
                 </ul>
             </li>
-            <li class="menu-item {{ request()->is('customers') || request()->is('customers/*') ? 'active' : '' }}">
-                <a href="{{ url('customers') }}" class="menu-link">
-                    <i class="menu-icon icon-base ti tabler-user-cog"></i>
-                    <div data-i18n="Customers">Customers</div>
-                </a>
-            </li>
         @endhasrole
-        @hasrole('office-manager')
-            <li
-                class="menu-item {{ request()->is('enquiries') || request()->is('enquiries/*') || request()->is('enquiry/*') ? 'active' : '' }}">
-                <a href="{{ url('enquiries') }}" class="menu-link">
-                    <i class="menu-icon icon-base ti tabler-message-2-question"></i>
-                    <div data-i18n="Enquiries">Enquiries</div>
-                </a>
-            </li>
-            <li
-                class="menu-item {{ request()->is('leads') || request()->is('leads/*') || request()->is('lead/*') ? 'active' : '' }}">
-                <a href="{{ url('leads') }}" class="menu-link">
-                    <i class="menu-icon icon-base ti tabler-circle-dotted-letter-l"></i>
-                    <div data-i18n="Leads">Leads</div>
-                </a>
-            </li>
-            <li
-                class="menu-item {{ request()->is('jobs') || request()->is('jobs/*') || request()->is('job/*') ? 'active' : '' }}">
-                <a href="{{ url('jobs') }}" class="menu-link">
-                    <i class="menu-icon icon-base ti tabler-briefcase"></i>
-                    <div data-i18n="Jobs">Jobs</div>
-                </a>
-            </li>
-            <li class="menu-item {{ request()->is('scheduler') || request()->is('scheduler/*') ? 'active' : '' }}">
-                <a href="{{ url('scheduler') }}" class="menu-link">
-                    <i class="menu-icon icon-base ti tabler-calendar-bolt"></i>
-                    <div data-i18n="Scheduler">Job Scheduler</div>
-                </a>
-            </li>
-            <li class="menu-item {{ request()->is('job-overviews') || request()->is('job-overviews/*') ? 'active' : '' }}">
-                <a href="{{ url('job-overviews') }}" class="menu-link">
-                    <i class="menu-icon icon-base ti tabler-file-info"></i>
-                    <div data-i18n="Job Overviews">Job Overviews</div>
-                </a>
-            </li>
 
-            {{-- Settings --}}
-            <li class="menu-item">
+        <!-- 3. Commercial Contracting & Live WIP (Super Admin, Commercial Director, Lead Quantity Surveyor) -->
+        @hasanyrole('super_admin|commercial-director|quantity-surveyor|accounts-manager')
+            <li class="menu-header"><span class="menu-header-text">Commercial Contracts & WIP</span></li>
+            <li class="menu-item {{ request()->is('commercial*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
-                    <i class="menu-icon icon-base ti tabler-layout-sidebar"></i>
-                    <div data-i18n="Settings">Settings</div>
+                    <i class="menu-icon icon-base ti tabler-chart-candle"></i>
+                    <div data-i18n="Commercial Contracting">Commercial Contracts</div>
                 </a>
                 <ul class="menu-sub">
-                    <li class="menu-item {{ request()->is('customers') || request()->is('customers/*') ? 'active' : '' }}">
-                        <a href="{{ url('customers') }}" class="menu-link">
-                            <i class="menu-icon icon-base ti tabler-user-cog"></i>
-                            <div data-i18n="Customers">Customers</div>
+                    @hasanyrole('super_admin|commercial-director')
+                    <li class="menu-item {{ request()->is('commercial/wip*') ? 'active' : '' }}">
+                        <a href="{{ route('commercial.wip.portfolio') }}" class="menu-link">
+                            <div data-i18n="WIP Job Costing">Live WIP 4-Pillar Costing</div>
                         </a>
                     </li>
-                    <li class="menu-item {{ request()->is('jobtypes') || request()->is('jobtypes/*') ? 'active' : '' }}">
-                        <a href="{{ url('jobtypes') }}" class="menu-link">
-                            <i class="menu-icon icon-base ti tabler-arrows-join"></i>
-                            <div data-i18n="Job Type">Job Type</div>
+                    <li class="menu-item {{ request()->is('commercial/variations*') ? 'active' : '' }}">
+                        <a href="{{ route('commercial.variations.index') }}" class="menu-link">
+                            <div data-i18n="Variations">Client Variations (E-Sign)</div>
                         </a>
                     </li>
-                    <li
-                        class="menu-item {{ request()->is('mailtemplates') || request()->is('mailtemplates/*') ? 'active' : '' }}">
-                        <a href="{{ url('mailtemplates') }}" class="menu-link">
-                            <i class="menu-icon icon-base ti tabler-mail-spark"></i>
-                            <div data-i18n="Mail Templates">Mail Templates</div>
+                    @endhasrole
+
+                    <li class="menu-item {{ request()->is('commercial/valuations*') ? 'active' : '' }}">
+                        <a href="{{ route('commercial.valuations.index') }}" class="menu-link">
+                            <div data-i18n="Valuations">Payment Applications</div>
                         </a>
                     </li>
-                    <li
-                        class="menu-item {{ request()->is('quotationtemplates') || request()->is('quotationtemplates/*') ? 'active' : '' }}">
-                        <a href="{{ url('quotationtemplates') }}" class="menu-link">
-                            <i class="menu-icon icon-base ti tabler-blockquote"></i>
-                            <div data-i18n="Quotation Templates">Quotation Templates</div>
-                        </a>
-                    </li>
-                    <li class="menu-item {{ request()->is('users') || request()->is('users/*') ? 'active' : '' }}">
-                        <a href="{{ url('users') }}" class="menu-link">
-                            <div data-i18n="Manage Users">Manage Users</div>
+                    <li class="menu-item {{ request()->is('commercial/retentions*') ? 'active' : '' }}">
+                        <a href="{{ route('commercial.retentions.index') }}" class="menu-link">
+                            <div data-i18n="Retentions">Retention Ledger</div>
                         </a>
                     </li>
                 </ul>
             </li>
+        @endhasrole
 
-            {{-- Manage Inventory --}}
-            <li class="menu-item">
+        <!-- 4. Subcontractor CIS (Super Admin, Lead Quantity Surveyor, Commercial Director) -->
+        @hasanyrole('super_admin|commercial-director|quantity-surveyor|accounts-manager')
+            <li class="menu-item {{ request()->is('subcontractor*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
-                    <i class="menu-icon icon-base ti tabler-layout-sidebar"></i>
-                    <div data-i18n="Manage Inventory">Manage Inventory</div>
+                    <i class="menu-icon icon-base ti tabler-hard-hat"></i>
+                    <div data-i18n="Subcontractors">Subcontractor CIS</div>
                 </a>
                 <ul class="menu-sub">
-                    <li
-                        class="menu-item {{ request()->is('stockwarehouses') || request()->is('stockwarehouses/*') ? 'active' : '' }}">
-                        <a href="{{ url('stockwarehouses') }}" class="menu-link">
-                            <i class="menu-icon icon-base ti tabler-building-warehouse"></i>
-                            <div data-i18n="Stock Warehouses">Stock Warehouses</div>
+                    <li class="menu-item {{ request()->is('subcontractors') || (request()->is('subcontractors/*') && !request()->is('subcontractors/certificates*') && !request()->is('subcontractors/cis-monthly-return*')) ? 'active' : '' }}">
+                        <a href="{{ route('subcontractors.index') }}" class="menu-link">
+                            <div data-i18n="Subcontractors">Subcontractors Directory</div>
                         </a>
                     </li>
-                    <li
-                        class="menu-item {{ request()->is('stockcategories') || request()->is('stockcategories/*') ? 'active' : '' }}">
-                        <a href="{{ url('stockcategories') }}" class="menu-link">
-                            <i class="menu-icon icon-base ti tabler-box"></i>
-                            <div data-i18n="Stock Categories">Stock Categories</div>
+                    <li class="menu-item {{ request()->is('subcontractors/certificates*') ? 'active' : '' }}">
+                        <a href="{{ route('subcontractors.certificates.index') }}" class="menu-link">
+                            <div data-i18n="Payment Certificates">Payment Certificates</div>
                         </a>
                     </li>
-                    <li
-                        class="menu-item {{ request()->is('stockattributes') || request()->is('stockattributes/*') ? 'active' : '' }}">
-                        <a href="{{ url('stockattributes') }}" class="menu-link">
-                            <i class="menu-icon icon-base ti tabler-attribute"></i>
-                            <div data-i18n="Stock Attributes">Stock Attributes</div>
-                        </a>
-                    </li>
-                    <li
-                        class="menu-item {{ request()->is('stockitems') || request()->is('stockitems/*') ? 'active' : '' }}">
-                        <a href="{{ url('stockitems') }}" class="menu-link">
-                            <i class="menu-icon icon-base ti tabler-box-archive"></i>
-                            <div data-i18n="Stock Items">Stock Items</div>
-                        </a>
-                    </li>
-                    <li
-                        class="menu-item {{ request()->is('stockitemsinventory') || request()->is('stockitemsinventory/*') ? 'active' : '' }}">
-                        <a href="{{ url('stockitemsinventory') }}" class="menu-link">
-                            <i class="menu-icon icon-base ti tabler-archive"></i>
-                            <div data-i18n="Stock Items Inventory">Manage Inventory</div>
-                        </a>
-                    </li>
-                    <li
-                        class="menu-item {{ request()->is('stockitemrequisitions') || request()->is('stockitemrequisitions/*') ? 'active' : '' }}">
-                        <a href="{{ url('stockitemrequisitions') }}" class="menu-link">
-                            <i class="menu-icon icon-base ti tabler-clipboard-list"></i>
-                            <div data-i18n="Stock Item Requisitions">Requisitions</div>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-
-            {{-- Manage Vehicle --}}
-            <li class="menu-item">
-                <a href="javascript:void(0);" class="menu-link menu-toggle">
-                    <i class="menu-icon icon-base ti tabler-layout-sidebar"></i>
-                    <div data-i18n="Layouts">Manage Vehicle</div>
-                </a>
-                <ul class="menu-sub">
-                    <li
-                        class="menu-item {{ request()->is('vehiclecategories') || request()->is('vehiclecategories/*') ? 'active' : '' }}">
-                        <a href="{{ url('vehiclecategories') }}" class="menu-link">
-                            <i class="menu-icon icon-base ti tabler-car"></i>
-                            <div data-i18n="Vehicle Categories">Vehicle Categories</div>
-                        </a>
-                    </li>
-                    <li class="menu-item {{ request()->is('vehicles') || request()->is('vehicles/*') ? 'active' : '' }}">
-                        <a href="{{ url('vehicles') }}" class="menu-link">
-                            <i class="menu-icon icon-base ti tabler-car"></i>
-                            <div data-i18n="Vehicles">Vehicles</div>
-                        </a>
-                    </li>
-                    <li class="menu-item {{ request()->is('drivers') || request()->is('drivers/*') ? 'active' : '' }}">
-                        <a href="{{ url('drivers') }}" class="menu-link">
-                            <i class="menu-icon icon-base ti tabler-user"></i>
-                            <div data-i18n="Drivers">Drivers</div>
-                        </a>
-                    </li>
-                    <li
-                        class="menu-item {{ request()->is('vehicle-checkings') || request()->is('vehicle-checkings/*') ? 'active' : '' }}">
-                        <a href="{{ url('vehicle-checkings') }}" class="menu-link">
-                            <i class="menu-icon icon-base ti tabler-checks"></i>
-                            <div data-i18n="Vehicle Checkings">Vehicle Checkings</div>
+                    <li class="menu-item {{ request()->is('subcontractors/cis-monthly-return*') ? 'active' : '' }}">
+                        <a href="{{ route('subcontractors.cis-monthly-return') }}" class="menu-link">
+                            <div data-i18n="HMRC CIS300 Return">HMRC CIS300 Return</div>
                         </a>
                     </li>
                 </ul>
             </li>
         @endhasrole
-        @hasrole('enquiry-manager')
-            <li
-                class="menu-item {{ request()->is('enquiries') || request()->is('enquiries/*') || request()->is('enquiry/*') ? 'active' : '' }}">
-                <a href="{{ url('enquiries') }}" class="menu-link">
-                    <i class="menu-icon icon-base ti tabler-message-2-question"></i>
-                    <div data-i18n="Enquiries">Enquiries</div>
-                </a>
-            </li>
-            <li
-                class="menu-item {{ request()->is('leads') || request()->is('leads/*') || request()->is('lead/*') ? 'active' : '' }}">
-                <a href="{{ url('leads') }}" class="menu-link">
-                    <i class="menu-icon icon-base ti tabler-circle-dotted-letter-l"></i>
-                    <div data-i18n="Leads">Leads</div>
-                </a>
-            </li>
-            <li class="menu-item {{ request()->is('customers') || request()->is('customers/*') ? 'active' : '' }}">
-                <a href="{{ url('customers') }}" class="menu-link">
-                    <i class="menu-icon icon-base ti tabler-user-cog"></i>
-                    <div data-i18n="Customers">Customers</div>
-                </a>
-            </li>
-        @endhasrole
-        @hasrole('lead-manager')
-            <li
-                class="menu-item {{ request()->is('leads') || request()->is('leads/*') || request()->is('lead/*') ? 'active' : '' }}">
-                <a href="{{ url('leads') }}" class="menu-link">
-                    <i class="menu-icon icon-base ti tabler-circle-dotted-letter-l"></i>
-                    <div data-i18n="Leads">Leads</div>
-                </a>
-            </li>
 
-            <li
-                class="menu-item {{ request()->is('jobs') || request()->is('jobs/*') || request()->is('job/*') ? 'active' : '' }}">
-                <a href="{{ url('jobs') }}" class="menu-link">
-                    <i class="menu-icon icon-base ti tabler-briefcase"></i>
-                    <div data-i18n="Jobs">Jobs</div>
-                </a>
-            </li>
-
-            <li class="menu-item">
-                <a href="javascript:void(0);" class="menu-link menu-toggle">
-                    <i class="menu-icon icon-base ti tabler-layout-sidebar"></i>
-                    <div data-i18n="Settings">Settings</div>
-                </a>
-                <ul class="menu-sub">
-                    <li
-                        class="menu-item {{ request()->is('customers') || request()->is('customers/*') ? 'active' : '' }}">
-                        <a href="{{ url('customers') }}" class="menu-link">
-                            <i class="menu-icon icon-base ti tabler-user-cog"></i>
-                            <div data-i18n="Customers">Customers</div>
-                        </a>
-                    </li>
-                    <li
-                        class="menu-item {{ request()->is('quotationtemplates') || request()->is('quotationtemplates/*') ? 'active' : '' }}">
-                        <a href="{{ url('quotationtemplates') }}" class="menu-link">
-                            <i class="menu-icon icon-base ti tabler-blockquote"></i>
-                            <div data-i18n="Quotation Templates">Quotation Templates</div>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-        @endhasrole
-        @hasrole('accounts-manager')
-            <li
-                class="menu-item {{ request()->is('jobs') || request()->is('jobs/*') || request()->is('job/*') ? 'active' : '' }}">
-                <a href="{{ url('jobs') }}" class="menu-link">
-                    <i class="menu-icon icon-base ti tabler-briefcase"></i>
-                    <div data-i18n="Jobs">Jobs</div>
-                </a>
-            </li>
-            <li class="menu-item {{ request()->is('customers') || request()->is('customers/*') ? 'active' : '' }}">
-                <a href="{{ url('customers') }}" class="menu-link">
-                    <i class="menu-icon icon-base ti tabler-user-cog"></i>
-                    <div data-i18n="Customers">Customers</div>
-                </a>
-            </li>
-        @endhasrole
-        @hasrole('job-manager')
-            <li
-                class="menu-item {{ request()->is('jobs') || request()->is('jobs/*') || request()->is('job/*') ? 'active' : '' }}">
-                <a href="{{ url('jobs') }}" class="menu-link">
-                    <i class="menu-icon icon-base ti tabler-briefcase"></i>
-                    <div data-i18n="Jobs">Jobs</div>
-                </a>
-            </li>
-            <li class="menu-item {{ request()->is('scheduler') || request()->is('scheduler/*') ? 'active' : '' }}">
-                <a href="{{ url('scheduler') }}" class="menu-link">
-                    <i class="menu-icon icon-base ti tabler-calendar-bolt"></i>
-                    <div data-i18n="Scheduler">Scheduler</div>
-                </a>
-            </li>
-            <li
-                class="menu-item {{ request()->is('job-overviews') || request()->is('job-overviews/*') ? 'active' : '' }}">
-                <a href="{{ url('job-overviews') }}" class="menu-link">
-                    <i class="menu-icon icon-base ti tabler-file-info"></i>
-                    <div data-i18n="Job Overviews">Job Overviews</div>
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="javascript:void(0);" class="menu-link menu-toggle">
-                    <i class="menu-icon icon-base ti tabler-layout-sidebar"></i>
-                    <div data-i18n="Settings">Settings</div>
-                </a>
-                <ul class="menu-sub">
-                    <li
-                        class="menu-item {{ request()->is('customers') || request()->is('customers/*') ? 'active' : '' }}">
-                        <a href="{{ url('customers') }}" class="menu-link">
-                            <i class="menu-icon icon-base ti tabler-user-cog"></i>
-                            <div data-i18n="Customers">Customers</div>
-                        </a>
-                    </li>
-                    <li
-                        class="menu-item {{ request()->is('job-attributes') || request()->is('job-attributes/*') ? 'active' : '' }}">
-                        <a href="{{ url('job-attributes') }}" class="menu-link">
-                            <i class="menu-icon icon-base ti tabler-settings-share"></i>
-                            <div data-i18n="Job Attributes">Job Attributes</div>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-        @endhasrole
-        @hasrole('lead-job-manager')
-            <li
-                class="menu-item {{ request()->is('leads') || request()->is('leads/*') || request()->is('lead/*') ? 'active' : '' }}">
-                <a href="{{ url('leads') }}" class="menu-link">
-                    <i class="menu-icon icon-base ti tabler-circle-dotted-letter-l"></i>
-                    <div data-i18n="Leads">Leads</div>
-                </a>
-            </li>
-
-            <li
-                class="menu-item {{ request()->is('jobs') || request()->is('jobs/*') || request()->is('job/*') ? 'active' : '' }}">
-                <a href="{{ url('jobs') }}" class="menu-link">
-                    <i class="menu-icon icon-base ti tabler-briefcase"></i>
-                    <div data-i18n="Jobs">Jobs</div>
-                </a>
-            </li>
-
-            <li class="menu-item">
-                <a href="javascript:void(0);" class="menu-link menu-toggle">
-                    <i class="menu-icon icon-base ti tabler-layout-sidebar"></i>
-                    <div data-i18n="Settings">Settings</div>
-                </a>
-                <ul class="menu-sub">
-                    <li
-                        class="menu-item {{ request()->is('customers') || request()->is('customers/*') ? 'active' : '' }}">
-                        <a href="{{ url('customers') }}" class="menu-link">
-                            <i class="menu-icon icon-base ti tabler-user-cog"></i>
-                            <div data-i18n="Customers">Customers</div>
-                        </a>
-                    </li>
-                    <li
-                        class="menu-item {{ request()->is('quotationtemplates') || request()->is('quotationtemplates/*') ? 'active' : '' }}">
-                        <a href="{{ url('quotationtemplates') }}" class="menu-link">
-                            <i class="menu-icon icon-base ti tabler-blockquote"></i>
-                            <div data-i18n="Quotation Templates">Quotation Templates</div>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-        @endhasrole
-        @hasrole('inventory-manager')
-            <li
-                class="menu-item {{ request()->is('stockitemsinventory') || request()->is('stockitemsinventory/*') ? 'active' : '' }}">
-                <a href="{{ url('stockitemsinventory') }}" class="menu-link">
-                    <i class="menu-icon icon-base ti tabler-archive"></i>
-                    <div data-i18n="Stock Items Inventory">Manage Inventory</div>
-                </a>
-            </li>
-            <li
-                class="menu-item {{ request()->is('stockitemrequisitions') || request()->is('stockitemrequisitions/*') ? 'active' : '' }}">
-                <a href="{{ url('stockitemrequisitions') }}" class="menu-link">
-                    <i class="menu-icon icon-base ti tabler-clipboard-list"></i>
-                    <div data-i18n="Stock Item Requisitions">Item Requisitions</div>
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="javascript:void(0);" class="menu-link menu-toggle">
-                    <i class="menu-icon icon-base ti tabler-layout-sidebar"></i>
-                    <div data-i18n="Settings">Settings</div>
-                </a>
-                <ul class="menu-sub">
-                    <li
-                        class="menu-item {{ request()->is('stockwarehouses') || request()->is('stockwarehouses/*') ? 'active' : '' }}">
-                        <a href="{{ url('stockwarehouses') }}" class="menu-link">
-                            <i class="menu-icon icon-base ti tabler-building-warehouse"></i>
-                            <div data-i18n="Stock Warehouses">Stock Warehouses</div>
-                        </a>
-                    </li>
-                    <li
-                        class="menu-item {{ request()->is('stockcategories') || request()->is('stockcategories/*') ? 'active' : '' }}">
-                        <a href="{{ url('stockcategories') }}" class="menu-link">
-                            <i class="menu-icon icon-base ti tabler-box"></i>
-                            <div data-i18n="Stock Categories">Stock Categories</div>
-                        </a>
-                    </li>
-                    <li
-                        class="menu-item {{ request()->is('stockitems') || request()->is('stockitems/*') ? 'active' : '' }}">
-                        <a href="{{ url('stockitems') }}" class="menu-link">
-                            <i class="menu-icon icon-base ti tabler-box-archive"></i>
-                            <div data-i18n="Stock Items">Stock Items</div>
-                        </a>
-                    </li>
-                    <li
-                        class="menu-item {{ request()->is('stockattributes') || request()->is('stockattributes/*') ? 'active' : '' }}">
-                        <a href="{{ url('stockattributes') }}" class="menu-link">
-                            <i class="menu-icon icon-base ti tabler-attribute"></i>
-                            <div data-i18n="Stock Attributes">Stock Attributes</div>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-        @endhasrole
-        @hasrole('fleet-manager')
-            <li class="menu-item {{ request()->is('vehicles') || request()->is('vehicles/*') ? 'active' : '' }}">
-                <a href="{{ url('vehicles') }}" class="menu-link">
-                    <i class="menu-icon icon-base ti tabler-car"></i>
-                    <div data-i18n="Manage Vehicles">Manage Vehicles</div>
-                </a>
-            </li>
-            <li class="menu-item {{ request()->is('drivers') || request()->is('drivers/*') ? 'active' : '' }}">
-                <a href="{{ url('drivers') }}" class="menu-link">
-                    <i class="menu-icon icon-base ti tabler-user"></i>
-                    <div data-i18n="Manage Drivers">Manage Drivers</div>
-                </a>
-            </li>
-            <li
-                class="menu-item {{ request()->is('vehicle-checkings') || request()->is('vehicle-checkings/*') ? 'active' : '' }}">
-                <a href="{{ url('vehicle-checkings') }}" class="menu-link">
-                    <i class="menu-icon icon-base ti tabler-checks"></i>
-                    <div data-i18n="Vehicle Checkings">Vehicle Checkings</div>
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="javascript:void(0);" class="menu-link menu-toggle">
-                    <i class="menu-icon icon-base ti tabler-layout-sidebar"></i>
-                    <div data-i18n="Settings">Settings</div>
-                </a>
-                <ul class="menu-sub">
-                    <li
-                        class="menu-item {{ request()->is('vehiclecategories') || request()->is('vehiclecategories/*') ? 'active' : '' }}">
-                        <a href="{{ url('vehiclecategories') }}" class="menu-link">
-                            <i class="menu-icon icon-base ti tabler-car"></i>
-                            <div data-i18n="Vehicle Categories">Vehicle Categories</div>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-        @endhasrole
-        @hasrole('health-safety-manager')
-            @php
-                $currentJobtype = request()->query('jobtype');
-                $jobtypes = DB::table('job_types')->get();
-            @endphp
-            <li
-                class="menu-item {{ request()->is('fjob-hs-check') || request()->is('fjob-hs-check/*') ? 'open' : '' }}">
-                <a href="{{ url('fjob-hs-check') }}" class="menu-link menu-toggle">
-                    <i class="menu-icon icon-base ti tabler-checkup-list"></i>
-                    <div data-i18n="Job H&S Check">RAMS (Jobs)</div>
-                </a>
-                <ul class="menu-sub">
-                    @foreach ($jobtypes as $jobtype)
-                        <li class="menu-item {{ $currentJobtype === $jobtype->slug ? 'active' : '' }}">
-                            <a href="{{ url('fjob-hs-check?jobtype=' . $jobtype->slug) }}" class="menu-link">
-                                <div data-i18n="{{ $jobtype->name }}">{{ $jobtype->name }}</div>
-                            </a>
-                        </li>
-                    @endforeach
-                </ul>
-            </li>
-            <li class="menu-item {{ request()->is('hs-tools') || request()->is('hs-tools/*') ? 'active' : '' }}">
-                <a href="{{ url('hs-tools') }}" class="menu-link">
-                    <i class="menu-icon icon-base ti tabler-tool"></i>
-                    <div data-i18n="H & S Tools">H & S Tools</div>
-                </a>
-            </li>
-            <li
-                class="menu-item {{ request()->is('certificates') || request()->is('certificates/*') ? 'open' : '' }}">
-                <a href="#" class="menu-link menu-toggle">
-                    <i class="menu-icon icon-base ti tabler-brand-databricks"></i>
-                    <div data-i18n="staff Training">staff Trainings</div>
-                </a>
-                <ul class="menu-sub">
-
-                    <li class="menu-item">
-                        <a href="#" class="menu-link">
-                            <div data-i18n="Training Matrix">Training Matrix</div>
-                        </a>
-                    </li>
-                    <li
-                        class="menu-item {{ request()->is('certificates') || request()->is('certificates/*') ? 'active' : '' }}">
-                        <a href="{{ url('certificates') }}" class="menu-link">
-                            <div data-i18n="Certificates">Certificates</div>
-                        </a>
-                    </li>
-
-                </ul>
-            </li>
-
-            <li class="menu-item">
-                <a href="javascript:void(0);" class="menu-link menu-toggle">
-                    <i class="menu-icon icon-base ti tabler-layout-sidebar"></i>
-                    <div data-i18n="Settings">Settings</div>
-                </a>
-                <ul class="menu-sub">
-                    <li
-                        class="menu-item {{ request()->is('hs-checklists') || request()->is('hs-checklists/*') ? 'active' : '' }}">
-                        <a href="{{ url('hs-checklists') }}" class="menu-link">
-                            <i class="menu-icon icon-base ti tabler-checkup-list"></i>
-                            <div data-i18n="Health & Safety Checklists">H&S Checklists</div>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-        @endhasrole
-        @hasrole('staff')
-            <li class="menu-item {{ request()->is('tasks') || request()->is('tasks/*') ? 'active' : '' }}">
-                <a href="{{ url('tasks') }}" class="menu-link">
-                    <i class="menu-icon icon-base ti tabler-tool"></i>
-                    <div data-i18n="tasks">Tasks</div>
-                </a>
-            </li>
-            <li
-                class="menu-item {{ request()->is('fjob-hs-check') || request()->is('fjob-hs-check/*') ? 'open' : '' }}">
-                <a href="{{ url('fjob-hs-check') }}" class="menu-link menu-toggle">
-                    <i class="menu-icon icon-base ti tabler-checkup-list"></i>
-                    <div data-i18n="Job H&S Check">RAMS (Jobs)</div>
-                </a>
-                <ul class="menu-sub">
-                    @php
-                        $currentJobtype = request()->query('jobtype');
-                        $jobtypes = DB::table('job_types')->get();
-                    @endphp
-                    @foreach ($jobtypes as $jobtype)
-                        <li class="menu-item {{ $currentJobtype === $jobtype->slug ? 'active' : '' }}">
-                            <a href="{{ url('fjob-hs-check?jobtype=' . $jobtype->slug) }}" class="menu-link">
-                                <div data-i18n="{{ $jobtype->name }}">{{ $jobtype->name }}</div>
-                            </a>
-                        </li>
-                    @endforeach
-                </ul>
-            </li>
-            <li class="menu-item {{ request()->is('hs-tools') || request()->is('hs-tools/*') ? 'active' : '' }}">
-                <a href="{{ url('hs-tools') }}" class="menu-link">
-                    <i class="menu-icon icon-base ti tabler-tool"></i>
-                    <div data-i18n="H & S Tools">H & S Tools</div>
-                </a>
-            </li>
-            <li
-                class="menu-item {{ request()->is('staff_trainings') || request()->is('staff_trainings/*') ? 'open' : '' }}">
-                <a href="{{ url('staff_trainings') }}" class="menu-link menu-toggle">
-                    <i class="menu-icon icon-base ti tabler-brand-databricks"></i>
-                    <div data-i18n="staff Training">staff Trainings</div>
-                </a>
-                <ul class="menu-sub">
-
-                    <li class="menu-item">
-                        <a href="#" class="menu-link">
-                            <div data-i18n="Training Matrix">Training Matrix</div>
-                        </a>
-                    </li>
-                    <li class="menu-item">
-                        <a href="#" class="menu-link">
-                            <div data-i18n="Certificates">Certificates</div>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-        @endhasrole
-        @hasanyrole('super_admin|admin|commercial-director')
-            <li class="menu-item {{ request()->is('reports/*') ? 'open' : '' }}">
-                <a href="javascript:void(0);" class="menu-link menu-toggle">
-                    <i class="menu-icon icon-base ti tabler-chart-pie"></i>
-                    <div data-i18n="Reports">Reports & Analytics</div>
-                </a>
-                <ul class="menu-sub">
-                    <li class="menu-item {{ request()->is('reports/conversion-velocity') ? 'active' : '' }}">
-                        <a href="{{ route('reports.conversion-velocity') }}" class="menu-link">
-                            <div data-i18n="Conversion Velocity">Conversion Velocity</div>
-                        </a>
-                    </li>
-                    <li class="menu-item {{ request()->is('reports/stock-valuation') ? 'active' : '' }}">
-                        <a href="{{ route('reports.stock-valuation') }}" class="menu-link">
-                            <div data-i18n="Stock Valuation">Stock Valuation</div>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-
-            <li class="menu-item {{ request()->is('invoices') || request()->is('invoices/*') ? 'active' : '' }}">
-                <a href="{{ route('invoices.index') }}" class="menu-link">
-                    <i class="menu-icon icon-base ti tabler-receipt"></i>
-                    <div data-i18n="Invoices">Invoices & CIS</div>
-                </a>
-            </li>
-            <li class="menu-item {{ request()->is('field/*') ? 'active' : '' }}">
-                <a href="{{ route('field.jobs.index') }}" class="menu-link">
-                    <i class="menu-icon icon-base ti tabler-device-mobile"></i>
-                    <div data-i18n="Field Hub">Field Hub (PWA)</div>
-                </a>
-            </li>
-            <li class="menu-header"><span class="menu-header-text">Commercial & WIP Costing</span></li>
+        <!-- 5. Procurement & 3-Way Matching (Super Admin, Commercial Director, Procurement Officer, Lead Quantity Surveyor) -->
+        @hasanyrole('super_admin|commercial-director|procurement-officer|inventory-manager|quantity-surveyor|accounts-manager')
+            <li class="menu-header"><span class="menu-header-text">Supply Chain & Procurement</span></li>
             <li class="menu-item {{ request()->is('procurement*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon icon-base ti tabler-truck-delivery"></i>
@@ -628,7 +123,7 @@
                 <ul class="menu-sub">
                     <li class="menu-item {{ request()->is('procurement/suppliers*') ? 'active' : '' }}">
                         <a href="{{ route('procurement.suppliers.index') }}" class="menu-link">
-                            <div data-i18n="Suppliers">Suppliers</div>
+                            <div data-i18n="Suppliers">Suppliers Directory</div>
                         </a>
                     </li>
                     <li class="menu-item {{ request()->is('procurement/purchase-orders*') ? 'active' : '' }}">
@@ -648,6 +143,10 @@
                     </li>
                 </ul>
             </li>
+        @endhasrole
+
+        <!-- 6. Labor & Timesheets (Super Admin, Senior Site Manager, Commercial Director, Quantity Surveyor) -->
+        @hasanyrole('super_admin|commercial-director|site-manager|lead-job-manager|quantity-surveyor|accounts-manager')
             <li class="menu-item {{ request()->is('labor*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon icon-base ti tabler-clock"></i>
@@ -656,39 +155,59 @@
                 <ul class="menu-sub">
                     <li class="menu-item {{ request()->is('labor/timesheets*') ? 'active' : '' }}">
                         <a href="{{ route('labor.timesheets.index') }}" class="menu-link">
-                            <div data-i18n="Timesheets">Timesheets</div>
+                            <div data-i18n="Timesheets">Timesheets Approval</div>
                         </a>
                     </li>
                     <li class="menu-item {{ request()->is('labor/rate-cards*') ? 'active' : '' }}">
                         <a href="{{ route('labor.rate-cards.index') }}" class="menu-link">
-                            <div data-i18n="Rate Cards">Rate Cards</div>
+                            <div data-i18n="Rate Cards">Burdened Rate Cards</div>
                         </a>
                     </li>
                 </ul>
             </li>
-            <li class="menu-item {{ request()->is('subcontractor*') ? 'open' : '' }}">
-                <a href="javascript:void(0);" class="menu-link menu-toggle">
-                    <i class="menu-icon icon-base ti tabler-hard-hat"></i>
-                    <div data-i18n="Subcontractors">Subcontractor CIS</div>
+        @endhasrole
+
+        <!-- 7. Projects, Scheduling & Operations (Super Admin, Project Engineer, Senior Site Manager, Office Manager) -->
+        @hasanyrole('super_admin|project-engineer|job-manager|site-manager|lead-job-manager|office-manager')
+            <li class="menu-header"><span class="menu-header-text">Projects & Operations</span></li>
+            <li class="menu-item {{ request()->is('jobs') || request()->is('jobs/*') || request()->is('job/*') ? 'active' : '' }}">
+                <a href="{{ url('jobs') }}" class="menu-link">
+                    <i class="menu-icon icon-base ti tabler-briefcase"></i>
+                    <div data-i18n="Jobs">Active Jobs</div>
                 </a>
-                <ul class="menu-sub">
-                    <li class="menu-item {{ request()->is('subcontractors') || (request()->is('subcontractors/*') && !request()->is('subcontractors/certificates*') && !request()->is('subcontractors/cis-monthly-return*')) ? 'active' : '' }}">
-                        <a href="{{ route('subcontractors.index') }}" class="menu-link">
-                            <div data-i18n="Subcontractors">Subcontractors</div>
-                        </a>
-                    </li>
-                    <li class="menu-item {{ request()->is('subcontractors/certificates*') ? 'active' : '' }}">
-                        <a href="{{ route('subcontractors.certificates.index') }}" class="menu-link">
-                            <div data-i18n="Payment Certificates">Payment Certs</div>
-                        </a>
-                    </li>
-                    <li class="menu-item {{ request()->is('subcontractors/cis-monthly-return*') ? 'active' : '' }}">
-                        <a href="{{ route('subcontractors.cis-monthly-return') }}" class="menu-link">
-                            <div data-i18n="HMRC CIS300 Return">HMRC CIS300</div>
-                        </a>
-                    </li>
-                </ul>
             </li>
+            <li class="menu-item {{ request()->is('scheduler') || request()->is('scheduler/*') ? 'active' : '' }}">
+                <a href="{{ url('scheduler') }}" class="menu-link">
+                    <i class="menu-icon icon-base ti tabler-calendar-bolt"></i>
+                    <div data-i18n="Scheduler">Job Scheduler</div>
+                </a>
+            </li>
+            <li class="menu-item {{ request()->is('job-overviews') || request()->is('job-overviews/*') ? 'active' : '' }}">
+                <a href="{{ url('job-overviews') }}" class="menu-link">
+                    <i class="menu-icon icon-base ti tabler-file-info"></i>
+                    <div data-i18n="Job Overviews">Job Overviews</div>
+                </a>
+            </li>
+            <li class="menu-item {{ request()->is('tasks*') ? 'active' : '' }}">
+                <a href="{{ url('tasks') }}" class="menu-link">
+                    <i class="menu-icon icon-base ti tabler-list-check"></i>
+                    <div data-i18n="Site Tasks">Daily Site Tasks</div>
+                </a>
+            </li>
+        @endhasrole
+
+        <!-- 8. Field Hub PWA (Super Admin, Project Engineer, Senior Site Manager, Staff) -->
+        @hasanyrole('super_admin|project-engineer|job-manager|site-manager|lead-job-manager|staff')
+            <li class="menu-item {{ request()->is('field/*') ? 'active' : '' }}">
+                <a href="{{ route('field.jobs.index') }}" class="menu-link">
+                    <i class="menu-icon icon-base ti tabler-device-mobile"></i>
+                    <div data-i18n="Field Hub">Field Hub (Mobile PWA)</div>
+                </a>
+            </li>
+        @endhasrole
+
+        <!-- 9. Plant & Equipment (Super Admin, Project Engineer, Senior Site Manager, Procurement Officer, Commercial Director, H&S Auditor) -->
+        @hasanyrole('super_admin|project-engineer|job-manager|site-manager|lead-job-manager|procurement-officer|inventory-manager|compliance-auditor|health-safety-manager|commercial-director')
             <li class="menu-item {{ request()->is('plant-hires*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon icon-base ti tabler-crane"></i>
@@ -707,38 +226,174 @@
                     </li>
                     <li class="menu-item {{ request()->is('plant-hires/alerts*') ? 'active' : '' }}">
                         <a href="{{ route('plant-hires.alerts') }}" class="menu-link">
-                            <div data-i18n="Off-Hire Alerts">Off-Hire Alerts</div>
+                            <div data-i18n="Off-Hire Alerts">Off-Hire & Safety Alerts</div>
                         </a>
                     </li>
                 </ul>
             </li>
-            <li class="menu-item {{ request()->is('commercial*') ? 'open' : '' }}">
+        @endhasrole
+
+        <!-- 10. Inventory & Warehouses (Super Admin, Procurement Officer, Project Engineer) -->
+        @hasanyrole('super_admin|procurement-officer|inventory-manager|project-engineer|job-manager')
+            <li class="menu-header"><span class="menu-header-text">Stock & Inventory</span></li>
+            <li class="menu-item {{ request()->is('stockwarehouses*') || request()->is('stockcategories*') || request()->is('stockattributes*') || request()->is('stockitems*') || request()->is('stockitemsinventory*') || request()->is('stockitemrequisitions*') ? 'open' : '' }}">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
-                    <i class="menu-icon icon-base ti tabler-certificate"></i>
-                    <div data-i18n="Commercial Contracting">Commercial Contracts</div>
+                    <i class="menu-icon icon-base ti tabler-building-warehouse"></i>
+                    <div data-i18n="Manage Inventory">Warehouse & Stock</div>
                 </a>
                 <ul class="menu-sub">
-                    <li class="menu-item {{ request()->is('commercial/variations*') ? 'active' : '' }}">
-                        <a href="{{ route('commercial.variations.index') }}" class="menu-link">
-                            <div data-i18n="Variations">Variations (Change Orders)</div>
+                    @hasanyrole('super_admin|procurement-officer|inventory-manager')
+                    <li class="menu-item {{ request()->is('stockitems*') && !request()->is('stockitemsinventory*') && !request()->is('stockitemrequisitions*') ? 'active' : '' }}">
+                        <a href="{{ url('stockitems') }}" class="menu-link">
+                            <div data-i18n="Stock Items">Stock Items Directory</div>
                         </a>
                     </li>
-                    <li class="menu-item {{ request()->is('commercial/valuations*') ? 'active' : '' }}">
-                        <a href="{{ route('commercial.valuations.index') }}" class="menu-link">
-                            <div data-i18n="Valuations">Payment Applications</div>
+                    <li class="menu-item {{ request()->is('stockitemsinventory*') ? 'active' : '' }}">
+                        <a href="{{ url('stockitemsinventory') }}" class="menu-link">
+                            <div data-i18n="Stock Items Inventory">Live Warehouse Stock</div>
                         </a>
                     </li>
-                    <li class="menu-item {{ request()->is('commercial/retentions*') ? 'active' : '' }}">
-                        <a href="{{ route('commercial.retentions.index') }}" class="menu-link">
-                            <div data-i18n="Retentions">Retention Ledger</div>
+                    @endhasrole
+                    <li class="menu-item {{ request()->is('stockitemrequisitions*') ? 'active' : '' }}">
+                        <a href="{{ url('stockitemrequisitions') }}" class="menu-link">
+                            <div data-i18n="Stock Item Requisitions">Site Requisitions</div>
                         </a>
                     </li>
-                    <li class="menu-item {{ request()->is('commercial/wip*') ? 'active' : '' }}">
-                        <a href="{{ route('commercial.wip.portfolio') }}" class="menu-link">
-                            <div data-i18n="WIP Job Costing">Live WIP Job Costing</div>
+                    @hasanyrole('super_admin|procurement-officer|inventory-manager')
+                    <li class="menu-item {{ request()->is('stockwarehouses*') ? 'active' : '' }}">
+                        <a href="{{ url('stockwarehouses') }}" class="menu-link">
+                            <div data-i18n="Stock Warehouses">Warehouses</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('stockcategories*') ? 'active' : '' }}">
+                        <a href="{{ url('stockcategories') }}" class="menu-link">
+                            <div data-i18n="Stock Categories">Stock Categories</div>
+                        </a>
+                    </li>
+                    @endhasrole
+                </ul>
+            </li>
+        @endhasrole
+
+        <!-- 11. Health, Safety, RAMS & Audits (Super Admin, H&S Compliance Auditor, Project Engineer, Senior Site Manager) -->
+        @hasanyrole('super_admin|compliance-auditor|health-safety-manager|project-engineer|job-manager|site-manager|lead-job-manager')
+            <li class="menu-header"><span class="menu-header-text">Health & Safety</span></li>
+            <li class="menu-item {{ request()->is('fjob-hs-check*') || request()->is('hs-checklists*') || request()->is('hs-tools*') || request()->is('certificates*') ? 'open' : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon icon-base ti tabler-shield-check"></i>
+                    <div data-i18n="Health and Safety">RAMS & Safety Audits</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item {{ request()->is('fjob-hs-check*') ? 'active' : '' }}">
+                        <a href="{{ url('fjob-hs-check') }}" class="menu-link">
+                            <div data-i18n="RAMS Jobs">RAMS Safety Checks</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('hs-checklists*') ? 'active' : '' }}">
+                        <a href="{{ url('hs-checklists') }}" class="menu-link">
+                            <div data-i18n="Safety Checklists">Site Safety Audits</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('hs-tools*') ? 'active' : '' }}">
+                        <a href="{{ url('hs-tools') }}" class="menu-link">
+                            <div data-i18n="Tool Safety">Plant & Tool Inspections</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('certificates*') ? 'active' : '' }}">
+                        <a href="{{ url('certificates') }}" class="menu-link">
+                            <div data-i18n="Certifications">Compliance & Certs</div>
                         </a>
                     </li>
                 </ul>
+            </li>
+        @endhasrole
+
+        <!-- 12. Vehicle Fleet & Safety (Super Admin, H&S Compliance Auditor, Fleet Manager) -->
+        @hasanyrole('super_admin|compliance-auditor|health-safety-manager|fleet-manager')
+            <li class="menu-item {{ request()->is('vehicles*') || request()->is('vehiclecategories*') || request()->is('vehicle-checkings*') || request()->is('drivers*') ? 'open' : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon icon-base ti tabler-car"></i>
+                    <div data-i18n="Fleet Safety">Fleet & Compliance</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item {{ request()->is('vehicles') ? 'active' : '' }}">
+                        <a href="{{ url('vehicles') }}" class="menu-link">
+                            <div data-i18n="Vehicles">Vehicles Directory</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('vehicle-checkings*') ? 'active' : '' }}">
+                        <a href="{{ url('vehicle-checkings') }}" class="menu-link">
+                            <div data-i18n="Vehicle Checkings">Vehicle Inspections</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('drivers*') ? 'active' : '' }}">
+                        <a href="{{ url('drivers') }}" class="menu-link">
+                            <div data-i18n="Drivers">Drivers Directory</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        @endhasrole
+
+        <!-- 13. Invoices & Billing (Super Admin, Commercial Director, Lead Quantity Surveyor) -->
+        @hasanyrole('super_admin|commercial-director|quantity-surveyor|accounts-manager')
+            <li class="menu-header"><span class="menu-header-text">Finance & Billing</span></li>
+            <li class="menu-item {{ request()->is('invoices*') ? 'active' : '' }}">
+                <a href="{{ route('invoices.index') }}" class="menu-link">
+                    <i class="menu-icon icon-base ti tabler-receipt"></i>
+                    <div data-i18n="Invoices">Invoices & CIS Billing</div>
+                </a>
+            </li>
+        @endhasrole
+
+        <!-- 14. Reports & Analytics (Super Admin, Commercial Director, Procurement Officer, Lead QS) -->
+        @hasanyrole('super_admin|commercial-director|procurement-officer|inventory-manager|quantity-surveyor|accounts-manager')
+            <li class="menu-item {{ request()->is('reports/*') ? 'open' : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon icon-base ti tabler-chart-pie"></i>
+                    <div data-i18n="Reports">Reports & Analytics</div>
+                </a>
+                <ul class="menu-sub">
+                    @hasanyrole('super_admin|commercial-director')
+                    <li class="menu-item {{ request()->is('reports/conversion-velocity') ? 'active' : '' }}">
+                        <a href="{{ route('reports.conversion-velocity') }}" class="menu-link">
+                            <div data-i18n="Conversion Velocity">Conversion Velocity</div>
+                        </a>
+                    </li>
+                    @endhasrole
+                    <li class="menu-item {{ request()->is('reports/stock-valuation') ? 'active' : '' }}">
+                        <a href="{{ route('reports.stock-valuation') }}" class="menu-link">
+                            <div data-i18n="Stock Valuation">Stock Valuation Report</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        @endhasrole
+
+        <!-- 15. Customers & CRM (Super Admin, Commercial Director, Office Manager, Lead/Enquiry Managers) -->
+        @hasanyrole('super_admin|commercial-director|office-manager|lead-manager|enquiry-manager')
+            <li class="menu-header"><span class="menu-header-text">CRM & Clients</span></li>
+            <li class="menu-item {{ request()->is('customers*') ? 'active' : '' }}">
+                <a href="{{ url('customers') }}" class="menu-link">
+                    <i class="menu-icon icon-base ti tabler-user-cog"></i>
+                    <div data-i18n="Customers">Customers & Clients</div>
+                </a>
+            </li>
+        @endhasrole
+
+        <!-- 16. Enquiries & Leads (Super Admin, Office Manager, Enquiry & Lead Managers) -->
+        @hasanyrole('super_admin|office-manager|enquiry-manager|lead-manager')
+            <li class="menu-item {{ request()->is('enquiries*') || request()->is('enquiry*') ? 'active' : '' }}">
+                <a href="{{ url('enquiries') }}" class="menu-link">
+                    <i class="menu-icon icon-base ti tabler-message-2-question"></i>
+                    <div data-i18n="Enquiries">Enquiries</div>
+                </a>
+            </li>
+            <li class="menu-item {{ request()->is('leads*') || request()->is('lead/*') ? 'active' : '' }}">
+                <a href="{{ url('leads') }}" class="menu-link">
+                    <i class="menu-icon icon-base ti tabler-circle-dotted-letter-l"></i>
+                    <div data-i18n="Leads">Leads & Pipeline</div>
+                </a>
             </li>
         @endhasrole
     </ul>
@@ -759,7 +414,7 @@
                 </div>
                 <div class="sidebar-user-text d-flex flex-column text-start overflow-hidden">
                     <span class="sidebar-user-name fw-semibold text-truncate">{{ auth()->user()->name }}</span>
-                    <small class="sidebar-user-role text-muted text-truncate">{{ Str::title(str_replace('-', ' ', auth()->user()->getRoleNames()->first() ?? 'User')) }}</small>
+                    <small class="sidebar-user-role text-muted text-truncate">{{ Str::title(str_replace('-', ' ', auth()->user()->getRoleNames()->first() ?? 'Staff')) }}</small>
                 </div>
             </button>
             <ul class="dropdown-menu dropdown-menu-start shadow-lg mb-2" style="min-width: 220px; z-index: 1060;">
@@ -788,7 +443,7 @@
         </div>
         @endauth
 
-        <!-- Right Controls: Mode Toggle & Gear Configuration -->
+        <!-- Right Controls: Mode Toggle & Gear Configuration (Super Admin ONLY) -->
         <div class="d-flex align-items-center gap-1">
             <!-- Mode Icon -->
             <button type="button"
@@ -801,8 +456,8 @@
                 <i class="bx bx-moon" id="sidebar-theme-icon"></i>
             </button>
 
-            <!-- Gear Icon for Configuration -->
-            @hasanyrole('super_admin|admin')
+            <!-- Gear Icon for System Configuration (Strictly Super Admin ONLY) -->
+            @hasrole('super_admin')
             <div class="dropup position-relative">
                 <button type="button"
                         class="sidebar-footer-icon-btn dropdown-toggle hide-arrow {{ request()->is('businessinfo*') ? 'active' : '' }}"

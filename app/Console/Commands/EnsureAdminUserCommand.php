@@ -51,6 +51,11 @@ class EnsureAdminUserCommand extends Command
             'super_admin',
             'admin',
             'commercial-director',
+            'quantity-surveyor',
+            'project-engineer',
+            'procurement-officer',
+            'site-manager',
+            'compliance-auditor',
             'job-manager',
             'lead-job-manager',
             'accounts-manager',
@@ -94,32 +99,32 @@ class EnsureAdminUserCommand extends Command
             [
                 'name' => 'Marcus Vance (Commercial Director)',
                 'email' => 'marcus.vance@neoerp.local',
-                'roles' => ['admin', 'commercial-director'],
-            ],
-            [
-                'name' => 'Sarah Campbell (Project Engineer)',
-                'email' => 'sarah.engineer@neoerp.local',
-                'roles' => ['job-manager'],
-            ],
-            [
-                'name' => 'James O\'Connor (Senior Site Manager)',
-                'email' => 'james.oconnor@neoerp.local',
-                'roles' => ['lead-job-manager'],
+                'roles' => ['commercial-director'],
             ],
             [
                 'name' => 'Priya Patel (Lead Quantity Surveyor)',
                 'email' => 'priya.patel@neoerp.local',
-                'roles' => ['accounts-manager'],
+                'roles' => ['quantity-surveyor', 'accounts-manager'],
+            ],
+            [
+                'name' => 'Sarah Campbell (Project Engineer)',
+                'email' => 'sarah.engineer@neoerp.local',
+                'roles' => ['project-engineer', 'job-manager'],
             ],
             [
                 'name' => 'Michael Chang (Procurement Officer)',
                 'email' => 'michael.chang@neoerp.local',
-                'roles' => ['inventory-manager'],
+                'roles' => ['procurement-officer', 'inventory-manager'],
+            ],
+            [
+                'name' => 'James O\'Connor (Senior Site Manager)',
+                'email' => 'james.oconnor@neoerp.local',
+                'roles' => ['site-manager', 'lead-job-manager'],
             ],
             [
                 'name' => 'Chloe Bennett (H&S Compliance Auditor)',
                 'email' => 'chloe.bennett@neoerp.local',
-                'roles' => ['health-safety-manager'],
+                'roles' => ['compliance-auditor', 'health-safety-manager'],
             ],
             [
                 'name' => 'Dave Mason (Senior Joiner)',
