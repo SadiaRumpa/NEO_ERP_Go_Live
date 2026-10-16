@@ -14,10 +14,14 @@
 <!-- Page JS -->
 <script>
     $(function() {
-        // $('.phone-mask').inputmask({
-        //     mask: '+9 (999) 999-99-99'
-        // });
         $('.select2').select2();
+
+        $('#business_brand_logo_on_top_left').on('input', function() {
+            $('#brand-logo-preview').html($(this).val());
+        });
+        $('#business_brand_credit_on_footer').on('input', function() {
+            $('#brand-credit-preview').html($(this).val());
+        });
     });
 </script>
 <script>
@@ -425,31 +429,50 @@ $(function() {
                                         <div class="tab-pane" id="form-tabs-billing-address" role="tabpanel">
                                             <div class="row g-6">
                                                 <div class="col-md-9">
-                                                    <div class="row">
-                                                        <div class="col-md-12"><div class="row">Brand App Name</div>  </div>
-                                                        <div class="col-md-12">
-                                                            <div class="row">
+                                                    <div class="row g-4">
+                                                        <!-- Brand App Name -->
+                                                        <div class="col-12">
+                                                            <div class="border-bottom pb-2 mb-3">
+                                                                <h6 class="mb-0 text-primary fw-semibold">Brand App Name</h6>
+                                                            </div>
+                                                            <div class="row align-items-center">
                                                                 <label class="col-sm-3 col-form-label text-sm-end"
-                                                                    for="formtabs-brand-app-name">Content</label>
+                                                                    for="formtabs-brand-app-name">App Name</label>
                                                                 <div class="col-sm-9">
                                                                     <input type="text" id="formtabs-brand-app-name" class="form-control"
-                                                                        placeholder="Brand App Name" aria-label="Brand App Name" name="business_brand_app_name" value="{{ $businessinfo->business_brand_app_name }}"/>
+                                                                        placeholder="Brand App Name (e.g. NEOERP)" aria-label="Brand App Name" name="business_brand_app_name" value="{{ $businessinfo->business_brand_app_name }}"/>
+                                                                    <div class="form-text">Displayed on the login screen, page titles, and navigation bar.</div>
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                        <div class="col-md-12"><div class="row">Brand Logo On Top</div>  </div>
-                                                        <div class="col-md-12">
+
+                                                        <!-- Brand Logo On Top -->
+                                                        <div class="col-12">
+                                                            <div class="border-bottom pb-2 mb-3">
+                                                                <h6 class="mb-0 text-primary fw-semibold">Brand Logo On Top (Sidebar)</h6>
+                                                            </div>
                                                             <div class="row">
-                                                                <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-billing-personname">Content</label>
+                                                                <label class="col-sm-3 col-form-label text-sm-end" for="business_brand_logo_on_top_left">SVG / HTML Code</label>
                                                                 <div class="col-sm-9">
-                                                                    <textarea name ="business_brand_logo_on_top_left" id="business_brand_logo_on_top_left" rows="5" class="form-control">{{$businessinfo->business_brand_logo_on_top_left }} </textarea>
+                                                                    <div class="d-flex align-items-center gap-3 p-3 mb-2 rounded bg-label-secondary border">
+                                                                        <span class="text-muted small fw-medium">Live Preview:</span>
+                                                                        <div id="brand-logo-preview" class="d-inline-flex align-items-center">
+                                                                            {!! strip_tags($businessinfo->business_brand_logo_on_top_left ?? '', '<span><svg><path><img><b><strong><g><circle><rect>') !!}
+                                                                        </div>
+                                                                    </div>
+                                                                    <textarea name="business_brand_logo_on_top_left" id="business_brand_logo_on_top_left" rows="5" class="form-control font-monospace small" placeholder="<svg ...>...</svg>">{{ $businessinfo->business_brand_logo_on_top_left }}</textarea>
+                                                                    <div class="form-text">Stores the vector SVG or image markup rendered at the top-left of the sidebar menu.</div>
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                        <div class="col-md-12"><div class="row">Brand Credit On Footer</div>  </div>
-                                                        <div class="col-md-12">
-                                                            <div class="row">
-                                                                <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-billing-personname">Enable?</label>
+
+                                                        <!-- Brand Credit On Footer -->
+                                                        <div class="col-12">
+                                                            <div class="border-bottom pb-2 mb-3">
+                                                                <h6 class="mb-0 text-primary fw-semibold">Brand Credit On Footer</h6>
+                                                            </div>
+                                                            <div class="row mb-3 align-items-center">
+                                                                <label class="col-sm-3 col-form-label text-sm-end" for="business_brand_credit_on_footer_enable">Show in Footer?</label>
                                                                 <div class="col-sm-9">
                                                                     <select id="business_brand_credit_on_footer_enable" class="form-select" name="business_brand_credit_on_footer_enable" required>
                                                                         <option value="1"
@@ -461,13 +484,17 @@ $(function() {
                                                                     </select>
                                                                 </div>
                                                             </div>
-                                                        </div>
-
-                                                        <div class="col-md-12">
                                                             <div class="row">
-                                                                <label class="col-sm-3 col-form-label text-sm-end" for="formtabs-billing-personname">Content</label>
+                                                                <label class="col-sm-3 col-form-label text-sm-end" for="business_brand_credit_on_footer">Footer HTML</label>
                                                                 <div class="col-sm-9">
-                                                                    <textarea name ="business_brand_credit_on_footer" id="business_brand_credit_on_footer" rows="5" class="form-control">{{$businessinfo->business_brand_credit_on_footer }} </textarea>
+                                                                    <div class="p-3 mb-2 rounded bg-label-secondary border">
+                                                                        <span class="text-muted small fw-medium d-block mb-1">Live Preview:</span>
+                                                                        <div id="brand-credit-preview">
+                                                                            {!! strip_tags($businessinfo->business_brand_credit_on_footer ?? '', '<a><span><strong><em><b><i>') !!}
+                                                                        </div>
+                                                                    </div>
+                                                                    <textarea name="business_brand_credit_on_footer" id="business_brand_credit_on_footer" rows="4" class="form-control font-monospace small">{{ $businessinfo->business_brand_credit_on_footer }}</textarea>
+                                                                    <div class="form-text">HTML code for the copyright text and agency credit link in the footer.</div>
                                                                 </div>
                                                             </div>
                                                         </div>
