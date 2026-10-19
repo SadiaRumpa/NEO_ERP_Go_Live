@@ -1,8 +1,5 @@
 FROM php:8.4-fpm
 
-# Configure git safe directory
-RUN git config --global --add safe.directory /var/www/html
-
 # Install system dependencies & Nginx for Google Cloud Run web serving
 RUN apt-get update && apt-get install -y \
     nginx \
@@ -17,6 +14,9 @@ RUN apt-get update && apt-get install -y \
     unzip \
     default-mysql-client \
     && rm -rf /var/lib/apt/lists/*
+
+# Configure git safe directory
+RUN git config --global --add safe.directory /var/www/html
 
 # Install PHP extensions
 RUN docker-php-ext-install pdo_mysql pdo_sqlite mbstring exif pcntl bcmath gd zip opcache
