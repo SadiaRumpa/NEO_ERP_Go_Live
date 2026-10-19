@@ -85,6 +85,10 @@
     --bs-border-color: #e2e8f0;
     --bs-card-bg: #ffffff;
     --bs-card-border-color: #e2e8f0;
+    --bs-paper-bg: #ffffff;
+    --bs-paper-bg-rgb: 255, 255, 255;
+    --bs-menu-bg: #ffffff;
+    --bs-menu-bg-rgb: 255, 255, 255;
 
     /* Light Mode Status Badge Palettes */
     --badge-primary-bg: #fff1f2;
@@ -154,6 +158,9 @@
     /* Bootstrap 5 Native Overrides */
     --bs-body-bg: #0b0f19;
     --bs-paper-bg: #121826;
+    --bs-paper-bg-rgb: 18, 24, 38;
+    --bs-menu-bg: #121826;
+    --bs-menu-bg-rgb: 18, 24, 38;
     --bs-body-color: #f8fafc;
     --bs-heading-color: #ffffff;
     --bs-border-color: #1e293d;
@@ -293,6 +300,26 @@ p, span, li, label, input, select, textarea {
 .layout-menu .app-brand {
     border-bottom: 1px solid var(--neo-border);
     padding: 1rem 1.25rem;
+}
+
+/* Eliminate top hue/gradient in sidebar when scrolled down */
+.menu-inner-shadow,
+.layout-menu .menu-inner-shadow,
+#layout-menu .menu-inner-shadow,
+.layout-menu-vertical .menu-inner-shadow,
+.layout-navbar-full .menu-inner-shadow {
+    display: none !important;
+    background: transparent !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    block-size: 0 !important;
 }
 
 .layout-menu .menu-inner {

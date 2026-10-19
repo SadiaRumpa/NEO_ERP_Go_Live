@@ -140,17 +140,11 @@ document.addEventListener('DOMContentLoaded', function () {
     if (window.Helpers.isSmallScreen()) window.Helpers.setCollapsed(true);
   });
 
-  // Display in main menu when menu scrolls
+  // Disable top hue/shadow overlay on sidebar menu scroll
   let menuInnerContainer = document.getElementsByClassName('menu-inner'),
     menuInnerShadow = document.getElementsByClassName('menu-inner-shadow')[0];
-  if (menuInnerContainer.length > 0 && menuInnerShadow) {
-    menuInnerContainer[0].addEventListener('ps-scroll-y', function () {
-      if (this.querySelector('.ps__thumb-y').offsetTop) {
-        menuInnerShadow.style.display = 'block';
-      } else {
-        menuInnerShadow.style.display = 'none';
-      }
-    });
+  if (menuInnerShadow) {
+    menuInnerShadow.style.display = 'none';
   }
 
   // Get style from local storage or use 'system' as default

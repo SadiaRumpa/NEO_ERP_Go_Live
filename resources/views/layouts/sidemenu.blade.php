@@ -16,7 +16,7 @@
         </a>
     </div>
 
-    <div class="menu-inner-shadow"></div>
+    <div class="menu-inner-shadow" style="display: none !important; opacity: 0 !important; visibility: hidden !important;"></div>
 
     <ul class="menu-inner py-1">
         <!-- 1. Universal Dashboard -->
