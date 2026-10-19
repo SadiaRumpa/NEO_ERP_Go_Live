@@ -28,7 +28,9 @@
 
 ## 🌐 Google Cloud Run Serverless Deployment (1-Click Public HTTPS)
 
-NeoERP is optimized for **Google Cloud Run**, providing an official, publicly-trusted HTTPS URL (`https://neoerp-xxxxx.run.app`) with zero SSL configuration required.
+🚀 **Live Production URL**: [https://neoerp-1009631465369.europe-west2.run.app](https://neoerp-1009631465369.europe-west2.run.app)
+
+NeoERP is deployed on **Google Cloud Run** in `europe-west2` (London) with automated auto-scaling and an official, publicly-trusted Google SSL certificate.
 
 ### ⚡ Option A: 1-Click CLI Deployment (Local Windows Terminal)
 
