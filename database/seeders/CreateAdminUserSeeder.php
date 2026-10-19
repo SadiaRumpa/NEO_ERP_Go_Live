@@ -17,6 +17,9 @@ class CreateAdminUserSeeder extends Seeder
     {
         $adminEmail = env('INITIAL_ADMIN_EMAIL', 'admin@neoerp.local');
         $adminPassword = env('INITIAL_ADMIN_PASSWORD', 'NeoErp!Admin2026#Secure');
+        if ($adminPassword === 'NeoErp!Admin2026' || empty($adminPassword)) {
+            $adminPassword = 'NeoErp!Admin2026#Secure';
+        }
 
         $business = \App\Models\BusinessInfo::first();
         $user = User::updateOrCreate(

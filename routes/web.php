@@ -450,4 +450,12 @@ Route::middleware(['auth'])->group(function () {
             Route::get('job/{job}', [\App\Http\Controllers\Commercial\JobCostingController::class, 'show'])->name('job');
         });
     });
+
+    // Convenient Aliases & Canonical URL Redirects
+    Route::redirect('timesheets', '/labor/timesheets');
+    Route::redirect('fjobs', '/jobs');
+    Route::redirect('plant/hires', '/plant-hires');
+    Route::redirect('plant/alerts', '/plant-hires/alerts');
+    Route::redirect('procurement/bills', '/procurement/supplier-bills');
+    Route::redirect('procurement/goods-received-notes', '/procurement/grns');
 });

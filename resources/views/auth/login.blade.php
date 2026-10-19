@@ -102,34 +102,26 @@
 
         <!-- One-Click Showcase Demo Login Helpers -->
         <div class="auth-demo-box mt-3 p-3">
-            <div class="d-flex align-items-center justify-content-between mb-2 pb-2 border-bottom">
-                <div class="overflow-hidden me-2 text-start">
-                    <div class="demo-title d-flex align-items-center gap-1 small">
-                        <i class="icon-base ti tabler-shield-check text-success"></i>
-                        <span>Super Administrator</span>
-                    </div>
-                    <small class="text-muted text-truncate d-block font-monospace" style="font-size: 0.725rem;">admin@neoerp.local</small>
-                </div>
-                <button type="button" 
-                        class="auth-demo-btn flex-shrink-0" 
-                        onclick="fillDemoAccount('admin@neoerp.local', 'NeoErp!Admin2026#Secure')"
-                        title="Auto-fill Super Admin credentials">
-                    Auto-Fill
-                </button>
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="small fw-semibold text-heading"><i class="icon-base ti tabler-users me-1 text-primary"></i>Showcase Role Quick-Fill</span>
+                <span class="badge bg-label-primary font-monospace" style="font-size: 0.65rem;">7 Roles</span>
             </div>
-            <div class="d-flex align-items-center justify-content-between">
-                <div class="overflow-hidden me-2 text-start">
-                    <div class="demo-title d-flex align-items-center gap-1 small">
-                        <i class="icon-base ti tabler-chart-pie text-info"></i>
-                        <span>Commercial Director</span>
-                    </div>
-                    <small class="text-muted text-truncate d-block font-monospace" style="font-size: 0.725rem;">marcus.vance@neoerp.local</small>
-                </div>
-                <button type="button" 
-                        class="auth-demo-btn flex-shrink-0" 
-                        onclick="fillDemoAccount('marcus.vance@neoerp.local', 'NeoErp!Staff2026#')"
-                        title="Auto-fill Commercial Director credentials">
-                    Auto-Fill
+            <select id="roleSelector" class="form-select form-select-sm mb-2" onchange="onRoleSelectChange(this)">
+                <option value="" disabled selected>-- Select Role to Auto-Fill --</option>
+                <option value="admin@neoerp.local|NeoErp!Admin2026#Secure">👑 Super Admin (Full Control)</option>
+                <option value="marcus.vance@neoerp.local|NeoErp!Staff2026#">📊 Commercial Director (WIP &amp; Contracts)</option>
+                <option value="priya.patel@neoerp.local|NeoErp!Staff2026#">📐 Lead Quantity Surveyor (HMRC CIS &amp; Valuations)</option>
+                <option value="sarah.engineer@neoerp.local|NeoErp!Staff2026#">🏗️ Project Engineer (Jobs &amp; Field Ops)</option>
+                <option value="michael.chang@neoerp.local|NeoErp!Staff2026#">📦 Procurement Officer (POs &amp; 3-Way Match)</option>
+                <option value="james.oconnor@neoerp.local|NeoErp!Staff2026#">👷 Senior Site Manager (Timesheets &amp; Labor)</option>
+                <option value="chloe.bennett@neoerp.local|NeoErp!Staff2026#">🛡️ H&amp;S Compliance Auditor (Audits &amp; RAMS)</option>
+            </select>
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-sm btn-outline-primary flex-fill py-1" onclick="fillDemoAccount('admin@neoerp.local', 'NeoErp!Admin2026#Secure')">
+                    <i class="icon-base ti tabler-shield-check me-1"></i>Super Admin
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-info flex-fill py-1" onclick="fillDemoAccount('marcus.vance@neoerp.local', 'NeoErp!Staff2026#')">
+                    <i class="icon-base ti tabler-chart-pie me-1"></i>Commercial
                 </button>
             </div>
         </div>
@@ -173,6 +165,14 @@
             passwordInput.dispatchEvent(new Event('input', { bubbles: true }));
             passwordInput.dispatchEvent(new Event('change', { bubbles: true }));
             passwordInput.focus();
+        }
+    }
+
+    function onRoleSelectChange(sel) {
+        if (!sel || !sel.value) return;
+        var parts = sel.value.split('|');
+        if (parts.length === 2) {
+            fillDemoAccount(parts[0], parts[1]);
         }
     }
 

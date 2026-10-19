@@ -63,17 +63,13 @@
                     <div class="row mb-6">
                         <label class="col-sm-3 col-form-label" for="multicol-email">Email</label>
                         <div class="col-sm-9">
-                            <div class="input-group input-group-merge">
-                                <input
-                                    type="email"
-                                    id="multicol-email"
-                                    class="form-control"
-                                    name="email"
-                                    placeholder="john.doe"
-                                    aria-label="john.doe"
-                                    aria-describedby="multicol-email2" value="{{ $user->email }}" />
-                                <span class="input-group-text" id="multicol-email2">@example.com</span>
-                            </div>
+                            <input
+                                type="email"
+                                id="multicol-email"
+                                class="form-control"
+                                name="email"
+                                placeholder="name@company.com"
+                                value="{{ $user->email }}" required />
                         </div>
                     </div>
                     <div class="row form-password-toggle mb-6">
