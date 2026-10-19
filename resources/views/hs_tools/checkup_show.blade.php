@@ -126,8 +126,8 @@
                                                     @foreach ($checklists as $checklist)
                                                         @php
                                                             $selected = $selectedChecklist[$checklist->id] ?? [
-                                                                'status' => null,
-                                                                'note' => '',
+                                                                'value' => null,
+                                                                'remarks' => '',
                                                             ];
                                                         @endphp
                                                         <div class="col-md-6">
@@ -139,7 +139,7 @@
                                                                         <input type="radio"
                                                                             name="checklist[{{ $checklist->id }}][status]"
                                                                             value="1"
-                                                                            {{ $selected['value'] == 1 ? 'checked' : '' }}>
+                                                                            {{ ($selected['value'] ?? null) == 1 ? 'checked' : '' }}>
                                                                         <span class="ms-1 text-success">✓ OK</span>
                                                                     </label>
 
@@ -147,7 +147,7 @@
                                                                         <input type="radio"
                                                                             name="checklist[{{ $checklist->id }}][status]"
                                                                             value="2"
-                                                                            {{ $selected['value'] == 2 ? 'checked' : '' }}>
+                                                                            {{ ($selected['value'] ?? null) == 2 ? 'checked' : '' }}>
                                                                         <span class="ms-1 text-danger">✗ Not OK</span>
                                                                     </label>
 
@@ -155,7 +155,7 @@
                                                                         <input type="radio"
                                                                             name="checklist[{{ $checklist->id }}][status]"
                                                                             value="0"
-                                                                            {{ $selected['value'] === 0 ? 'checked' : '' }}>
+                                                                            {{ ($selected['value'] ?? null) === 0 || ($selected['value'] ?? null) === '0' ? 'checked' : '' }}>
                                                                         <span class="ms-1 text-muted">N/A</span>
                                                                     </label>
 
@@ -164,7 +164,7 @@
                                                                         name="checklist[{{ $checklist->id }}][note]"
                                                                         class="form-control flex-grow-1"
                                                                         placeholder="Short note"
-                                                                        value="{{ $selected['remarks'] }}">
+                                                                        value="{{ $selected['remarks'] ?? '' }}">
                                                                 </div>
                                                             </div>
                                                         </div>

@@ -455,6 +455,12 @@ class ComprehensiveSystemAuditTest extends TestCase
         ];
         $hsResp = $this->getJson('/fjob-hs-check?' . http_build_query($hsParams), ['X-Requested-With' => 'XMLHttpRequest']);
         $hsResp->assertStatus(200);
+
+        $hsCheck = \App\Models\FjobHsCheck::first();
+        if ($hsCheck) {
+            $showHsResp = $this->get('/fjob-hs-check/' . $hsCheck->id);
+            $showHsResp->assertStatus(200);
+        }
     }
 
     public function test_stock_categories_data_fetching_and_sorting(): void
