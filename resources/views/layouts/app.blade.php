@@ -34,7 +34,9 @@
     <meta name="description" content="" />
 
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{{ $appbrand->business_favicon??asset('assets/img/favicon/favicon.ico')}}" />
+    <link rel="icon" type="image/x-icon" href="{{ $appbrand->business_favicon ?? asset('assets/img/favicon/favicon.ico') }}" />
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('assets/img/favicon/favicon-32x32.png') }}" />
+    <link rel="apple-touch-icon" sizes="192x192" href="{{ asset('assets/img/favicon/favicon-192.png') }}" />
     <!-- Web App Manifest -->
     <link rel="manifest" href="{{ asset('manifest.json') }}" />
 

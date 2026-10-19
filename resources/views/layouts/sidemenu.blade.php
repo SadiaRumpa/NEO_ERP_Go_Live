@@ -1,7 +1,13 @@
 <aside id="layout-menu" class="layout-menu menu-vertical menu">
     <div class="app-brand demo">
-        <a href="{{ url('/') }}" class="app-brand-link">
-            {!! strip_tags($appbrand->business_brand_logo_on_top_left ?? 'ERP', '<span><svg><path><img><b><strong>') !!}
+        <a href="{{ url('/') }}" class="app-brand-link d-flex align-items-center">
+            <span class="app-brand-logo demo">
+                <img src="{{ asset('assets/img/branding/neoteric-icon.png') }}" alt="Neoteric Digital" style="width: 34px; height: 34px; object-fit: contain;" />
+            </span>
+            <span class="app-brand-text demo menu-text ms-2">
+                <span class="brand-title">Neoteric</span><span class="brand-accent">DIGITAL</span>
+                <span class="brand-badge">NEO ERP</span>
+            </span>
         </a>
 
         <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto">

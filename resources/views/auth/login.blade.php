@@ -6,17 +6,12 @@
 <div class="auth-centered-wrapper">
     <div class="auth-card p-sm-8 p-6">
         <!-- Logo & Brand Header -->
-        <div class="text-center mb-6">
-            @if(isset($appbrand) && $appbrand->business_logo)
-                <img src="{{ asset($appbrand->business_logo) }}" 
-                     alt="{{ $appbrand->business_brand_app_name ?? 'NEO ERP' }}" 
-                     class="img-fluid mb-3" 
-                     style="max-height: 52px; max-width: 200px; object-fit: contain;" />
-            @else
-                <div class="auth-logo-badge mx-auto">
-                    <i class="icon-base ti tabler-building-skyscraper"></i>
-                </div>
-            @endif
+        <div class="text-center mb-5">
+            <div class="auth-brand-wrapper">
+                <img src="{{ asset($appbrand->business_logo ?? 'assets/img/branding/neoteric-digital-logo.png') }}" 
+                     alt="Neoteric Digital - {{ $appbrand->business_brand_app_name ?? 'NEO ERP' }}" 
+                     class="img-fluid auth-brand-logo" />
+            </div>
             <h4 class="mb-1 fw-bold text-heading" style="letter-spacing: -0.01em;">{{ $appbrand->business_brand_app_name ?? 'NEO ERP' }}</h4>
             <p class="text-muted small mb-0">Commercial Contracting & Costing Portal</p>
         </div>

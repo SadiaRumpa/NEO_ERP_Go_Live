@@ -15,7 +15,9 @@
     <meta name="description" content="" />
 
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{{ $appbrand->business_favicon??asset('assets/img/favicon/favicon.ico') }}" />
+    <link rel="icon" type="image/x-icon" href="{{ $appbrand->business_favicon ?? asset('assets/img/favicon/favicon.ico') }}" />
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('assets/img/favicon/favicon-32x32.png') }}" />
+    <link rel="apple-touch-icon" sizes="192x192" href="{{ asset('assets/img/favicon/favicon-192.png') }}" />
 
     <!-- Prevent White Flash in Dark Mode before CSS or JS loads -->
     <script>
@@ -114,11 +116,10 @@
                     <div class="navbar-nav-right d-flex align-items-center justify-content-end" id="navbar-collapse">
                         <!-- Search -->
                         <div class="navbar-nav align-items-center">
-                            <div class="nav-item navbar-search-wrapper px-md-0 px-2 mb-0">
-                                <div style="font-weight: bold;">{{ $appbrand->business_name??'' }}</div>
-                                {{-- <a class="nav-item nav-link search-toggler d-flex align-items-center px-0" href="javascript:void(0);">
-                                    <span class="d-inline-block text-body-secondary fw-normal" id="autocomplete"></span>
-                                </a>  --}}
+                            <div class="nav-item navbar-search-wrapper px-md-0 px-2 mb-0 d-flex align-items-center gap-2">
+                                <img src="{{ asset('assets/img/branding/neoteric-icon.png') }}" alt="Neoteric Digital" class="d-none d-sm-inline-block" style="width: 22px; height: 22px; object-fit: contain;" />
+                                <span class="fw-bold text-heading fs-6" style="letter-spacing: -0.01em;">{{ $appbrand->business_name ?? 'Neoteric Digital' }}</span>
+                                <span class="badge bg-label-primary font-monospace ms-1 d-none d-md-inline-block" style="font-size: 0.65rem; padding: 0.25rem 0.5rem;">NEO ERP</span>
                             </div>
                         </div>
 
