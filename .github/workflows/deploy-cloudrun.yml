@@ -1,0 +1,61 @@
+name: Deploy to Google Cloud Run
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Build & Deploy to Cloud Run
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Check GCP Secrets Configuration
+        id: check_secrets
+        env:
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          if [ -z "$GCP_PROJECT_ID" ] || [ -z "$GCP_SA_KEY" ]; then
+            echo "configured=false" >> $GITHUB_OUTPUT
+            echo "::warning ::GCP_PROJECT_ID or GCP_SA_KEY secret is missing. Skipping automated Cloud Run deploy."
+          else
+            echo "configured=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Authenticate to Google Cloud
+        if: steps.check_secrets.outputs.configured == 'true'
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        if: steps.check_secrets.outputs.configured == 'true'
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Deploy to Cloud Run
+        if: steps.check_secrets.outputs.configured == 'true'
+        id: deploy
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: neoerp
+          source: ./
+          region: europe-west2
+          flags: |
+            --allow-unauthenticated
+            --memory=1Gi
+            --cpu=1
+            --port=8080
+            --set-env-vars=APP_NAME=NeoERP,APP_ENV=production,APP_DEBUG=false,DB_CONNECTION=sqlite,DB_DATABASE=/var/www/html/database/database.sqlite,SESSION_DRIVER=file,CACHE_STORE=file,QUEUE_CONNECTION=database,LOG_CHANNEL=stderr
+
+      - name: Show Live Service URL
+        if: steps.check_secrets.outputs.configured == 'true'
+        run: |
+          echo "================================================================="
+          echo "🎉 NeoERP deployed successfully to Google Cloud Run!"
+          echo "Live URL: ${{ steps.deploy.outputs.url }}"
+          echo "================================================================="

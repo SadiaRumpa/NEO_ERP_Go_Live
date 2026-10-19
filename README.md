@@ -26,9 +26,43 @@
 
 ---
 
-## 🌐 Cloud Showcase & Live Demo (Google Cloud Platform)
+## 🌐 Google Cloud Run Serverless Deployment (1-Click Public HTTPS)
 
-NeoERP includes an automated deployment script for Google Cloud Platform (GCE VM) that boots the entire containerized stack and seeds **100 realistic commercial construction showcase records** in minutes.
+NeoERP is optimized for **Google Cloud Run**, providing an official, publicly-trusted HTTPS URL (`https://neoerp-xxxxx.run.app`) with zero SSL configuration required.
+
+### ⚡ Option A: 1-Click CLI Deployment (Local Windows Terminal)
+
+Run the included automated deployment script in PowerShell:
+
+```powershell
+.\deploy-cloudrun.ps1
+```
+*(Or double-click `deploy-cloudrun.bat`)*
+
+The script will automatically:
+1. Verify Google Cloud SDK (`gcloud`) and sign you in.
+2. Select your Google Cloud Project.
+3. Enable Cloud Run, Cloud Build & Artifact Registry APIs.
+4. Build the container with PHP 8.4, Nginx & all dependencies.
+5. Provision SQLite database, run migrations, and seed **100 commercial demo records**.
+6. Output your live `https://<service-name>.run.app` URL and login credentials.
+
+---
+
+### 🌐 Option B: Continuous Deployment from Google Cloud Console UI
+
+1. Open [Google Cloud Console &rarr; Cloud Run](https://console.cloud.google.com/run).
+2. Click **Create Service**.
+3. Choose **Continuously deploy from a repository** &rarr; Select GitHub &rarr; `SadiaRumpa/NEO_ERP_Go_Live` (branch: `main`).
+4. Build Type: **Dockerfile** (path: `Dockerfile`).
+5. Service name: `neoerp` | Region: `europe-west2` (or your preferred region).
+6. Authentication: Check **Allow unauthenticated invocations**.
+7. Container port: `8080` | Memory: `1 GiB` | CPU: `1`.
+8. Click **Create** & wait ~2 minutes. Cloud Run will output your live HTTPS link!
+
+---
+
+## 🖥️ Alternative: Compute Engine VM Deployment
 
 ### 1. Launch a Compute Engine VM
 1. Open [Google Cloud Console](https://console.cloud.google.com/) &rarr; **Compute Engine** &rarr; **VM instances**.
