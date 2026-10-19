@@ -30,7 +30,7 @@ class GlobalController extends Controller
         $postcode = str_replace(' ', '', $key);
         $postcode = strtoupper($postcode);
 
-        $check = lookup_postcode($postcode);
+        $check = lookup_postcode($postcode) ?? ['addresses' => [], 'post_town' => ''];
         return response()->json(['address' => $check]);
     }
 
@@ -39,7 +39,7 @@ class GlobalController extends Controller
         $posttown = str_replace(' ', '', $key);
         $posttown = strtoupper($posttown);
 
-        $check = lookup_places($posttown);
+        $check = lookup_places($posttown) ?? ['county' => '', 'region' => '', 'country' => ''];
 
         $companyName = '';
         if(isset($_GET['a'])){

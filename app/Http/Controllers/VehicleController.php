@@ -47,10 +47,10 @@ class VehicleController extends Controller
                     return $row->mot_expiry_date ? '<span class="fw-medium">' . \Carbon\Carbon::parse($row->mot_expiry_date)->format('d M Y') . '</span>' : '<span class="text-muted">-</span>';
                 })
                 ->addColumn('tax_due', function ($row) {
-                    return $row->tax_expiry_date ? '<span class="fw-medium">' . \Carbon\Carbon::parse($row->tax_expiry_date)->format('d M Y') : '<span class="text-muted">-</span>';
+                    return $row->tax_expiry_date ? '<span class="fw-medium">' . \Carbon\Carbon::parse($row->tax_expiry_date)->format('d M Y') . '</span>' : '<span class="text-muted">-</span>';
                 })
                 ->addColumn('service_due', function ($row) {
-                    return $row->next_service_date ? '<span class="fw-medium">' . \Carbon\Carbon::parse($row->next_service_date)->format('d M Y') : '<span class="text-muted">-</span>';
+                    return $row->next_service_date ? '<span class="fw-medium">' . \Carbon\Carbon::parse($row->next_service_date)->format('d M Y') . '</span>' : '<span class="text-muted">-</span>';
                 })
                 ->addColumn('action', function ($row) {
                     $showUrl = route('vehicles.show', $row->id);

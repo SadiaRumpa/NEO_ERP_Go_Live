@@ -44,7 +44,7 @@
                         data: 'avg_price',
                         name: 'avg_price',
                         render: function(data, type, row) {
-                            return '$' + parseFloat(data).toFixed(2);
+                            return '£' + parseFloat(data || 0).toFixed(2);
                         }
                     },
                     {

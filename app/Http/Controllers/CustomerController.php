@@ -19,7 +19,7 @@ class CustomerController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->wantsJson()) {
             $data = Customer::select('*');
 
             return Datatables::of($data)
@@ -42,6 +42,12 @@ class CustomerController extends Controller
                 }
             }, true)
                 ->addIndexColumn()
+                ->addColumn('contact_name', function ($row) {
+                    return trim(($row->contact_firstname ?? '') . ' ' . ($row->contact_lastname ?? ''));
+                })
+                ->orderColumn('contact_name', function ($query, $order) {
+                    $query->orderBy('contact_firstname', $order)->orderBy('contact_lastname', $order);
+                })
                 ->addColumn('action', function ($row) {
                     $showUrl = route('customers.show', $row->id); // Edit Route
                     return '
@@ -134,7 +140,7 @@ class CustomerController extends Controller
 
     public function showArchived(Request $request)
     {
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->wantsJson()) {
             $data = Customer::select('*')
             ->whereIn('status', ['inactive']);
 
@@ -158,6 +164,12 @@ class CustomerController extends Controller
                 }
             }, true)
                 ->addIndexColumn()
+                ->addColumn('contact_name', function ($row) {
+                    return trim(($row->contact_firstname ?? '') . ' ' . ($row->contact_lastname ?? ''));
+                })
+                ->orderColumn('contact_name', function ($query, $order) {
+                    $query->orderBy('contact_firstname', $order)->orderBy('contact_lastname', $order);
+                })
                 ->addColumn('action', function ($row) {
                     $showUrl = route('customers.show', $row->id); // Edit Route
                     return '

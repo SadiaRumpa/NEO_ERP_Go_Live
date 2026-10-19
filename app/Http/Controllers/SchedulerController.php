@@ -208,10 +208,12 @@ class SchedulerController extends Controller
         // ✅ Check for duplicate job schedule with same job_id, workers, and date range
         $workerIds = $validated['workers'] ?? [];
 
-        $existing = JobSchedule::where('job_id', $validated['job_id'])
+        $existingQuery = JobSchedule::where('job_id', $validated['job_id'])
             ->whereDate('start_date', $startDate)
-            ->whereDate('end_date', $endDate)
-            ->whereHas('workers', function ($query) use ($workerIds) {
+            ->whereDate('end_date', $endDate);
+
+        if (!empty($workerIds)) {
+            $existingQuery->whereHas('workers', function ($query) use ($workerIds) {
                 $query->whereIn('user_id', $workerIds);
             })
             ->whereRaw("
@@ -221,9 +223,12 @@ class SchedulerController extends Controller
                 WHERE job_schedule_id = job_schedules.id 
                 AND user_id IN (" . implode(',', array_fill(0, count($workerIds), '?')) . ")
             ) = ?
-            ", array_merge($workerIds, [count($workerIds)]))
-            ->first();
-        // dd($existing);
+            ", array_merge($workerIds, [count($workerIds)]));
+        } else {
+            $existingQuery->whereDoesntHave('workers');
+        }
+
+        $existing = $existingQuery->first();
         if ($existing) {
             return response()->json(['error' => 'Duplicate job schedule already exists'], 409);
         }
@@ -298,12 +303,12 @@ class SchedulerController extends Controller
         ]);
 
         // Extract start and end dates
-        [$startRaw, $endRaw] = explode(' to ', $validated['daterange']);
-        $startDate = Carbon::parse($startRaw)->toDateString();
-        $endDate   = Carbon::parse($endRaw)->toDateString();
+        $dateParts = explode(' to ', $validated['daterange']);
+        $startDate = Carbon::parse($dateParts[0])->toDateString();
+        $endDate   = isset($dateParts[1]) ? Carbon::parse($dateParts[1])->toDateString() : $startDate;
 
         // Validate date range
-        if ($startDate >= $endDate) {
+        if ($startDate > $endDate) {
             return response()->json(['error' => 'Start date must be before end date'], 422);
         }
 
@@ -412,10 +417,12 @@ class SchedulerController extends Controller
         $workerIds = $validated['fakeworkers'] ?? [];
 
         // Check for existing identical assignments
-        $existing = FakeJobSchedule::where('job_id', $validated['fakejob_id'])
+        $existingQuery = FakeJobSchedule::where('job_id', $validated['fakejob_id'])
             ->whereDate('start_date', $startDate)
-            ->whereDate('end_date', $endDate)
-            ->whereHas('workers', function ($query) use ($workerIds) {
+            ->whereDate('end_date', $endDate);
+
+        if (!empty($workerIds)) {
+            $existingQuery->whereHas('workers', function ($query) use ($workerIds) {
                 $query->whereIn('user_id', $workerIds);
             })
             ->whereRaw("
@@ -425,8 +432,12 @@ class SchedulerController extends Controller
                 WHERE fake_job_schedule_id = fake_job_schedules.id 
                 AND user_id IN (" . implode(',', array_fill(0, count($workerIds), '?')) . ")
             ) = ?
-        ", array_merge($workerIds, [count($workerIds)]))
-            ->first();
+            ", array_merge($workerIds, [count($workerIds)]));
+        } else {
+            $existingQuery->whereDoesntHave('workers');
+        }
+
+        $existing = $existingQuery->first();
 
         if ($existing) {
             return response()->json(['error' => 'Duplicate job schedule already exists'], 409);
@@ -473,12 +484,12 @@ class SchedulerController extends Controller
         ]);
 
         // Extract start and end dates
-        [$startRaw, $endRaw] = explode(' to ', $validated['daterange']);
-        $startDate = Carbon::parse($startRaw)->toDateString();
-        $endDate   = Carbon::parse($endRaw)->toDateString();
+        $dateParts = explode(' to ', $validated['daterange']);
+        $startDate = Carbon::parse($dateParts[0])->toDateString();
+        $endDate   = isset($dateParts[1]) ? Carbon::parse($dateParts[1])->toDateString() : $startDate;
 
         // Validate date range
-        if ($startDate >= $endDate) {
+        if ($startDate > $endDate) {
             return response()->json(['error' => 'Start date must be before end date'], 422);
         }
 

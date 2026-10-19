@@ -244,28 +244,42 @@
                         fakeJobScheduleIdInput.value = schedule.id;
 
                         // Fill job info
-                        modal.querySelector('#jobDescription').innerHTML = job
-                            .job_description || '';
-                        modal.querySelector('#companyName').textContent = jobCustomer
-                            .company_name || '';
-                        modal.querySelector('#contactName').textContent =
-                            `${jobAddress.contact_firstname} ${jobAddress.contact_lastname}` ||
-                            '';
-                        modal.querySelector('#contactEmail').textContent = jobAddress
-                            .contact_email || '';
-                        modal.querySelector('#contactPhone').textContent = jobAddress
-                            .contact_phone || '';
-                        modal.querySelector('#contactMobile').textContent = jobAddress
-                            .contact_mobile || '';
-                        modal.querySelector('#jobAddress').textContent =
-                            `${jobAddress.address}, ${jobAddress.county}, ${jobAddress.country}` ||
-                            '';
+                        const safeJob = job || {};
+                        const safeCustomer = jobCustomer || {};
+                        const safeAddress = jobAddress || {};
 
-                        const addressParam = encodeURIComponent(
-                            `${jobAddress.address}, ${jobAddress.county}, ${jobAddress.country}`
-                        );
-                        modal.querySelector('#jobMap').src =
-                            `https://www.google.com/maps/embed/v1/place?key=${GOOGLE_MAPS_API_KEY}&q=${addressParam}`;
+                        const jobDescEl = modal.querySelector('#jobDescription');
+                        if (jobDescEl) jobDescEl.innerHTML = safeJob.job_description || '';
+
+                        const compNameEl = modal.querySelector('#companyName');
+                        if (compNameEl) compNameEl.textContent = safeCustomer.company_name || '-';
+
+                        const contactName = ((safeAddress.contact_firstname || '') + ' ' + (safeAddress.contact_lastname || '')).trim();
+                        const contactNameEl = modal.querySelector('#contactName');
+                        if (contactNameEl) contactNameEl.textContent = contactName || '-';
+
+                        const contactEmailEl = modal.querySelector('#contactEmail');
+                        if (contactEmailEl) contactEmailEl.textContent = safeAddress.contact_email || '-';
+
+                        const contactPhoneEl = modal.querySelector('#contactPhone');
+                        if (contactPhoneEl) contactPhoneEl.textContent = safeAddress.contact_phone || '-';
+
+                        const contactMobileEl = modal.querySelector('#contactMobile');
+                        if (contactMobileEl) contactMobileEl.textContent = safeAddress.contact_mobile || '-';
+
+                        const formattedAddress = [safeAddress.address, safeAddress.county, safeAddress.country].filter(Boolean).join(', ');
+                        const jobAddressEl = modal.querySelector('#jobAddress');
+                        if (jobAddressEl) jobAddressEl.textContent = formattedAddress || '-';
+
+                        const jobMapEl = modal.querySelector('#jobMap');
+                        if (jobMapEl) {
+                            if (formattedAddress && GOOGLE_MAPS_API_KEY) {
+                                const addressParam = encodeURIComponent(formattedAddress);
+                                jobMapEl.src = `https://www.google.com/maps/embed/v1/place?key=${GOOGLE_MAPS_API_KEY}&q=${addressParam}`;
+                            } else {
+                                jobMapEl.src = '';
+                            }
+                        }
                     });
             }, 100);
         });

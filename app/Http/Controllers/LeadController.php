@@ -125,19 +125,19 @@ class LeadController extends Controller
             return Datatables::of($data)
                 ->addIndexColumn()
                 ->addColumn('company_name', function ($row) {
-                    return $row->customer->company_name;
+                    return $row->customer?->company_name ?? '-';
                 })
                 ->addColumn('customer_name', function ($row) {
-                    return $row->customer->contact_firstname . ' ' . $row->customer->contact_lastname;
+                    return trim(($row->customer?->contact_firstname ?? '') . ' ' . ($row->customer?->contact_lastname ?? '')) ?: '-';
                 })
                 ->addColumn('customer_email', function ($row) {
-                    return $row->customer->contact_email;
+                    return $row->customer?->contact_email ?? '-';
                 })
                 ->addColumn('customer_phone', function ($row) {
-                    return $row->customer->contact_phone;
+                    return $row->customer?->contact_phone ?? '-';
                 })
                 ->addColumn('customer_mobile', function ($row) {
-                    return $row->customer->contact_mobile;
+                    return $row->customer?->contact_mobile ?? '-';
                 })
                 ->addColumn('action', function ($row) {
                     $btn = '<a href="/leads/' . $row->slug . '" class="edit btn btn-primary btn-sm">Details</a>';
@@ -165,19 +165,19 @@ class LeadController extends Controller
             return Datatables::of($data)
                 ->addIndexColumn()
                 ->addColumn('company_name', function ($row) {
-                    return $row->customer->company_name;
+                    return $row->customer?->company_name ?? '-';
                 })
                 ->addColumn('customer_name', function ($row) {
-                    return $row->customer->contact_firstname . ' ' . $row->customer->contact_lastname;
+                    return trim(($row->customer?->contact_firstname ?? '') . ' ' . ($row->customer?->contact_lastname ?? '')) ?: '-';
                 })
                 ->addColumn('customer_email', function ($row) {
-                    return $row->customer->contact_email;
+                    return $row->customer?->contact_email ?? '-';
                 })
                 ->addColumn('customer_phone', function ($row) {
-                    return $row->customer->contact_phone;
+                    return $row->customer?->contact_phone ?? '-';
                 })
                 ->addColumn('customer_mobile', function ($row) {
-                    return $row->customer->contact_mobile;
+                    return $row->customer?->contact_mobile ?? '-';
                 })
                 ->addColumn('action', function ($row) {
                     $btn = '<a href="/leads/' . $row->slug . '" class="edit btn btn-primary btn-sm">Details</a>';
@@ -205,19 +205,19 @@ class LeadController extends Controller
             return Datatables::of($data)
                 ->addIndexColumn()
                 ->addColumn('company_name', function ($row) {
-                    return $row->customer->company_name;
+                    return $row->customer?->company_name ?? '-';
                 })
                 ->addColumn('customer_name', function ($row) {
-                    return $row->customer->contact_firstname . ' ' . $row->customer->contact_lastname;
+                    return trim(($row->customer?->contact_firstname ?? '') . ' ' . ($row->customer?->contact_lastname ?? '')) ?: '-';
                 })
                 ->addColumn('customer_email', function ($row) {
-                    return $row->customer->contact_email;
+                    return $row->customer?->contact_email ?? '-';
                 })
                 ->addColumn('customer_phone', function ($row) {
-                    return $row->customer->contact_phone;
+                    return $row->customer?->contact_phone ?? '-';
                 })
                 ->addColumn('customer_mobile', function ($row) {
-                    return $row->customer->contact_mobile;
+                    return $row->customer?->contact_mobile ?? '-';
                 })
                 ->addColumn('action', function ($row) {
                     $btn = '<a href="/leads/' . $row->slug . '" class="edit btn btn-primary btn-sm">Details</a>';
@@ -244,19 +244,19 @@ class LeadController extends Controller
             return Datatables::of($data)
                 ->addIndexColumn()
                 ->addColumn('company_name', function ($row) {
-                    return $row->customer->company_name;
+                    return $row->customer?->company_name ?? '-';
                 })
                 ->addColumn('customer_name', function ($row) {
-                    return $row->customer->contact_firstname . ' ' . $row->customer->contact_lastname;
+                    return trim(($row->customer?->contact_firstname ?? '') . ' ' . ($row->customer?->contact_lastname ?? '')) ?: '-';
                 })
                 ->addColumn('customer_email', function ($row) {
-                    return $row->customer->contact_email;
+                    return $row->customer?->contact_email ?? '-';
                 })
                 ->addColumn('customer_phone', function ($row) {
-                    return $row->customer->contact_phone;
+                    return $row->customer?->contact_phone ?? '-';
                 })
                 ->addColumn('customer_mobile', function ($row) {
-                    return $row->customer->contact_mobile;
+                    return $row->customer?->contact_mobile ?? '-';
                 })
                 ->addColumn('action', function ($row) {
                     $btn = '<a href="/leads/' . $row->slug . '" class="edit btn btn-primary btn-sm">Details</a>';

@@ -39,38 +39,40 @@ if (!function_exists('lookup_postcode')) {
 
         $url = "https://api.easypostcodes.com/addresses/{$postcode}";
 
+        $data = [
+            'addresses' => [],
+            'post_town' => '',
+        ];
+
         try {
-            $response = Http::withHeaders([
+            $response = Http::timeout(4)->withHeaders([
                 'key' => $apiKey,
                 'Accept' => 'application/json',
             ])->get($url);
 
-            $data = [
-                'addresses' => [],
-                'post_town' => '',
-            ];
-
             if ($response->successful()) {
                 $results = $response->json();
 
-                foreach ($results as $result) {
-                    if (isset($result['envelopeAddress']['summaryLine'])) {
-                        $data['addresses'][] = $result['envelopeAddress']['summaryLine'];
-                    }
+                if (is_array($results)) {
+                    foreach ($results as $result) {
+                        if (isset($result['envelopeAddress']['summaryLine'])) {
+                            $data['addresses'][] = $result['envelopeAddress']['summaryLine'];
+                        }
 
-                    if (empty($data['post_town']) && isset($result['postTown'])) {
-                        $data['post_town'] = $result['postTown'];
+                        if (empty($data['post_town']) && isset($result['postTown'])) {
+                            $data['post_town'] = $result['postTown'];
+                        }
                     }
                 }
 
                 return $data;
             } else {
-                Log::error('Postcode API error: ' . $response->body());
-                return null;
+                Log::warning('Postcode API non-200 response: ' . $response->status());
+                return $data;
             }
-        } catch (\Exception $e) {
-            Log::error('Postcode lookup exception: ' . $e->getMessage());
-            return null;
+        } catch (\Throwable $e) {
+            Log::warning('Postcode lookup exception: ' . $e->getMessage());
+            return $data;
         }
     }
 }
@@ -84,30 +86,37 @@ if (! function_exists('lookup_places')) {
 
         $url = "https://api.os.uk/search/names/v1/find?maxresults=1&query={$region}&key={$apiKey}";
 
-        $response = Http::get($url);
-
         $data = [
             'county' => '',
             'region' => '',
+            'country' => '',
         ];
 
-        if ($response->successful()) {
-            $check = json_decode($response->getBody(), true); // Decode as array
+        try {
+            $response = Http::timeout(4)->get($url);
 
-            if (isset($check['error'])) {
-                Log::error('Postcode lookup error: ' . $check['error']['message']);
-                return null;
-            }
+            if ($response->successful()) {
+                $check = json_decode($response->getBody(), true); // Decode as array
 
-            if (!empty($check['results'][0]['GAZETTEER_ENTRY'])) {
-                $entry = $check['results'][0]['GAZETTEER_ENTRY'];
-                $data['county'] = $entry['COUNTY_UNITARY'] ?? '';
-                $data['region'] = $entry['REGION'] ?? '';
-                $data['country'] = $entry['COUNTRY'] ?? '';
+                if (isset($check['error'])) {
+                    Log::warning('Postcode lookup error: ' . ($check['error']['message'] ?? 'Unknown error'));
+                    return $data;
+                }
+
+                if (!empty($check['results'][0]['GAZETTEER_ENTRY'])) {
+                    $entry = $check['results'][0]['GAZETTEER_ENTRY'];
+                    $data['county'] = $entry['COUNTY_UNITARY'] ?? '';
+                    $data['region'] = $entry['REGION'] ?? '';
+                    $data['country'] = $entry['COUNTRY'] ?? '';
+                }
+                return $data;
+            } else {
+                Log::warning('Places lookup non-200 response: ' . $response->status());
+                return $data;
             }
+        } catch (\Throwable $e) {
+            Log::warning('Places lookup exception: ' . $e->getMessage());
             return $data;
-        } else {
-            throw new Exception('Failed to fetch postcode: ' . $response->body());
         }
     }
 }

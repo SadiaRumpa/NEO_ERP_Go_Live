@@ -252,4 +252,83 @@ class ComprehensiveSystemAuditTest extends TestCase
             'name' => 'Super Admin Updated',
         ]);
     }
+
+    /**
+     * Area 5: Robust Data Fetching & DataTables Operations
+     */
+    public function test_customer_datatables_data_fetching_and_contact_name_sorting(): void
+    {
+        $admin = User::where('email', 'admin@neoerp.local')->first();
+        $this->actingAs($admin);
+
+        // Test normal AJAX fetch
+        $response = $this->getJson('/customers?draw=1', ['X-Requested-With' => 'XMLHttpRequest']);
+        $response->assertStatus(200);
+        $response->assertJsonStructure(['draw', 'recordsTotal', 'recordsFiltered', 'data']);
+
+        // Test sorting by computed contact_name column (ascending)
+        $paramsAsc = [
+            'draw' => 1,
+            'start' => 0,
+            'length' => 10,
+            'columns' => [
+                0 => ['data' => 'id', 'name' => 'id', 'orderable' => 'true'],
+                1 => ['data' => 'company_name', 'name' => 'company_name', 'orderable' => 'true'],
+                2 => ['data' => 'contact_name', 'name' => 'contact_name', 'orderable' => 'true'],
+            ],
+            'order' => [
+                0 => ['column' => 2, 'dir' => 'asc']
+            ]
+        ];
+        $sortAsc = $this->getJson('/customers?' . http_build_query($paramsAsc), ['X-Requested-With' => 'XMLHttpRequest']);
+        $sortAsc->assertStatus(200);
+        $this->assertArrayNotHasKey('error', $sortAsc->json());
+
+        // Test sorting by contact_name column (descending)
+        $paramsAsc['order'][0]['dir'] = 'desc';
+        $sortDesc = $this->getJson('/customers?' . http_build_query($paramsAsc), ['X-Requested-With' => 'XMLHttpRequest']);
+        $sortDesc->assertStatus(200);
+        $this->assertArrayNotHasKey('error', $sortDesc->json());
+    }
+
+    public function test_postcode_and_places_lookup_data_fetching_is_safe(): void
+    {
+        $admin = User::where('email', 'admin@neoerp.local')->first();
+        $this->actingAs($admin);
+
+        // Should return a 200 with structured response even if external API is unreachable/unconfigured
+        $postcodeResp = $this->getJson('/checkpostcode/EC3V4AB');
+        $postcodeResp->assertStatus(200);
+        $this->assertTrue(isset($postcodeResp->json()['address']));
+
+        $townResp = $this->getJson('/checkposttown/LONDON');
+        $townResp->assertStatus(200);
+    }
+
+    public function test_job_scheduler_can_store_and_update_single_day_schedule(): void
+    {
+        $admin = User::where('email', 'admin@neoerp.local')->first();
+        $this->actingAs($admin);
+
+        $job = \App\Models\Fjob::first();
+
+        // 1. Store schedule without worker assignments
+        $response = $this->postJson('/scheduler/store-job-schedule', [
+            'job_id' => $job->id,
+            'daterange' => '2026-11-01 to 2026-11-01',
+            'workers' => [],
+            'instructions' => 'Single day site preparation',
+        ]);
+        $response->assertStatus(201);
+        $scheduleId = $response->json()['job_schedule']['id'];
+
+        // 2. Update schedule to a single day date range
+        $updateResponse = $this->putJson('/scheduler/update-job-schedule/' . $scheduleId, [
+            'daterange' => '2026-11-05',
+            'workers' => [],
+            'instructions' => 'Updated single day',
+        ]);
+        $updateResponse->assertStatus(200);
+    }
 }
+
