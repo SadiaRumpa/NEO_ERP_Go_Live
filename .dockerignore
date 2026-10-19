@@ -12,4 +12,7 @@ docs
 tests
 install-trusted-ssl.*
 setup-ip-ssl.sh
-setup-letsencrypt.sh
+vendor
+.env
+.env.*
+!.env.example
