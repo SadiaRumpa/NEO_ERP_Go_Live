@@ -535,7 +535,14 @@ class EnquiryController extends Controller
 
     public function show(string $key)
     {
-        $enquiry = Enquiry::with(['customer', 'customer.billingaddress', 'customer.siteaddress', 'enquiryaddress', 'enquiryimages', 'enquirynotes', 'enquirynotes.users'])->where('slug', $key)->first();
+        $enquiry = Enquiry::with(['customer', 'customer.billingaddress', 'customer.siteaddress', 'enquiryaddress', 'enquiryimages', 'enquirynotes', 'enquirynotes.users'])
+            ->where(function ($query) use ($key) {
+                $query->where('slug', $key);
+                if (is_numeric($key)) {
+                    $query->orWhere('id', (int) $key);
+                }
+            })
+            ->first();
 
         if (!$enquiry) {
             return redirect()->route('enquiries.index')->with('error', 'Enquiry not found.');

@@ -509,7 +509,13 @@ class LeadController extends Controller
             'leadattachments',
             'completedquotation',
         ])
-            ->where('slug', $key)->first();
+            ->where(function ($query) use ($key) {
+                $query->where('slug', $key);
+                if (is_numeric($key)) {
+                    $query->orWhere('id', (int) $key);
+                }
+            })
+            ->first();
         // dd($lead);
         if (!$lead) {
             return redirect()->route('leads.index')->with('error', 'Lead details not found.');

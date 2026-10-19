@@ -453,10 +453,20 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // Convenient Aliases & Canonical URL Redirects
+    Route::redirect('home', '/');
     Route::redirect('timesheets', '/labor/timesheets');
     Route::redirect('fjobs', '/jobs');
+    Route::redirect('plant-hire', '/plant-hires');
     Route::redirect('plant/hires', '/plant-hires');
     Route::redirect('plant/alerts', '/plant-hires/alerts');
+    Route::redirect('procurement/orders', '/procurement/purchase-orders');
     Route::redirect('procurement/bills', '/procurement/supplier-bills');
     Route::redirect('procurement/goods-received-notes', '/procurement/grns');
+    Route::redirect('labor/rates', '/labor/rate-cards');
+    Route::redirect('labor/certificates', '/subcontractors/certificates');
+    Route::redirect('labor/cis-monthly-return', '/subcontractors/cis-monthly-return');
+    Route::redirect('field-hub', '/field/jobs');
+    Route::redirect('quotations', '/leads');
+    Route::redirect('commercial/portfolio', '/commercial/wip');
+    Route::redirect('commercial/contracts', '/commercial/variations');
 });
