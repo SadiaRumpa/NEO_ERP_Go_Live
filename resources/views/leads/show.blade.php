@@ -593,10 +593,10 @@
                                                                 <div class="col-sm-12 col-md-12 mb-4">
                                                                     <div class="mb-4">
                                                                         <label for="basic-default-upload-file"
-                                                                            class="form-label">Select Image ({{ $appbrand->getAllowedFileType('IMG') }})</label>
+                                                                            class="form-label">Select Image ({{ isset($appbrand) && $appbrand ? $appbrand->getAllowedFileType('IMG') : '.png,.jpg,.jpeg' }})</label>
                                                                         <input type="file" class="form-control"
                                                                             id="basic-default-upload-file"
-                                                                            name="leadphoto" accept="{{ $appbrand->getAllowedFileType('IMG') }}"
+                                                                            name="leadphoto" accept="{{ isset($appbrand) && $appbrand ? $appbrand->getAllowedFileType('IMG') : 'image/*' }}"
                                                                             required />
                                                                         <input type="hidden" name="lead_id"
                                                                             value="{{ $lead->id }}">
@@ -734,11 +734,12 @@
                                         <div class="card-body">
                                             <div class="mb-2">
                                                 @php
-                                                    $assignedUsers = json_decode($lead->assigned_to, true);
-                                                    $leadmen = App\Models\User::whereIn(
-                                                        'id',
-                                                        $assignedUsers ?? [],
-                                                    )->get();
+                                                    $assignedUsers = is_array($lead->assigned_to)
+                                                        ? $lead->assigned_to
+                                                        : (is_string($lead->assigned_to) ? json_decode($lead->assigned_to, true) : []);
+                                                    $leadmen = !empty($assignedUsers) && is_array($assignedUsers)
+                                                        ? App\Models\User::whereIn('id', $assignedUsers)->get()
+                                                        : collect();
                                                 @endphp
 
                                                 @if ($leadmen->count())
@@ -899,11 +900,11 @@
                                             <div class="row g-4">
                                                 <div class="col mb-0">
                                                     <label for="attachmentFiles" class="form-label">
-                                                        Upload Files ({{ $appbrand->getAllowedFileType('DOC') }})
+                                                        Upload Files ({{ isset($appbrand) && $appbrand ? $appbrand->getAllowedFileType('DOC') : '.pdf,.doc,.docx' }})
                                                     </label>
                                                     <input class="form-control" type="file" name="attachment"
                                                         id="attachmentFiles" required
-                                                        accept="{{ $appbrand->getAllowedFileType('DOC') }}">
+                                                        accept="{{ isset($appbrand) && $appbrand ? $appbrand->getAllowedFileType('DOC') : '.pdf,.doc,.docx' }}">
                                                 </div>
                                             </div>
                                         </div>

@@ -10,7 +10,7 @@ class VehicleCategoryController extends Controller
 {
     public function index(Request $request)
     {
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->wantsJson()) {
             $data = VehicleCategory::select('*');
 
             return Datatables::of($data)

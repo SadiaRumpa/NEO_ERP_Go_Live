@@ -36,7 +36,7 @@ class EnquiryController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->wantsJson()) {
 
             $data = Enquiry::join('customers', 'enquiries.customer_id', '=', 'customers.id')
                 ->select([
@@ -60,22 +60,56 @@ class EnquiryController extends Controller
             return Datatables::of($data)
                 ->addIndexColumn()
                 ->addColumn('company_name', function ($row) {
-                    return $row->company_name;
+                    return $row->company_name ?? '-';
+                })
+                ->orderColumn('company_name', function ($query, $order) {
+                    $query->orderBy('customers.company_name', $order);
+                })
+                ->filterColumn('company_name', function ($query, $keyword) {
+                    $query->where('customers.company_name', 'like', "%{$keyword}%");
                 })
                 ->addColumn('customer_name', function ($row) {
-                    return $row->contact_firstname . ' ' . $row->contact_lastname;
+                    return trim(($row->contact_firstname ?? '') . ' ' . ($row->contact_lastname ?? '')) ?: '-';
+                })
+                ->orderColumn('customer_name', function ($query, $order) {
+                    $query->orderBy('customers.contact_firstname', $order)
+                          ->orderBy('customers.contact_lastname', $order);
+                })
+                ->filterColumn('customer_name', function ($query, $keyword) {
+                    $query->where(function ($q) use ($keyword) {
+                        $q->where('customers.contact_firstname', 'like', "%{$keyword}%")
+                          ->orWhere('customers.contact_lastname', 'like', "%{$keyword}%");
+                    });
                 })
                 ->addColumn('customer_email', function ($row) {
-                    return $row->contact_email;
+                    return $row->contact_email ?? '-';
+                })
+                ->orderColumn('customer_email', function ($query, $order) {
+                    $query->orderBy('customers.contact_email', $order);
+                })
+                ->filterColumn('customer_email', function ($query, $keyword) {
+                    $query->where('customers.contact_email', 'like', "%{$keyword}%");
                 })
                 ->addColumn('customer_phone', function ($row) {
-                    return $row->contact_phone;
+                    return $row->contact_phone ?? '-';
+                })
+                ->orderColumn('customer_phone', function ($query, $order) {
+                    $query->orderBy('customers.contact_phone', $order);
+                })
+                ->filterColumn('customer_phone', function ($query, $keyword) {
+                    $query->where('customers.contact_phone', 'like', "%{$keyword}%");
                 })
                 ->addColumn('customer_mobile', function ($row) {
-                    return $row->contact_mobile;
+                    return $row->contact_mobile ?? '-';
+                })
+                ->orderColumn('customer_mobile', function ($query, $order) {
+                    $query->orderBy('customers.contact_mobile', $order);
+                })
+                ->filterColumn('customer_mobile', function ($query, $keyword) {
+                    $query->where('customers.contact_mobile', 'like', "%{$keyword}%");
                 })
                 ->addColumn('enquiry', function ($row) {
-                    return Str::limit(strip_tags($row->enquiry), 50); // use Illuminate\Support\Str
+                    return Str::limit(strip_tags($row->enquiry ?? ''), 50);
                 })
                 ->addColumn('action', function ($row) {
                     $btn = '<a href="/enquiries/' . $row->slug . '" class="edit btn btn-primary btn-sm">Details</a>';
@@ -91,10 +125,10 @@ class EnquiryController extends Controller
 
     public function showInprogress(Request $request)
     {
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->wantsJson()) {
 
             $data = Enquiry::with(['customer', 'enquiryaddress'])
-                ->select('*')
+                ->select('enquiries.*')
                 ->where('enquiry_status', 'inprogress')
                 ->orderByDesc('created_at');
 
@@ -103,17 +137,64 @@ class EnquiryController extends Controller
                 ->addColumn('company_name', function ($row) {
                     return $row->customer?->company_name ?? '-';
                 })
+                ->orderColumn('company_name', function ($query, $order) {
+                    $query->leftJoin('customers', 'enquiries.customer_id', '=', 'customers.id')
+                          ->orderBy('customers.company_name', $order);
+                })
+                ->filterColumn('company_name', function ($query, $keyword) {
+                    $query->whereHas('customer', function ($q) use ($keyword) {
+                        $q->where('company_name', 'like', "%{$keyword}%");
+                    });
+                })
                 ->addColumn('customer_name', function ($row) {
                     return trim(($row->customer?->contact_firstname ?? '') . ' ' . ($row->customer?->contact_lastname ?? '')) ?: '-';
+                })
+                ->orderColumn('customer_name', function ($query, $order) {
+                    $query->leftJoin('customers', 'enquiries.customer_id', '=', 'customers.id')
+                          ->orderBy('customers.contact_firstname', $order)
+                          ->orderBy('customers.contact_lastname', $order);
+                })
+                ->filterColumn('customer_name', function ($query, $keyword) {
+                    $query->whereHas('customer', function ($q) use ($keyword) {
+                        $q->where('contact_firstname', 'like', "%{$keyword}%")
+                          ->orWhere('contact_lastname', 'like', "%{$keyword}%");
+                    });
                 })
                 ->addColumn('customer_email', function ($row) {
                     return $row->customer?->contact_email ?? '-';
                 })
+                ->orderColumn('customer_email', function ($query, $order) {
+                    $query->leftJoin('customers', 'enquiries.customer_id', '=', 'customers.id')
+                          ->orderBy('customers.contact_email', $order);
+                })
+                ->filterColumn('customer_email', function ($query, $keyword) {
+                    $query->whereHas('customer', function ($q) use ($keyword) {
+                        $q->where('contact_email', 'like', "%{$keyword}%");
+                    });
+                })
                 ->addColumn('customer_phone', function ($row) {
                     return $row->customer?->contact_phone ?? '-';
                 })
+                ->orderColumn('customer_phone', function ($query, $order) {
+                    $query->leftJoin('customers', 'enquiries.customer_id', '=', 'customers.id')
+                          ->orderBy('customers.contact_phone', $order);
+                })
+                ->filterColumn('customer_phone', function ($query, $keyword) {
+                    $query->whereHas('customer', function ($q) use ($keyword) {
+                        $q->where('contact_phone', 'like', "%{$keyword}%");
+                    });
+                })
                 ->addColumn('customer_mobile', function ($row) {
                     return $row->customer?->contact_mobile ?? '-';
+                })
+                ->orderColumn('customer_mobile', function ($query, $order) {
+                    $query->leftJoin('customers', 'enquiries.customer_id', '=', 'customers.id')
+                          ->orderBy('customers.contact_mobile', $order);
+                })
+                ->filterColumn('customer_mobile', function ($query, $keyword) {
+                    $query->whereHas('customer', function ($q) use ($keyword) {
+                        $q->where('contact_mobile', 'like', "%{$keyword}%");
+                    });
                 })
                 ->addColumn('action', function ($row) {
                     $btn = '<a href="/enquiries/' . $row->slug . '" class="edit btn btn-primary btn-sm">Details</a>';
@@ -131,10 +212,15 @@ class EnquiryController extends Controller
 
     public function showCompleted(Request $request)
     {
-        if ($request->ajax()) {
+        return $this->showConverted($request);
+    }
+
+    public function showConverted(Request $request)
+    {
+        if ($request->ajax() || $request->wantsJson()) {
 
             $data = Enquiry::with(['customer', 'enquiryaddress'])
-                ->select('*')
+                ->select('enquiries.*')
                 ->where('enquiry_status', 'converted_to_lead')
                 ->orderByDesc('created_at');
 
@@ -143,17 +229,64 @@ class EnquiryController extends Controller
                 ->addColumn('company_name', function ($row) {
                     return $row->customer?->company_name ?? '-';
                 })
+                ->orderColumn('company_name', function ($query, $order) {
+                    $query->leftJoin('customers', 'enquiries.customer_id', '=', 'customers.id')
+                          ->orderBy('customers.company_name', $order);
+                })
+                ->filterColumn('company_name', function ($query, $keyword) {
+                    $query->whereHas('customer', function ($q) use ($keyword) {
+                        $q->where('company_name', 'like', "%{$keyword}%");
+                    });
+                })
                 ->addColumn('customer_name', function ($row) {
                     return trim(($row->customer?->contact_firstname ?? '') . ' ' . ($row->customer?->contact_lastname ?? '')) ?: '-';
+                })
+                ->orderColumn('customer_name', function ($query, $order) {
+                    $query->leftJoin('customers', 'enquiries.customer_id', '=', 'customers.id')
+                          ->orderBy('customers.contact_firstname', $order)
+                          ->orderBy('customers.contact_lastname', $order);
+                })
+                ->filterColumn('customer_name', function ($query, $keyword) {
+                    $query->whereHas('customer', function ($q) use ($keyword) {
+                        $q->where('contact_firstname', 'like', "%{$keyword}%")
+                          ->orWhere('contact_lastname', 'like', "%{$keyword}%");
+                    });
                 })
                 ->addColumn('customer_email', function ($row) {
                     return $row->customer?->contact_email ?? '-';
                 })
+                ->orderColumn('customer_email', function ($query, $order) {
+                    $query->leftJoin('customers', 'enquiries.customer_id', '=', 'customers.id')
+                          ->orderBy('customers.contact_email', $order);
+                })
+                ->filterColumn('customer_email', function ($query, $keyword) {
+                    $query->whereHas('customer', function ($q) use ($keyword) {
+                        $q->where('contact_email', 'like', "%{$keyword}%");
+                    });
+                })
                 ->addColumn('customer_phone', function ($row) {
                     return $row->customer?->contact_phone ?? '-';
                 })
+                ->orderColumn('customer_phone', function ($query, $order) {
+                    $query->leftJoin('customers', 'enquiries.customer_id', '=', 'customers.id')
+                          ->orderBy('customers.contact_phone', $order);
+                })
+                ->filterColumn('customer_phone', function ($query, $keyword) {
+                    $query->whereHas('customer', function ($q) use ($keyword) {
+                        $q->where('contact_phone', 'like', "%{$keyword}%");
+                    });
+                })
                 ->addColumn('customer_mobile', function ($row) {
                     return $row->customer?->contact_mobile ?? '-';
+                })
+                ->orderColumn('customer_mobile', function ($query, $order) {
+                    $query->leftJoin('customers', 'enquiries.customer_id', '=', 'customers.id')
+                          ->orderBy('customers.contact_mobile', $order);
+                })
+                ->filterColumn('customer_mobile', function ($query, $keyword) {
+                    $query->whereHas('customer', function ($q) use ($keyword) {
+                        $q->where('contact_mobile', 'like', "%{$keyword}%");
+                    });
                 })
                 ->addColumn('action', function ($row) {
                     $btn = '<a href="/enquiries/' . $row->slug . '" class="edit btn btn-primary btn-sm">Details</a>';
@@ -171,10 +304,10 @@ class EnquiryController extends Controller
 
     public function showRejected(Request $request)
     {
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->wantsJson()) {
 
             $data = Enquiry::with(['customer', 'enquiryaddress'])
-                ->select('*')
+                ->select('enquiries.*')
                 ->whereIn('enquiry_status', ['rejected', 'archived'])
                 ->orderByDesc('created_at');
 
@@ -183,17 +316,64 @@ class EnquiryController extends Controller
                 ->addColumn('company_name', function ($row) {
                     return $row->customer?->company_name ?? '-';
                 })
+                ->orderColumn('company_name', function ($query, $order) {
+                    $query->leftJoin('customers', 'enquiries.customer_id', '=', 'customers.id')
+                          ->orderBy('customers.company_name', $order);
+                })
+                ->filterColumn('company_name', function ($query, $keyword) {
+                    $query->whereHas('customer', function ($q) use ($keyword) {
+                        $q->where('company_name', 'like', "%{$keyword}%");
+                    });
+                })
                 ->addColumn('customer_name', function ($row) {
                     return trim(($row->customer?->contact_firstname ?? '') . ' ' . ($row->customer?->contact_lastname ?? '')) ?: '-';
+                })
+                ->orderColumn('customer_name', function ($query, $order) {
+                    $query->leftJoin('customers', 'enquiries.customer_id', '=', 'customers.id')
+                          ->orderBy('customers.contact_firstname', $order)
+                          ->orderBy('customers.contact_lastname', $order);
+                })
+                ->filterColumn('customer_name', function ($query, $keyword) {
+                    $query->whereHas('customer', function ($q) use ($keyword) {
+                        $q->where('contact_firstname', 'like', "%{$keyword}%")
+                          ->orWhere('contact_lastname', 'like', "%{$keyword}%");
+                    });
                 })
                 ->addColumn('customer_email', function ($row) {
                     return $row->customer?->contact_email ?? '-';
                 })
+                ->orderColumn('customer_email', function ($query, $order) {
+                    $query->leftJoin('customers', 'enquiries.customer_id', '=', 'customers.id')
+                          ->orderBy('customers.contact_email', $order);
+                })
+                ->filterColumn('customer_email', function ($query, $keyword) {
+                    $query->whereHas('customer', function ($q) use ($keyword) {
+                        $q->where('contact_email', 'like', "%{$keyword}%");
+                    });
+                })
                 ->addColumn('customer_phone', function ($row) {
                     return $row->customer?->contact_phone ?? '-';
                 })
+                ->orderColumn('customer_phone', function ($query, $order) {
+                    $query->leftJoin('customers', 'enquiries.customer_id', '=', 'customers.id')
+                          ->orderBy('customers.contact_phone', $order);
+                })
+                ->filterColumn('customer_phone', function ($query, $keyword) {
+                    $query->whereHas('customer', function ($q) use ($keyword) {
+                        $q->where('contact_phone', 'like', "%{$keyword}%");
+                    });
+                })
                 ->addColumn('customer_mobile', function ($row) {
                     return $row->customer?->contact_mobile ?? '-';
+                })
+                ->orderColumn('customer_mobile', function ($query, $order) {
+                    $query->leftJoin('customers', 'enquiries.customer_id', '=', 'customers.id')
+                          ->orderBy('customers.contact_mobile', $order);
+                })
+                ->filterColumn('customer_mobile', function ($query, $keyword) {
+                    $query->whereHas('customer', function ($q) use ($keyword) {
+                        $q->where('contact_mobile', 'like', "%{$keyword}%");
+                    });
                 })
                 ->addColumn('action', function ($row) {
                     $btn = '<a href="/enquiries/' . $row->slug . '" class="edit btn btn-primary btn-sm">Details</a>';

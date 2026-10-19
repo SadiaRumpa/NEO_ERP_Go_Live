@@ -18,8 +18,8 @@ class DriverController extends Controller
         // Fetch unassigned vehicles always, so it's available for both AJAX and view
         $unassignedvehicles = VehicleDetail::whereIn('status', ['Available', 'Under Maintenance'])->get();
 
-        if ($request->ajax()) {
-            $data = DriverDetail::with(['user', 'vehicleAssigned'])->select('*');
+        if ($request->ajax() || $request->wantsJson()) {
+            $data = DriverDetail::with(['user', 'vehicleAssigned.vehicle'])->select('driver_details.*');
 
             return Datatables::of($data)
                 ->addIndexColumn()
@@ -33,7 +33,32 @@ class DriverController extends Controller
                     return $row->license_expiry ? $row->license_expiry : 'N/A';
                 })
                 ->addColumn('vehicle_assigned', function ($row) {
-                    return $row->vehicleAssigned ? $row->vehicleAssigned->vehicle->registration_no . " (" . $row->vehicleAssigned->assigned_date . " to " . $row->vehicleAssigned->unassigned_date . ") " : 'Not Assigned';
+                    if ($row->vehicleAssigned && $row->vehicleAssigned->vehicle) {
+                        return $row->vehicleAssigned->vehicle->registration_no . " (" . ($row->vehicleAssigned->assigned_date ?? '') . " to " . ($row->vehicleAssigned->unassigned_date ?? 'present') . ") ";
+                    }
+                    return 'Not Assigned';
+                })
+                ->filterColumn('user_name', function ($query, $keyword) {
+                    $query->whereHas('user', function ($q) use ($keyword) {
+                        $q->where('name', 'like', "%{$keyword}%");
+                    });
+                })
+                ->orderColumn('user_name', function ($query, $order) {
+                    $query->leftJoin('users', 'driver_details.user_id', '=', 'users.id')
+                        ->orderBy('users.name', $order);
+                })
+                ->filterColumn('vehicle_assigned', function ($query, $keyword) {
+                    $query->whereHas('vehicleAssigned.vehicle', function ($q) use ($keyword) {
+                        $q->where('registration_no', 'like', "%{$keyword}%");
+                    });
+                })
+                ->orderColumn('vehicle_assigned', function ($query, $order) {
+                    $query->leftJoin('vehicle_assign_details', function ($join) {
+                        $join->on('driver_details.id', '=', 'vehicle_assign_details.user_id')
+                            ->where('vehicle_assign_details.status', '=', 'active');
+                    })
+                    ->leftJoin('vehicle_details', 'vehicle_assign_details.vehicle_id', '=', 'vehicle_details.id')
+                    ->orderBy('vehicle_details.registration_no', $order);
                 })
                 ->addColumn('action', function ($row) {
                     $showUrl = route('drivers.show', $row->id);

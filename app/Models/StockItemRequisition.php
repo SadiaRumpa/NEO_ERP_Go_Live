@@ -31,7 +31,7 @@ class StockItemRequisition extends Model
 
     public function fjob()
     {
-        return $this->belongsTo(FJob::class);
+        return $this->belongsTo(Fjob::class);
     }
 
     public function stockWarehouse()

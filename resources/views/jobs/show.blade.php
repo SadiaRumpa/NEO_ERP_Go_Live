@@ -502,10 +502,10 @@
                                                             <div class="col-sm-12 col-md-12 mb-4">
                                                                 <div class="mb-4">
                                                                     <label for="basic-default-upload-file"
-                                                                        class="form-label">Select Image ({{ $appbrand->getAllowedFileType('IMG') }})</label>
+                                                                        class="form-label">Select Image ({{ isset($appbrand) && $appbrand ? $appbrand->getAllowedFileType('IMG') : '.png,.jpg,.jpeg' }})</label>
                                                                     <input type="file" class="form-control"
                                                                         id="basic-default-upload-file" name="jobphoto"
-                                                                        accept="{{ $appbrand->getAllowedFileType('IMG') }}" required />
+                                                                        accept="{{ isset($appbrand) && $appbrand ? $appbrand->getAllowedFileType('IMG') : 'image/*' }}" required />
                                                                     <input type="hidden" name="job_id"
                                                                         value="{{ $job->id }}">
                                                                 </div>

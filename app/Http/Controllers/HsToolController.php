@@ -13,7 +13,7 @@ class HsToolController extends Controller
 {
     public function indexHsTools(Request $request)
     {
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->wantsJson()) {
 
             $data = HsTool::orderBy('slug', 'asc');
 
@@ -52,7 +52,7 @@ class HsToolController extends Controller
     public function showHsTools(Request $request, $id)
     {
         $hsTool = HsTool::with('checkups')->findOrFail($id);
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->wantsJson()) {
 
             $data = HsToolCheckup::orderBy('checkup_date', 'asc')->where('hs_tool_id', $id);
 

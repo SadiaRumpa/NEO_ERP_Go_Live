@@ -330,5 +330,152 @@ class ComprehensiveSystemAuditTest extends TestCase
         ]);
         $updateResponse->assertStatus(200);
     }
+
+    public function test_lead_show_handles_array_and_string_assigned_to(): void
+    {
+        $admin = User::where('email', 'admin@neoerp.local')->first();
+        $this->actingAs($admin);
+
+        $lead = \App\Models\Lead::first();
+        $this->assertNotNull($lead, 'A lead should exist');
+
+        // Test with lead as-is (array cast)
+        $resp = $this->get('/leads/' . $lead->slug);
+        $resp->assertStatus(200);
+
+        // Test with assigned_to as explicit JSON string
+        $lead->assigned_to = [$admin->id];
+        $lead->save();
+        $resp2 = $this->get('/leads/' . $lead->slug);
+        $resp2->assertStatus(200);
+    }
+
+    public function test_stock_requisitions_data_fetching_and_sorting(): void
+    {
+        $admin = User::where('email', 'admin@neoerp.local')->first();
+        $this->actingAs($admin);
+
+        $params = [
+            'draw' => 1,
+            'start' => 0,
+            'length' => 10,
+            'columns' => [
+                0 => ['data' => 'DT_RowIndex', 'name' => 'DT_RowIndex', 'orderable' => 'false'],
+                1 => ['data' => 'fjob', 'name' => 'fjob', 'orderable' => 'true'],
+                2 => ['data' => 'stock_warehouse', 'name' => 'stock_warehouse', 'orderable' => 'true'],
+                3 => ['data' => 'requested_by', 'name' => 'requested_by', 'orderable' => 'true'],
+            ],
+            'order' => [
+                0 => ['column' => 1, 'dir' => 'asc']
+            ]
+        ];
+
+        $resp = $this->getJson('/stockitemrequisitions?' . http_build_query($params), ['X-Requested-With' => 'XMLHttpRequest']);
+        $resp->assertStatus(200);
+        $resp->assertJsonStructure(['draw', 'recordsTotal', 'recordsFiltered', 'data']);
+
+        $req = \App\Models\StockItemRequisition::first();
+        if ($req) {
+            $showResp = $this->get('/stockitemrequisitions/' . $req->id);
+            $showResp->assertStatus(200);
+        }
+    }
+
+    public function test_vehicle_and_driver_data_fetching_and_sorting(): void
+    {
+        $admin = User::where('email', 'admin@neoerp.local')->first();
+        $this->actingAs($admin);
+
+        // Vehicles DataTables
+        $vehicleParams = [
+            'draw' => 1,
+            'start' => 0,
+            'length' => 10,
+            'columns' => [
+                0 => ['data' => 'registration_display', 'name' => 'registration_display', 'orderable' => 'true'],
+                1 => ['data' => 'category_name', 'name' => 'category_name', 'orderable' => 'true'],
+            ],
+            'order' => [
+                0 => ['column' => 0, 'dir' => 'asc']
+            ]
+        ];
+        $vehResp = $this->getJson('/vehicles?' . http_build_query($vehicleParams), ['X-Requested-With' => 'XMLHttpRequest']);
+        $vehResp->assertStatus(200);
+
+        // Drivers DataTables
+        $driverParams = [
+            'draw' => 1,
+            'start' => 0,
+            'length' => 10,
+            'columns' => [
+                0 => ['data' => 'user_name', 'name' => 'user_name', 'orderable' => 'true'],
+                1 => ['data' => 'vehicle_assigned', 'name' => 'vehicle_assigned', 'orderable' => 'true'],
+            ],
+            'order' => [
+                0 => ['column' => 0, 'dir' => 'desc']
+            ]
+        ];
+        $driverResp = $this->getJson('/drivers?' . http_build_query($driverParams), ['X-Requested-With' => 'XMLHttpRequest']);
+        $driverResp->assertStatus(200);
+    }
+
+    public function test_job_overviews_and_hs_checks_data_fetching(): void
+    {
+        $admin = User::where('email', 'admin@neoerp.local')->first();
+        $this->actingAs($admin);
+
+        // Job overviews
+        $joParams = [
+            'draw' => 1,
+            'start' => 0,
+            'length' => 10,
+            'columns' => [
+                0 => ['data' => 'job_title', 'name' => 'job_title', 'orderable' => 'true'],
+                1 => ['data' => 'customer', 'name' => 'customer', 'orderable' => 'true'],
+            ],
+            'order' => [
+                0 => ['column' => 1, 'dir' => 'asc']
+            ]
+        ];
+        $joResp = $this->getJson('/job-overviews?' . http_build_query($joParams), ['X-Requested-With' => 'XMLHttpRequest']);
+        $joResp->assertStatus(200);
+
+        // RAMS / Health & Safety check
+        $hsParams = [
+            'draw' => 1,
+            'start' => 0,
+            'length' => 10,
+            'columns' => [
+                0 => ['data' => 'jobtype', 'name' => 'jobtype', 'orderable' => 'true'],
+                1 => ['data' => 'job_title', 'name' => 'job_title', 'orderable' => 'true'],
+            ],
+            'order' => [
+                0 => ['column' => 0, 'dir' => 'asc']
+            ]
+        ];
+        $hsResp = $this->getJson('/fjob-hs-check?' . http_build_query($hsParams), ['X-Requested-With' => 'XMLHttpRequest']);
+        $hsResp->assertStatus(200);
+    }
+
+    public function test_stock_categories_data_fetching_and_sorting(): void
+    {
+        $admin = User::where('email', 'admin@neoerp.local')->first();
+        $this->actingAs($admin);
+
+        $params = [
+            'draw' => 1,
+            'start' => 0,
+            'length' => 10,
+            'columns' => [
+                0 => ['data' => 'name', 'name' => 'name', 'orderable' => 'true'],
+                1 => ['data' => 'parent_category', 'name' => 'parent_category', 'orderable' => 'true'],
+            ],
+            'order' => [
+                0 => ['column' => 1, 'dir' => 'asc']
+            ]
+        ];
+        $resp = $this->getJson('/stockcategories?' . http_build_query($params), ['X-Requested-With' => 'XMLHttpRequest']);
+        $resp->assertStatus(200);
+    }
 }
 

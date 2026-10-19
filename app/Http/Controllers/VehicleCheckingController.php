@@ -12,16 +12,34 @@ class VehicleCheckingController extends Controller
 {
     public function indexVehicleCheckingCategories(Request $request)
     {
-        if ($request->ajax()) {
-            $data = VehicleCheckCategory::select('*')->with(['parent']);
+        if ($request->ajax() || $request->wantsJson()) {
+            $data = VehicleCheckCategory::select('vehicle_check_categories.*')->with(['parent']);
 
             return Datatables::of($data)
                 ->addIndexColumn()
                 ->addColumn('parent', function ($row) {
-                    return $row->is_parent ? 'N/A' : $row->parent->name;
+                    return $row->is_parent ? 'N/A' : ($row->parent?->name ?? 'N/A');
+                })
+                ->orderColumn('parent', function ($query, $order) {
+                    $query->leftJoin('vehicle_check_categories as parents', 'vehicle_check_categories.parent_id', '=', 'parents.id')
+                          ->orderBy('parents.name', $order);
+                })
+                ->filterColumn('parent', function ($query, $keyword) {
+                    $query->whereHas('parent', function ($q) use ($keyword) {
+                        $q->where('name', 'like', "%{$keyword}%");
+                    });
                 })
                 ->addColumn('status', function ($row) {
                     return $row->status ? 'Active' : 'Inactive';
+                })
+                ->orderColumn('status', function ($query, $order) {
+                    $query->orderBy('status', $order);
+                })
+                ->filterColumn('status', function ($query, $keyword) {
+                    $val = str_contains(strtolower($keyword), 'act') ? 1 : (str_contains(strtolower($keyword), 'in') ? 0 : null);
+                    if ($val !== null) {
+                        $query->where('status', $val);
+                    }
                 })
                 ->addColumn('action', function ($row) {
                     return '
@@ -70,8 +88,8 @@ class VehicleCheckingController extends Controller
     {
         $category = VehicleCheckCategory::findOrFail($vehicle_checking_category_id);
 
-        if ($request->ajax()) {
-            $data = VehicleCheckChecklist::select('*')->with(['attributes'])->where('vehicle_check_category_id', $vehicle_checking_category_id);
+        if ($request->ajax() || $request->wantsJson()) {
+            $data = VehicleCheckChecklist::select('vehicle_check_checklists.*')->with(['attributes'])->where('vehicle_check_category_id', $vehicle_checking_category_id);
 
             return Datatables::of($data)
                 ->addIndexColumn()

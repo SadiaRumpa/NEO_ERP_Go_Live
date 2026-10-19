@@ -58,11 +58,11 @@
                                     <span class="app-brand-text fw-bold fs-4 ms-50">Requisition Details</span>
                                 </div>
                                 <p class="mb-2">
-                                    <strong>For Job: </strong> {{ $requisition->fjob->job_name }} -
-                                    {{ $requisition->fjob->job_title }}
+                                    <strong>For Job: </strong> {{ $requisition->fjob?->job_name ?? 'N/A' }} -
+                                    {{ $requisition->fjob?->job_title ?? 'N/A' }}
                                 </p>
                                 <p class="mb-2">
-                                    <strong>Warehouse: </strong> {{ $requisition->stockWarehouse->name }}
+                                    <strong>Warehouse: </strong> {{ $requisition->stockWarehouse?->name ?? 'N/A' }}
                                 </p>
                                 <p class="mb-2">
                                     <strong>Requested By: </strong> {{ $requisition->requestedBy->name ?? 'N/A' }}

@@ -25,13 +25,22 @@ class StockItemController extends Controller
 {
     public function index(Request $request)
     {
-        if ($request->ajax()) {
-            $data = StockItem::with('category')->select('*');
+        if ($request->ajax() || $request->wantsJson()) {
+            $data = StockItem::with('category')->select('stock_items.*');
 
             return Datatables::of($data)
                 ->addIndexColumn()
                 ->addColumn('category', function ($row) {
-                    return $row->category_id ? $row->category->name : 'N/A';
+                    return $row->category?->name ?? 'N/A';
+                })
+                ->orderColumn('category', function ($query, $order) {
+                    $query->leftJoin('stock_categories', 'stock_items.category_id', '=', 'stock_categories.id')
+                          ->orderBy('stock_categories.name', $order);
+                })
+                ->filterColumn('category', function ($query, $keyword) {
+                    $query->whereHas('category', function ($q) use ($keyword) {
+                        $q->where('name', 'like', "%{$keyword}%");
+                    });
                 })
                 ->addColumn('action', function ($row) {
                     $showUrl = route('stockitems.show', $row->id);
@@ -211,16 +220,28 @@ class StockItemController extends Controller
 
     public function indexInventory(Request $request)
     {
-        if ($request->ajax()) {
-            $data = StockItemVariant::with(['stockItem', 'warehouse'])->select('*')->orderBy('name', 'asc');
+        if ($request->ajax() || $request->wantsJson()) {
+            $data = StockItemVariant::with(['stockItem', 'warehouse'])->select('stock_item_variants.*')->orderBy('name', 'asc');
 
             return Datatables::of($data)
                 ->addIndexColumn()
                 ->addColumn('warehouse', function ($row) {
                     return $row->warehouse ? $row->warehouse->name : 'N/A';
                 })
+                ->orderColumn('warehouse', function ($query, $order) {
+                    $query->leftJoin('stock_warehouses', 'stock_item_variants.warehouse_id', '=', 'stock_warehouses.id')
+                          ->orderBy('stock_warehouses.name', $order);
+                })
+                ->filterColumn('warehouse', function ($query, $keyword) {
+                    $query->whereHas('warehouse', function ($q) use ($keyword) {
+                        $q->where('name', 'like', "%{$keyword}%");
+                    });
+                })
                 ->addColumn('quantity', function ($row) {
                     return $row->quantity . ' ' . ($row->unit ?? 'pcs');
+                })
+                ->orderColumn('quantity', function ($query, $order) {
+                    $query->orderBy('quantity', $order);
                 })
                 ->addColumn('action', function ($row) {
                     $showUrl = route('stockitemsinventory.movement-history', $row->id);
@@ -431,27 +452,27 @@ class StockItemController extends Controller
             ->select('*')
             ->orderBy('movement_date', 'desc');
 
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->wantsJson()) {
             return DataTables::of($query)
                 ->addIndexColumn()
-                ->addColumn('movement_date', function ($row) {
+                ->editColumn('movement_date', function ($row) {
                     return $row->movement_date
                         ? \Carbon\Carbon::parse($row->movement_date)->format('Y-m-d')
                         : '';
                 })
-                ->addColumn('movement_type', function ($row) {
+                ->editColumn('movement_type', function ($row) {
                     return ucfirst($row->movement_type);
                 })
-                ->addColumn('quantity', function ($row) {
+                ->editColumn('quantity', function ($row) {
                     return number_format($row->quantity, 2);
                 })
-                ->addColumn('source', function ($row) {
+                ->editColumn('source', function ($row) {
                     return $row->source ?? '-';
                 })
-                ->addColumn('destination', function ($row) {
+                ->editColumn('destination', function ($row) {
                     return $row->destination ?? '-';
                 })
-                ->addColumn('status', function ($row) {
+                ->editColumn('status', function ($row) {
                     return ucfirst($row->status);
                 })
                 ->rawColumns(['movement_date', 'movement_type', 'quantity', 'source', 'destination', 'status'])
@@ -463,22 +484,59 @@ class StockItemController extends Controller
 
     public function indexRequisitions(Request $request)
     {
-        if ($request->ajax()) {
-            $data = StockItemRequisition::with(['fjob', 'stockWarehouse', 'requestedBy', 'approvedBy'])->select('*');
+        if ($request->ajax() || $request->wantsJson()) {
+            $data = StockItemRequisition::with(['fjob', 'stockWarehouse', 'requestedBy', 'approvedBy'])->select('stock_item_requisitions.*');
 
             return Datatables::of($data)
                 ->addIndexColumn()
                 ->addColumn('fjob', function ($row) {
-                    return $row->fjob ? $row->fjob->job_title : 'N/A';
+                    return $row->fjob ? ($row->fjob->job_name . ' - ' . $row->fjob->job_title) : 'N/A';
+                })
+                ->orderColumn('fjob', function ($query, $order) {
+                    $query->leftJoin('fjobs', 'stock_item_requisitions.fjob_id', '=', 'fjobs.id')
+                          ->orderBy('fjobs.job_title', $order);
+                })
+                ->filterColumn('fjob', function ($query, $keyword) {
+                    $query->whereHas('fjob', function ($q) use ($keyword) {
+                        $q->where('job_name', 'like', "%{$keyword}%")
+                          ->orWhere('job_title', 'like', "%{$keyword}%");
+                    });
                 })
                 ->addColumn('stock_warehouse', function ($row) {
                     return $row->stockWarehouse ? $row->stockWarehouse->name : 'N/A';
                 })
+                ->orderColumn('stock_warehouse', function ($query, $order) {
+                    $query->leftJoin('stock_warehouses', 'stock_item_requisitions.stock_warehouse_id', '=', 'stock_warehouses.id')
+                          ->orderBy('stock_warehouses.name', $order);
+                })
+                ->filterColumn('stock_warehouse', function ($query, $keyword) {
+                    $query->whereHas('stockWarehouse', function ($q) use ($keyword) {
+                        $q->where('name', 'like', "%{$keyword}%");
+                    });
+                })
                 ->addColumn('requested_by', function ($row) {
                     return $row->requestedBy ? $row->requestedBy->name : 'N/A';
                 })
+                ->orderColumn('requested_by', function ($query, $order) {
+                    $query->leftJoin('users as requesters', 'stock_item_requisitions.requested_by', '=', 'requesters.id')
+                          ->orderBy('requesters.name', $order);
+                })
+                ->filterColumn('requested_by', function ($query, $keyword) {
+                    $query->whereHas('requestedBy', function ($q) use ($keyword) {
+                        $q->where('name', 'like', "%{$keyword}%");
+                    });
+                })
                 ->addColumn('approved_by', function ($row) {
                     return $row->approvedBy ? $row->approvedBy->name : 'N/A';
+                })
+                ->orderColumn('approved_by', function ($query, $order) {
+                    $query->leftJoin('users as approvers', 'stock_item_requisitions.approved_by', '=', 'approvers.id')
+                          ->orderBy('approvers.name', $order);
+                })
+                ->filterColumn('approved_by', function ($query, $keyword) {
+                    $query->whereHas('approvedBy', function ($q) use ($keyword) {
+                        $q->where('name', 'like', "%{$keyword}%");
+                    });
                 })
                 ->addColumn('action', function ($row) {
                     $showUrl = route('stockitemrequisitions.show', $row->id);

@@ -34,7 +34,7 @@ class QuotationController extends Controller
             ->orderBy('template_name', 'asc')
             ->get();
 
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->wantsJson()) {
             $data = Quotation::select('*')->with(['jobType'])->where('lead_id', $leadid)->orderByDesc('quotation_date');
 
             return Datatables::of($data)

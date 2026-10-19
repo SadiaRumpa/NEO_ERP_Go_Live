@@ -16,22 +16,36 @@ class FjobProgressController extends Controller
 {
     public function index(Request $request)
     {
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->wantsJson()) {
 
             $data = FjobProgress::with(['fjob', 'customers', 'tasks'])
                 ->select('fjob_progresses.*')
-                ->orderBy('created_at', 'desc');
+                ->orderBy('fjob_progresses.created_at', 'desc');
 
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('customer', function ($row) {
                     return [
-                        'company_name'   => $row->customers->company_name ?? null,
-                        'customer_name'  => $row->customers->contact_firstname . ' ' . $row->customers->contact_lastname ?? null,
-                        'customer_email' => $row->customers->contact_email ?? null,
-                        'customer_phone' => $row->customers->contact_phone ?? null,
-                        'customer_mobile' => $row->customers->contact_mobile ?? null,
+                        'company_name'   => $row->customers?->company_name ?? null,
+                        'customer_name'  => trim(($row->customers?->contact_firstname ?? '') . ' ' . ($row->customers?->contact_lastname ?? '')),
+                        'customer_email' => $row->customers?->contact_email ?? null,
+                        'customer_phone' => $row->customers?->contact_phone ?? null,
+                        'customer_mobile' => $row->customers?->contact_mobile ?? null,
                     ];
+                })
+                ->filterColumn('customer', function ($query, $keyword) {
+                    $query->whereHas('customers', function ($q) use ($keyword) {
+                        $q->where('company_name', 'like', "%{$keyword}%")
+                            ->orWhere('contact_firstname', 'like', "%{$keyword}%")
+                            ->orWhere('contact_lastname', 'like', "%{$keyword}%")
+                            ->orWhere('contact_email', 'like', "%{$keyword}%")
+                            ->orWhere('contact_phone', 'like', "%{$keyword}%")
+                            ->orWhere('contact_mobile', 'like', "%{$keyword}%");
+                    });
+                })
+                ->orderColumn('customer', function ($query, $order) {
+                    $query->leftJoin('customers', 'fjob_progresses.customer_id', '=', 'customers.id')
+                        ->orderBy('customers.company_name', $order);
                 })
                 ->addColumn('action', function ($row) {
                     $btn = '<a href="' . route('job-overviews.show', $row->id) . '" class="edit btn btn-primary btn-sm">View</a>';

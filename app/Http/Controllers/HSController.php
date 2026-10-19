@@ -13,7 +13,7 @@ class HSController extends Controller
 {
     public function indexHsChecklists(Request $request)
     {
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->wantsJson()) {
 
             $data = HsChecklist::orderBy('slug', 'asc');
 
@@ -85,9 +85,10 @@ class HSController extends Controller
     public function indexFjobHsCheck(Request $request)
     {
 
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->wantsJson()) {
             $data = FjobHsCheck::with(['job', 'job.jobtype'])
-                ->orderBy('created_at', 'desc');
+                ->select('fjob_hs_check.*')
+                ->orderBy('fjob_hs_check.created_at', 'desc');
 
             if ($request->filled('jobtype')) {
                 $data->whereHas('job.jobtype', function ($q) use ($request) {
@@ -98,7 +99,17 @@ class HSController extends Controller
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('jobtype', function ($row) {
-                    return $row->job->jobtype->name ?? 'N/A';
+                    return $row->job?->jobtype?->name ?? 'N/A';
+                })
+                ->filterColumn('jobtype', function ($query, $keyword) {
+                    $query->whereHas('job.jobtype', function ($q) use ($keyword) {
+                        $q->where('name', 'like', "%{$keyword}%");
+                    });
+                })
+                ->orderColumn('jobtype', function ($query, $order) {
+                    $query->leftJoin('fjobs', 'fjob_hs_check.fjob_id', '=', 'fjobs.id')
+                        ->leftJoin('job_types', 'fjobs.job_type', '=', 'job_types.slug')
+                        ->orderBy('job_types.name', $order);
                 })
                 ->addColumn('action', function ($row) {
                     return '

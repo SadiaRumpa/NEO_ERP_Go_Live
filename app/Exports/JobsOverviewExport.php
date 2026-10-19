@@ -2,7 +2,7 @@
 
 namespace App\Exports;
 
-use App\Models\FJobProgress;
+use App\Models\FjobProgress;
 use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\WithStyles;
@@ -16,7 +16,7 @@ class JobsOverviewExport implements FromView, WithStyles
 {
     protected $jobprogress;
 
-    public function __construct(FJobProgress $jobprogress)
+    public function __construct(FjobProgress $jobprogress)
     {
         $this->jobprogress = $jobprogress;
     }

@@ -26,7 +26,11 @@ class CustomerController extends Controller
             ->filter(function ($query) {
                 if (request()->has('search') && request()->input('search.value') != '') {
                     $searchValue = request()->input('search.value');
-                    $query->where(function ($sub) use ($searchValue) {
+                    $isSqlite = DB::connection()->getDriverName() === 'sqlite';
+                    $concatExpr = $isSqlite
+                        ? "(contact_firstname || ' ' || contact_lastname)"
+                        : "CONCAT(contact_firstname, ' ', contact_lastname)";
+                    $query->where(function ($sub) use ($searchValue, $concatExpr) {
                         $sub->where('company_name', 'like', "%{$searchValue}%")
                             ->orWhere('id', 'like', "%{$searchValue}%")
                             ->orWhere('contact_firstname', 'like', "%{$searchValue}%")
@@ -34,10 +38,7 @@ class CustomerController extends Controller
                             ->orWhere('contact_phone', 'like', "%{$searchValue}%")
                             ->orWhere('contact_mobile', 'like', "%{$searchValue}%")
                             ->orWhere('contact_email', 'like', "%{$searchValue}%")
-                            ->orWhereRaw(
-                                "CONCAT(contact_firstname, ' ', contact_lastname) LIKE ?",
-                                ["%{$searchValue}%"]
-                            );
+                            ->orWhereRaw("{$concatExpr} LIKE ?", ["%{$searchValue}%"]);
                     });
                 }
             }, true)
@@ -47,6 +48,12 @@ class CustomerController extends Controller
                 })
                 ->orderColumn('contact_name', function ($query, $order) {
                     $query->orderBy('contact_firstname', $order)->orderBy('contact_lastname', $order);
+                })
+                ->filterColumn('contact_name', function ($query, $keyword) {
+                    $query->where(function ($q) use ($keyword) {
+                        $q->where('contact_firstname', 'like', "%{$keyword}%")
+                          ->orWhere('contact_lastname', 'like', "%{$keyword}%");
+                    });
                 })
                 ->addColumn('action', function ($row) {
                     $showUrl = route('customers.show', $row->id); // Edit Route
@@ -148,7 +155,11 @@ class CustomerController extends Controller
             ->filter(function ($query) {
                 if (request()->has('search') && request()->input('search.value') != '') {
                     $searchValue = request()->input('search.value');
-                    $query->where(function ($sub) use ($searchValue) {
+                    $isSqlite = DB::connection()->getDriverName() === 'sqlite';
+                    $concatExpr = $isSqlite
+                        ? "(contact_firstname || ' ' || contact_lastname)"
+                        : "CONCAT(contact_firstname, ' ', contact_lastname)";
+                    $query->where(function ($sub) use ($searchValue, $concatExpr) {
                         $sub->where('company_name', 'like', "%{$searchValue}%")
                             ->orWhere('id', 'like', "%{$searchValue}%")
                             ->orWhere('contact_firstname', 'like', "%{$searchValue}%")
@@ -156,10 +167,7 @@ class CustomerController extends Controller
                             ->orWhere('contact_phone', 'like', "%{$searchValue}%")
                             ->orWhere('contact_mobile', 'like', "%{$searchValue}%")
                             ->orWhere('contact_email', 'like', "%{$searchValue}%")
-                            ->orWhereRaw(
-                                "CONCAT(contact_firstname, ' ', contact_lastname) LIKE ?",
-                                ["%{$searchValue}%"]
-                            );
+                            ->orWhereRaw("{$concatExpr} LIKE ?", ["%{$searchValue}%"]);
                     });
                 }
             }, true)
@@ -169,6 +177,12 @@ class CustomerController extends Controller
                 })
                 ->orderColumn('contact_name', function ($query, $order) {
                     $query->orderBy('contact_firstname', $order)->orderBy('contact_lastname', $order);
+                })
+                ->filterColumn('contact_name', function ($query, $keyword) {
+                    $query->where(function ($q) use ($keyword) {
+                        $q->where('contact_firstname', 'like', "%{$keyword}%")
+                          ->orWhere('contact_lastname', 'like', "%{$keyword}%");
+                    });
                 })
                 ->addColumn('action', function ($row) {
                     $showUrl = route('customers.show', $row->id); // Edit Route

@@ -11,8 +11,8 @@ class VehicleController extends Controller
 {
     public function index(Request $request)
     {
-        if ($request->ajax()) {
-            $data = VehicleDetail::with(['category'])->select('*');
+        if ($request->ajax() || $request->wantsJson()) {
+            $data = VehicleDetail::with(['category'])->select('vehicle_details.*');
 
             return DataTables::of($data)
                 ->addIndexColumn()
@@ -32,6 +32,15 @@ class VehicleController extends Controller
                                 <span class="' . $badgeClass . '">' . e($label) . '</span>
                             </div>';
                 })
+                ->orderColumn('registration_display', function ($query, $order) {
+                    $query->orderBy('registration_no', $order);
+                })
+                ->filterColumn('registration_display', function ($query, $keyword) {
+                    $query->where(function ($q) use ($keyword) {
+                        $q->where('registration_no', 'like', "%{$keyword}%")
+                          ->orWhere('status', 'like', "%{$keyword}%");
+                    });
+                })
                 ->addColumn('make_model_display', function ($row) {
                     $engineYear = array_filter([$row->engine, $row->year ? "({$row->year})" : null]);
                     $subtext = !empty($engineYear) ? '<small class="text-muted d-block">' . e(implode(' ', $engineYear)) . '</small>' : '';
@@ -40,17 +49,55 @@ class VehicleController extends Controller
                                 ' . $subtext . '
                             </div>';
                 })
+                ->orderColumn('make_model_display', function ($query, $order) {
+                    $query->orderBy('manufacturer', $order)->orderBy('model', $order);
+                })
+                ->filterColumn('make_model_display', function ($query, $keyword) {
+                    $query->where(function ($q) use ($keyword) {
+                        $q->where('manufacturer', 'like', "%{$keyword}%")
+                          ->orWhere('model', 'like', "%{$keyword}%")
+                          ->orWhere('engine', 'like', "%{$keyword}%")
+                          ->orWhere('year', 'like', "%{$keyword}%");
+                    });
+                })
                 ->addColumn('category_name', function ($row) {
                     return '<span class="badge bg-label-info">' . e($row->category->category_name ?? 'Commercial Fleet') . '</span>';
+                })
+                ->orderColumn('category_name', function ($query, $order) {
+                    $query->leftJoin('vehicle_categories', 'vehicle_details.category_id', '=', 'vehicle_categories.id')
+                          ->orderBy('vehicle_categories.category_name', $order);
+                })
+                ->filterColumn('category_name', function ($query, $keyword) {
+                    $query->whereHas('category', function ($q) use ($keyword) {
+                        $q->where('category_name', 'like', "%{$keyword}%");
+                    });
                 })
                 ->addColumn('mot_due', function ($row) {
                     return $row->mot_expiry_date ? '<span class="fw-medium">' . \Carbon\Carbon::parse($row->mot_expiry_date)->format('d M Y') . '</span>' : '<span class="text-muted">-</span>';
                 })
+                ->orderColumn('mot_due', function ($query, $order) {
+                    $query->orderBy('mot_expiry_date', $order);
+                })
+                ->filterColumn('mot_due', function ($query, $keyword) {
+                    $query->where('mot_expiry_date', 'like', "%{$keyword}%");
+                })
                 ->addColumn('tax_due', function ($row) {
                     return $row->tax_expiry_date ? '<span class="fw-medium">' . \Carbon\Carbon::parse($row->tax_expiry_date)->format('d M Y') . '</span>' : '<span class="text-muted">-</span>';
                 })
+                ->orderColumn('tax_due', function ($query, $order) {
+                    $query->orderBy('tax_expiry_date', $order);
+                })
+                ->filterColumn('tax_due', function ($query, $keyword) {
+                    $query->where('tax_expiry_date', 'like', "%{$keyword}%");
+                })
                 ->addColumn('service_due', function ($row) {
                     return $row->next_service_date ? '<span class="fw-medium">' . \Carbon\Carbon::parse($row->next_service_date)->format('d M Y') . '</span>' : '<span class="text-muted">-</span>';
+                })
+                ->orderColumn('service_due', function ($query, $order) {
+                    $query->orderBy('next_service_date', $order);
+                })
+                ->filterColumn('service_due', function ($query, $keyword) {
+                    $query->where('next_service_date', 'like', "%{$keyword}%");
                 })
                 ->addColumn('action', function ($row) {
                     $showUrl = route('vehicles.show', $row->id);

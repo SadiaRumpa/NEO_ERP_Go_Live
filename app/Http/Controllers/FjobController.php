@@ -27,7 +27,7 @@ class FjobController extends Controller
     {
         
 
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->wantsJson()) {
 
             // $data = Fjob::with([
             //     'customer:id,company_name,contact_firstname,contact_lastname,contact_email,contact_phone,contact_mobile',
@@ -91,7 +91,11 @@ class FjobController extends Controller
             ->filter(function ($query) {
                 if (request()->has('search') && request()->input('search.value') != '') {
                     $searchValue = request()->input('search.value');
-                    $query->where(function($q) use ($searchValue) {
+                    $isSqlite = DB::connection()->getDriverName() === 'sqlite';
+                    $concatExpr = $isSqlite
+                        ? "(customers.contact_firstname || ' ' || customers.contact_lastname)"
+                        : "CONCAT(customers.contact_firstname, ' ', customers.contact_lastname)";
+                    $query->where(function($q) use ($searchValue, $concatExpr) {
                         $q->where('job_name', 'like', "%{$searchValue}%")
                         ->orWhere('customers.company_name', 'like', "%{$searchValue}%")
                         ->orWhere('job_title', 'like', "%{$searchValue}%")
@@ -104,10 +108,7 @@ class FjobController extends Controller
                         ->orWhere('customers.contact_mobile', 'like', "%{$searchValue}%")
                         ->orWhere('customers.contact_email', 'like', "%{$searchValue}%")
                         ->orWhere('customer_addresses.postcode', 'like', "%{$searchValue}%")
-                        ->orWhereRaw(
-                            "CONCAT(customers.contact_firstname, ' ', customers.contact_lastname) LIKE ?",
-                            ["%{$searchValue}%"]
-                        );
+                        ->orWhereRaw("{$concatExpr} LIKE ?", ["%{$searchValue}%"]);
                     });
                 }
             }, false)
@@ -115,23 +116,66 @@ class FjobController extends Controller
                 ->addColumn('job_name', function ($row) {
                     return ($row->job_name ?? '') . ' - ' . ($row->job_title ?? '');
                 })
+                ->orderColumn('job_name', function ($query, $order) {
+                    $query->orderBy('fjobs.job_name', $order)->orderBy('fjobs.job_title', $order);
+                })
+                ->filterColumn('job_name', function ($query, $keyword) {
+                    $query->where(function ($q) use ($keyword) {
+                        $q->where('fjobs.job_name', 'like', "%{$keyword}%")
+                          ->orWhere('fjobs.job_title', 'like', "%{$keyword}%");
+                    });
+                })
                 ->addColumn('company_name', function ($row) {
                     return $row->company_name ?? '-';
                 })
+                ->orderColumn('company_name', function ($query, $order) {
+                    $query->orderBy('customers.company_name', $order);
+                })
+                ->filterColumn('company_name', function ($query, $keyword) {
+                    $query->where('customers.company_name', 'like', "%{$keyword}%");
+                })
                 ->addColumn('customer_name', function ($row) {
-                    return $row->contact_firstname . ' ' . $row->contact_lastname;
+                    return trim(($row->contact_firstname ?? '') . ' ' . ($row->contact_lastname ?? '')) ?: '-';
+                })
+                ->orderColumn('customer_name', function ($query, $order) {
+                    $query->orderBy('customers.contact_firstname', $order)
+                          ->orderBy('customers.contact_lastname', $order);
+                })
+                ->filterColumn('customer_name', function ($query, $keyword) {
+                    $query->where(function ($q) use ($keyword) {
+                        $q->where('customers.contact_firstname', 'like', "%{$keyword}%")
+                          ->orWhere('customers.contact_lastname', 'like', "%{$keyword}%");
+                    });
                 })
                 ->addColumn('customer_email', function ($row) {
                     return $row->contact_email ?? '-';
                 })
+                ->orderColumn('customer_email', function ($query, $order) {
+                    $query->orderBy('customers.contact_email', $order);
+                })
+                ->filterColumn('customer_email', function ($query, $keyword) {
+                    $query->where('customers.contact_email', 'like', "%{$keyword}%");
+                })
                 ->addColumn('customer_phone', function ($row) {
                     return $row->contact_phone ?? '-';
+                })
+                ->orderColumn('customer_phone', function ($query, $order) {
+                    $query->orderBy('customers.contact_phone', $order);
+                })
+                ->filterColumn('customer_phone', function ($query, $keyword) {
+                    $query->where('customers.contact_phone', 'like', "%{$keyword}%");
                 })
                 ->addColumn('customer_mobile', function ($row) {
                     return $row->contact_mobile ?? '-';
                 })
+                ->orderColumn('customer_mobile', function ($query, $order) {
+                    $query->orderBy('customers.contact_mobile', $order);
+                })
+                ->filterColumn('customer_mobile', function ($query, $keyword) {
+                    $query->where('customers.contact_mobile', 'like', "%{$keyword}%");
+                })
                 ->addColumn('enquiry', function ($row) {
-                    return Str::limit(strip_tags($row->enquiry), 80); // use Illuminate\Support\Str
+                    return Str::limit(strip_tags($row->enquiry ?? ''), 80);
                 })
                 ->addColumn('action', function ($row) {
                     return '<a href="/job/' . $row->id . '" class="edit btn btn-primary btn-sm">Details</a>';
@@ -147,22 +191,12 @@ class FjobController extends Controller
 
     public function showCompletedJobs(Request $request)
     {
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->wantsJson()) {
 
             $data = Fjob::with([
                 'customer:id,company_name,contact_firstname,contact_lastname,contact_email,contact_phone,contact_mobile',
             ])
-                ->select([
-                    'id',
-                    'job_name',
-                    'job_title',
-                    'slug',
-                    'job_description',
-                    'customer_id',
-                    'job_type',
-                    'job_status',
-                    'enquiry'
-                ])
+                ->select('fjobs.*')
                 ->whereIn('job_status', ['completed', 'archived'])
                 ->orderByDesc('created_at');
 
@@ -171,23 +205,77 @@ class FjobController extends Controller
                 ->addColumn('job_name', function ($row) {
                     return ($row->job_name ?? '') . ' - ' . ($row->job_title ?? '');
                 })
+                ->orderColumn('job_name', function ($query, $order) {
+                    $query->orderBy('job_name', $order)->orderBy('job_title', $order);
+                })
+                ->filterColumn('job_name', function ($query, $keyword) {
+                    $query->where('job_name', 'like', "%{$keyword}%")
+                          ->orWhere('job_title', 'like', "%{$keyword}%");
+                })
                 ->addColumn('company_name', function ($row) {
                     return $row->customer?->company_name ?? '-';
+                })
+                ->orderColumn('company_name', function ($query, $order) {
+                    $query->leftJoin('customers', 'fjobs.customer_id', '=', 'customers.id')
+                          ->orderBy('customers.company_name', $order);
+                })
+                ->filterColumn('company_name', function ($query, $keyword) {
+                    $query->whereHas('customer', function ($q) use ($keyword) {
+                        $q->where('company_name', 'like', "%{$keyword}%");
+                    });
                 })
                 ->addColumn('customer_name', function ($row) {
                     return trim(($row->customer?->contact_firstname ?? '') . ' ' . ($row->customer?->contact_lastname ?? '')) ?: '-';
                 })
+                ->orderColumn('customer_name', function ($query, $order) {
+                    $query->leftJoin('customers', 'fjobs.customer_id', '=', 'customers.id')
+                          ->orderBy('customers.contact_firstname', $order)
+                          ->orderBy('customers.contact_lastname', $order);
+                })
+                ->filterColumn('customer_name', function ($query, $keyword) {
+                    $query->whereHas('customer', function ($q) use ($keyword) {
+                        $q->where('contact_firstname', 'like', "%{$keyword}%")
+                          ->orWhere('contact_lastname', 'like', "%{$keyword}%");
+                    });
+                })
                 ->addColumn('customer_email', function ($row) {
                     return $row->customer?->contact_email ?? '-';
+                })
+                ->orderColumn('customer_email', function ($query, $order) {
+                    $query->leftJoin('customers', 'fjobs.customer_id', '=', 'customers.id')
+                          ->orderBy('customers.contact_email', $order);
+                })
+                ->filterColumn('customer_email', function ($query, $keyword) {
+                    $query->whereHas('customer', function ($q) use ($keyword) {
+                        $q->where('contact_email', 'like', "%{$keyword}%");
+                    });
                 })
                 ->addColumn('customer_phone', function ($row) {
                     return $row->customer?->contact_phone ?? '-';
                 })
+                ->orderColumn('customer_phone', function ($query, $order) {
+                    $query->leftJoin('customers', 'fjobs.customer_id', '=', 'customers.id')
+                          ->orderBy('customers.contact_phone', $order);
+                })
+                ->filterColumn('customer_phone', function ($query, $keyword) {
+                    $query->whereHas('customer', function ($q) use ($keyword) {
+                        $q->where('contact_phone', 'like', "%{$keyword}%");
+                    });
+                })
                 ->addColumn('customer_mobile', function ($row) {
                     return $row->customer?->contact_mobile ?? '-';
                 })
+                ->orderColumn('customer_mobile', function ($query, $order) {
+                    $query->leftJoin('customers', 'fjobs.customer_id', '=', 'customers.id')
+                          ->orderBy('customers.contact_mobile', $order);
+                })
+                ->filterColumn('customer_mobile', function ($query, $keyword) {
+                    $query->whereHas('customer', function ($q) use ($keyword) {
+                        $q->where('contact_mobile', 'like', "%{$keyword}%");
+                    });
+                })
                 ->addColumn('enquiry', function ($row) {
-                    return Str::limit(strip_tags($row->enquiry), 80); // use Illuminate\Support\Str
+                    return Str::limit(strip_tags($row->enquiry ?? ''), 80);
                 })
                 ->addColumn('action', function ($row) {
                     return '<a href="/job/' . $row->id . '" class="edit btn btn-primary btn-sm">Details</a>';
@@ -201,29 +289,16 @@ class FjobController extends Controller
         return view('jobs.index', compact( 'jobtype'))->with([
             'completed' => true,
         ]);
-        // return view('jobs.index')->with([
-        //     'completed' => true,
-        // ]);
     }
 
     public function showRejectedJobs(Request $request)
     {
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->wantsJson()) {
 
             $data = Fjob::with([
                 'customer:id,company_name,contact_firstname,contact_lastname,contact_email,contact_phone,contact_mobile',
             ])
-                ->select([
-                    'id',
-                    'job_name',
-                    'job_title',
-                    'slug',
-                    'job_description',
-                    'customer_id',
-                    'job_type',
-                    'job_status',
-                    'enquiry'
-                ])
+                ->select('fjobs.*')
                 ->where('job_status', 'rejected')
                 ->orderByDesc('created_at');
 
@@ -232,23 +307,77 @@ class FjobController extends Controller
                 ->addColumn('job_name', function ($row) {
                     return ($row->job_name ?? '') . ' - ' . ($row->job_title ?? '');
                 })
+                ->orderColumn('job_name', function ($query, $order) {
+                    $query->orderBy('job_name', $order)->orderBy('job_title', $order);
+                })
+                ->filterColumn('job_name', function ($query, $keyword) {
+                    $query->where('job_name', 'like', "%{$keyword}%")
+                          ->orWhere('job_title', 'like', "%{$keyword}%");
+                })
                 ->addColumn('company_name', function ($row) {
                     return $row->customer?->company_name ?? '-';
+                })
+                ->orderColumn('company_name', function ($query, $order) {
+                    $query->leftJoin('customers', 'fjobs.customer_id', '=', 'customers.id')
+                          ->orderBy('customers.company_name', $order);
+                })
+                ->filterColumn('company_name', function ($query, $keyword) {
+                    $query->whereHas('customer', function ($q) use ($keyword) {
+                        $q->where('company_name', 'like', "%{$keyword}%");
+                    });
                 })
                 ->addColumn('customer_name', function ($row) {
                     return trim(($row->customer?->contact_firstname ?? '') . ' ' . ($row->customer?->contact_lastname ?? '')) ?: '-';
                 })
+                ->orderColumn('customer_name', function ($query, $order) {
+                    $query->leftJoin('customers', 'fjobs.customer_id', '=', 'customers.id')
+                          ->orderBy('customers.contact_firstname', $order)
+                          ->orderBy('customers.contact_lastname', $order);
+                })
+                ->filterColumn('customer_name', function ($query, $keyword) {
+                    $query->whereHas('customer', function ($q) use ($keyword) {
+                        $q->where('contact_firstname', 'like', "%{$keyword}%")
+                          ->orWhere('contact_lastname', 'like', "%{$keyword}%");
+                    });
+                })
                 ->addColumn('customer_email', function ($row) {
                     return $row->customer?->contact_email ?? '-';
+                })
+                ->orderColumn('customer_email', function ($query, $order) {
+                    $query->leftJoin('customers', 'fjobs.customer_id', '=', 'customers.id')
+                          ->orderBy('customers.contact_email', $order);
+                })
+                ->filterColumn('customer_email', function ($query, $keyword) {
+                    $query->whereHas('customer', function ($q) use ($keyword) {
+                        $q->where('contact_email', 'like', "%{$keyword}%");
+                    });
                 })
                 ->addColumn('customer_phone', function ($row) {
                     return $row->customer?->contact_phone ?? '-';
                 })
+                ->orderColumn('customer_phone', function ($query, $order) {
+                    $query->leftJoin('customers', 'fjobs.customer_id', '=', 'customers.id')
+                          ->orderBy('customers.contact_phone', $order);
+                })
+                ->filterColumn('customer_phone', function ($query, $keyword) {
+                    $query->whereHas('customer', function ($q) use ($keyword) {
+                        $q->where('contact_phone', 'like', "%{$keyword}%");
+                    });
+                })
                 ->addColumn('customer_mobile', function ($row) {
                     return $row->customer?->contact_mobile ?? '-';
                 })
+                ->orderColumn('customer_mobile', function ($query, $order) {
+                    $query->leftJoin('customers', 'fjobs.customer_id', '=', 'customers.id')
+                          ->orderBy('customers.contact_mobile', $order);
+                })
+                ->filterColumn('customer_mobile', function ($query, $keyword) {
+                    $query->whereHas('customer', function ($q) use ($keyword) {
+                        $q->where('contact_mobile', 'like', "%{$keyword}%");
+                    });
+                })
                 ->addColumn('enquiry', function ($row) {
-                    return Str::limit(strip_tags($row->enquiry), 80); // use Illuminate\Support\Str
+                    return Str::limit(strip_tags($row->enquiry ?? ''), 80);
                 })
                 ->addColumn('action', function ($row) {
                     return '<a href="/job/' . $row->id . '" class="edit btn btn-primary btn-sm">Details</a>';

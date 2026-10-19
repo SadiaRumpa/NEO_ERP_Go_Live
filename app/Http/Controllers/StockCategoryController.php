@@ -10,13 +10,22 @@ class StockCategoryController extends Controller
 {
     public function index(Request $request)
     {
-        if ($request->ajax()) {
-            $data = StockCategory::with('parent')->select('*');
+        if ($request->ajax() || $request->wantsJson()) {
+            $data = StockCategory::with('parent')->select('stock_categories.*');
 
             return Datatables::of($data)
                 ->addIndexColumn()
                 ->addColumn('parent_category', function ($row) {
                     return $row->parent ? $row->parent->name : 'N/A';
+                })
+                ->filterColumn('parent_category', function ($query, $keyword) {
+                    $query->whereHas('parent', function ($q) use ($keyword) {
+                        $q->where('name', 'like', "%{$keyword}%");
+                    });
+                })
+                ->orderColumn('parent_category', function ($query, $order) {
+                    $query->leftJoin('stock_categories as parent_categories', 'stock_categories.parent_id', '=', 'parent_categories.id')
+                        ->orderBy('parent_categories.name', $order);
                 })
                 ->addColumn('action', function ($row) {
                     return '

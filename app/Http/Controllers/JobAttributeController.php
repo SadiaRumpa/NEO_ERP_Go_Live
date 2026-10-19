@@ -13,7 +13,7 @@ class JobAttributeController extends Controller
 {
     public function index(Request $request)
     {
-        if ($request->ajax()) {
+        if ($request->ajax() || $request->wantsJson()) {
 
             $data = JobAttribute::with(['attributedetails' => function ($query) {
                 $query->orderBy('value', 'asc');
