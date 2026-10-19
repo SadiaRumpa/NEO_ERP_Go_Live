@@ -1,0 +1,15 @@
+.git
+.github
+.phpunit.result.cache
+node_modules
+npm-debug.log
+yarn-error.log
+/storage/*.key
+/storage/logs/*
+.env.backup
+.env.production
+docs
+tests
+install-trusted-ssl.*
+setup-ip-ssl.sh
+setup-letsencrypt.sh
